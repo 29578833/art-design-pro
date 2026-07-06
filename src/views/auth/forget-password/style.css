@@ -1,0 +1,151 @@
+@reference '@styles/core/tailwind.css';
+
+.erp-forgot-page {
+  @apply relative flex min-h-screen items-center justify-center p-6;
+
+  background: linear-gradient(135deg, #f0f5ff 0%, #e8f4ff 50%, #f0fffe 100%);
+}
+
+.erp-forgot-back {
+  @apply absolute top-6 left-6 flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-gray-700;
+}
+
+.erp-forgot-card {
+  @apply w-full max-w-md rounded-3xl border border-gray-100 bg-white p-8 shadow-xl;
+}
+
+.erp-forgot-header {
+  @apply mb-8 flex items-center gap-3;
+}
+
+.erp-forgot-header-icon {
+  @apply flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-md;
+
+  background: #1677ff;
+  box-shadow: 0 4px 12px rgb(22 119 255 / 25%);
+}
+
+.erp-forgot-header-title {
+  @apply text-lg font-bold text-gray-900;
+}
+
+.erp-forgot-header-subtitle {
+  @apply text-xs text-gray-400;
+}
+
+.erp-forgot-steps {
+  @apply mb-8 flex items-center;
+}
+
+.erp-forgot-step {
+  @apply flex flex-1 flex-col items-center gap-1;
+}
+
+.erp-forgot-step-line {
+  @apply mx-2 h-px flex-1;
+}
+
+.erp-forgot-step-line.done {
+  background: #1677ff;
+}
+
+.erp-forgot-step-line.pending {
+  @apply bg-gray-200;
+}
+
+.erp-forgot-step-circle {
+  @apply flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold;
+}
+
+.erp-forgot-step-circle.active,
+.erp-forgot-step-circle.done {
+  color: #fff;
+  background: #1677ff;
+}
+
+.erp-forgot-step-circle.pending {
+  @apply bg-gray-100 text-gray-400;
+}
+
+.erp-forgot-step-label {
+  @apply whitespace-nowrap text-xs;
+}
+
+.erp-forgot-step-label.active,
+.erp-forgot-step-label.done {
+  font-weight: 500;
+  color: #1677ff;
+}
+
+.erp-forgot-step-label.pending {
+  @apply text-gray-400;
+}
+
+.erp-forgot-form-label {
+  @apply mb-1.5 block text-sm font-medium text-gray-700;
+}
+
+.erp-forgot-input :deep(.el-input__wrapper) {
+  @apply rounded-xl px-3 py-1;
+
+  box-shadow: 0 0 0 1px #e5e7eb inset !important;
+}
+
+.erp-forgot-input :deep(.el-input__wrapper.is-focus) {
+  box-shadow:
+    0 0 0 1px #1677ff inset,
+    0 0 0 2px rgb(22 119 255 / 10%) !important;
+}
+
+.erp-forgot-input :deep(.el-input__inner) {
+  @apply h-10;
+}
+
+.erp-forgot-code-btn {
+  @apply rounded-xl font-medium whitespace-nowrap;
+
+  height: 42px !important;
+}
+
+.erp-forgot-code-btn:not(:disabled) {
+  color: #1677ff !important;
+  background: #e6f4ff !important;
+  border-color: #e6f4ff !important;
+}
+
+.erp-forgot-submit-btn {
+  @apply w-full rounded-xl font-semibold;
+
+  height: 44px !important;
+  background: #1677ff !important;
+  border-color: #1677ff !important;
+}
+
+.erp-forgot-submit-btn:hover {
+  background: #0958d9 !important;
+  border-color: #0958d9 !important;
+}
+
+.erp-forgot-error {
+  @apply text-sm text-red-500;
+}
+
+.erp-forgot-done {
+  @apply flex flex-col items-center gap-4 py-6;
+}
+
+.erp-forgot-done-icon {
+  @apply flex h-20 w-20 items-center justify-center rounded-full bg-green-50;
+}
+
+.erp-forgot-done-title {
+  @apply text-lg font-bold text-gray-900;
+}
+
+.erp-forgot-done-desc {
+  @apply text-center text-sm text-gray-400;
+}
+
+.erp-forgot-footer {
+  @apply absolute bottom-6 left-1/2 -translate-x-1/2 text-xs text-gray-400;
+}

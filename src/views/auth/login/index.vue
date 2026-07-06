@@ -1,109 +1,91 @@
-<!-- 登录页面 -->
+<!-- ERP 管理后台登录页 -->
 <template>
-  <div class="flex w-full h-screen">
-    <LoginLeftView />
+  <div class="erp-login-page">
+    <div class="erp-login-container">
+      <!-- 左侧品牌区 -->
+      <div class="erp-login-brand">
+        <div class="erp-login-brand-logo">
+          <div class="erp-login-brand-icon">
+            <ArtSvgIcon icon="ri:computer-line" class="text-2xl" />
+          </div>
+          <div>
+            <div class="erp-login-brand-title">ERP管理后台</div>
+            <div class="erp-login-brand-subtitle">Enterprise Resource Planning</div>
+          </div>
+        </div>
 
-    <div class="relative flex-1">
-      <AuthTopBar />
+        <h2 class="erp-login-brand-heading"> 智能回收<br />企业管理系统 </h2>
+        <p class="erp-login-brand-desc"> 全流程数字化管理，覆盖拆解、注销、结算等业务模块 </p>
 
-      <div class="auth-right-wrap">
-        <div class="form">
-          <h3 class="title">{{ $t('login.title') }}</h3>
-          <p class="sub-title">{{ $t('login.subTitle') }}</p>
-          <ElForm
-            ref="formRef"
-            :model="formData"
-            :rules="rules"
-            :key="formKey"
-            @keyup.enter="handleSubmit"
-            style="margin-top: 25px"
-          >
-            <ElFormItem prop="account">
-              <ElSelect v-model="formData.account" @change="setupAccount">
-                <ElOption
-                  v-for="account in accounts"
-                  :key="account.key"
-                  :label="account.label"
-                  :value="account.key"
-                >
-                  <span>{{ account.label }}</span>
-                </ElOption>
-              </ElSelect>
-            </ElFormItem>
-            <ElFormItem prop="username">
-              <ElInput
-                class="custom-height"
-                :placeholder="$t('login.placeholder.username')"
-                v-model.trim="formData.username"
-              />
-            </ElFormItem>
-            <ElFormItem prop="password">
-              <ElInput
-                class="custom-height"
-                :placeholder="$t('login.placeholder.password')"
-                v-model.trim="formData.password"
-                type="password"
-                autocomplete="off"
-                show-password
-              />
-            </ElFormItem>
-
-            <!-- 推拽验证 -->
-            <div class="relative pb-5 mt-6">
-              <div
-                class="relative z-[2] overflow-hidden select-none rounded-lg border border-transparent tad-300"
-                :class="{ '!border-[#FF4E4F]': !isPassing && isClickPass }"
-              >
-                <ArtDragVerify
-                  ref="dragVerify"
-                  v-model:value="isPassing"
-                  :text="$t('login.sliderText')"
-                  textColor="var(--art-gray-700)"
-                  :successText="$t('login.sliderSuccessText')"
-                  progressBarBg="var(--main-color)"
-                  :background="isDark ? '#26272F' : '#F1F1F4'"
-                  handlerBg="var(--default-box-color)"
-                />
-              </div>
-              <p
-                class="absolute top-0 z-[1] px-px mt-2 text-xs text-[#f56c6c] tad-300"
-                :class="{ 'translate-y-10': !isPassing && isClickPass }"
-              >
-                {{ $t('login.placeholder.slider') }}
-              </p>
+        <div class="space-y-3">
+          <div v-for="item in features" :key="item" class="erp-login-feature">
+            <div class="erp-login-feature-dot">
+              <div class="erp-login-feature-dot-inner" />
             </div>
-
-            <div class="flex-cb mt-2 text-sm">
-              <ElCheckbox v-model="formData.rememberPassword">{{
-                $t('login.rememberPwd')
-              }}</ElCheckbox>
-              <RouterLink class="text-theme" :to="{ name: 'ForgetPassword' }">{{
-                $t('login.forgetPwd')
-              }}</RouterLink>
-            </div>
-
-            <div style="margin-top: 30px">
-              <ElButton
-                class="w-full custom-height"
-                type="primary"
-                @click="handleSubmit"
-                :loading="loading"
-                v-ripple
-              >
-                {{ $t('login.btnText') }}
-              </ElButton>
-            </div>
-
-            <div class="mt-5 text-sm text-gray-600">
-              <span>{{ $t('login.noAccount') }}</span>
-              <RouterLink class="text-theme" :to="{ name: 'Register' }">{{
-                $t('login.register')
-              }}</RouterLink>
-            </div>
-          </ElForm>
+            {{ item }}
+          </div>
         </div>
       </div>
+
+      <!-- 右侧登录表单 -->
+      <div class="erp-login-card">
+        <div class="erp-login-card-header">
+          <div class="erp-login-card-icon">
+            <ArtSvgIcon icon="ri:computer-line" class="text-3xl" />
+          </div>
+          <div class="erp-login-card-title">管理员登录</div>
+          <div class="erp-login-card-subtitle">ERP 企业管理后台</div>
+        </div>
+
+        <ElForm ref="formRef" :model="formData" :rules="rules" @keyup.enter="handleSubmit">
+          <ElFormItem prop="username">
+            <label class="erp-login-form-label">账号</label>
+            <ElInput
+              v-model.trim="formData.username"
+              class="erp-login-input"
+              placeholder="请输入账号"
+              autofocus
+            >
+              <template #prefix>
+                <ArtSvgIcon icon="ri:user-3-line" class="text-gray-400" />
+              </template>
+            </ElInput>
+          </ElFormItem>
+
+          <ElFormItem prop="password">
+            <div class="erp-login-form-label-row">
+              <label class="erp-login-form-label !mb-0">密码</label>
+              <RouterLink class="erp-login-forgot-link" :to="{ name: 'ForgetPassword' }">
+                忘记密码？
+              </RouterLink>
+            </div>
+            <ElInput
+              v-model.trim="formData.password"
+              class="erp-login-input"
+              type="password"
+              placeholder="请输入密码"
+              autocomplete="off"
+              show-password
+            >
+              <template #prefix>
+                <ArtSvgIcon icon="ri:lock-line" class="text-gray-400" />
+              </template>
+            </ElInput>
+          </ElFormItem>
+
+          <ElFormItem class="!mb-0">
+            <ElButton class="erp-login-btn" type="primary" :loading="loading" @click="handleSubmit">
+              登录
+              <ArtSvgIcon icon="ri:arrow-right-line" class="ml-1" />
+            </ElButton>
+          </ElFormItem>
+        </ElForm>
+
+        <div class="erp-login-demo-tip"> 输入任意账号密码即可登录（演示环境） </div>
+      </div>
     </div>
+
+    <div class="erp-login-footer"> © 2026 鑫广智能回收 · ERP v1.0.0 </div>
   </div>
 </template>
 
@@ -114,152 +96,64 @@
   import { HttpError } from '@/utils/http/error'
   import { fetchLogin } from '@/api/auth'
   import { ElNotification, type FormInstance, type FormRules } from 'element-plus'
-  import { useSettingStore } from '@/store/modules/setting'
 
   defineOptions({ name: 'Login' })
 
-  const settingStore = useSettingStore()
-  const { isDark } = storeToRefs(settingStore)
-  const { t, locale } = useI18n()
-  const formKey = ref(0)
-
-  // 监听语言切换，重置表单
-  watch(locale, () => {
-    formKey.value++
-  })
-
-  type AccountKey = 'super' | 'admin' | 'user'
-
-  export interface Account {
-    key: AccountKey
-    label: string
-    userName: string
-    password: string
-    roles: string[]
-  }
-
-  const accounts = computed<Account[]>(() => [
-    {
-      key: 'super',
-      label: t('login.roles.super'),
-      userName: 'Super',
-      password: '123456',
-      roles: ['R_SUPER']
-    },
-    {
-      key: 'admin',
-      label: t('login.roles.admin'),
-      userName: 'Admin',
-      password: '123456',
-      roles: ['R_ADMIN']
-    },
-    {
-      key: 'user',
-      label: t('login.roles.user'),
-      userName: 'User',
-      password: '123456',
-      roles: ['R_USER']
-    }
-  ])
-
-  const dragVerify = ref()
-
+  const { t } = useI18n()
   const userStore = useUserStore()
   const router = useRouter()
   const route = useRoute()
-  const isPassing = ref(false)
-  const isClickPass = ref(false)
 
-  const systemName = AppConfig.systemInfo.name
+  const features = ['数据看板实时监控', '智能流程管理', '多模块集成管理']
+
   const formRef = ref<FormInstance>()
+  const loading = ref(false)
+  const systemName = AppConfig.systemInfo.name
 
   const formData = reactive({
-    account: '',
-    username: '',
-    password: '',
-    rememberPassword: true
+    username: 'Admin',
+    password: '123456'
   })
 
-  const rules = computed<FormRules>(() => ({
-    username: [{ required: true, message: t('login.placeholder.username'), trigger: 'blur' }],
-    password: [{ required: true, message: t('login.placeholder.password'), trigger: 'blur' }]
-  }))
-
-  const loading = ref(false)
-
-  onMounted(() => {
-    setupAccount('super')
-  })
-
-  // 设置账号
-  const setupAccount = (key: AccountKey) => {
-    const selectedAccount = accounts.value.find((account: Account) => account.key === key)
-    formData.account = key
-    formData.username = selectedAccount?.userName ?? ''
-    formData.password = selectedAccount?.password ?? ''
+  const rules: FormRules = {
+    username: [{ required: true, message: '请输入账号', trigger: 'blur' }],
+    password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
   }
 
-  // 登录
   const handleSubmit = async () => {
     if (!formRef.value) return
 
     try {
-      // 表单验证
       const valid = await formRef.value.validate()
       if (!valid) return
 
-      // 拖拽验证
-      if (!isPassing.value) {
-        isClickPass.value = true
-        return
-      }
-
       loading.value = true
 
-      // 登录请求
       const { username, password } = formData
-
       const { token, refreshToken } = await fetchLogin({
         userName: username,
         password
       })
 
-      // 验证token
       if (!token) {
         throw new Error('Login failed - no token received')
       }
 
-      // 存储 token 和登录状态
       userStore.setToken(token, refreshToken)
       userStore.setLoginStatus(true)
-
-      // 登录成功处理
       showLoginSuccessNotice()
 
-      // 获取 redirect 参数，如果存在则跳转到指定页面，否则跳转到首页
       const redirect = route.query.redirect as string
       router.push(redirect || '/')
     } catch (error) {
-      // 处理 HttpError
-      if (error instanceof HttpError) {
-        // console.log(error.code)
-      } else {
-        // 处理非 HttpError
-        // ElMessage.error('登录失败，请稍后重试')
+      if (!(error instanceof HttpError)) {
         console.error('[Login] Unexpected error:', error)
       }
     } finally {
       loading.value = false
-      resetDragVerify()
     }
   }
 
-  // 重置拖拽验证
-  const resetDragVerify = () => {
-    dragVerify.value.reset()
-  }
-
-  // 登录成功提示
   const showLoginSuccessNotice = () => {
     setTimeout(() => {
       ElNotification({
@@ -269,16 +163,10 @@
         zIndex: 10000,
         message: `${t('login.success.message')}, ${systemName}!`
       })
-    }, 1000)
+    }, 500)
   }
 </script>
 
 <style scoped>
   @import './style.css';
-</style>
-
-<style lang="scss" scoped>
-  :deep(.el-select__wrapper) {
-    height: 40px !important;
-  }
 </style>

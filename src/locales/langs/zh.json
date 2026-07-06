@@ -129,11 +129,11 @@
   },
   "login": {
     "leftView": {
-      "title": "一款兼具设计美学与高效开发的后台系统",
-      "subTitle": "美观实用的界面，经过视觉优化，确保卓越的用户体验"
+      "title": "智能回收企业管理系统",
+      "subTitle": "全流程数字化管理，覆盖拆解、注销、结算等业务模块"
     },
-    "title": "欢迎回来",
-    "subTitle": "输入您的账号和密码登录",
+    "title": "管理员登录",
+    "subTitle": "ERP 企业管理后台",
     "roles": {
       "super": "超级管理员",
       "admin": "管理员",
@@ -157,11 +157,11 @@
     }
   },
   "forgetPassword": {
-    "title": "忘记密码？",
-    "subTitle": "输入您的电子邮件来重置您的密码",
-    "placeholder": "请输入您的电子邮件",
-    "submitBtnText": "提交",
-    "backBtnText": "返回"
+    "title": "找回密码",
+    "subTitle": "ERP 管理后台",
+    "placeholder": "请输入账号",
+    "submitBtnText": "下一步",
+    "backBtnText": "返回登录"
   },
   "register": {
     "title": "创建账号",
@@ -222,8 +222,8 @@
       "title": "内嵌页面"
     },
     "dashboard": {
-      "title": "仪表盘",
-      "console": "工作台"
+      "title": "数据看板",
+      "console": "数据看板"
     },
     "result": {
       "title": "结果页面",

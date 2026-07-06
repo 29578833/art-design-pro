@@ -1,38 +1,145 @@
 @reference '@styles/core/tailwind.css';
 
-/* 授权页右侧区域 */
-.auth-right-wrap {
-  @apply absolute inset-0 w-[440px] h-[650px] py-[5px] m-auto overflow-hidden
-    max-sm:px-7 max-sm:w-full
-    animate-[slideInRight_0.6s_cubic-bezier(0.25,0.46,0.45,0.94)_forwards]
-    max-md:animate-none;
+/* ERP 登录页 */
+.erp-login-page {
+  @apply relative flex min-h-screen items-center justify-center p-6;
 
-  .form {
-    @apply h-full py-[40px];
-  }
+  background: linear-gradient(135deg, #f0f5ff 0%, #e8f4ff 50%, #f0fffe 100%);
+}
 
-  .title {
-    @apply text-g-900 text-4xl font-semibold max-md:text-3xl max-sm:pt-10;
-  }
+.erp-login-container {
+  @apply grid w-full max-w-4xl items-center gap-12;
 
-  .sub-title {
-    @apply mt-[10px] text-g-600 text-sm;
-  }
+  grid-template-columns: 1fr;
+}
 
-  .custom-height {
-    @apply !h-[40px];
+@media (width >= 768px) {
+  .erp-login-container {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
-/* 滑入动画 */
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
+/* 左侧品牌区 */
+.erp-login-brand {
+  @apply hidden flex-col md:flex;
+}
 
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.erp-login-brand-logo {
+  @apply mb-8 flex items-center gap-3;
+}
+
+.erp-login-brand-icon {
+  @apply flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg;
+
+  background: #1677ff;
+  box-shadow: 0 10px 25px rgb(22 119 255 / 30%);
+}
+
+.erp-login-brand-title {
+  @apply text-xl font-bold text-gray-900;
+}
+
+.erp-login-brand-subtitle {
+  @apply text-xs text-gray-400;
+}
+
+.erp-login-brand-heading {
+  @apply mb-4 text-4xl font-bold leading-tight text-gray-900;
+}
+
+.erp-login-brand-desc {
+  @apply mb-8 text-gray-500;
+}
+
+.erp-login-feature {
+  @apply flex items-center gap-2 text-sm text-gray-600;
+}
+
+.erp-login-feature-dot {
+  @apply flex h-5 w-5 items-center justify-center rounded-full bg-blue-100;
+}
+
+.erp-login-feature-dot-inner {
+  @apply h-2 w-2 rounded-full;
+
+  background: #1677ff;
+}
+
+/* 右侧表单卡片 */
+.erp-login-card {
+  @apply rounded-3xl border border-gray-100 bg-white p-8 shadow-xl;
+}
+
+.erp-login-card-header {
+  @apply mb-8 text-center;
+}
+
+.erp-login-card-icon {
+  @apply mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl text-white shadow-lg md:hidden;
+
+  background: linear-gradient(135deg, #1677ff, #4e8cff);
+  box-shadow: 0 10px 25px rgb(22 119 255 / 30%);
+}
+
+.erp-login-card-title {
+  @apply text-2xl font-bold text-gray-900;
+}
+
+.erp-login-card-subtitle {
+  @apply mt-1 text-sm text-gray-400;
+}
+
+.erp-login-form-label {
+  @apply mb-1.5 block text-sm font-medium text-gray-700;
+}
+
+.erp-login-form-label-row {
+  @apply mb-1.5 flex items-center justify-between;
+}
+
+.erp-login-forgot-link {
+  @apply text-xs transition-colors;
+
+  color: #1677ff;
+}
+
+.erp-login-forgot-link:hover {
+  color: #0958d9;
+}
+
+.erp-login-input :deep(.el-input__wrapper) {
+  @apply rounded-xl px-3 py-1;
+
+  box-shadow: 0 0 0 1px #e5e7eb inset !important;
+}
+
+.erp-login-input :deep(.el-input__wrapper.is-focus) {
+  box-shadow:
+    0 0 0 1px #1677ff inset,
+    0 0 0 2px rgb(22 119 255 / 10%) !important;
+}
+
+.erp-login-input :deep(.el-input__inner) {
+  @apply h-10;
+}
+
+.erp-login-btn {
+  @apply w-full rounded-xl font-semibold;
+
+  height: 44px !important;
+  background: #1677ff !important;
+  border-color: #1677ff !important;
+}
+
+.erp-login-btn:hover {
+  background: #0958d9 !important;
+  border-color: #0958d9 !important;
+}
+
+.erp-login-demo-tip {
+  @apply mt-5 rounded-xl bg-gray-50 p-3 text-center text-xs text-gray-400;
+}
+
+.erp-login-footer {
+  @apply absolute bottom-6 left-1/2 -translate-x-1/2 text-xs text-gray-400;
 }
