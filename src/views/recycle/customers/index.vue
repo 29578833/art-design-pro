@@ -30,14 +30,17 @@
       @reset="handleReset"
     />
 
-    <ElCard class="partner-table-card art-table-card" shadow="never">
-      <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshAll" />
-
+    <ElCard
+      class="partner-table-card art-table-card"
+      shadow="never"
+      :body-style="{ padding: 0, paddingBottom: '20px' }"
+    >
       <ArtTable
         :loading="loading"
         :data="data"
         :columns="columns"
         :pagination="pagination"
+        :show-table-header="false"
         stripe
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
@@ -102,7 +105,6 @@
 
   const {
     columns,
-    columnChecks,
     data,
     loading,
     pagination,
@@ -124,13 +126,13 @@
         {
           prop: 'code',
           label: '客户编号',
-          width: 136,
+          width: 168,
           formatter: (row) => h('span', { class: 'partner-code' }, row.code)
         },
         {
           prop: 'name',
           label: '姓名/企业',
-          minWidth: 220,
+          minWidth: 240,
           formatter: (row) =>
             h('div', { class: 'partner-name-cell' }, [
               h(
@@ -152,13 +154,13 @@
         {
           prop: 'phone',
           label: '联系电话',
-          width: 132,
+          width: 168,
           formatter: (row) => h('span', { class: 'partner-phone' }, row.phone)
         },
         {
           prop: 'grade',
           label: '客户分级',
-          width: 118,
+          width: 168,
           formatter: (row) => {
             const cfg = GRADE_CONFIG[row.grade]
             return h(
@@ -174,20 +176,22 @@
         {
           prop: 'totalVehicles',
           label: '累计交车',
-          width: 96,
-          align: 'center',
-          formatter: (row) => h('span', { class: 'partner-metric' }, `${row.totalVehicles}辆`)
+          width: 168,
+          formatter: (row) =>
+            h('div', { class: 'p-l-16' }, [
+              h('span', { class: 'partner-metric' }, `${row.totalVehicles}辆`)
+            ])
         },
         {
           prop: 'lastDealDate',
           label: '最近交车',
-          width: 112,
+          width: 168,
           formatter: (row) => h('span', { class: 'partner-date' }, row.lastDealDate)
         },
         {
           prop: 'status',
           label: '状态',
-          width: 84,
+          width: 168,
           align: 'center',
           formatter: (row) =>
             h(
@@ -201,7 +205,7 @@
         {
           prop: 'operation',
           label: '操作',
-          width: 100,
+          width: 168,
           fixed: 'right',
           align: 'center',
           formatter: (row) =>
