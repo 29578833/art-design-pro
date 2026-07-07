@@ -64,24 +64,60 @@ declare namespace Api {
   namespace Auth {
     /** 登录参数 */
     interface LoginParams {
-      userName: string
-      password: string
+      account: string
+      pwd: string
     }
 
-    /** 登录响应 */
-    interface LoginResponse {
+    /** 后端菜单节点 */
+    interface BackendMenu {
+      id: number
+      pid: number
+      path: string
+      title: string
+      icon: string
+      header?: string
+      is_header?: number
+      is_show: number
+      auth: string[]
+      children?: BackendMenu[]
+    }
+
+    /** 登录接口原始响应 data */
+    interface LoginResponseRaw {
       token: string
-      refreshToken: string
+      expires_time: number
+      menus: BackendMenu[]
+      unique_auth: string[]
+      user_info: {
+        id: number
+        account: string
+        head_pic: string
+        real_name: string
+        level: number
+      }
+      site_name?: string
+      logo?: string
+      logo_square?: string
+    }
+
+    /** 登录结果（映射后） */
+    interface LoginResult {
+      token: string
+      expiresTime: number
+      userInfo: UserInfo
     }
 
     /** 用户信息 */
     interface UserInfo {
       buttons: string[]
-      roles: string[]
+      menuIds: number[]
       userId: number
       userName: string
-      email: string
+      realName?: string
       avatar?: string
+      /** 兼容旧 Mock 字段 */
+      roles?: string[]
+      email?: string
     }
   }
 

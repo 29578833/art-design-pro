@@ -94,7 +94,7 @@
 }
 
 .erp-login-form-label-row {
-  @apply mb-1.5 flex items-center justify-between;
+  @apply mb-1.5 flex items-center justify-between w-full;
 }
 
 .erp-login-forgot-link {

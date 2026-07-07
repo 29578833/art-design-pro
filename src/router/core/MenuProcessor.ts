@@ -41,13 +41,13 @@ export class MenuProcessor {
    */
   private async processFrontendMenu(): Promise<AppRouteRecord[]> {
     const userStore = useUserStore()
-    const roles = userStore.info?.roles
+    const menuIds = userStore.info?.menuIds
 
     let menuList = [...asyncRoutes]
 
-    // 根据角色过滤菜单
-    if (roles && roles.length > 0) {
-      menuList = this.filterMenuByRoles(menuList, roles)
+    // 按后端 menuId 过滤
+    if (menuIds && menuIds.length > 0) {
+      menuList = this.filterMenuByIds(menuList, new Set(menuIds))
     }
 
     return this.filterEmptyMenus(menuList)
@@ -59,6 +59,36 @@ export class MenuProcessor {
   private async processBackendMenu(): Promise<AppRouteRecord[]> {
     const list = await fetchGetMenuList()
     return this.filterEmptyMenus(list)
+  }
+
+  /**
+   * 根据后端 menuId 过滤菜单
+   */
+  private filterMenuByIds(menu: AppRouteRecord[], allowedIds: Set<number>): AppRouteRecord[] {
+    return menu.reduce((acc: AppRouteRecord[], item) => {
+      const children = item.children?.length
+        ? this.filterMenuByIds(item.children, allowedIds)
+        : undefined
+
+      const menuId = item.meta?.menuId
+      const hasMenuId = menuId != null
+      const selfAllowed = hasMenuId && allowedIds.has(menuId)
+      const hasVisibleChildren = Boolean(children?.length)
+
+      // 隐藏路由、全屏异常页等无 menuId 的叶子节点仍注册
+      if (!hasMenuId && !item.children?.length) {
+        if (item.meta?.isHide || item.meta?.isFullPage || item.meta?.isHideTab) {
+          acc.push(item)
+        }
+        return acc
+      }
+
+      if (selfAllowed || hasVisibleChildren) {
+        acc.push({ ...item, children })
+      }
+
+      return acc
+    }, [])
   }
 
   /**
@@ -98,9 +128,9 @@ export class MenuProcessor {
         return item
       })
       .filter((item) => {
-        // 如果定义了 children 属性（即使是空数组），说明这是一个目录菜单，应该保留
+        // 目录菜单：有可见子项才保留
         if ('children' in item) {
-          return true
+          return Array.isArray(item.children) && item.children.length > 0
         }
 
         // 如果有外链或 iframe，保留

@@ -21,8 +21,10 @@
 
 /** 基础 API 响应结构 */
 export interface BaseResponse<T = unknown> {
-  /** 状态码 */
-  code: number
+  /** 状态码（部分接口使用 code） */
+  code?: number
+  /** 状态码（xinguang 接口使用 status） */
+  status?: number
   /** 消息 */
   msg: string
   /** 数据 */

@@ -1,6 +1,15 @@
 import { AppRouteRecord } from '@/types/router'
 import { dashboardRoutes } from './dashboard'
-import { recycleRoutes } from './recycle'
+import {
+  recycleRoutes,
+  recycleRecoveryRoutes,
+  recycleFactoryRoutes,
+  recycleDismantleRoutes,
+  recycleWarehouseRoutes,
+  recycleFinanceRoutes,
+  recycleDecisionRoutes,
+  recycleCxmRoutes
+} from './recycle'
 import { systemRoutes } from './system'
 import { resultRoutes } from './result'
 import { exceptionRoutes } from './exception'
@@ -10,8 +19,18 @@ import { exceptionRoutes } from './exception'
  */
 export const routeModules: AppRouteRecord[] = [
   dashboardRoutes,
-  recycleRoutes,
+  ...recycleRoutes,
   systemRoutes,
   resultRoutes,
   exceptionRoutes
 ]
+
+export {
+  recycleRecoveryRoutes,
+  recycleFactoryRoutes,
+  recycleDismantleRoutes,
+  recycleWarehouseRoutes,
+  recycleFinanceRoutes,
+  recycleDecisionRoutes,
+  recycleCxmRoutes
+}

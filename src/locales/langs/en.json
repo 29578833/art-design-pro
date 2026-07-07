@@ -227,6 +227,13 @@
     },
     "recycle": {
       "title": "Recycle Business",
+      "recovery": "Recovery",
+      "factory": "Factory Operations",
+      "dismantle": "Dismantle Production",
+      "warehouse": "Warehouse & Sales",
+      "finance": "Finance Settlement",
+      "decision": "Data Decision",
+      "cxm": "Vehicle Alliance",
       "customers": "Customer & Supplier"
     },
     "result": {

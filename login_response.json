@@ -1,0 +1,537 @@
+{
+  "status": 200,
+  "msg": "success",
+  "data": {
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwd2QiOiI2OWU2Mjc2M2ZlNTcyYjc2YzA1NDllNTUzYTBmYmRhYyIsImlzcyI6Inhpbmd1YW5nLXN0YWdpbmcucWl4aXViYW8uY24iLCJhdWQiOiJ4aW5ndWFuZy1zdGFnaW5nLnFpeGl1YmFvLmNuIiwiaWF0IjoxNzgzNDA3MzIxLCJuYmYiOjE3ODM0MDczMjEsImV4cCI6MTc4NTk5OTMyMSwianRpIjp7ImlkIjoxLCJ0eXBlIjoiYWRtaW4ifX0.PIcTROm_MbxIAqTPub2X877jGewj5a-w9g_FUYpK_D0",
+    "expires_time": 1785999321,
+    "menus": [
+      {
+        "id": 7,
+        "pid": 0,
+        "path": "\/admin\/index",
+        "title": "主页",
+        "icon": "s-home",
+        "header": "home",
+        "is_header": 1,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3473,
+        "pid": 0,
+        "path": "\/admin\/scrap\/order",
+        "title": "回收业务",
+        "icon": "user-solid",
+        "header": "scrap",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"],
+        "children": [
+          {
+            "id": 3545,
+            "pid": 3473,
+            "path": "\/admin\/scrap\/customer",
+            "title": "客户供应商管理",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3500,
+            "pid": 3473,
+            "path": "\/admin\/scrap\/order\/",
+            "title": "订单管理",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3502,
+            "pid": 3473,
+            "path": "\/admin\/scrap\/order\/audit",
+            "title": "订单审核",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3501,
+            "pid": 3473,
+            "path": "\/admin\/scrap\/order\/lead",
+            "title": "线索订单",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3503,
+            "pid": 3473,
+            "path": "\/admin\/scrap\/order\/sign",
+            "title": "附件签名",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3504,
+            "pid": 3473,
+            "path": "\/admin\/scrap\/vehicle\/list",
+            "title": "车辆档案",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3546,
+            "pid": 3473,
+            "path": "\/admin\/scrap\/certificate",
+            "title": "商务部对接",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          }
+        ]
+      },
+      {
+        "id": 3494,
+        "pid": 0,
+        "path": "\/admin\/scrap\/vehicle",
+        "title": "厂区运营",
+        "icon": "s-promotion",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"],
+        "children": [
+          {
+            "id": 3521,
+            "pid": 3494,
+            "path": "\/admin\/scrap\/quality",
+            "title": "质检管理",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3516,
+            "pid": 3494,
+            "path": "\/admin\/scrap\/warehouse\/entry",
+            "title": "车辆入厂",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          }
+        ]
+      },
+      {
+        "id": 3496,
+        "pid": 0,
+        "path": "\/admin\/scrap\/dismantle",
+        "title": "拆解生产",
+        "icon": "menu",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"],
+        "children": [
+          {
+            "id": 3549,
+            "pid": 3496,
+            "path": "\/admin\/scrap\/material",
+            "title": "领料管理",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3522,
+            "pid": 3496,
+            "path": "\/admin\/scrap\/plate",
+            "title": "拆解管理",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3524,
+            "pid": 3496,
+            "path": "\/admin\/scrap\/output",
+            "title": "产物入库",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          }
+        ]
+      },
+      {
+        "id": 3495,
+        "pid": 0,
+        "path": "\/admin\/scrap\/warehouse",
+        "title": "仓储销售",
+        "icon": "s-marketing",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"],
+        "children": [
+          {
+            "id": 3518,
+            "pid": 3495,
+            "path": "\/admin\/scrap\/inventory",
+            "title": "库存管理",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3517,
+            "pid": 3495,
+            "path": "\/admin\/scrap\/warehouse\/exit",
+            "title": "销售出库",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3519,
+            "pid": 3495,
+            "path": "\/admin\/scrap\/warehouse\/location",
+            "title": "库位管理",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          }
+        ]
+      },
+      {
+        "id": 3485,
+        "pid": 0,
+        "path": "\/admin\/scrap\/settlement",
+        "title": "财务结算",
+        "icon": "s-finance",
+        "header": "scrap",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"],
+        "children": [
+          {
+            "id": 3528,
+            "pid": 3485,
+            "path": "\/admin\/scrap\/settlement",
+            "title": "待结算列表",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3550,
+            "pid": 3485,
+            "path": "\/admin\/scrap\/payment-log",
+            "title": "付款流水",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3531,
+            "pid": 3485,
+            "path": "\/admin\/scrap\/business-stats",
+            "title": "业务员统计",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          }
+        ]
+      },
+      {
+        "id": 3476,
+        "pid": 0,
+        "path": "\/admin\/scrap\/certificate",
+        "title": "数据决策",
+        "icon": "s-management",
+        "header": "scrap",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"],
+        "children": [
+          {
+            "id": 3484,
+            "pid": 3476,
+            "path": "\/admin\/",
+            "title": "数据看板",
+            "icon": "",
+            "header": "scrap",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3475,
+            "pid": 3476,
+            "path": "\/admin\/echarts\/dataDecision",
+            "title": "报表中心",
+            "icon": "",
+            "header": "scrap",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3520,
+            "pid": 3476,
+            "path": "\/admin\/echarts\/trend",
+            "title": "趋势分析",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "pid": 0,
+        "path": "\/admin\/setting",
+        "title": "系统管理",
+        "icon": "s-tools",
+        "header": "setting",
+        "is_header": 1,
+        "is_show": 1,
+        "auth": ["hidden"],
+        "children": [
+          {
+            "id": 20,
+            "pid": 12,
+            "path": "\/admin\/setting\/system_admin\/index",
+            "title": "用户账号",
+            "icon": "",
+            "header": "setting",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 19,
+            "pid": 12,
+            "path": "\/admin\/setting\/system_role\/index",
+            "title": "角色权限",
+            "icon": "",
+            "header": "setting",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3430,
+            "pid": 12,
+            "path": "\/admin\/system\/code_data_dictionary",
+            "title": "数据字典",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3488,
+            "pid": 12,
+            "path": "\/admin\/scrap\/config\/price",
+            "title": "价格配置",
+            "icon": "",
+            "header": "scrap",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 47,
+            "pid": 12,
+            "path": "\/admin\/system\/maintain\/system_log\/index",
+            "title": "操作日志",
+            "icon": "",
+            "header": "system",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 898,
+            "pid": 12,
+            "path": "\/admin\/setting\/notification\/index",
+            "title": "系统通知",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3465,
+            "pid": 12,
+            "path": "\/admin\/app\/miniprogram",
+            "title": "小程序管理",
+            "icon": "",
+            "header": "scrap",
+            "is_header": 1,
+            "is_show": 1,
+            "auth": ["hidden"]
+          }
+        ]
+      },
+      {
+        "id": 3542,
+        "pid": 0,
+        "path": "\/admin\/system",
+        "title": "车信盟",
+        "icon": "message-solid",
+        "header": "setting",
+        "is_header": 1,
+        "is_show": 1,
+        "auth": ["hidden"],
+        "children": [
+          {
+            "id": 3543,
+            "pid": 3542,
+            "path": "\/admin\/scrap\/accept",
+            "title": "报废车受理",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          },
+          {
+            "id": 3544,
+            "pid": 3542,
+            "path": "\/admin\/scrap\/bfdj",
+            "title": "报废车登记",
+            "icon": "",
+            "header": "",
+            "is_header": 0,
+            "is_show": 1,
+            "auth": ["hidden"]
+          }
+        ]
+      }
+    ],
+    "unique_auth": [
+      "admin-home",
+      "admin-setting",
+      "setting-system-role",
+      "setting-system-list",
+      "system-maintain-system-log",
+      "setting-notification",
+      "system-code-data_dictionary",
+      "admin-scrap-order-list",
+      "admin-scrap-tow-list",
+      "admin-scrap-certificate-list",
+      "admin-scrap-waste-list",
+      "admin-scrap-settlement-list",
+      "admin-scrap-config-price-list",
+      "admin-scrap-vehicle-list",
+      "admin-scrap-warehouse-list",
+      "admin-scrap-dismantle-list",
+      "admin-scrap-order-list-list",
+      "admin-scrap-order-lead-list",
+      "admin-scrap-order-audit-list",
+      "admin-scrap-order-sign-list",
+      "admin-scrap-vehicle-vehicle-list",
+      "admin-scrap-warehouse-entry-list",
+      "admin-scrap-warehouse-exit-list",
+      "admin-scrap-warehouse-inventory-list",
+      "admin-scrap-warehouse-statistics-list",
+      "admin-scrap-dismantle-pending-list",
+      "admin-scrap-dismantle-dispatch-list",
+      "admin-scrap-dismantle-execute-list",
+      "admin-scrap-production-statistics-list",
+      "admin-settlement-dashboard-list",
+      "admin-scrap-settlement-salesman-list",
+      "admin-scrap-miniprogram-banner-list",
+      "admin-scrap-miniprogram-notice-list",
+      "admin-scrap-miniprogram-agreement-list",
+      "admin-scrap-miniprogram-faq-list",
+      "admin-scrap-miniprogram-user-list",
+      "admin-scrap-miniprogram-review-list",
+      "admin-scrap-config-role-list",
+      "admin-scrap-config-user-list",
+      "admin-scrap-config-department-list",
+      "admin-system",
+      "admin-scrap-certificate-commerce-list",
+      "admin-scrap-certificate-commerce-list",
+      "admin-scrap-order-list-list",
+      "admin-scrap-order-sign-list",
+      "admin-scrap-dismantle-execute-list",
+      "admin-scrap-settlement-salesman-list"
+    ],
+    "user_info": {
+      "id": 1,
+      "account": "admin",
+      "head_pic": "https:\/\/xinguang-staging.qixiubao.cn\/statics\/system_images\/admin_head_pic.png",
+      "level": 0,
+      "real_name": "admin"
+    },
+    "logo": "https:\/\/xinguang-staging.qixiubao.cn\/uploads\/attach\/2026\/06\/20260618\/c3802a96b6f175922bc7c84584dc65c1.png",
+    "logo_square": "https:\/\/xinguang-staging.qixiubao.cn\/uploads\/attach\/2026\/06\/20260618\/c3802a96b6f175922bc7c84584dc65c1.png",
+    "version": "CRMEB",
+    "newOrderAudioLink": "",
+    "queue": true,
+    "timer": true,
+    "site_name": "鑫广",
+    "site_func": ["seckill", "bargain", "combination"]
+  },
+  "debug": {
+    "trace": [
+      "CONNECT:[ UseTime:0.000336s ] mysql:host=127.0.0.1;port=3306;dbname=xinguang;charset=utf8mb4",
+      "SHOW FULL COLUMNS FROM `eb_system_admin` [ RunTime:0.001218s ]",
+      "SELECT * FROM `eb_system_admin` WHERE  `is_del` = 0  AND (  `account` = 'admin' OR `email` = 'admin' ) LIMIT 1 [ RunTime:0.000298s ]",
+      "UPDATE `eb_system_admin`  SET `last_time` = 1783407321 , `login_count` = 231  WHERE  (  `id` = 1 ) [ RunTime:0.000246s ]",
+      "SHOW FULL COLUMNS FROM `eb_system_role` [ RunTime:0.000848s ]",
+      "SELECT `rules`,`id` FROM `eb_system_role` WHERE  `status` = 1  AND `id` = 1 [ RunTime:0.000211s ]",
+      "SHOW FULL COLUMNS FROM `eb_system_menus` [ RunTime:0.000946s ]",
+      "SELECT `id`,`menu_name`,`icon`,`pid`,`sort`,`menu_path`,`is_show`,`header`,`is_header`,`is_show_path` FROM `eb_system_menus` WHERE  `auth_type` = 1  AND `is_del` = 0  AND `is_show_path` = 1 ORDER BY `sort` DESC,`id` DESC [ RunTime:0.000753s ]",
+      "SELECT `unique_auth` FROM `eb_system_menus` WHERE  `is_del` = 0  AND `unique_auth` <> '' [ RunTime:0.000398s ]",
+      "SHOW FULL COLUMNS FROM `eb_system_event` [ RunTime:0.000765s ]",
+      "SELECT * FROM `eb_system_event` WHERE  `mark` = 'admin_login'  AND `is_del` = 0  AND `is_open` = 1 [ RunTime:0.000272s ]",
+      "SHOW FULL COLUMNS FROM `eb_system_config` [ RunTime:0.000853s ]",
+      "SELECT `value` FROM `eb_system_config` WHERE  `menu_name` = 'new_order_audio_link' LIMIT 1 [ RunTime:0.000253s ]"
+    ],
+    "debug_url": "http:\/\/xinguang-staging.qixiubao.cn\/adminapi\/login?account=admin&pwd=123456&key=6a4ca2c34315b&captchaType=blockPuzzle&captchaVerification=&debug_token="
+  }
+}

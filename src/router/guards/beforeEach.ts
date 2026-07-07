@@ -206,6 +206,13 @@ function handleLoginStatus(
   userStore: ReturnType<typeof useUserStore>,
   next: NavigationGuardNext
 ): boolean {
+  // token 已过期，强制登出
+  if (userStore.isLogin && userStore.isTokenExpired()) {
+    userStore.logOut()
+    next(false)
+    return false
+  }
+
   // 已登录或访问登录页或静态路由，直接放行
   if (userStore.isLogin || to.path === RoutesAlias.Login || isStaticRoute(to.path)) {
     return true
@@ -369,9 +376,15 @@ async function handleDynamicRoutes(
  */
 async function fetchUserInfo(): Promise<void> {
   const userStore = useUserStore()
+
+  // 登录接口已返回完整权限数据，持久化后无需重复请求
+  if (userStore.info.menuIds?.length) {
+    userStore.checkAndClearWorktabs()
+    return
+  }
+
   const data = await fetchGetUserInfo()
   userStore.setUserInfo(data)
-  // 检查并清理工作台标签页（如果是不同用户登录）
   userStore.checkAndClearWorktabs()
 }
 
@@ -379,7 +392,7 @@ async function fetchUserInfo(): Promise<void> {
  * 重置路由相关状态
  */
 export function resetRouterState(delay: number): void {
-  setTimeout(() => {
+  const reset = () => {
     routeRegistry?.unregister()
     IframeRouteManager.getInstance().clear()
 
@@ -389,7 +402,14 @@ export function resetRouterState(delay: number): void {
 
     // 重置路由初始化状态，允许重新登录后再次初始化
     resetRouteInitState()
-  }, delay)
+  }
+
+  if (delay <= 0) {
+    reset()
+    return
+  }
+
+  setTimeout(reset, delay)
 }
 
 /**

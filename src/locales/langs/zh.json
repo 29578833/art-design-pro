@@ -227,6 +227,13 @@
     },
     "recycle": {
       "title": "回收业务",
+      "recovery": "回收业务",
+      "factory": "厂区运营",
+      "dismantle": "拆解生产",
+      "warehouse": "仓储销售",
+      "finance": "财务结算",
+      "decision": "数据决策",
+      "cxm": "车信盟",
       "customers": "客户供应商管理"
     },
     "result": {

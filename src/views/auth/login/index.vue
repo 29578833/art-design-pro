@@ -38,10 +38,10 @@
         </div>
 
         <ElForm ref="formRef" :model="formData" :rules="rules" @keyup.enter="handleSubmit">
-          <ElFormItem prop="username">
+          <ElFormItem prop="account">
             <label class="erp-login-form-label">账号</label>
             <ElInput
-              v-model.trim="formData.username"
+              v-model.trim="formData.account"
               class="erp-login-input"
               placeholder="请输入账号"
               autofocus
@@ -52,7 +52,7 @@
             </ElInput>
           </ElFormItem>
 
-          <ElFormItem prop="password">
+          <ElFormItem prop="pwd">
             <div class="erp-login-form-label-row">
               <label class="erp-login-form-label !mb-0">密码</label>
               <RouterLink class="erp-login-forgot-link" :to="{ name: 'ForgetPassword' }">
@@ -60,7 +60,7 @@
               </RouterLink>
             </div>
             <ElInput
-              v-model.trim="formData.password"
+              v-model.trim="formData.pwd"
               class="erp-login-input"
               type="password"
               placeholder="请输入密码"
@@ -80,8 +80,6 @@
             </ElButton>
           </ElFormItem>
         </ElForm>
-
-        <div class="erp-login-demo-tip"> 输入任意账号密码即可登录（演示环境） </div>
       </div>
     </div>
 
@@ -95,6 +93,7 @@
   import { useI18n } from 'vue-i18n'
   import { HttpError } from '@/utils/http/error'
   import { fetchLogin } from '@/api/auth'
+  import { resetRouterState } from '@/router/guards/beforeEach'
   import { ElNotification, type FormInstance, type FormRules } from 'element-plus'
 
   defineOptions({ name: 'Login' })
@@ -111,13 +110,13 @@
   const systemName = AppConfig.systemInfo.name
 
   const formData = reactive({
-    username: 'Admin',
-    password: '123456'
+    account: 'admin',
+    pwd: '123456'
   })
 
   const rules: FormRules = {
-    username: [{ required: true, message: '请输入账号', trigger: 'blur' }],
-    password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+    account: [{ required: true, message: '请输入账号', trigger: 'blur' }],
+    pwd: [{ required: true, message: '请输入密码', trigger: 'blur' }]
   }
 
   const handleSubmit = async () => {
@@ -129,18 +128,19 @@
 
       loading.value = true
 
-      const { username, password } = formData
-      const { token, refreshToken } = await fetchLogin({
-        userName: username,
-        password
+      const loginResult = await fetchLogin({
+        account: formData.account,
+        pwd: formData.pwd
       })
 
-      if (!token) {
+      if (!loginResult.token) {
         throw new Error('Login failed - no token received')
       }
 
-      userStore.setToken(token, refreshToken)
-      userStore.setLoginStatus(true)
+      userStore.setLoginResult(loginResult)
+      userStore.checkAndClearWorktabs()
+      // 重置动态路由，使新账号菜单权限重新注册
+      resetRouterState(0)
       showLoginSuccessNotice()
 
       const redirect = route.query.redirect as string

@@ -66,6 +66,8 @@ export const useUserStore = defineStore(
     const accessToken = ref('')
     // 刷新令牌
     const refreshToken = ref('')
+    // token 过期时间（Unix 秒）
+    const expiresTime = ref(0)
 
     // 计算属性：获取用户信息
     const getUserInfo = computed(() => info.value)
@@ -136,6 +138,24 @@ export const useUserStore = defineStore(
     }
 
     /**
+     * 写入登录结果（token、过期时间、用户信息）
+     */
+    const setLoginResult = (result: Api.Auth.LoginResult) => {
+      accessToken.value = result.token
+      expiresTime.value = result.expiresTime
+      info.value = result.userInfo
+      isLogin.value = true
+    }
+
+    /**
+     * 检查 token 是否已过期
+     */
+    const isTokenExpired = (): boolean => {
+      if (!accessToken.value || !expiresTime.value) return false
+      return Date.now() / 1000 >= expiresTime.value
+    }
+
+    /**
      * 退出登录
      * 清空所有用户相关状态并跳转到登录页
      * 如果是同一账号重新登录，保留工作台标签页
@@ -159,6 +179,8 @@ export const useUserStore = defineStore(
       accessToken.value = ''
       // 清空刷新令牌
       refreshToken.value = ''
+      // 清空过期时间
+      expiresTime.value = 0
       // 注意：不清空工作台标签页，等下次登录时根据用户判断
       // 移除iframe路由缓存
       sessionStorage.removeItem('iframeRoutes')
@@ -212,6 +234,7 @@ export const useUserStore = defineStore(
       searchHistory,
       accessToken,
       refreshToken,
+      expiresTime,
       getUserInfo,
       getSettingState,
       getWorktabState,
@@ -222,6 +245,8 @@ export const useUserStore = defineStore(
       setLockStatus,
       setLockPassword,
       setToken,
+      setLoginResult,
+      isTokenExpired,
       logOut,
       checkAndClearWorktabs
     }

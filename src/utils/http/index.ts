@@ -64,7 +64,17 @@ const axiosInstance = axios.create({
 /** 请求拦截器 */
 axiosInstance.interceptors.request.use(
   (request: InternalAxiosRequestConfig) => {
-    const { accessToken } = useUserStore()
+    const userStore = useUserStore()
+    const { accessToken } = userStore
+
+    if (accessToken && userStore.isTokenExpired()) {
+      const isLoginRequest = request.url?.includes('/login')
+      if (!isLoginRequest) {
+        userStore.logOut()
+        return Promise.reject(createHttpError($t('httpMsg.unauthorized'), ApiStatus.unauthorized))
+      }
+    }
+
     if (accessToken) request.headers.set('Authorization', accessToken)
 
     if (request.data && !(request.data instanceof FormData) && !request.headers['Content-Type']) {
@@ -83,7 +93,8 @@ axiosInstance.interceptors.request.use(
 /** 响应拦截器 */
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse<BaseResponse>) => {
-    const { code, msg } = response.data
+    const { msg } = response.data
+    const code = response.data.code ?? response.data.status ?? 0
     if (code === ApiStatus.success) return response
     if (code === ApiStatus.unauthorized) handleUnauthorizedError(msg)
     throw createHttpError(msg || $t('httpMsg.requestFailed'), code)
