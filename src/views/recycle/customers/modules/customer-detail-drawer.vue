@@ -11,17 +11,20 @@
               <span class="detail-name">{{ partner.name }}</span>
               <ElTag
                 :style="{
-                  color: gradeConfig.color,
-                  background: gradeConfig.bgColor,
+                  color: levelStyle.color,
+                  background: levelStyle.bgColor,
                   border: 'none'
                 }"
                 size="small"
                 round
               >
-                {{ gradeConfig.label }}
+                {{ levelStyle.label }}
               </ElTag>
             </div>
-            <div class="detail-sub">{{ partner.code }} · {{ categoryLabel }} · {{ typeLabel }}</div>
+            <div class="detail-sub"
+              >{{ partner.code }} · {{ partner.groupName || '—' }} ·
+              {{ partner.levelName || '—' }}</div
+            >
           </div>
         </div>
         <div class="detail-profile-tags">
@@ -68,19 +71,22 @@
       </ElTabPane>
 
       <ElTabPane label="交车记录" name="orders">
-        <template v-if="partner?.category === 'supplier'">
-          <ElEmpty description="供应商暂无交车记录" :image-size="80" />
+        <div v-if="vehicleLoading" class="py-8 text-center text-gray-400">加载中...</div>
+        <template v-else-if="!vehicleRecords.length">
+          <ElEmpty description="暂无交车记录" :image-size="80" />
         </template>
         <template v-else>
-          <div v-for="order in mockOrders" :key="order.id" class="order-card">
+          <div v-for="order in vehicleRecords" :key="order.id" class="order-card">
             <div class="order-card-top">
-              <span class="order-id">{{ order.id }}</span>
-              <ElTag type="success" size="small" effect="light" round>{{ order.status }}</ElTag>
+              <span class="order-id">{{ order.orderNo }}</span>
+              <ElTag type="success" size="small" effect="light" round>{{ order.statusText }}</ElTag>
             </div>
-            <div class="order-plate">{{ order.plate }} · {{ order.brand }}</div>
+            <div class="order-plate">{{ order.plateNo }} · {{ order.brand }} {{ order.model }}</div>
             <div class="order-card-bottom">
               <span class="order-date">{{ order.date }}</span>
-              <span class="order-amount">¥{{ order.amount.toLocaleString() }}</span>
+              <span v-if="order.amount" class="order-amount"
+                >¥{{ order.amount.toLocaleString() }}</span
+              >
             </div>
           </div>
         </template>
@@ -103,12 +109,12 @@
 </template>
 
 <script setup lang="ts">
-  import type { RecyclePartner } from '@/types/recycle/customer'
+  import { fetchUserVehicles } from '@/api/recycle/customer'
+  import type { RecyclePartner, UserVehicleRecord } from '@/types/recycle/customer'
   import {
     COOPERATION_TYPE_CONFIG,
-    GRADE_CONFIG,
     PARTNER_CATEGORY_CONFIG,
-    PARTNER_TYPE_CONFIG
+    resolveLevelStyle
   } from '@/types/recycle/customer'
 
   interface Props {
@@ -124,6 +130,8 @@
   const emit = defineEmits<Emits>()
 
   const activeTab = ref('info')
+  const vehicleLoading = ref(false)
+  const vehicleRecords = ref<UserVehicleRecord[]>([])
   const avatarColors = ['#1890FF', '#722ED1', '#13C2C2', '#FA8C16', '#52C41A']
 
   const drawerVisible = computed({
@@ -131,9 +139,9 @@
     set: (val) => emit('update:visible', val)
   })
 
-  const gradeConfig = computed(() => {
-    const grade = props.partner?.grade || 'normal'
-    return GRADE_CONFIG[grade]
+  const levelStyle = computed(() => {
+    const name = props.partner?.levelName || '普通客户'
+    return resolveLevelStyle(name)
   })
 
   const avatarColor = computed(() => {
@@ -144,11 +152,6 @@
   const categoryLabel = computed(() => {
     if (!props.partner) return ''
     return PARTNER_CATEGORY_CONFIG[props.partner.category].label
-  })
-
-  const typeLabel = computed(() => {
-    if (!props.partner) return ''
-    return PARTNER_TYPE_CONFIG[props.partner.type].label
   })
 
   const statCards = computed(() => {
@@ -176,15 +179,11 @@
     return [
       { label: '联系电话', value: p.phone, icon: 'ri:phone-line' },
       { label: '联系地址', value: p.address || '—', icon: 'ri:map-pin-line' },
+      { label: '客户类型', value: p.groupName || '—', icon: 'ri:folder-user-line' },
       {
         label: '合作商类型',
         value: COOPERATION_TYPE_CONFIG[p.cooperationType].label,
         icon: 'ri:building-2-line'
-      },
-      {
-        label: '信用额度',
-        value: `¥${(p.creditLimit || 0).toLocaleString()}`,
-        icon: 'ri:shield-check-line'
       },
       {
         label: '累计交易额',
@@ -204,25 +203,6 @@
       { label: '注册时间', value: p.createTime, icon: 'ri:time-line' }
     ]
   })
-
-  const mockOrders = [
-    {
-      id: 'XG20260601001',
-      plate: '沪A·12345',
-      brand: '大众帕萨特',
-      amount: 8500,
-      date: '2026-06-18',
-      status: '已完成'
-    },
-    {
-      id: 'XG20260502003',
-      plate: '沪A·67890',
-      brand: '丰田凯美瑞',
-      amount: 12000,
-      date: '2026-05-10',
-      status: '已完成'
-    }
-  ]
 
   const tradeStats = computed(() => {
     const amount = props.partner?.totalTradeAmount || 0
@@ -245,24 +225,38 @@
         color: '#52C41A',
         bg: '#F6FFED',
         icon: 'ri:bar-chart-box-line'
-      },
-      {
-        label: '信用额度',
-        value: `¥${(props.partner?.creditLimit || 0).toLocaleString()}`,
-        sub: '最大欠款额度',
-        color: '#FA8C16',
-        bg: '#FFF7E6',
-        icon: 'ri:shield-check-line'
       }
     ]
   })
 
+  async function loadVehicleRecords() {
+    if (!props.partner?.id) return
+    vehicleLoading.value = true
+    try {
+      const res = await fetchUserVehicles(props.partner.id)
+      vehicleRecords.value = res.list
+    } finally {
+      vehicleLoading.value = false
+    }
+  }
+
   watch(
     () => props.visible,
     (visible) => {
-      if (visible) activeTab.value = 'info'
+      if (visible) {
+        activeTab.value = 'info'
+        loadVehicleRecords()
+      } else {
+        vehicleRecords.value = []
+      }
     }
   )
+
+  watch(activeTab, (tab) => {
+    if (tab === 'orders' && props.visible && !vehicleRecords.value.length) {
+      loadVehicleRecords()
+    }
+  })
 </script>
 
 <style scoped lang="scss">

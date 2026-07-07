@@ -86,10 +86,6 @@
       border-bottom: none;
     }
 
-    :deep(.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell) {
-      background: #fafcff;
-    }
-
     :deep(.pagination.custom-pagination) {
       padding: 8px 16px 14px;
       border-top: 1px solid var(--art-card-border);
@@ -132,7 +128,7 @@
     overflow: hidden;
     font-size: 12px;
     line-height: 1.4;
-    color: var(--art-gray-400);
+    color: var(--art-gray-500);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -198,6 +194,7 @@
     display: flex;
     gap: 4px;
     align-items: center;
+    justify-content: center;
   }
 
   .partner-dialog-section {

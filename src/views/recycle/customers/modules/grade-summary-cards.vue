@@ -1,10 +1,10 @@
 <template>
   <ElRow :gutter="12" class="grade-summary-row">
-    <ElCol v-for="item in gradeStats" :key="item.grade" :xs="12" :sm="12" :md="6" :xl="6">
+    <ElCol v-for="item in gradeStats" :key="item.levelId" :xs="12" :sm="12" :md="6" :xl="6">
       <div
         class="grade-card"
-        :class="{ active: activeGrade === item.grade }"
-        @click="handleClick(item.grade)"
+        :class="{ active: activeLevelId === item.levelId }"
+        @click="handleClick(item.levelId)"
       >
         <div class="grade-card-top">
           <div class="grade-icon" :style="{ background: item.bgColor, color: item.color }">
@@ -19,33 +19,39 @@
 </template>
 
 <script setup lang="ts">
-  import type { CustomerGrade, GradeStatItem } from '@/types/recycle/customer'
-  import { GRADE_CONFIG } from '@/types/recycle/customer'
+  import type { GradeStatItem } from '@/types/recycle/customer'
+  import { resolveLevelStyle } from '@/types/recycle/customer'
 
   interface Props {
     stats: GradeStatItem[]
-    activeGrade?: CustomerGrade | 'all'
+    activeLevelId?: number | 'all'
   }
 
   interface Emits {
-    (e: 'select', grade: CustomerGrade | 'all'): void
+    (e: 'select', levelId: number | 'all'): void
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    activeGrade: 'all'
+    activeLevelId: 'all'
   })
 
   const emit = defineEmits<Emits>()
 
   const gradeStats = computed(() =>
-    props.stats.map((item) => ({
-      ...item,
-      ...GRADE_CONFIG[item.grade]
-    }))
+    props.stats.map((item, index) => {
+      const style = resolveLevelStyle(item.levelName, index)
+      return {
+        ...item,
+        label: style.label,
+        color: style.color,
+        bgColor: style.bgColor,
+        icon: style.icon
+      }
+    })
   )
 
-  function handleClick(grade: CustomerGrade) {
-    emit('select', props.activeGrade === grade ? 'all' : grade)
+  function handleClick(levelId: number) {
+    emit('select', props.activeLevelId === levelId ? 'all' : levelId)
   }
 </script>
 

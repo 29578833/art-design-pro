@@ -75,7 +75,10 @@ axiosInstance.interceptors.request.use(
       }
     }
 
-    if (accessToken) request.headers.set('Authorization', accessToken)
+    if (accessToken) {
+      // CRMEB / xinguang_api 使用 Authori-zation 传递 token（非标准 Authorization）
+      request.headers.set('Authori-zation', 'Bearer ' + accessToken)
+    }
 
     if (request.data && !(request.data instanceof FormData) && !request.headers['Content-Type']) {
       request.headers.set('Content-Type', 'application/json')

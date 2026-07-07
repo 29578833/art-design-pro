@@ -104,6 +104,7 @@ html.dark .el-card {
 .el-radio-button--default .el-radio-button__inner {
   padding: 10px 15px !important;
 }
+
 // -------------------------------- 修改 el-size=default 组件默认高度 end --------------------------------
 
 .el-pagination.is-background .btn-next,
@@ -130,7 +131,7 @@ html.dark .el-card {
 }
 
 .el-dialog__body {
-  padding: 25px 0 !important;
+  // padding: 0px 0 25px !important;
   position: relative; // 为了兼容 el-pagination 样式，需要设置 relative，不然会影响 el-pagination 的样式，比如 el-pagination__jump--small 会被影响，导致 el-pagination__jump--small 按钮无法点击，详见 URL_ADDRESS.com/element-plus/element-plus/issues/5684#issuecomment-1176299275;
 }
 
@@ -516,4 +517,8 @@ html.dark .el-card {
   .el-input-number__increase {
     height: calc((var(--el-component-size) / 2)) !important;
   }
+}
+
+.el-table--default .el-table__cell {
+  padding: 12px 0 !important;
 }

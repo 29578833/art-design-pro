@@ -14,35 +14,33 @@
     </ElInput>
 
     <ElSelect
-      v-model="localCategory"
-      class="partner-toolbar-select"
-      placeholder="全部分类"
-      @change="handleFilterChange"
-    >
-      <ElOption label="全部分类" value="all" />
-      <ElOption label="客户" value="customer" />
-      <ElOption label="供应商" value="supplier" />
-    </ElSelect>
-
-    <ElSelect
-      v-model="localType"
+      v-model="localGroupId"
       class="partner-toolbar-select"
       placeholder="全部类型"
       @change="handleFilterChange"
     >
       <ElOption label="全部类型" value="all" />
-      <ElOption label="个人客户" value="individual" />
-      <ElOption label="企业客户" value="enterprise" />
+      <ElOption
+        v-for="group in groupOptions"
+        :key="group.id"
+        :label="group.groupName"
+        :value="group.id"
+      />
     </ElSelect>
 
     <ElSelect
-      v-model="localGrade"
+      v-model="localLevelId"
       class="partner-toolbar-select"
       placeholder="全部分级"
-      @change="handleGradeChange"
+      @change="handleLevelChange"
     >
       <ElOption label="全部分级" value="all" />
-      <ElOption v-for="(cfg, key) in GRADE_CONFIG" :key="key" :label="cfg.label" :value="key" />
+      <ElOption
+        v-for="level in levelOptions"
+        :key="level.id"
+        :label="level.name"
+        :value="level.id"
+      />
     </ElSelect>
 
     <ElButton class="partner-toolbar-reset" text @click="handleReset">重置</ElButton>
@@ -50,36 +48,42 @@
 </template>
 
 <script setup lang="ts">
-  import type { CustomerGrade, PartnerSearchParams } from '@/types/recycle/customer'
-  import { GRADE_CONFIG } from '@/types/recycle/customer'
+  import type {
+    PartnerSearchParams,
+    UserGroupOption,
+    UserLevelOption
+  } from '@/types/recycle/customer'
 
   interface Props {
     modelValue: PartnerSearchParams
-    activeGrade?: CustomerGrade | 'all'
+    activeLevelId?: number | 'all'
+    levelOptions?: UserLevelOption[]
+    groupOptions?: UserGroupOption[]
   }
 
   interface Emits {
     (e: 'update:modelValue', value: PartnerSearchParams): void
-    (e: 'update:activeGrade', value: CustomerGrade | 'all'): void
+    (e: 'update:activeLevelId', value: number | 'all'): void
     (e: 'search'): void
     (e: 'reset'): void
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    activeGrade: 'all'
+    activeLevelId: 'all',
+    levelOptions: () => [],
+    groupOptions: () => []
   })
 
   const emit = defineEmits<Emits>()
 
   const keyword = ref(props.modelValue.keyword || '')
-  const localCategory = ref(props.modelValue.category || 'all')
-  const localType = ref(props.modelValue.type || 'all')
-  const localGrade = ref<CustomerGrade | 'all'>(props.activeGrade)
+  const localGroupId = ref<number | 'all'>(props.modelValue.groupId || 'all')
+  const localLevelId = ref<number | 'all'>(props.activeLevelId)
 
   watch(
-    () => props.activeGrade,
+    () => props.activeLevelId,
     (val) => {
-      localGrade.value = val
+      localLevelId.value = val
     }
   )
 
@@ -87,9 +91,8 @@
     emit('update:modelValue', {
       ...props.modelValue,
       keyword: keyword.value || undefined,
-      category: localCategory.value,
-      type: localType.value,
-      grade: localGrade.value
+      groupId: localGroupId.value,
+      levelId: localLevelId.value
     })
   }
 
@@ -103,18 +106,17 @@
     emit('search')
   }
 
-  function handleGradeChange(val: CustomerGrade | 'all') {
-    emit('update:activeGrade', val)
+  function handleLevelChange(val: number | 'all') {
+    emit('update:activeLevelId', val)
     syncForm()
     emit('search')
   }
 
   function handleReset() {
     keyword.value = ''
-    localCategory.value = 'all'
-    localType.value = 'all'
-    localGrade.value = 'all'
-    emit('update:activeGrade', 'all')
+    localGroupId.value = 'all'
+    localLevelId.value = 'all'
+    emit('update:activeLevelId', 'all')
     emit('reset')
   }
 </script>

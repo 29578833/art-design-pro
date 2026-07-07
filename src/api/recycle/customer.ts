@@ -1,288 +1,230 @@
+import request from '@/utils/http'
 import type {
   GradeStatItem,
   PartnerFormData,
   PartnerList,
   PartnerSearchParams,
-  RecyclePartner
+  RecyclePartner,
+  UserGroupOption,
+  UserLevelOption,
+  UserVehicleRecord
 } from '@/types/recycle/customer'
+import { resolveGradeKey, resolvePartnerTypeFromGroup } from '@/types/recycle/customer'
 
-/** Mock 数据 */
-const MOCK_PARTNERS: RecyclePartner[] = [
-  {
-    id: 'C001',
-    code: 'KH20260001',
-    name: '张建国',
-    phone: '138****8001',
-    category: 'customer',
-    type: 'individual',
-    grade: 'vip',
-    cooperationType: 'individual',
-    idCard: '310101****1234',
-    address: '上海市浦东新区张江路100号',
-    creditLimit: 50000,
-    totalTradeAmount: 102000,
-    totalVehicles: 12,
-    lastDealDate: '2026-06-18',
-    status: 'active',
-    remark: '长期合作客户，信誉良好',
-    createTime: '2025-01-15'
-  },
-  {
-    id: 'C002',
-    code: 'KH20260002',
-    name: '上海鑫源物流有限公司',
-    phone: '021-****8888',
-    category: 'customer',
-    type: 'enterprise',
-    grade: 'vip',
-    cooperationType: 'vehicle_supplier',
-    enterprise: '上海鑫源物流有限公司',
-    creditCode: '91310115****6789',
-    contactPerson: '李总',
-    address: '上海市宝山区月浦镇工业区',
-    creditLimit: 200000,
-    totalTradeAmount: 456000,
-    totalVehicles: 38,
-    lastDealDate: '2026-06-20',
-    status: 'active',
-    createTime: '2024-08-01'
-  },
-  {
-    id: 'S001',
-    code: 'GYS20260001',
-    name: '华东拖车服务有限公司',
-    phone: '021-****5566',
-    category: 'supplier',
-    type: 'enterprise',
-    grade: 'normal',
-    cooperationType: 'towing',
-    enterprise: '华东拖车服务有限公司',
-    creditCode: '91310120****1122',
-    contactPerson: '王经理',
-    address: '上海市嘉定区安亭镇',
-    creditLimit: 80000,
-    totalTradeAmount: 128000,
-    totalVehicles: 0,
-    lastDealDate: '2026-06-15',
-    status: 'active',
-    createTime: '2025-03-10'
-  },
-  {
-    id: 'C003',
-    code: 'KH20260003',
-    name: '王丽华',
-    phone: '139****5566',
-    category: 'customer',
-    type: 'individual',
-    grade: 'normal',
-    cooperationType: 'individual',
-    idCard: '310104****5678',
-    address: '上海市杨浦区控江路200号',
-    creditLimit: 20000,
-    totalTradeAmount: 28500,
-    totalVehicles: 3,
-    lastDealDate: '2026-05-10',
-    status: 'active',
-    createTime: '2025-11-20'
-  },
-  {
-    id: 'S002',
-    code: 'GYS20260002',
-    name: '苏州绿色回收科技有限公司',
-    phone: '0512-****1234',
-    category: 'supplier',
-    type: 'enterprise',
-    grade: 'normal',
-    cooperationType: 'product_buyer',
-    enterprise: '苏州绿色回收科技有限公司',
-    creditCode: '91320594****3456',
-    contactPerson: '赵经理',
-    address: '苏州市工业园区星湖街218号',
-    creditLimit: 150000,
-    totalTradeAmount: 320000,
-    totalVehicles: 0,
-    lastDealDate: '2026-04-22',
-    status: 'active',
-    createTime: '2025-05-10'
-  },
-  {
-    id: 'C004',
-    code: 'KH20260004',
-    name: '刘明',
-    phone: '150****7788',
-    category: 'customer',
-    type: 'individual',
-    grade: 'potential',
-    cooperationType: 'individual',
-    idCard: '310106****9012',
-    address: '上海市闵行区莘庄镇',
-    creditLimit: 10000,
-    totalTradeAmount: 0,
-    totalVehicles: 0,
-    lastDealDate: '—',
-    status: 'active',
-    createTime: '2026-06-01'
-  },
-  {
-    id: 'S003',
-    code: 'GYS20260003',
-    name: '鑫广设备维修中心',
-    phone: '021-****9900',
-    category: 'supplier',
-    type: 'enterprise',
-    grade: 'normal',
-    cooperationType: 'equipment',
-    enterprise: '鑫广设备维修中心',
-    creditCode: '91310118****7788',
-    contactPerson: '周工',
-    address: '上海市松江区九亭镇',
-    creditLimit: 30000,
-    totalTradeAmount: 56000,
-    totalVehicles: 0,
-    lastDealDate: '2026-03-08',
-    status: 'active',
-    createTime: '2025-08-20'
-  },
-  {
-    id: 'C005',
-    code: 'KH20260005',
-    name: '陈志强',
-    phone: '136****4433',
-    category: 'customer',
-    type: 'individual',
-    grade: 'blacklist',
-    cooperationType: 'individual',
-    idCard: '310110****3456',
-    address: '上海市松江区',
-    creditLimit: 0,
-    totalTradeAmount: 8500,
-    totalVehicles: 1,
-    lastDealDate: '2025-12-01',
-    status: 'inactive',
-    remark: '拒绝付款，列入黑名单',
-    createTime: '2024-06-10'
+/** 过滤无效筛选值 */
+function omitEmpty<T extends Record<string, unknown>>(params: T): Partial<T> {
+  const result: Partial<T> = {}
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === null || value === '' || value === 'all') continue
+    result[key as keyof T] = value as T[keyof T]
   }
-]
-
-let partnerStore = [...MOCK_PARTNERS]
-
-function filterPartners(params: PartnerSearchParams): RecyclePartner[] {
-  const keyword = params.keyword?.trim().toLowerCase()
-
-  return partnerStore.filter((item) => {
-    const matchKeyword =
-      !keyword ||
-      item.name.toLowerCase().includes(keyword) ||
-      item.phone.includes(keyword) ||
-      item.code.toLowerCase().includes(keyword) ||
-      (item.enterprise || '').toLowerCase().includes(keyword)
-
-    const matchCategory =
-      !params.category || params.category === 'all' || item.category === params.category
-    const matchType = !params.type || params.type === 'all' || item.type === params.type
-    const matchGrade = !params.grade || params.grade === 'all' || item.grade === params.grade
-    const matchCooperationType =
-      !params.cooperationType ||
-      params.cooperationType === 'all' ||
-      item.cooperationType === params.cooperationType
-    const matchStatus = !params.status || params.status === 'all' || item.status === params.status
-
-    return (
-      matchKeyword &&
-      matchCategory &&
-      matchType &&
-      matchGrade &&
-      matchCooperationType &&
-      matchStatus
-    )
-  })
+  return result
 }
 
-function paginate<T>(list: T[], current = 1, size = 20): PartnerList {
-  const start = (current - 1) * size
-  const records = list.slice(start, start + size)
+/** 格式化时间戳 */
+function formatTimestamp(value: unknown): string {
+  if (!value) return '—'
+  if (typeof value === 'string' && value.includes('-')) return value.slice(0, 10)
+  const ts = Number(value)
+  if (!ts) return '—'
+  const ms = ts > 1e12 ? ts : ts * 1000
+  return new Date(ms).toISOString().slice(0, 10)
+}
+
+/** 列表项字段映射 */
+function mapPartnerItem(raw: Record<string, unknown>): RecyclePartner {
+  const uid = Number(raw.uid || 0)
+  const levelName = String(raw.level || '无')
+  const groupName = String(raw.group_id || '无')
+  const normalizedGroupName = groupName === '无' ? '' : groupName
+  const statusText = String(raw.status || '')
 
   return {
-    records,
-    current,
-    size,
-    total: list.length
+    id: String(uid),
+    code: `KH${String(uid).padStart(8, '0')}`,
+    name: String(raw.real_name || raw.nickname || ''),
+    phone: String(raw.phone || ''),
+    levelId: Number(raw.level_id || 0),
+    levelName: levelName === '无' ? '' : levelName,
+    groupId: Number(raw.group_id_num || 0),
+    groupName: normalizedGroupName,
+    category: 'customer',
+    type: resolvePartnerTypeFromGroup(normalizedGroupName),
+    grade: resolveGradeKey(levelName),
+    cooperationType: 'individual',
+    idCard: String(raw.card_id || ''),
+    address: String(raw.addres || ''),
+    totalTradeAmount: Number(raw.pay_count_money || raw.now_money || 0),
+    totalVehicles: Number(raw.pay_count || 0),
+    lastDealDate: formatTimestamp(raw.last_time || raw.add_time),
+    status: statusText === '正常' || raw.status === 1 || raw.status === '1' ? 'active' : 'inactive',
+    remark: String(raw.mark || ''),
+    createTime: formatTimestamp(raw.add_time)
   }
 }
 
-function generateCode(category: PartnerCategory): string {
-  const prefix = category === 'customer' ? 'KH' : 'GYS'
-  const year = new Date().getFullYear()
-  const seq = String(partnerStore.length + 1).padStart(4, '0')
-  return `${prefix}${year}${seq}`
+/** 解析分页参数（兼容 useTable 的 page/limit 与 current/size） */
+function resolvePagination(params: PartnerSearchParams) {
+  return {
+    page: Number(params.page ?? params.current ?? 1),
+    limit: Number(params.limit ?? params.size ?? 20)
+  }
 }
 
-/** 获取客户供应商列表 */
-export function fetchPartnerList(params: PartnerSearchParams): Promise<PartnerList> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const filtered = filterPartners(params)
-      resolve(paginate(filtered, params.current || 1, params.size || 20))
-    }, 200)
+/** 列表请求参数转换 */
+function buildListParams(params: PartnerSearchParams) {
+  const { page, limit } = resolvePagination(params)
+
+  return omitEmpty({
+    page,
+    limit,
+    nickname: params.keyword?.trim(),
+    level: params.levelId,
+    group_id: params.groupId,
+    status: params.status === 'active' ? 1 : params.status === 'inactive' ? 0 : undefined
   })
+}
+
+/** 表单提交参数转换 */
+function buildSavePayload(data: PartnerFormData, groupName = '') {
+  const isIndividual = resolvePartnerTypeFromGroup(groupName) === 'individual'
+  return {
+    real_name: data.name,
+    phone: data.phone,
+    card_id: isIndividual ? data.idCard || '' : '',
+    addres: data.address || '',
+    mark: data.remark || '',
+    level: data.levelId || 0,
+    group_id: data.groupId || 0,
+    status: data.status === 'active' ? 1 : 0
+  }
+}
+
+/** 获取客户列表 */
+export async function fetchPartnerList(params: PartnerSearchParams): Promise<PartnerList> {
+  const res = await request.get<{ list: Record<string, unknown>[]; count: number }>({
+    url: '/user/user',
+    params: buildListParams(params)
+  })
+
+  const { page, limit } = resolvePagination(params)
+
+  return {
+    records: (res.list || []).map(mapPartnerItem),
+    total: res.count || 0,
+    current: page,
+    size: limit
+  }
 }
 
 /** 获取分级统计 */
-export function fetchPartnerGradeStats(
-  params: Pick<PartnerSearchParams, 'category'>
-): Promise<GradeStatItem[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const filtered = filterPartners({
-        current: 1,
-        size: 9999,
-        category: params.category
-      })
+export async function fetchPartnerGradeStats(): Promise<GradeStatItem[]> {
+  const res = await request.get<{
+    list: Array<{ level_id: number; level_name: string; user_count: number }>
+  }>({
+    url: '/user/user_counts'
+  })
 
-      const stats = (['vip', 'normal', 'potential', 'blacklist'] as const).map((grade) => ({
-        grade,
-        count: filtered.filter((item) => item.grade === grade).length
-      }))
+  return (res.list || []).map((item) => ({
+    levelId: item.level_id,
+    levelName: item.level_name,
+    count: item.user_count
+  }))
+}
 
-      resolve(stats)
-    }, 100)
+/** 获取用户等级列表 */
+export async function fetchUserLevelList(): Promise<UserLevelOption[]> {
+  const res = await request.get<{ list: Record<string, unknown>[] }>({
+    url: '/user/user_level/vip_list',
+    params: { page: 1, limit: 100, is_show: 1 }
+  })
+
+  return (res.list || []).map((item) => ({
+    id: Number(item.id),
+    name: String(item.name || ''),
+    grade: Number(item.grade || 0),
+    discount: Number(item.discount || 0),
+    isShow: Number(item.is_show ?? 1)
+  }))
+}
+
+/** 获取用户分组列表 */
+export async function fetchUserGroupList(): Promise<UserGroupOption[]> {
+  const res = await request.get<{ list: Record<string, unknown>[] }>({
+    url: '/user/user_group/list',
+    params: { page: 1, limit: 100 }
+  })
+
+  return (res.list || []).map((item) => ({
+    id: Number(item.id),
+    groupName: String(item.group_name || '')
+  }))
+}
+
+/** 获取编辑表单原始数据 */
+export async function fetchUserSaveInfo(uid: string | number) {
+  return request.get<{
+    userInfo: Record<string, unknown>
+    levelInfo: Array<{ id: number; name: string }>
+    groupInfo: Array<{ id: number; group_name: string }>
+  }>({
+    url: `/user/user/user_save_info/${uid}`
   })
 }
 
-/** 新增客户供应商 */
-export function fetchCreatePartner(data: PartnerFormData): Promise<RecyclePartner> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newPartner: RecyclePartner = {
-        ...data,
-        id: `P${String(partnerStore.length + 1).padStart(3, '0')}`,
-        code: generateCode(data.category),
-        totalVehicles: 0,
-        totalTradeAmount: 0,
-        lastDealDate: '—',
-        createTime: new Date().toISOString().slice(0, 10)
-      }
-      partnerStore = [newPartner, ...partnerStore]
-      resolve(newPartner)
-    }, 200)
+/** 新增客户 */
+export function fetchCreatePartner(data: PartnerFormData, groupName = '') {
+  return request.post({
+    url: '/user/user',
+    params: buildSavePayload(data, groupName),
+    showSuccessMessage: true
   })
 }
 
-/** 更新客户供应商 */
-export function fetchUpdatePartner(id: string, data: PartnerFormData): Promise<RecyclePartner> {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const index = partnerStore.findIndex((item) => item.id === id)
-      if (index === -1) {
-        reject(new Error('记录不存在'))
-        return
-      }
-
-      partnerStore[index] = {
-        ...partnerStore[index],
-        ...data
-      }
-      resolve(partnerStore[index])
-    }, 200)
+/** 修改客户 */
+export function fetchUpdatePartner(id: string | number, data: PartnerFormData, groupName = '') {
+  return request.put({
+    url: `/user/user/${id}`,
+    params: buildSavePayload(data, groupName),
+    showSuccessMessage: true
   })
+}
+
+/** 客户交车记录 */
+export async function fetchUserVehicles(
+  uid: string | number,
+  params?: { page?: number; limit?: number }
+): Promise<{ list: UserVehicleRecord[]; count: number }> {
+  const res = await request.get<{ list: Record<string, unknown>[]; count: number }>({
+    url: '/scrap/vehicle/user_vehicles',
+    params: {
+      uid,
+      page: params?.page || 1,
+      limit: params?.limit || 50
+    }
+  })
+
+  const list = (res.list || []).map((item) => ({
+    id: Number(item.id),
+    orderNo: String(item.order_no || ''),
+    plateNo: String(item.plate_no || '—'),
+    brand: String(item.brand || ''),
+    model: String(item.model || ''),
+    statusText: String(item.status_text || ''),
+    amount: Number(item.recycle_price || item.price || 0),
+    date: formatTimestamp(item.add_time || item.update_time)
+  }))
+
+  return { list, count: res.count || list.length }
+}
+/** 导出用：拉取全量列表 */
+export async function fetchPartnerListForExport(
+  params: Omit<PartnerSearchParams, 'current' | 'size'>
+): Promise<RecyclePartner[]> {
+  const res = await fetchPartnerList({
+    ...params,
+    current: 1,
+    size: 9999
+  })
+  return res.records
 }

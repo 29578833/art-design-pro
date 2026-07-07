@@ -6,7 +6,7 @@
         <div class="partner-page-desc">管理所有客户信息及分级</div>
       </div>
       <div class="partner-page-actions">
-        <ElButton @click="handleExport" v-ripple>
+        <ElButton :loading="exporting" @click="handleExport" v-ripple>
           <ArtSvgIcon icon="ri:download-2-line" class="mr-1" />
           导出
         </ElButton>
@@ -19,13 +19,15 @@
 
     <GradeSummaryCards
       :stats="gradeStats"
-      :active-grade="activeGrade"
-      @select="handleGradeSelect"
+      :active-level-id="activeLevelId"
+      @select="handleLevelSelect"
     />
 
     <CustomerSearch
       v-model="searchForm"
-      v-model:active-grade="activeGrade"
+      v-model:active-level-id="activeLevelId"
+      :level-options="levelOptions"
+      :group-options="groupOptions"
       @search="handleSearch"
       @reset="handleReset"
     />
@@ -41,7 +43,7 @@
         :columns="columns"
         :pagination="pagination"
         :show-table-header="false"
-        stripe
+        :stripe="false"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
       />
@@ -61,16 +63,24 @@
 <script setup lang="ts">
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
-  import { fetchPartnerGradeStats, fetchPartnerList } from '@/api/recycle/customer'
+  import {
+    fetchPartnerGradeStats,
+    fetchPartnerList,
+    fetchPartnerListForExport,
+    fetchUserGroupList,
+    fetchUserLevelList
+  } from '@/api/recycle/customer'
   import { useTable } from '@/hooks/core/useTable'
   import type {
-    CustomerGrade,
     GradeStatItem,
     PartnerSearchParams,
-    RecyclePartner
+    RecyclePartner,
+    UserGroupOption,
+    UserLevelOption
   } from '@/types/recycle/customer'
-  import { GRADE_CONFIG } from '@/types/recycle/customer'
+  import { resolveLevelStyle } from '@/types/recycle/customer'
   import type { DialogType } from '@/types'
+  import * as XLSX from 'xlsx'
   import CustomerSearch from './modules/customer-search.vue'
   import CustomerDialog from './modules/customer-dialog.vue'
   import CustomerDetailDrawer from './modules/customer-detail-drawer.vue'
@@ -81,10 +91,13 @@
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
   const drawerVisible = ref(false)
+  const exporting = ref(false)
   const currentPartner = ref<Partial<RecyclePartner>>({})
   const detailPartner = ref<RecyclePartner | null>(null)
   const gradeStats = ref<GradeStatItem[]>([])
-  const activeGrade = ref<CustomerGrade | 'all'>('all')
+  const levelOptions = ref<UserLevelOption[]>([])
+  const groupOptions = ref<UserGroupOption[]>([])
+  const activeLevelId = ref<number | 'all'>('all')
 
   const avatarColors = ['#1890FF', '#722ED1', '#13C2C2', '#FA8C16', '#52C41A', '#EB2F96']
 
@@ -92,9 +105,8 @@
     current: 1,
     size: 20,
     keyword: undefined,
-    category: 'all',
-    type: 'all',
-    grade: 'all',
+    groupId: 'all',
+    levelId: 'all',
     cooperationType: 'all',
     status: 'all'
   })
@@ -118,10 +130,11 @@
     core: {
       apiFn: fetchPartnerList,
       apiParams: {
-        current: 1,
-        size: 20,
+        page: 1,
+        limit: 20,
         ...searchForm.value
       },
+      paginationKey: { current: 'page', size: 'limit' },
       columnsFactory: () => [
         {
           prop: 'code',
@@ -145,8 +158,8 @@
               ),
               h('div', { class: 'min-w-0' }, [
                 h('div', { class: 'partner-name-main' }, row.name),
-                row.enterprise
-                  ? h('div', { class: 'partner-name-sub' }, row.enterprise)
+                row.groupName
+                  ? h('div', { class: 'partner-name-sub' }, row.groupName)
                   : h('div', { class: 'partner-name-sub' }, row.phone)
               ])
             ])
@@ -158,11 +171,11 @@
           formatter: (row) => h('span', { class: 'partner-phone' }, row.phone)
         },
         {
-          prop: 'grade',
+          prop: 'levelName',
           label: '客户分级',
           width: 168,
           formatter: (row) => {
-            const cfg = GRADE_CONFIG[row.grade]
+            const cfg = resolveLevelStyle(row.levelName || '普通客户')
             return h(
               'span',
               {
@@ -224,10 +237,14 @@
     }
   })
 
+  async function loadMetaOptions() {
+    const [levels, groups] = await Promise.all([fetchUserLevelList(), fetchUserGroupList()])
+    levelOptions.value = levels
+    groupOptions.value = groups
+  }
+
   async function loadGradeStats() {
-    gradeStats.value = await fetchPartnerGradeStats({
-      category: searchForm.value.category === 'all' ? undefined : searchForm.value.category
-    })
+    gradeStats.value = await fetchPartnerGradeStats()
   }
 
   function refreshAll() {
@@ -238,22 +255,21 @@
   function handleSearch() {
     replaceSearchParams({
       ...searchForm.value,
-      grade: activeGrade.value
+      levelId: activeLevelId.value
     })
     getData()
     loadGradeStats()
   }
 
   function handleReset() {
-    activeGrade.value = 'all'
+    activeLevelId.value = 'all'
     resetSearchParams()
     searchForm.value = {
       current: 1,
       size: 20,
       keyword: undefined,
-      category: 'all',
-      type: 'all',
-      grade: 'all',
+      groupId: 'all',
+      levelId: 'all',
       cooperationType: 'all',
       status: 'all'
     }
@@ -261,10 +277,10 @@
     loadGradeStats()
   }
 
-  function handleGradeSelect(grade: CustomerGrade | 'all') {
-    activeGrade.value = grade
-    searchForm.value.grade = grade
-    replaceSearchParams({ grade })
+  function handleLevelSelect(levelId: number | 'all') {
+    activeLevelId.value = levelId
+    searchForm.value.levelId = levelId
+    replaceSearchParams({ levelId })
     getData()
   }
 
@@ -285,11 +301,44 @@
     refreshAll()
   }
 
-  function handleExport() {
-    ElMessage.info('导出功能开发中')
+  async function handleExport() {
+    exporting.value = true
+    try {
+      const list = await fetchPartnerListForExport({
+        ...searchForm.value,
+        levelId: activeLevelId.value
+      })
+
+      if (!list.length) {
+        ElMessage.warning('暂无数据可导出')
+        return
+      }
+
+      const rows = list.map((item) => ({
+        客户编号: item.code,
+        姓名: item.name,
+        联系电话: item.phone,
+        客户分级: item.levelName,
+        客户类型: item.groupName,
+        累计交车: item.totalVehicles,
+        最近交车: item.lastDealDate,
+        状态: item.status === 'active' ? '正常' : '禁用',
+        备注: item.remark || '',
+        注册时间: item.createTime
+      }))
+
+      const sheet = XLSX.utils.json_to_sheet(rows)
+      const book = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(book, sheet, '客户列表')
+      XLSX.writeFile(book, `客户列表_${new Date().toISOString().slice(0, 10)}.xlsx`)
+      ElMessage.success('导出成功')
+    } finally {
+      exporting.value = false
+    }
   }
 
   onMounted(() => {
+    loadMetaOptions()
     loadGradeStats()
   })
 </script>
