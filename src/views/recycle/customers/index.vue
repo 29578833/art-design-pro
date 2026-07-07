@@ -1,6 +1,21 @@
 <template>
   <div class="customers-page art-full-height">
-    <CustomerSearch v-model="searchForm" @search="handleSearch" @reset="handleReset" />
+    <div class="partner-page-header">
+      <div>
+        <div class="partner-page-title">客户与供应商管理</div>
+        <div class="partner-page-desc">管理所有客户信息及分级</div>
+      </div>
+      <div class="partner-page-actions">
+        <ElButton @click="handleExport" v-ripple>
+          <ArtSvgIcon icon="ri:download-2-line" class="mr-1" />
+          导出
+        </ElButton>
+        <ElButton type="primary" @click="showDialog('add')" v-ripple>
+          <ArtSvgIcon icon="ri:add-line" class="mr-1" />
+          新增客户
+        </ElButton>
+      </div>
+    </div>
 
     <GradeSummaryCards
       :stats="gradeStats"
@@ -8,21 +23,22 @@
       @select="handleGradeSelect"
     />
 
-    <ElCard class="art-table-card">
-      <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshAll">
-        <template #left>
-          <ElSpace wrap>
-            <ElButton type="primary" @click="showDialog('add')" v-ripple>新增档案</ElButton>
-            <ElButton @click="handleExport" v-ripple>导出</ElButton>
-          </ElSpace>
-        </template>
-      </ArtTableHeader>
+    <CustomerSearch
+      v-model="searchForm"
+      v-model:active-grade="activeGrade"
+      @search="handleSearch"
+      @reset="handleReset"
+    />
+
+    <ElCard class="partner-table-card art-table-card" shadow="never">
+      <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshAll" />
 
       <ArtTable
         :loading="loading"
         :data="data"
         :columns="columns"
         :pagination="pagination"
+        stripe
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
       />
@@ -41,6 +57,7 @@
 
 <script setup lang="ts">
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
+  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchPartnerGradeStats, fetchPartnerList } from '@/api/recycle/customer'
   import { useTable } from '@/hooks/core/useTable'
   import type {
@@ -49,18 +66,12 @@
     PartnerSearchParams,
     RecyclePartner
   } from '@/types/recycle/customer'
-  import {
-    COOPERATION_TYPE_CONFIG,
-    GRADE_CONFIG,
-    PARTNER_CATEGORY_CONFIG,
-    PARTNER_STATUS_CONFIG
-  } from '@/types/recycle/customer'
+  import { GRADE_CONFIG } from '@/types/recycle/customer'
   import type { DialogType } from '@/types'
   import CustomerSearch from './modules/customer-search.vue'
   import CustomerDialog from './modules/customer-dialog.vue'
   import CustomerDetailDrawer from './modules/customer-detail-drawer.vue'
   import GradeSummaryCards from './modules/grade-summary-cards.vue'
-  import { ElTag } from 'element-plus'
 
   defineOptions({ name: 'RecycleCustomers' })
 
@@ -72,6 +83,8 @@
   const gradeStats = ref<GradeStatItem[]>([])
   const activeGrade = ref<CustomerGrade | 'all'>('all')
 
+  const avatarColors = ['#1890FF', '#722ED1', '#13C2C2', '#FA8C16', '#52C41A', '#EB2F96']
+
   const searchForm = ref<PartnerSearchParams>({
     current: 1,
     size: 20,
@@ -82,6 +95,10 @@
     cooperationType: 'all',
     status: 'all'
   })
+
+  function getAvatarColor(name: string) {
+    return avatarColors[(name.charCodeAt(0) || 0) % avatarColors.length]
+  }
 
   const {
     columns,
@@ -104,91 +121,91 @@
         ...searchForm.value
       },
       columnsFactory: () => [
-        { type: 'index', width: 60, label: '序号' },
         {
           prop: 'code',
-          label: '编号',
-          width: 130
+          label: '客户编号',
+          width: 136,
+          formatter: (row) => h('span', { class: 'partner-code' }, row.code)
         },
         {
           prop: 'name',
           label: '姓名/企业',
-          minWidth: 180,
+          minWidth: 220,
           formatter: (row) =>
-            h('div', [
-              h('div', { class: 'font-medium' }, row.name),
-              row.enterprise
-                ? h('div', { class: 'text-xs text-g-500 truncate' }, row.enterprise)
-                : null
+            h('div', { class: 'partner-name-cell' }, [
+              h(
+                'div',
+                {
+                  class: 'partner-avatar',
+                  style: { background: getAvatarColor(row.name) }
+                },
+                row.name.slice(0, 1)
+              ),
+              h('div', { class: 'min-w-0' }, [
+                h('div', { class: 'partner-name-main' }, row.name),
+                row.enterprise
+                  ? h('div', { class: 'partner-name-sub' }, row.enterprise)
+                  : h('div', { class: 'partner-name-sub' }, row.phone)
+              ])
             ])
         },
         {
-          prop: 'category',
-          label: '分类',
-          width: 90,
-          formatter: (row) =>
-            h(
-              ElTag,
-              { type: row.category === 'customer' ? 'primary' : 'warning', size: 'small' },
-              () => PARTNER_CATEGORY_CONFIG[row.category].label
-            )
-        },
-        { prop: 'phone', label: '联系电话', width: 130 },
-        {
-          prop: 'cooperationType',
-          label: '合作商类型',
-          width: 130,
-          formatter: (row) => COOPERATION_TYPE_CONFIG[row.cooperationType].label
+          prop: 'phone',
+          label: '联系电话',
+          width: 132,
+          formatter: (row) => h('span', { class: 'partner-phone' }, row.phone)
         },
         {
           prop: 'grade',
           label: '客户分级',
-          width: 110,
+          width: 118,
           formatter: (row) => {
             const cfg = GRADE_CONFIG[row.grade]
             return h(
-              ElTag,
+              'span',
               {
-                style: {
-                  color: cfg.color,
-                  background: cfg.bgColor,
-                  border: 'none'
-                },
-                size: 'small'
+                class: 'partner-grade-tag',
+                style: { color: cfg.color, background: cfg.bgColor }
               },
-              () => cfg.label
+              [h(ArtSvgIcon, { icon: cfg.icon, style: { fontSize: '12px' } }), cfg.label]
             )
           }
         },
         {
           prop: 'totalVehicles',
           label: '累计交车',
-          width: 100,
-          formatter: (row) => `${row.totalVehicles}辆`
+          width: 96,
+          align: 'center',
+          formatter: (row) => h('span', { class: 'partner-metric' }, `${row.totalVehicles}辆`)
         },
         {
-          prop: 'totalTradeAmount',
-          label: '累计交易额',
-          width: 120,
-          formatter: (row) => `¥${(row.totalTradeAmount || 0).toLocaleString()}`
+          prop: 'lastDealDate',
+          label: '最近交车',
+          width: 112,
+          formatter: (row) => h('span', { class: 'partner-date' }, row.lastDealDate)
         },
-        { prop: 'lastDealDate', label: '最近交易', width: 110 },
         {
           prop: 'status',
           label: '状态',
-          width: 80,
-          formatter: (row) => {
-            const cfg = PARTNER_STATUS_CONFIG[row.status]
-            return h(ElTag, { type: cfg.type, size: 'small' }, () => cfg.label)
-          }
+          width: 84,
+          align: 'center',
+          formatter: (row) =>
+            h(
+              'span',
+              {
+                class: ['partner-status-tag', row.status === 'active' ? 'active' : 'inactive']
+              },
+              row.status === 'active' ? '正常' : '禁用'
+            )
         },
         {
           prop: 'operation',
           label: '操作',
-          width: 120,
+          width: 100,
           fixed: 'right',
+          align: 'center',
           formatter: (row) =>
-            h('div', [
+            h('div', { class: 'partner-table-actions' }, [
               h(ArtButtonTable, {
                 type: 'view',
                 onClick: () => showDetail(row)
@@ -214,10 +231,10 @@
     loadGradeStats()
   }
 
-  function handleSearch(params: PartnerSearchParams) {
+  function handleSearch() {
     replaceSearchParams({
-      ...params,
-      grade: activeGrade.value === 'all' ? params.grade : activeGrade.value
+      ...searchForm.value,
+      grade: activeGrade.value
     })
     getData()
     loadGradeStats()
@@ -273,10 +290,6 @@
   })
 </script>
 
-<style scoped lang="scss">
-  .customers-page {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+<style lang="scss">
+  @use './customers';
 </style>

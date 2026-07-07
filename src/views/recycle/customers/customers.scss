@@ -1,0 +1,220 @@
+/* 客户供应商管理 - 列表页样式（选择器均挂在 .customers-page 下，兼容 h() 渲染单元格） */
+
+.customers-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 100%;
+  padding: 4px 0;
+
+  .partner-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .partner-page-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--art-gray-900);
+  }
+
+  .partner-page-desc {
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--art-gray-500);
+  }
+
+  .partner-page-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .partner-table-card {
+    flex: 1;
+    margin-top: 0 !important;
+    overflow: hidden;
+    border-radius: calc(var(--custom-radius) + 2px) !important;
+
+    :deep(.el-card__body) {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    :deep(.art-table-header) {
+      padding: 14px 16px 0;
+    }
+
+    :deep(.art-table) {
+      flex: 1;
+      padding: 0 16px 12px;
+    }
+
+    :deep(.el-table) {
+      --el-table-border-color: var(--art-card-border);
+      --el-table-header-bg-color: #fafafa;
+      --el-table-row-hover-bg-color: #f5f9ff;
+
+      font-size: 13px;
+    }
+
+    :deep(.el-table::before) {
+      display: none;
+    }
+
+    :deep(.el-table th.el-table__cell) {
+      height: 46px;
+      padding: 10px 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--art-gray-600);
+      background: #fafafa !important;
+      border-bottom: 1px solid var(--art-card-border);
+    }
+
+    :deep(.el-table td.el-table__cell) {
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    :deep(.el-table__body tr:last-child td.el-table__cell) {
+      border-bottom: none;
+    }
+
+    :deep(.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell) {
+      background: #fafcff;
+    }
+
+    :deep(.pagination.custom-pagination) {
+      padding: 8px 16px 14px;
+      border-top: 1px solid var(--art-card-border);
+    }
+  }
+
+  .partner-name-cell {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .partner-avatar {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgb(24 144 255 / 20%);
+  }
+
+  .partner-name-main {
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--art-gray-900);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .partner-name-sub {
+    max-width: 160px;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--art-gray-400);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .partner-code {
+    display: inline-block;
+    padding: 2px 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+    color: var(--art-gray-600);
+    background: var(--art-gray-100);
+    border-radius: 4px;
+  }
+
+  .partner-phone {
+    font-size: 13px;
+    color: var(--art-gray-700);
+  }
+
+  .partner-grade-tag {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+    border-radius: 999px;
+  }
+
+  .partner-metric {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--art-gray-800);
+  }
+
+  .partner-date {
+    font-size: 13px;
+    color: var(--art-gray-500);
+  }
+
+  .partner-status-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+    border-radius: 999px;
+
+    &.active {
+      color: #389e0d;
+      background: #f6ffed;
+    }
+
+    &.inactive {
+      color: #8c8c8c;
+      background: #f5f5f5;
+    }
+  }
+
+  .partner-table-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .partner-dialog-section {
+    margin-bottom: 8px;
+
+    :deep(.el-divider__text) {
+      padding-left: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--art-gray-700);
+    }
+  }
+
+  .partner-form-block {
+    padding: 14px 16px 4px;
+    margin-bottom: 12px;
+    background: var(--art-gray-100);
+    border-radius: calc(var(--custom-radius) + 2px);
+  }
+}

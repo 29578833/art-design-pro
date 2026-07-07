@@ -1,21 +1,21 @@
 <template>
-  <div class="grade-summary-cards">
-    <div
-      v-for="item in gradeStats"
-      :key="item.grade"
-      class="grade-card"
-      :class="{ active: activeGrade === item.grade }"
-      @click="handleClick(item.grade)"
-    >
-      <div class="grade-card-top">
-        <div class="grade-icon" :style="{ background: item.bgColor, color: item.color }">
-          <ArtSvgIcon :icon="item.icon" />
+  <ElRow :gutter="12" class="grade-summary-row">
+    <ElCol v-for="item in gradeStats" :key="item.grade" :xs="12" :sm="12" :md="6" :xl="6">
+      <div
+        class="grade-card"
+        :class="{ active: activeGrade === item.grade }"
+        @click="handleClick(item.grade)"
+      >
+        <div class="grade-card-top">
+          <div class="grade-icon" :style="{ background: item.bgColor, color: item.color }">
+            <ArtSvgIcon :icon="item.icon" />
+          </div>
+          <span class="grade-label" :style="{ color: item.color }">{{ item.label }}</span>
         </div>
-        <span class="grade-label" :style="{ color: item.color }">{{ item.label }}</span>
+        <div class="grade-count">{{ item.count }}</div>
       </div>
-      <div class="grade-count">{{ item.count }}</div>
-    </div>
-  </div>
+    </ElCol>
+  </ElRow>
 </template>
 
 <script setup lang="ts">
@@ -50,23 +50,24 @@
 </script>
 
 <style scoped lang="scss">
-  .grade-summary-cards {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 12px;
+  .grade-summary-row {
+    margin-bottom: 0;
   }
 
   .grade-card {
     padding: 16px;
+    margin-bottom: 12px;
+    text-align: left;
     cursor: pointer;
-    background: var(--el-bg-color);
+    background: var(--default-box-color);
     border: 2px solid transparent;
     border-radius: 8px;
-    transition: all 0.2s;
+    transition:
+      box-shadow 0.2s,
+      border-color 0.2s;
 
     &:hover {
-      box-shadow: var(--el-box-shadow-light);
+      box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
     }
 
     &.active {
@@ -78,15 +79,17 @@
     display: flex;
     gap: 8px;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
 
   .grade-icon {
     display: flex;
+    flex-shrink: 0;
     align-items: center;
     justify-content: center;
     width: 28px;
     height: 28px;
+    font-size: 16px;
     border-radius: 8px;
   }
 
@@ -96,14 +99,9 @@
   }
 
   .grade-count {
+    margin-top: 4px;
     font-size: 22px;
     font-weight: 700;
-    color: var(--el-text-color-primary);
-  }
-
-  @media (width <= 1200px) {
-    .grade-summary-cards {
-      grid-template-columns: repeat(2, 1fr);
-    }
+    color: var(--art-gray-900);
   }
 </style>
