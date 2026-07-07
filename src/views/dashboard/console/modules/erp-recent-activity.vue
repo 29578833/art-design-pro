@@ -68,8 +68,8 @@
   ]
 </script>
 
-<style scoped>
-  @import '../dashboard';
+<style lang="scss" scoped>
+  @use '../dashboard';
 
   .erp-activity-list {
     display: flex;

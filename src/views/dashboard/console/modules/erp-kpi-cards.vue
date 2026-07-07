@@ -235,7 +235,7 @@
   }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .erp-kpi-card {
     position: relative;
     padding: 18px 18px 12px;
@@ -329,6 +329,6 @@
   }
 </style>
 
-<style>
-  @import '../dashboard';
+<style lang="scss" scoped>
+  @use '../dashboard';
 </style>

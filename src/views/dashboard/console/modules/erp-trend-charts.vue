@@ -16,7 +16,7 @@
             symbol="circle"
             :symbol-size="6"
             :smooth="true"
-            :animation-delay="80"
+            :enable-animation="false"
           />
         </div>
       </div>
@@ -37,7 +37,7 @@
             symbol="circle"
             :symbol-size="6"
             :smooth="true"
-            :animation-delay="80"
+            :enable-animation="false"
           />
         </div>
       </div>
@@ -63,7 +63,6 @@
   const vehicleData = [28, 32, 25, 40, 38, 45, 42, 50, 48, 55, 52, 60]
   const settleData = [84, 96, 75, 120, 114, 135, 126, 150, 144, 165, 156, 180]
 </script>
-
-<style scoped>
-  @import '../dashboard';
+<style lang="scss" scoped>
+  @use '../dashboard';
 </style>

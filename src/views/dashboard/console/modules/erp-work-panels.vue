@@ -111,8 +111,8 @@
   const rankColor = ['#fff', '#fff', '#fff']
 </script>
 
-<style scoped>
-  @import '../dashboard';
+<style lang="scss" scoped>
+  @use '../dashboard';
 
   .erp-todos {
     display: flex;

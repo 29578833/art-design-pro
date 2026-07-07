@@ -33,6 +33,7 @@
     symbol: 'none',
     symbolSize: 6,
     animationDelay: 200,
+    enableAnimation: true,
 
     // 轴线显示配置
     showAxisLabel: true,
@@ -190,9 +191,9 @@
   // 生成图表配置
   const generateChartOptions = (isInitial = false): EChartsOption => {
     const options: EChartsOption = {
-      animation: true,
-      animationDuration: isInitial ? 0 : 1300,
-      animationDurationUpdate: isInitial ? 0 : 1300,
+      animation: props.enableAnimation && !isInitial,
+      animationDuration: props.enableAnimation ? (isInitial ? 0 : 1300) : 0,
+      animationDurationUpdate: props.enableAnimation ? (isInitial ? 0 : 1300) : 0,
       grid: getGridWithLegend(props.showLegend && isMultipleData.value, props.legendPosition, {
         top: 15,
         right: 15,
@@ -260,6 +261,13 @@
   // 更新图表
   const updateChartOptions = (options: EChartsOption) => {
     initChart(options)
+  }
+
+  const initChartDirectly = () => {
+    clearAnimationTimers()
+    isAnimating.value = false
+    animatedData.value = copyRealData()
+    updateChartOptions(generateChartOptions(false))
   }
 
   // 初始化动画函数（优化：统一定时器管理，减少内存泄漏风险）
@@ -344,7 +352,11 @@
     onVisible: () => {
       // 当图表变为可见时，检查是否为空数据
       if (!isEmpty.value) {
-        initChartWithAnimation()
+        if (props.enableAnimation) {
+          initChartWithAnimation()
+        } else {
+          initChartDirectly()
+        }
       }
     },
     generateOptions: () => generateChartOptions(false)
@@ -352,8 +364,11 @@
 
   // 图表渲染函数（优化：防止动画期间重复触发）
   const renderChart = () => {
-    if (!isAnimating.value && !isEmpty.value) {
-      initChartWithAnimation()
+    if (isEmpty.value) return
+    if (props.enableAnimation) {
+      if (!isAnimating.value) initChartWithAnimation()
+    } else {
+      initChartDirectly()
     }
   }
 

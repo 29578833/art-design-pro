@@ -1,6 +1,10 @@
 {
   "volar.inlayHints.eventArgumentInInlineHandlers": true,
   "css.lint.unknownAtRules": "ignore",
+  "vetur.enable": false,
+  "vetur.validation.script": false,
+  "vetur.validation.template": false,
+  "vetur.validation.style": false,
   "i18n-ally.localesPaths": ["src/locales/langs", "src/locales"],
   "i18n-ally.enabledParsers": ["json"],
   "i18n-ally.sourceLanguage": "en",
