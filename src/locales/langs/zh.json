@@ -225,6 +225,10 @@
       "title": "数据看板",
       "console": "数据看板"
     },
+    "recycle": {
+      "title": "回收业务",
+      "customers": "客户供应商管理"
+    },
     "result": {
       "title": "结果页面",
       "success": "成功页",
