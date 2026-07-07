@@ -13,7 +13,7 @@ export const recycleRoutes: AppRouteRecord = {
     {
       path: 'customers',
       name: 'RecycleCustomers',
-      component: '/recycle/recovery/customers',
+      component: '/recycle/customers',
       meta: {
         title: 'menus.recycle.customers',
         keepAlive: true,
