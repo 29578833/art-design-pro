@@ -71,18 +71,26 @@ function resolvePagination(params: PartnerSearchParams) {
   }
 }
 
+/** 筛选 id：空或 all 时传空字符串给接口 */
+function resolveFilterId(value: number | 'all' | undefined): number | '' {
+  if (value === undefined || value === null || value === 'all') return ''
+  return value
+}
+
 /** 列表请求参数转换 */
 function buildListParams(params: PartnerSearchParams) {
   const { page, limit } = resolvePagination(params)
 
-  return omitEmpty({
-    page,
-    limit,
-    nickname: params.keyword?.trim(),
-    level: params.levelId,
-    group_id: params.groupId,
-    status: params.status === 'active' ? 1 : params.status === 'inactive' ? 0 : undefined
-  })
+  return {
+    ...omitEmpty({
+      page,
+      limit,
+      nickname: params.keyword?.trim(),
+      status: params.status === 'active' ? 1 : params.status === 'inactive' ? 0 : undefined
+    }),
+    level: resolveFilterId(params.levelId),
+    group_id: resolveFilterId(params.groupId)
+  }
 }
 
 /** 表单提交参数转换 */

@@ -423,51 +423,51 @@ html.dark .el-card {
 }
 
 // 修改 el-select 样式
-.el-select__popper:not(.el-tree-select__popper) {
-  .el-select-dropdown__list {
-    padding: 5px !important;
+// .el-select__popper:not(.el-tree-select__popper) {
+//   .el-select-dropdown__list {
+//     padding: 5px !important;
 
-    .el-select-dropdown__item {
-      height: 34px !important;
-      line-height: 34px !important;
-      border-radius: 6px !important;
+//     .el-select-dropdown__item {
+//       height: 34px !important;
+//       line-height: 34px !important;
+//       border-radius: 6px !important;
 
-      &.is-selected {
-        color: var(--art-gray-900) !important;
-        font-weight: 400 !important;
-        background-color: var(--art-el-active-color) !important;
-        margin-bottom: 4px !important;
-      }
+//       &.is-selected {
+//         color: var(--art-gray-900) !important;
+//         font-weight: 400 !important;
+//         background-color: var(--art-el-active-color) !important;
+//         margin-bottom: 4px !important;
+//       }
 
-      &:hover {
-        background-color: var(--art-hover-color) !important;
-      }
-    }
+//       &:hover {
+//         background-color: var(--art-hover-color) !important;
+//       }
+//     }
 
-    .el-select-dropdown__item:hover ~ .is-selected,
-    .el-select-dropdown__item.is-selected:has(~ .el-select-dropdown__item:hover) {
-      background-color: transparent !important;
-    }
-  }
-}
+//     .el-select-dropdown__item:hover ~ .is-selected,
+//     .el-select-dropdown__item.is-selected:has(~ .el-select-dropdown__item:hover) {
+//       background-color: transparent !important;
+//     }
+//   }
+// }
 
-// 修改 el-tree-select 样式
-.el-tree-select__popper {
-  .el-select-dropdown__list {
-    padding: 5px !important;
+// // 修改 el-tree-select 样式
+// .el-tree-select__popper {
+//   .el-select-dropdown__list {
+//     padding: 5px !important;
 
-    .el-tree-node {
-      .el-tree-node__content {
-        height: 36px !important;
-        border-radius: 6px !important;
+//     .el-tree-node {
+//       .el-tree-node__content {
+//         height: 36px !important;
+//         border-radius: 6px !important;
 
-        &:hover {
-          background-color: var(--art-gray-200) !important;
-        }
-      }
-    }
-  }
-}
+//         &:hover {
+//           background-color: var(--art-gray-200) !important;
+//         }
+//       }
+//     }
+//   }
+// }
 
 // 实现水波纹在文字下面效果
 .el-button > span {
