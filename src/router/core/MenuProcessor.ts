@@ -12,7 +12,6 @@ import { useUserStore } from '@/store/modules/user'
 import { useAppMode } from '@/hooks/core/useAppMode'
 import { fetchGetMenuList } from '@/api/system-manage'
 import { asyncRoutes } from '../routes/asyncRoutes'
-import { RoutesAlias } from '../routesAlias'
 import { formatMenuTitle } from '@/utils'
 
 export class MenuProcessor {
@@ -45,9 +44,12 @@ export class MenuProcessor {
 
     let menuList = [...asyncRoutes]
 
-    // 按后端 menuId 过滤
+    // 按后端 menuId 过滤（统一转 number，避免持久化/接口返回 string 导致匹配失败）
     if (menuIds && menuIds.length > 0) {
-      menuList = this.filterMenuByIds(menuList, new Set(menuIds))
+      menuList = this.filterMenuByIds(
+        menuList,
+        new Set(menuIds.map((id) => Number(id)).filter((id) => !Number.isNaN(id)))
+      )
     }
 
     return this.filterEmptyMenus(menuList)
@@ -72,7 +74,7 @@ export class MenuProcessor {
 
       const menuId = item.meta?.menuId
       const hasMenuId = menuId != null
-      const selfAllowed = hasMenuId && allowedIds.has(menuId)
+      const selfAllowed = hasMenuId && allowedIds.has(Number(menuId))
       const hasVisibleChildren = Boolean(children?.length)
 
       // 隐藏路由、全屏异常页等无 menuId 的叶子节点仍注册
@@ -128,22 +130,21 @@ export class MenuProcessor {
         return item
       })
       .filter((item) => {
-        // 目录菜单：有可见子项才保留
-        if ('children' in item) {
-          return Array.isArray(item.children) && item.children.length > 0
+        // 目录菜单：有可见子项则保留
+        if (item.children?.length) {
+          return true
         }
 
-        // 如果有外链或 iframe，保留
+        // 无子菜单时，自身可导航的入口仍保留（如尚未挂子页的业务域占位菜单）
+        if (this.isNavigableRoute(item)) {
+          return true
+        }
+
+        // 外链 / iframe
         if (item.meta?.isIframe === true || item.meta?.link) {
           return true
         }
 
-        // 如果有有效的 component，保留
-        if (item.component && item.component !== '' && item.component !== RoutesAlias.Layout) {
-          return true
-        }
-
-        // 其他情况过滤掉
         return false
       })
   }
