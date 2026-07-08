@@ -38,13 +38,13 @@ description: >-
 
 ### 框架对照
 
-| 原型 (React)        | 目标 (Vue)                        |
-| ------------------- | --------------------------------- |
-| useState            | ref / reactive                    |
-| shadcn Dialog/Table | ElDialog / ArtTable               |
-| lucide-react        | @iconify/vue 或 Element Plus 图标 |
-| 内联 Mock 数组      | `src/api/recycle/` + Pinia store  |
-| AdminDashboard 路由 | `src/router/modules/recycle.ts`   |
+| 原型 (React)        | 目标 (Vue)                                        |
+| ------------------- | ------------------------------------------------- |
+| useState            | ref / reactive                                    |
+| shadcn Dialog/Table | ElDialog / ArtTable（弹窗布局见「弹窗布局规范」） |
+| lucide-react        | @iconify/vue 或 Element Plus 图标                 |
+| 内联 Mock 数组      | `src/api/recycle/` + Pinia store                  |
+| AdminDashboard 路由 | `src/router/modules/recycle.ts`                   |
 
 ### 页面模板（遵循现有惯例）
 
@@ -66,6 +66,164 @@ description: >-
 - 分页适配用 `src/utils/table/tableUtils.ts`
 - 弹窗拆到 `modules/xxx-dialog.vue`
 - 搜索拆到 `modules/xxx-search.vue`
+
+### 弹窗布局规范（还原原型 + 本项目组件）
+
+**核心原则：布局与视觉尽量对齐原型 JSX/Tailwind，控件一律用 Element Plus + 项目 Art 组件，禁止引入 shadcn 或手写原生 input/textarea/button。**
+
+#### 弹窗类型与尺寸
+
+| 类型 | 原型参考 | Vue 实现 | 典型尺寸 |
+| --- | --- | --- | --- |
+| 表单弹窗（新增/编辑） | `CustomerManagement.tsx` → `CustomerFormModal` | `ElDialog` + `ElForm` | `width="640px"` |
+| 详情/审核弹窗 | `OrderManagementAdmin.tsx` → `renderReviewModal` 等 | `ElDialog` + 卡片分区布局 | `width="1200px"`，内容区限高滚动 |
+| 确认/轻量弹窗 | 批量审核确认等 | `ElMessageBox` 或窄 `ElDialog` | `420px`～`500px` |
+| 多步向导 | `CreateOrderWizard.tsx` | `ElDialog` + `ElSteps` + 分步 `ElForm` | 按原型宽度，通常 `800px`+ |
+
+#### A. 表单弹窗（canonical：`src/views/recycle/customers/modules/customer-dialog.vue`）
+
+新建/编辑类弹窗**直接复用该文件的 DOM 结构与 SCSS 写法**，不要参考 `system/user/modules/user-dialog.vue`（那是旧版 `label-width` 横排，与 ERP 原型不一致）。
+
+**结构模板：**
+
+```vue
+<ElDialog
+  v-model="dialogVisible"
+  :title="dialogType === 'add' ? '新增xxx' : '编辑xxx'"
+  width="640px"
+  align-center
+  destroy-on-close
+  class="xxx-form-dialog"
+>
+  <ElForm ref="formRef" :model="formData" :rules="rules" label-position="top" class="xxx-form">
+    <div class="form-block"><!-- 顶部选项，如 ElRadioGroup + ElRadioButton --></div>
+    <div class="form-block">
+      <div class="form-section-title">基本信息</div>
+      <ElRow :gutter="16">
+        <ElCol :span="12"><ElFormItem label="字段" prop="field"><ElInput /></ElFormItem></ElCol>
+      </ElRow>
+    </div>
+  </ElForm>
+  <template #footer>
+    <ElButton @click="dialogVisible = false">取消</ElButton>
+    <ElButton type="primary" :loading="submitting" @click="handleSubmit">保存</ElButton>
+  </template>
+</ElDialog>
+```
+
+**布局对照（原型 Tailwind → Vue）：**
+
+| 原型 | Vue 实现 |
+| --- | --- |
+| `w-[640px] max-h-[90vh] flex flex-col` | `ElDialog width="640px"` + `:deep(.el-dialog__body) { max-height: calc(90vh - 120px); overflow-y: auto }` |
+| `px-6 py-5 space-y-5` | `.xxx-form { padding: 0 24px }` + `.form-block + .form-block { margin-top: 20px }` |
+| `text-xs font-semibold border-b border-gray-100` 分区标题 | `.form-section-title`（13px、600、底边 `#f0f0f0`） |
+| `grid grid-cols-2 gap-4` | `ElRow :gutter="16"` + `ElCol :span="12"`，`:deep(.el-row) { row-gap: 16px }` |
+| 类型切换 pill 按钮 | `ElRadioGroup` + `ElRadioButton`，选中色 `#1890FF` / `#E6F7FF` |
+| `label` 在上、`input` 在下 | `label-position="top"`，label 14px、`var(--art-gray-600)` |
+
+**表单控件映射（禁止原生 HTML）：**
+
+- 文本 → `ElInput`
+- 下拉 → `ElSelect` + `ElOption`
+- 多行 → `ElInput type="textarea" :rows="3"`
+- 单选组 → `ElRadioGroup` / `ElRadioButton` 或 `ElRadio`
+- 日期 → `ElDatePicker`
+- 开关 → `ElSwitch`
+- 图标 → `ArtSvgIcon`（如 `ri:xxx-line`）
+
+**脚本惯例：** `props: { visible, type, xxxData? }`；`emit('update:visible')` + `emit('submit')`；`watch(visible)` 内拉选项/回填；`destroy-on-close` 配合 `clearValidate()`。
+
+#### B. 详情 / 审核弹窗（还原 `OrderManagementAdmin` 大卡片区）
+
+原型特征：**自定义标题区（主标题 + 副标题订单号）→ 灰色滚动内容区 → 多个白卡片 → 高亮审核卡片 → 固定底栏操作按钮**。
+
+```vue
+<ElDialog
+  v-model="visible"
+  width="1200px"
+  align-center
+  destroy-on-close
+  class="xxx-detail-dialog"
+  :show-close="true"
+>
+  <template #header>
+    <div class="dialog-header">
+      <div class="dialog-header-main">客户申请报废 - 审核</div>
+      <div class="dialog-header-sub">{{ order.order_no }}</div>
+    </div>
+  </template>
+
+  <div class="dialog-body">
+    <!-- 批次切换条（如有） -->
+    <div class="info-card">...</div>
+    <!-- 只读信息区 -->
+    <div class="info-card">
+      <div class="info-card-title">车辆信息</div>
+      <ElRow :gutter="24">
+        <ElCol :span="8"><div class="info-item"><div class="info-label">车牌号</div><div class="info-value">{{ row.plate_no }}</div></div></ElCol>
+      </ElRow>
+    </div>
+    <!-- 审核重点高亮区 -->
+    <div class="info-card info-card--highlight">...</div>
+    <!-- 可编辑区仍用 ElFormItem + ElInput -->
+    <div class="info-card">
+      <ElFormItem label="驳回原因（可选）"><ElInput v-model="rejectReason" type="textarea" :rows="3" /></ElFormItem>
+    </div>
+  </div>
+
+  <template #footer>
+    <ElButton @click="visible = false">取消</ElButton>
+    <ElButton class="btn-reject" @click="handleReject">驳回</ElButton>
+    <ElButton class="btn-approve" type="success" @click="handleApprove">通过</ElButton>
+  </template>
+</ElDialog>
+```
+
+**样式 token（与原型 hex 对齐，优先写 SCSS 变量或类名）：**
+
+| 用途            | 颜色                                           |
+| --------------- | ---------------------------------------------- |
+| 内容区背景      | `#FAFAFA` / `var(--art-gray-100)`              |
+| 卡片边框        | `#E5E7EB` 或 `#D9D9D9`                         |
+| 卡片圆角        | `8px`（`rounded-lg`）                          |
+| 主色 / 批次标签 | `#1890FF`，背景 `#E6F7FF`                      |
+| 审核高亮区      | 背景 `#FFF7E6`，边框 `#FFD591`，标题 `#FA8C16` |
+| 通过按钮        | `#52C41A`                                      |
+| 驳回按钮        | `#FF4D4F`                                      |
+| 只读 label      | 12px `#8C8C8C`；value 14px `#262626`           |
+
+**布局对照：**
+
+| 原型 | Vue |
+| --- | --- |
+| `grid grid-cols-3 gap-x-6 gap-y-4` | `ElRow :gutter="24"` + `ElCol :span="8"` + `.info-item` 行间距 |
+| `space-y-4` 卡片堆叠 | `.dialog-body { display: flex; flex-direction: column; gap: 16px }` |
+| `h-[700px] flex flex-col` | `:deep(.el-dialog) { display: flex; flex-direction: column }` + body `flex:1; min-height:0; overflow-y:auto` |
+| 批次车辆 Tab 按钮 | `ElButton` 或自定义 `.batch-vehicle-tab`，选中态 `#1890FF` 白字 |
+
+**只读 vs 可编辑：** 展示字段用 `.info-label` + `.info-value` 纯文本；需要提交的数据（驳回原因、结算信息等）才包进 `ElForm` / `ElFormItem`。
+
+#### C. 文件与样式组织
+
+```
+modules/
+├── order-dialog.vue          # 模板 + 脚本
+├── order-dialog.scss         # 样式超过 ~80 行时拆出，vue 内 @use './order-dialog.scss'
+└── order-audit-dialog.vue    # 一种业务一种弹窗，禁止堆在 index.vue
+```
+
+- 表单弹窗 SCSS 可 scoped 写在 `.vue` 内；详情/审核弹窗建议独立 `.scss`，类名前缀与弹窗一致（如 `.order-audit-dialog`）。
+- 弹窗内字段名用接口 **snake_case**（如 `real_name`、`plate_no`），展示文案对齐原型中文 label，**不要**沿用原型 mock 的 camelCase 字段名。
+
+#### D. 开发检查清单
+
+1. 对照原型 JSX：分区顺序、卡片数量、高亮块、底栏按钮是否与原型一致
+2. 表单类：是否 `label-position="top"` + `form-block` / `form-section-title`
+3. 是否全部使用 `ElInput` / `ElSelect` 等，无原生 `<input>` / `<textarea>`
+4. 详情类：内容区是否灰底 + 白卡片 + 限高滚动
+5. 审核类：通过/驳回按钮色是否与原型一致（绿/红，而非默认 primary/danger 混用）
+6. `destroy-on-close` + 关闭时重置表单/索引状态（如批次车辆 `reviewVehicleIdx`）
 
 ### 目录约定
 
@@ -102,9 +260,52 @@ src/
 3. 创建 API 接口（可先 Mock，对接后列表直接返回 res.list）→ src/api/recycle/
 4. 创建路由 → src/router/modules/recycle.ts
 5. 实现页面 index.vue + modules/（表格直接读接口字段）
-6. 复杂弹窗/向导单独组件
+6. 复杂弹窗/向导单独组件（表单弹窗对齐 `customer-dialog.vue`，详情/审核对齐原型卡片布局，见「弹窗布局规范」）
 7. 自测：列表筛选、分页、详情弹窗、状态标签颜色
+8. 类型检查 → 见下方「类型检查（用户手动执行）」，Agent 不自行跑全量 vue-tsc
 ```
+
+### 类型检查（用户手动执行）
+
+**Agent 禁止自行执行全量 `npx vue-tsc --noEmit`**（本项目体量大，全量检查常需 1～2 分钟，拖慢迭代）。
+
+代码改完后，Agent 应**明确提示用户**执行类型检查；用户本地跑完后，**把终端报错原文贴回**，Agent 再据此修复。
+
+**用户执行（项目根目录）：**
+
+```bash
+# 推荐：全量检查（改完一个模块后跑）
+npx vue-tsc --noEmit
+
+# 可选：只查本次改动的文件（更快）
+npx vue-tsc --noEmit src/views/recycle/recovery/orders/index.vue
+```
+
+**Agent 话术示例：**
+
+> 代码已改完，请你在项目根目录手动跑：`npx vue-tsc --noEmit`  
+> 若有报错，把终端输出贴给我，我继续修。
+
+**用户反馈格式（任选）：**
+
+- 终端完整报错（含文件路径、行号、TS 错误码）
+- IDE 里 TypeScript 红线文案
+- 或确认「无报错」
+
+**Agent 收到报错后：**
+
+- 只修报错涉及的文件，不做无关重构
+- 修完再次提示用户复跑，直到通过或用户确认可接受
+
+**可替代/补充的验证（不等同于类型检查）：**
+
+- `pnpm dev` + 浏览器控制台 / 网络面板（接口联调）
+- IDE 实时诊断（Agent 可用 ReadLints 读已打开文件）
+
+**常见 TS 踩坑（本仓库）：**
+
+- `buildColumns` 动态 push 列时，给 `cols` 标注 `ColumnOption<T>[]`，否则 `align` 等字段报 TS2353
+- `apiParams` / `replaceSearchParams` 里 `{ current: 1, ...searchForm.value }` 会被 spread 覆盖，应写成 `{ ...searchForm.value, current: 1 }`
 
 ### 列表项字段规范（必须遵守）
 
@@ -141,10 +342,11 @@ src/
 
 - 不要把小程序页面迁入 art-design-pro
 - 不要新建独立 React 子项目
-- 不要照搬 shadcn 组件，统一用 Element Plus + 项目已有 Art 组件
+- 不要照搬 shadcn 组件，统一用 Element Plus + 项目已有 Art 组件；弹窗布局还原原型，控件映射见「弹窗布局规范」
 - **列表项不要搞字段映射，直接用接口字段，不要映射 mock 字段**
 - 不要大范围重构无关模块
 - 不要擅自 git commit（除非用户明确要求）
+- **不要自行跑全量 `vue-tsc --noEmit`**，改完提示用户手动跑并贴回报错（见「类型检查（用户手动执行）」）
 
 ## 快速定位原型
 

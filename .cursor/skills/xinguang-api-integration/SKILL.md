@@ -220,6 +220,7 @@ Controller 示例：`ScrapOrder.php` → `index()` 接受 `page`、`limit`、`ke
 - [ ] 5. 改 index.vue：useTable paginationKey + apiFn
 - [ ] 6. 改 modules：dialog/drawer/search 字段对齐
 - [ ] 7. 自测：筛选、分页、新增、编辑、详情、错误提示
+- [ ] 8. 类型检查：提示用户手动跑 `npx vue-tsc --noEmit`，报错贴回后再修（见 recycle-erp-backend「类型检查（用户手动执行）」）
 ```
 
 ## 与 recycle-erp-backend 分工
@@ -237,6 +238,7 @@ Controller 示例：`ScrapOrder.php` → `index()` 接受 `page`、`limit`、`ke
 - **列表项不要搞字段映射，直接用接口字段，不要映射 mock 字段**
 - 不要处理无关格式化
 - 不要擅自 git commit
+- **不要自行跑全量 `vue-tsc --noEmit`**，对接改完后提示用户手动检查（见 recycle-erp-backend skill）
 - 不要假设分页字段为 `current/size` 或 `records/total`，以 Controller 为准
 
 ## 用户提供接口信息时的期望格式
