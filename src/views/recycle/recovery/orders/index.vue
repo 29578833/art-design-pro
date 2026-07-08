@@ -64,12 +64,9 @@
     RecycleOrder
   } from '@/types/recycle/order'
   import {
-    STATUS_COLOR,
-    getOrderCreator,
-    getOrderCustomerInfo,
-    getOrderDisplayName,
+    getOrderDisplayNo,
     getOrderStatusText,
-    getOrderVehicleInfo,
+    isLeadOrder,
     resolveOrderTypeStyle
   } from '@/types/recycle/order'
   import * as XLSX from 'xlsx'
@@ -113,55 +110,53 @@
   }
 
   function renderStatusTag(row: RecycleOrder) {
-    const label = getOrderStatusText(row)
-    const cfg = STATUS_COLOR[row.status] || { text: '#8C8C8C', bg: '#FAFAFA' }
-    return h(
-      'span',
-      {
-        class: 'order-status-tag',
-        style: { color: cfg.text, background: cfg.bg }
-      },
-      label
-    )
+    return h('span', { class: 'order-status-tag plain' }, getOrderStatusText(row))
   }
 
   function renderCustomerCell(row: RecycleOrder) {
-    const info = getOrderCustomerInfo(row)
     return h('div', { class: 'order-customer-cell' }, [
-      h('div', { class: 'order-customer-name' }, info.name),
-      h('div', { class: 'order-customer-phone' }, info.phone)
+      h('div', { class: 'order-customer-name' }, row.real_name || '—'),
+      h('div', { class: 'order-customer-phone' }, row.phone || '—')
     ])
   }
 
   function renderVehicleCell(row: RecycleOrder) {
-    if (row.orderType === 'lead' && row.leadType === 'customer') {
+    if (isLeadOrder(row) && row.order_type === 'customer_lead') {
       return h('div', { class: 'order-vehicle-cell' }, [
         h('div', { class: 'order-vehicle-empty' }, '暂无车辆信息'),
         h('div', { class: 'order-vehicle-sub' }, '仅客户线索')
       ])
     }
-    if ((row.orderType === 'customer' || row.orderType === 'staff') && row.isBatch) {
+    if (row.batch_display) {
       return h('div', { class: 'order-vehicle-cell' }, [
-        h('div', { class: 'order-batch-title' }, `批量 · ${row.vehicleCount ?? 3} 台`),
-        h('div', { class: 'order-vehicle-sub' }, getOrderVehicleInfo(row))
+        h('div', { class: 'order-batch-title' }, row.batch_display),
+        h(
+          'div',
+          { class: 'order-vehicle-sub' },
+          [row.brand, row.model].filter(Boolean).join(' ') || '—'
+        )
       ])
     }
     return h('div', { class: 'order-vehicle-cell' }, [
-      h('span', { class: 'order-plate-tag' }, getOrderDisplayName(row)),
-      h('div', { class: 'order-vehicle-sub' }, getOrderVehicleInfo(row))
+      h('span', { class: 'order-plate-tag' }, row.plate_no || '—'),
+      h(
+        'div',
+        { class: 'order-vehicle-sub' },
+        [row.brand, row.model].filter(Boolean).join(' ') || '—'
+      )
     ])
   }
 
   function renderDeliveryMethod(row: RecycleOrder) {
-    if (row.deliveryMethod === 'tow') {
+    if (row.delivery_type === 'tow') {
       return h('span', { class: 'order-delivery-tag tow' }, '上门拖车')
     }
     return h('span', { class: 'order-delivery-tag self' }, '自行送厂')
   }
 
   function renderEstimatedAmount(row: RecycleOrder) {
-    if (row.estimatedAmount) {
-      return h('span', { class: 'order-price' }, `¥${row.estimatedAmount}`)
+    if (row.settlement_amount) {
+      return h('span', { class: 'order-price' }, `¥${row.settlement_amount}`)
     }
     return h('span', { class: 'order-muted' }, '待评估')
   }
@@ -191,15 +186,15 @@
 
     const cols = [
       {
-        prop: 'id',
+        prop: 'order_no',
         label: isLead ? '线索编号' : '订单编号',
-        formatter: (row: RecycleOrder) => h('span', { class: 'order-no' }, row.id)
+        formatter: (row: RecycleOrder) => h('span', { class: 'order-no' }, getOrderDisplayNo(row))
       }
     ]
 
     if (!isPendingReview && !isLead) {
       cols.push({
-        prop: 'orderType',
+        prop: 'order_type_text',
         label: '订单类型',
         formatter: (row: RecycleOrder) => renderTypeTag(row)
       })
@@ -207,7 +202,7 @@
 
     if (isLead) {
       cols.push({
-        prop: 'leadType',
+        prop: 'lead_type_text',
         label: '线索类型',
         formatter: (row: RecycleOrder) => renderTypeTag(row)
       })
@@ -215,12 +210,12 @@
 
     cols.push(
       {
-        prop: 'customerName',
+        prop: 'real_name',
         label: '客户信息',
         formatter: (row: RecycleOrder) => renderCustomerCell(row)
       },
       {
-        prop: 'plateNumber',
+        prop: 'plate_no',
         label: isFormalOrAll && !isLead ? '关联车辆' : '车辆信息',
         formatter: (row: RecycleOrder) => renderVehicleCell(row)
       }
@@ -229,19 +224,19 @@
     if (isPendingReview) {
       cols.push(
         {
-          prop: 'deliveryMethod',
+          prop: 'delivery_type',
           label: '回收方式',
           formatter: (row: RecycleOrder) => renderDeliveryMethod(row)
         },
         {
-          prop: 'estimatedAmount',
+          prop: 'settlement_amount',
           label: '预估残值',
           formatter: (row: RecycleOrder) => renderEstimatedAmount(row)
         }
       )
     } else {
       cols.push({
-        prop: 'status',
+        prop: 'current_status_text',
         label: isLead ? '跟进状态' : '当前状态',
         align: 'center' as const,
         formatter: (row: RecycleOrder) => renderStatusTag(row)
@@ -250,15 +245,16 @@
 
     cols.push(
       {
-        prop: 'createTime',
+        prop: 'add_time_text',
         label: isLead ? '创建时间' : '提交时间',
-        formatter: (row: RecycleOrder) => h('span', { class: 'order-time' }, row.createTime)
+        formatter: (row: RecycleOrder) =>
+          h('span', { class: 'order-time' }, row.add_time_text || '—')
       },
       {
-        prop: 'createdBy',
+        prop: 'creator_name',
         label: isPendingReview ? '提交人' : isLead ? '线索来源' : '创建人',
         formatter: (row: RecycleOrder) =>
-          h('span', { class: 'order-creator' }, getOrderCreator(row))
+          h('span', { class: 'order-creator' }, row.creator_name || '—')
       },
       {
         prop: 'operation',
@@ -330,31 +326,31 @@
   }
 
   function handleView(row: RecycleOrder) {
-    ElMessage.info(`查看订单：${row.id}`)
+    ElMessage.info(`查看订单：${getOrderDisplayNo(row)}`)
   }
 
   function handleAudit(row: RecycleOrder) {
-    ElMessage.info(`审核详情：${row.id}`)
+    ElMessage.info(`审核详情：${getOrderDisplayNo(row)}`)
   }
 
   function handleCreateOrder(row: RecycleOrder) {
-    ElMessage.info(`创建订单：${row.id}`)
+    ElMessage.info(`创建订单：${getOrderDisplayNo(row)}`)
   }
 
   function handleEdit(row: RecycleOrder) {
-    ElMessage.info(`编辑订单：${row.id}`)
+    ElMessage.info(`编辑订单：${getOrderDisplayNo(row)}`)
   }
 
   function handleAssignDriver(row: RecycleOrder) {
-    ElMessage.info(`指派司机：${row.id}`)
+    ElMessage.info(`指派司机：${getOrderDisplayNo(row)}`)
   }
 
   function handleReassignDriver(row: RecycleOrder) {
-    ElMessage.info(`重新指派司机：${row.id}`)
+    ElMessage.info(`重新指派司机：${getOrderDisplayNo(row)}`)
   }
 
   function handleContactDriver(row: RecycleOrder) {
-    const phone = row.driverPhone || row.customerPhone
+    const phone = row.driver_phone || row.assigned_driver_phone || row.phone
     if (!phone) {
       ElMessage.warning('暂无司机联系电话')
       return
@@ -363,23 +359,27 @@
   }
 
   async function handleApprove(row: RecycleOrder) {
-    await ElMessageBox.confirm(`确认审核通过订单 ${row.id}？`, '审核通过', {
+    await ElMessageBox.confirm(`确认审核通过订单 ${getOrderDisplayNo(row)}？`, '审核通过', {
       type: 'warning',
       confirmButtonText: '确认通过',
       cancelButtonText: '取消'
     })
-    await fetchAuditOrder({ id: row.rawId, approved: true })
+    await fetchAuditOrder({ id: row.id, approved: true })
     refreshAll()
   }
 
   async function handleReject(row: RecycleOrder) {
-    const { value } = await ElMessageBox.prompt('请填写驳回原因', `驳回订单 ${row.id}`, {
-      confirmButtonText: '确认驳回',
-      cancelButtonText: '取消',
-      inputPattern: /\S+/,
-      inputErrorMessage: '驳回原因不能为空'
-    })
-    await fetchAuditOrder({ id: row.rawId, approved: false, remark: value })
+    const { value } = await ElMessageBox.prompt(
+      '请填写驳回原因',
+      `驳回订单 ${getOrderDisplayNo(row)}`,
+      {
+        confirmButtonText: '确认驳回',
+        cancelButtonText: '取消',
+        inputPattern: /\S+/,
+        inputErrorMessage: '驳回原因不能为空'
+      }
+    )
+    await fetchAuditOrder({ id: row.id, approved: false, remark: value })
     refreshAll()
   }
 
@@ -400,17 +400,17 @@
       ElMessage.warning('请输入有效的跟进人 UID')
       return
     }
-    await fetchAssignLeadFollow({ id: row.rawId, followUid })
+    await fetchAssignLeadFollow({ id: row.id, followUid })
     refreshAll()
   }
 
   async function handleCompleteTow(row: RecycleOrder) {
-    await ElMessageBox.confirm(`确认拖车任务 ${row.id} 已完成？`, '确认完成', {
+    await ElMessageBox.confirm(`确认拖车任务 ${getOrderDisplayNo(row)} 已完成？`, '确认完成', {
       type: 'warning',
       confirmButtonText: '确认完成',
       cancelButtonText: '取消'
     })
-    await fetchUpdateTowStatus(row.rawId, 4)
+    await fetchUpdateTowStatus(row.id, 4)
     refreshAll()
   }
 
@@ -427,19 +427,16 @@
         return
       }
 
-      const rows = list.map((item) => {
-        const customer = getOrderCustomerInfo(item)
-        return {
-          编号: item.id,
-          订单类型: item.orderType,
-          客户姓名: customer.name,
-          联系电话: customer.phone,
-          车牌号: item.plateNumber,
-          当前状态: getOrderStatusText(item),
-          创建人: getOrderCreator(item),
-          提交时间: item.createTime
-        }
-      })
+      const rows = list.map((item) => ({
+        订单编号: getOrderDisplayNo(item),
+        订单类型: item.order_type_text || item.order_type,
+        客户姓名: item.real_name || '',
+        联系电话: item.phone || '',
+        车牌号: item.plate_no || '',
+        当前状态: getOrderStatusText(item),
+        创建人: item.creator_name || '',
+        提交时间: item.add_time_text || ''
+      }))
 
       const sheet = XLSX.utils.json_to_sheet(rows)
       const book = XLSX.utils.book_new()

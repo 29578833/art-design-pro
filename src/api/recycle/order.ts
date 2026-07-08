@@ -4,7 +4,6 @@ import type {
   OrderSearchParams,
   OrderTab,
   OrderTabCount,
-  OrderType,
   RecycleOrder
 } from '@/types/recycle/order'
 import { ORDER_TAB_CONFIG } from '@/types/recycle/order'
@@ -102,112 +101,30 @@ function buildListParams(params: OrderSearchParams) {
   }
 }
 
-/** 映射后端订单类型 */
-function mapOrderType(raw: Record<string, unknown>): OrderType {
-  const type = String(raw.order_type || '')
-  if (type === 'tow') return 'towing'
-  if (type === 'vehicle_lead' || type === 'customer_lead') return 'lead'
-  if (type === 'staff_order') return 'staff'
-  return 'customer'
-}
-
-/** 映射前端状态 key */
-function mapOrderStatus(raw: Record<string, unknown>, orderType: OrderType) {
-  const orderStatus = Number(raw.status ?? 0)
-
-  if (orderType === 'lead') {
-    if (Number(raw.is_follow) === 1) return 'viewed'
-    if (Number(raw.business_id) > 0) return 'assigned'
-    return 'pending'
-  }
-
-  if (orderType === 'towing') {
-    const s = Number(raw.status)
-    if (s === 1) return 'pending_dispatch'
-    if (s === 2) return 'pending_towing'
-    if (s === 3) return 'towing'
-    if (s === 4) return 'completed'
-    return 'pending_dispatch'
-  }
-
-  if (orderStatus === 1) return 'pending_review'
-  if (orderStatus === 2) return 'approved'
-  if (orderStatus === -1) return 'rejected'
-  if (orderStatus === 3) return 'completed'
-
-  const vehicleStatus = Number(raw.vehicle_status)
-  const vehicleMap: Record<number, string> = {
-    1: 'pending_entry',
-    2: 'inspecting',
-    3: 'dismantling',
-    4: 'canceling',
-    5: 'completed'
-  }
-  return vehicleMap[vehicleStatus] || 'approved'
-}
-
-/** 列表项字段映射 */
-function mapOrderItem(raw: Record<string, unknown>): RecycleOrder {
-  const orderType = mapOrderType(raw)
-  const rawId = Number(raw.id || 0)
-  const leadTypeNum = Number(raw.lead_type ?? 0)
-
-  return {
-    rawId,
-    id: String(raw.order_no || raw.tow_no || raw.id || ''),
-    orderType,
-    status: mapOrderStatus(raw, orderType) as RecycleOrder['status'],
-    statusText: String(raw.current_status_text || raw.status_text || ''),
-    createTime: String(raw.add_time_text || raw.create_time || ''),
-    leadType: leadTypeNum === 1 ? 'vehicle' : leadTypeNum === 2 ? 'customer' : undefined,
-    phone: String(raw.phone || ''),
-    ownerName: String(raw.real_name || raw.owner_name || ''),
-    plateNumber: String(raw.plate_no || '—'),
-    brand: String(raw.brand || ''),
-    model: String(raw.model || ''),
-    vin: String(raw.vin || ''),
-    customerName: String(raw.real_name || raw.customer_name || raw.owner_name || '—'),
-    customerPhone: String(raw.phone || raw.customer_phone || ''),
-    isBatch: Boolean(Number(raw.is_batch || 0)),
-    vehicleCount: Number(raw.batch_vehicle_count || 0) || undefined,
-    deliveryMethod: raw.delivery_type === 'tow' ? 'tow' : 'self',
-    estimatedAmount: raw.settlement_amount
-      ? String(raw.settlement_amount)
-      : raw.estimated_amount
-        ? String(raw.estimated_amount)
-        : undefined,
-    isSigned: Boolean(Number(raw.is_signed || 0)),
-    needSign: Boolean(Number(raw.need_sign || 0)),
-    createdBy: String(raw.created_by || ''),
-    creatorName: String(raw.creator_name || ''),
-    driverPhone: String(raw.driver_phone || raw.assigned_driver_phone || ''),
-    linkedOrderId: raw.linked_order_id ? String(raw.linked_order_id) : undefined,
-    remark: String(raw.remark || '')
-  }
-}
-
-/** 线索指派状态客户端过滤 */
+/** 线索指派：后端暂无独立筛选，用接口字段本地过滤 */
 function applyLeadAssignedFilter(list: RecycleOrder[], params: OrderSearchParams) {
   if (params.tab !== 'lead' || params.leadFollowStatus !== 'assigned') return list
-  return list.filter((item) => item.status === 'assigned')
+  return list.filter(
+    (item) => item.status === 0 && Number(item.business_id) > 0 && Number(item.is_follow) === 0
+  )
 }
 
-/** 批量类型客户端过滤（后端暂无 is_batch 筛选） */
+/** 批量类型：后端暂无 is_batch 筛选，用接口字段本地过滤 */
 function applyBatchFilter(list: RecycleOrder[], params: OrderSearchParams) {
   if (!params.batchType || params.batchType === 'all') return list
-  if (params.batchType === 'single') return list.filter((item) => !item.isBatch)
-  return list.filter((item) => item.isBatch)
+  if (params.batchType === 'single') return list.filter((item) => !Number(item.is_batch))
+  return list.filter((item) => Number(item.is_batch) === 1)
 }
 
 /** 获取订单列表 */
 export async function fetchOrderList(params: OrderSearchParams): Promise<OrderList> {
   const { page, limit } = resolvePagination(params)
-  const res = await request.get<{ list: Record<string, unknown>[]; count: number }>({
+  const res = await request.get<{ list: RecycleOrder[]; count: number }>({
     url: '/scrap/order/list',
     params: buildListParams(params)
   })
 
-  let records = (res.list || []).map(mapOrderItem)
+  let records = res.list || []
   records = applyLeadAssignedFilter(records, params)
   records = applyBatchFilter(records, params)
 

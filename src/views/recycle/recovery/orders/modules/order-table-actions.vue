@@ -16,6 +16,13 @@
 
 <script setup lang="ts">
   import type { RecycleOrder } from '@/types/recycle/order'
+  import {
+    isLeadAssigned,
+    isLeadOrder,
+    isLeadPending,
+    isLeadViewed,
+    isTowOrder
+  } from '@/types/recycle/order'
 
   export interface OrderActionEvent {
     (e: 'view', row: RecycleOrder): void
@@ -47,15 +54,15 @@
     const actions: ActionItem[] = [
       {
         key: 'view',
-        label: row.orderType === 'lead' ? '查看' : '查看',
+        label: '查看',
         icon: 'ri:eye-line',
         variant: 'default',
         onClick: () => emit('view', row)
       }
     ]
 
-    // 客户订单待审核
-    if (row.orderType === 'customer' && row.status === 'pending_review') {
+    // 客户订单待审核 status=1
+    if (row.order_type === 'customer_order' && row.status === 1) {
       actions.push(
         {
           key: 'audit',
@@ -83,8 +90,8 @@
     }
 
     // 线索订单
-    if (row.orderType === 'lead') {
-      if (row.status === 'pending') {
+    if (isLeadOrder(row)) {
+      if (isLeadPending(row)) {
         actions.push(
           {
             key: 'assign-lead',
@@ -101,7 +108,7 @@
             onClick: () => emit('create-order', row)
           }
         )
-      } else if (row.status === 'assigned') {
+      } else if (isLeadAssigned(row)) {
         actions.push({
           key: 'create-order',
           label: '创建订单',
@@ -109,20 +116,20 @@
           variant: 'primary',
           onClick: () => emit('create-order', row)
         })
-      } else if (row.status === 'viewed') {
+      } else if (isLeadViewed(row)) {
         actions.push({
-          key: row.linkedOrderId ? 'edit' : 'create-order',
-          label: row.linkedOrderId ? '编辑订单' : '创建订单',
-          icon: row.linkedOrderId ? 'ri:edit-line' : 'ri:add-line',
+          key: 'create-order',
+          label: '创建订单',
+          icon: 'ri:add-line',
           variant: 'primary',
-          onClick: () => (row.linkedOrderId ? emit('edit', row) : emit('create-order', row))
+          onClick: () => emit('create-order', row)
         })
       }
       return actions
     }
 
     // 正式回收订单
-    if (row.orderType === 'customer' || row.orderType === 'staff') {
+    if (row.order_type === 'customer_order' || row.order_type === 'staff_order') {
       actions.push({
         key: 'edit',
         label: '编辑',
@@ -133,9 +140,9 @@
       return actions
     }
 
-    // 拖车订单
-    if (row.orderType === 'towing') {
-      if (row.status === 'pending_dispatch') {
+    // 拖车订单 status: 1待派单 2待拖车 3拖车中 4已完成
+    if (isTowOrder(row)) {
+      if (row.status === 1) {
         actions.push({
           key: 'assign-driver',
           label: '指派司机',
@@ -143,7 +150,7 @@
           variant: 'primary',
           onClick: () => emit('assign-driver', row)
         })
-      } else if (row.status === 'pending_towing') {
+      } else if (row.status === 2) {
         actions.push(
           {
             key: 'contact-driver',
@@ -160,7 +167,7 @@
             onClick: () => emit('reassign-driver', row)
           }
         )
-      } else if (row.status === 'towing') {
+      } else if (row.status === 3) {
         actions.push(
           {
             key: 'contact-driver',

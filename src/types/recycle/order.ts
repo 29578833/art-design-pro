@@ -1,38 +1,4 @@
-/** 订单类型 */
-export type OrderType = 'lead' | 'customer' | 'staff' | 'towing'
-
-/** 线索子类型 */
-export type LeadType = 'vehicle' | 'customer'
-
-/** 线索订单状态 */
-export type LeadOrderStatus = 'pending' | 'assigned' | 'viewed'
-
-/** 客户订单商流状态 */
-export type CustomerOrderStatus = 'pending_review' | 'approved' | 'rejected' | 'completed'
-
-/** 正式订单物流状态 */
-export type FormalOrderStatus =
-  | 'pending_entry'
-  | 'towing_pending'
-  | 'towing'
-  | 'towing_completed'
-  | 'inspecting'
-  | 'dismantling'
-  | 'canceling'
-  | 'canceled'
-  | 'completed'
-
-/** 拖车订单状态 */
-export type TowingOrderStatus = 'pending_dispatch' | 'pending_towing' | 'towing' | 'completed'
-
-/** 订单状态（原型统一 status 字段） */
-export type OrderStatus =
-  | LeadOrderStatus
-  | CustomerOrderStatus
-  | FormalOrderStatus
-  | TowingOrderStatus
-
-/** 列表 Tab（与原型 MainTab 一致） */
+/** 列表 Tab */
 export type OrderTab = 'all' | 'lead' | 'formal_order' | 'towing' | 'pending_review'
 
 /** 正式回收订单筛选 */
@@ -61,45 +27,73 @@ export type TowingStatusFilter =
 /** 全部订单进度筛选 */
 export type ProgressFilter = 'all' | 'ongoing' | 'finished'
 
-/** 订单列表项（字段对齐原型 Order 联合类型） */
+/** 订单列表项（直接使用接口字段，不做映射） */
 export interface RecycleOrder {
-  /** 展示编号（order_no / tow_no） */
-  id: string
-  /** 接口用数字 ID */
-  rawId: number
-  orderType: OrderType
-  status: OrderStatus
-  /** 后端 current_status_text */
-  statusText?: string
-  createTime: string
-  /** 线索 */
-  leadType?: LeadType
+  /** 主键 ID */
+  id: number
+  /** 订单编号 */
+  order_no?: string
+  /** 拖车单编号 */
+  tow_no?: string
+  /** 订单类型：vehicle_lead / customer_lead / customer_order / staff_order / tow */
+  order_type: string
+  /** 订单类型文案 */
+  order_type_text?: string
+  /** 状态码 */
+  status: number
+  /** 当前状态文案 */
+  current_status_text?: string
+  /** 状态文案 */
+  status_text?: string
+  /** 创建时间戳 */
+  add_time?: number
+  /** 创建时间文案 */
+  add_time_text?: string
+  /** 线索类型 */
+  lead_type?: number
+  /** 线索类型文案 */
+  lead_type_text?: string
+  /** 联系电话 */
   phone?: string
-  ownerName?: string
-  /** 车辆 */
-  plateNumber: string
+  /** 客户姓名 */
+  real_name?: string
+  /** 车牌号 */
+  plate_no?: string
+  /** 品牌 */
   brand?: string
+  /** 车型 */
   model?: string
+  /** 车架号 */
   vin?: string
-  /** 客户 */
-  customerName: string
-  customerPhone: string
-  /** 批量 */
-  isBatch?: boolean
-  vehicleCount?: number
-  /** 待审核 */
-  deliveryMethod?: 'self' | 'tow'
-  estimatedAmount?: string
-  /** 签名 */
-  isSigned?: boolean
-  needSign?: boolean
-  /** 创建人展示名 */
-  createdBy?: string
-  creatorName?: string
-  /** 拖车 */
-  driverPhone?: string
-  linkedOrderId?: string
+  /** 是否批量：0 否 / 1 是 */
+  is_batch?: number
+  /** 批量车辆数量 */
+  batch_vehicle_count?: number
+  /** 批量展示文案 */
+  batch_display?: string
+  /** 回收方式：tow 上门拖车 / self 自行送厂 */
+  delivery_type?: string
+  /** 结算金额/预估残值 */
+  settlement_amount?: number | string
+  /** 创建人 */
+  creator_name?: string
+  /** 跟进业务员 ID */
+  business_id?: number
+  /** 是否已跟进：0 否 / 1 是 */
+  is_follow?: number
+  /** 车辆状态码 */
+  vehicle_status?: number
+  /** 车辆状态文案 */
+  vehicle_status_text?: string
+  /** 司机电话 */
+  driver_phone?: string
+  /** 已指派司机电话 */
+  assigned_driver_phone?: string
+  /** 订单来源 */
+  source?: string
+  /** 备注 */
   remark?: string
+  [key: string]: unknown
 }
 
 /** 列表搜索参数 */
@@ -128,69 +122,16 @@ export interface OrderTabCount {
   count: number
 }
 
-/** 订单类型展示配置（来自原型 ORDER_TYPE_CONFIG） */
-export const ORDER_TYPE_CONFIG: Record<
-  OrderType,
-  { label: string; color: string; bgColor: string; icon: string }
-> = {
-  lead: { label: '线索', color: '#FA8C16', bgColor: '#FFF7E6', icon: 'ri:lightbulb-line' },
-  customer: { label: '客户订单', color: '#722ED1', bgColor: '#F9F0FF', icon: 'ri:user-line' },
-  staff: { label: '员工订单', color: '#1890FF', bgColor: '#E6F7FF', icon: 'ri:briefcase-line' },
-  towing: { label: '拖车单', color: '#13C2C2', bgColor: '#E6FFFB', icon: 'ri:truck-line' }
+/** 订单类型展示样式（按接口 order_type） */
+export const ORDER_TYPE_STYLE: Record<string, { color: string; bgColor: string }> = {
+  vehicle_lead: { color: '#FA8C16', bgColor: '#FFF7E6' },
+  customer_lead: { color: '#EB2F96', bgColor: '#FFF0F6' },
+  customer_order: { color: '#722ED1', bgColor: '#F9F0FF' },
+  staff_order: { color: '#1890FF', bgColor: '#E6F7FF' },
+  tow: { color: '#13C2C2', bgColor: '#E6FFFB' }
 }
 
-/** 线索子类型展示配置（来自原型 LEAD_TYPE_CONFIG） */
-export const LEAD_TYPE_CONFIG: Record<LeadType, { label: string; color: string; bgColor: string }> =
-  {
-    vehicle: { label: '车辆线索', color: '#FA8C16', bgColor: '#FFF7E6' },
-    customer: { label: '客户线索', color: '#EB2F96', bgColor: '#FFF0F6' }
-  }
-
-/** 状态文案映射（来自原型 STATUS_TEXT） */
-export const STATUS_TEXT: Record<string, string> = {
-  pending: '待跟进',
-  assigned: '线索指派',
-  viewed: '已跟进',
-  pending_review: '待审核',
-  approved: '审核通过',
-  rejected: '已驳回',
-  created_formal: '已创建正式订单',
-  pending_entry: '待入厂',
-  towing_pending: '拖车待接单',
-  towing: '拖车中',
-  towing_completed: '拖车完成',
-  inspecting: '入厂查验中',
-  dismantling: '拆解中',
-  canceling: '注销中',
-  canceled: '已注销',
-  completed: '已完成',
-  pending_dispatch: '待派单',
-  pending_towing: '待拖车'
-}
-
-/** 状态颜色配置（来自原型 STATUS_COLOR） */
-export const STATUS_COLOR: Record<string, { text: string; bg: string }> = {
-  pending: { text: '#FA8C16', bg: '#FFF7E6' },
-  assigned: { text: '#1677ff', bg: '#e6f4ff' },
-  pending_review: { text: '#1890FF', bg: '#E6F7FF' },
-  approved: { text: '#52C41A', bg: '#F6FFED' },
-  rejected: { text: '#FF4D4F', bg: '#FFF1F0' },
-  viewed: { text: '#8C8C8C', bg: '#FAFAFA' },
-  created_formal: { text: '#52C41A', bg: '#F6FFED' },
-  pending_entry: { text: '#1890FF', bg: '#E6F7FF' },
-  towing_pending: { text: '#FAAD14', bg: '#FFFBE6' },
-  towing: { text: '#1890FF', bg: '#E6F7FF' },
-  towing_completed: { text: '#52C41A', bg: '#F6FFED' },
-  inspecting: { text: '#722ED1', bg: '#F9F0FF' },
-  dismantling: { text: '#FA8C16', bg: '#FFF7E6' },
-  canceling: { text: '#D4380D', bg: '#FFF2E8' },
-  canceled: { text: '#52C41A', bg: '#F6FFED' },
-  completed: { text: '#87D068', bg: '#F6FFED' },
-  pending_dispatch: { text: '#FAAD14', bg: '#FFFBE6' },
-  pending_towing: { text: '#1890FF', bg: '#E6F7FF' }
-}
-
-/** Tab 配置（与原型 renderTabNavigation 一致，4 个主 Tab） */
+/** Tab 配置 */
 export const ORDER_TAB_CONFIG: Array<{ tab: OrderTab; label: string; icon: string }> = [
   { tab: 'all', label: '全部订单', icon: 'ri:file-list-3-line' },
   { tab: 'lead', label: '线索订单', icon: 'ri:lightbulb-line' },
@@ -198,67 +139,45 @@ export const ORDER_TAB_CONFIG: Array<{ tab: OrderTab; label: string; icon: strin
   { tab: 'towing', label: '拖车订单', icon: 'ri:truck-line' }
 ]
 
-/** 获取订单类型标签配置 */
-export function resolveOrderTypeStyle(order: RecycleOrder) {
-  if (order.orderType === 'lead' && order.leadType) {
-    return LEAD_TYPE_CONFIG[order.leadType]
+/** 是否线索订单 */
+export function isLeadOrder(row: RecycleOrder) {
+  return row.order_type === 'vehicle_lead' || row.order_type === 'customer_lead'
+}
+
+/** 是否拖车订单 */
+export function isTowOrder(row: RecycleOrder) {
+  return row.order_type === 'tow'
+}
+
+/** 获取展示编号 */
+export function getOrderDisplayNo(row: RecycleOrder) {
+  return row.order_no || row.tow_no || String(row.id)
+}
+
+/** 获取订单类型标签样式 */
+export function resolveOrderTypeStyle(row: RecycleOrder) {
+  const style = ORDER_TYPE_STYLE[row.order_type]
+  return {
+    label: row.order_type_text || row.order_type,
+    color: style?.color || '#8C8C8C',
+    bgColor: style?.bgColor || '#F5F5F5'
   }
-  return ORDER_TYPE_CONFIG[order.orderType]
-}
-
-/** 手机号脱敏（原型 maskPhone） */
-export function maskPhone(phone: string) {
-  if (phone.length === 11) return `${phone.slice(0, 3)}****${phone.slice(7)}`
-  return phone
-}
-
-/** 获取客户信息（原型 getOrderCustomerInfo） */
-export function getOrderCustomerInfo(order: RecycleOrder) {
-  if (order.orderType === 'lead') {
-    return {
-      name: order.ownerName || (order.leadType === 'customer' ? '客户线索' : '—'),
-      phone:
-        order.leadType === 'customer'
-          ? maskPhone(order.phone || order.customerPhone)
-          : order.phone || order.customerPhone
-    }
-  }
-  return { name: order.customerName, phone: order.customerPhone }
-}
-
-/** 获取车辆展示名（原型 getOrderDisplayName） */
-export function getOrderDisplayName(order: RecycleOrder) {
-  if (order.orderType === 'lead') {
-    return order.leadType === 'vehicle' && order.plateNumber
-      ? order.plateNumber
-      : order.phone || '—'
-  }
-  return order.plateNumber || '—'
-}
-
-/** 获取车辆信息（原型 getOrderVehicleInfo） */
-export function getOrderVehicleInfo(order: RecycleOrder) {
-  if (order.orderType === 'lead') {
-    if (order.leadType === 'vehicle' && order.brand && order.model) {
-      return `${order.brand} ${order.model}`
-    }
-    return '—'
-  }
-  if (order.brand && order.model) return `${order.brand} ${order.model}`
-  return '—'
-}
-
-/** 获取创建人/提交人/线索来源（原型 getOrderCreator） */
-export function getOrderCreator(order: RecycleOrder) {
-  if (order.creatorName) return order.creatorName
-  if (order.orderType === 'lead') return '系统'
-  if (order.orderType === 'customer') return order.customerName
-  if (order.orderType === 'staff') return order.createdBy || '—'
-  if (order.orderType === 'towing') return '系统自动生成'
-  return '—'
 }
 
 /** 获取状态展示文案 */
-export function getOrderStatusText(order: RecycleOrder) {
-  return order.statusText || STATUS_TEXT[order.status] || order.status
+export function getOrderStatusText(row: RecycleOrder) {
+  return row.current_status_text || row.status_text || '—'
+}
+
+/** 线索跟进状态判断（接口字段） */
+export function isLeadPending(row: RecycleOrder) {
+  return row.status === 0 && Number(row.is_follow) === 0 && !Number(row.business_id)
+}
+
+export function isLeadAssigned(row: RecycleOrder) {
+  return row.status === 0 && Number(row.business_id) > 0 && Number(row.is_follow) === 0
+}
+
+export function isLeadViewed(row: RecycleOrder) {
+  return row.status === 0 && Number(row.is_follow) === 1
 }

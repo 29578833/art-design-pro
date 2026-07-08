@@ -16,7 +16,7 @@ description: >-
 ## 开发前必读
 
 1. 读原型对应 admin 组件，理解页面结构、Tab、弹窗、筛选字段
-2. 读 `回收拆车项目/src/app/types/order.ts` 获取订单/车辆类型与状态枚举
+2. 读 `回收拆车项目/src/app/types/order.ts` 获取订单/车辆状态枚举（**仅作业务参考，列表类型字段以 xinguang_api 接口为准**）
 3. 读 PRD 第四章：`回收拆车项目/src/imports/___KZ__-___________PRD_______1_.md`（管理后台功能设计）
 4. 对照 art-design-pro 现有页面惯例（如 `src/views/system/user/index.vue`）
 
@@ -72,7 +72,7 @@ description: >-
 ```
 src/
 ├── api/recycle/          # 按业务域拆分 API
-├── types/recycle/        # 订单、车辆、库存类型（从 order.ts 迁移）
+├── types/recycle/        # 订单、车辆、库存类型（接口 snake_case 原字段 + 中文备注）
 ├── store/modules/recycle/  # Pinia（按需）
 ├── router/modules/recycle.ts
 └── views/recycle/
@@ -98,13 +98,24 @@ src/
 
 ```
 1. 确认模块 → 查 reference.md 找到原型组件
-2. 定义 types → src/types/recycle/
-3. 创建 API 接口（可先 Mock）→ src/api/recycle/
+2. 定义 types → src/types/recycle/（接口 snake_case 原字段 + 中文备注）
+3. 创建 API 接口（可先 Mock，对接后列表直接返回 res.list）→ src/api/recycle/
 4. 创建路由 → src/router/modules/recycle.ts
-5. 实现页面 index.vue + modules/
+5. 实现页面 index.vue + modules/（表格直接读接口字段）
 6. 复杂弹窗/向导单独组件
 7. 自测：列表筛选、分页、详情弹窗、状态标签颜色
 ```
+
+### 列表项字段规范（必须遵守）
+
+**列表项字段映射不要搞什么映射，直接用接口字段，不要映射 mock 字段！！！**
+
+- `src/types/recycle/`：列表项 interface 与后端出参字段名一致（snake_case），**每个字段写中文备注**
+- `src/api/recycle/`：`fetchXxxList` 禁止 `mapXxxItem`，直接 `return res.list`
+- 页面表格：`prop` / `formatter` / 操作列用 `real_name`、`order_no`、`status` 等接口字段，禁止沿用原型 mock 的 camelCase 字段名
+- 原型 `order.ts` 仅参考状态/交互，**不得**把其字段名当作前端列表类型
+
+接口对接细则见 [xinguang-api-integration](../xinguang-api-integration/SKILL.md)。
 
 ## 状态与标签
 
@@ -131,6 +142,7 @@ src/
 - 不要把小程序页面迁入 art-design-pro
 - 不要新建独立 React 子项目
 - 不要照搬 shadcn 组件，统一用 Element Plus + 项目已有 Art 组件
+- **列表项不要搞字段映射，直接用接口字段，不要映射 mock 字段**
 - 不要大范围重构无关模块
 - 不要擅自 git commit（除非用户明确要求）
 

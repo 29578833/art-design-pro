@@ -1,7 +1,7 @@
 ---
 name: xinguang-api-integration
 description: >-
-  将 art-design-pro 前端页面对接 xinguang_api 后端接口。适用于用户提及接口对接、API 联调、 xinguang_api、adminapi、scrap 路由、替换 Mock、分页字段映射、字段转换等任务。 与 recycle-erp-backend skill 配合使用：前者负责页面实现，本 skill 负责前后端 API 对接。
+  将 art-design-pro 前端页面对接 xinguang_api 后端接口。适用于用户提及接口对接、API 联调、 xinguang_api、adminapi、scrap 路由、替换 Mock、分页参数映射等任务。 列表项直接使用接口 snake_case 原字段，禁止映射 mock/camelCase 字段。 与 recycle-erp-backend skill 配合使用：前者负责页面实现，本 skill 负责前后端 API 对接。
 ---
 
 # xinguang_api 前后端接口对接
@@ -19,7 +19,7 @@ description: >-
 1. 确认用户给的 URL → 在 `xinguang_api/app/adminapi/route/scrap.php` 找对应路由
 2. 读 Controller 的 `getMore` / `postMore` 参数 → 确定请求字段
 3. 读 Services 返回结构 → 确定 `data` 内字段（通常是 `{ list, count }`）
-4. 读前端页面/类型 → 确定 camelCase 字段与枚举映射
+4. 读前端页面/类型 → 确定接口原字段（snake_case）与展示逻辑
 5. 写 `src/api/recycle/xxx.ts` → 改页面去掉 Mock → 自测列表/详情/提交
 
 完整路由清单见 [reference.md](reference.md)。
@@ -99,30 +99,100 @@ export function fetchAuditOrder(data: { id: number; status: number; remark?: str
 - 写操作加 `showSuccessMessage: true`
 - 一个业务域一个文件：`order.ts`、`vehicle.ts`、`settlement.ts`
 
-## 字段映射
+## 列表项字段规范（必须遵守）
 
-后端 snake_case，前端 camelCase。在 API 层或 `dataTransformer` 做转换，**不要改后端字段名**。
+**列表项字段映射不要搞什么映射，直接用接口字段，不要映射 mock 字段！！！**
+
+### 核心原则
+
+1. **列表项原样透传**：`fetchXxxList` 直接返回 `res.list`，禁止 `mapXxxItem` / `dataTransformer` 把接口字段转成 mock 或 camelCase 字段
+2. **类型与接口一致**：`src/types/recycle/` 中列表项 interface 使用后端 snake_case 原字段名，**每个字段添加中文备注**
+3. **页面直接读接口字段**：表格 `prop`、`formatter`、操作列判断统一用 `order_no`、`real_name`、`status` 等，不要造 `orderNo`、`customerName` 等 mock 字段
+4. **展示辅助函数允许**：`getOrderDisplayNo`、`isLeadOrder` 等只做展示/判断，**不复制、不改名**接口数据
+5. **优先 `*_text`**：展示文案用后端已输出的 `order_type_text`、`current_status_text` 等，避免前端重复维护枚举
+
+### 类型定义示例（字段带中文备注）
 
 ```typescript
-function mapOrderItem(raw: Record<string, unknown>): OrderItem {
+// src/types/recycle/order.ts
+/** 订单列表项（直接使用接口字段，不做映射） */
+export interface RecycleOrder {
+  /** 主键 ID */
+  id: number
+  /** 订单编号 */
+  order_no?: string
+  /** 拖车单编号 */
+  tow_no?: string
+  /** 订单类型：vehicle_lead / customer_lead / customer_order / staff_order / tow */
+  order_type: string
+  /** 订单类型文案 */
+  order_type_text?: string
+  /** 状态码 */
+  status: number
+  /** 当前状态文案 */
+  current_status_text?: string
+  /** 客户姓名 */
+  real_name?: string
+  /** 联系电话 */
+  phone?: string
+  /** 车牌号 */
+  plate_no?: string
+  /** 创建时间文案 */
+  add_time_text?: string
+  /** 创建人 */
+  creator_name?: string
+  [key: string]: unknown
+}
+```
+
+### API 列表示例（禁止 map）
+
+```typescript
+/** 获取订单列表 — 直接返回接口 list */
+export async function fetchOrderList(params: OrderSearchParams): Promise<OrderList> {
+  const res = await request.get<{ list: RecycleOrder[]; count: number }>({
+    url: '/scrap/order/list',
+    params: buildListParams(params)
+  })
   return {
-    id: raw.id as number,
-    orderNo: raw.order_no as string,
-    realName: raw.real_name as string,
-    addTime: (raw.add_time_text as string) || (raw.add_time as string),
-    statusText: raw.current_status_text as string
+    records: res.list || [],
+    total: res.count || 0,
+    current: page,
+    size: limit
   }
 }
 ```
 
-优先使用后端已输出的 `*_text` 展示字段（如 `order_type_text`、`vehicle_status_text`），避免前端重复维护枚举。
+### 页面列表示例（直接读接口字段）
 
-空值筛选：前端 `'all'` / `undefined` 不要传给后端，在 API 或 search 提交前过滤。
+```typescript
+{
+  prop: 'real_name',
+  label: '客户信息',
+  formatter: (row: RecycleOrder) => `${row.real_name || '—'} / ${row.phone || '—'}`
+},
+{
+  prop: 'current_status_text',
+  label: '当前状态',
+  formatter: (row: RecycleOrder) => row.current_status_text || '—'
+}
+```
+
+### 请求参数
+
+- 传给后端的查询参数可与接口 `getMore` 字段对齐（如 `page`、`limit`、`order_status`）
+- 若项目约定「无值也传空字符串」，在 `buildListParams` 统一处理，**列表响应项仍不做字段映射**
+
+### 禁止事项（字段相关）
+
+- 禁止 `mapOrderItem`、`mapOrderType`、`mapOrderStatus` 等把列表项转成 mock/原型字段
+- 禁止把 `order_no` 映射成 `orderNo`、`real_name` 映射成 `customerName`
+- 禁止在 API 层维护一套与接口平行的 camelCase 列表类型
 
 ## 从 Mock 迁移到真实接口
 
-1. 保留 `src/types/recycle/` 类型，按后端字段调整
-2. 替换 `src/api/recycle/xxx.ts` 中 Mock 实现为 `request.get/post`
+1. 保留 `src/types/recycle/` 类型，字段与后端出参一致（snake_case + 中文备注）
+2. 替换 `src/api/recycle/xxx.ts` 中 Mock 实现为 `request.get/post`，**列表项不做字段映射**
 3. 页面 `useTable.apiFn` 指向新函数，加 `paginationKey`
 4. 弹窗 submit 调 create/update 接口，成功后 `refreshData()`
 5. 详情抽屉调 detail 接口或用列表行数据（视交互而定）
@@ -145,8 +215,8 @@ Controller 示例：`ScrapOrder.php` → `index()` 接受 `page`、`limit`、`ke
 ```
 - [ ] 1. 用户给 URL 列表 → 对照 scrap.php 确认
 - [ ] 2. 读 Controller + Services → 记录入参/出参
-- [ ] 3. 写 types（src/types/recycle/）
-- [ ] 4. 写 api（src/api/recycle/）
+- [ ] 3. 写 types（src/types/recycle/，接口原字段 + 中文备注）
+- [ ] 4. 写 api（src/api/recycle/，列表直接返回 res.list，禁止 map）
 - [ ] 5. 改 index.vue：useTable paginationKey + apiFn
 - [ ] 6. 改 modules：dialog/drawer/search 字段对齐
 - [ ] 7. 自测：筛选、分页、新增、编辑、详情、错误提示
@@ -164,6 +234,7 @@ Controller 示例：`ScrapOrder.php` → `index()` 接受 `page`、`limit`、`ke
 
 - 不要对接小程序 API（`app/api/route/scrap.php`）
 - 不要改 `xinguang_api` 后端代码（除非用户明确要求）
+- **列表项不要搞字段映射，直接用接口字段，不要映射 mock 字段**
 - 不要处理无关格式化
 - 不要擅自 git commit
 - 不要假设分页字段为 `current/size` 或 `records/total`，以 Controller 为准
