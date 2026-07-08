@@ -20,6 +20,16 @@ export const recycleRecoveryRoutes: AppRouteRecord = {
         keepAlive: true,
         menuId: 3545
       }
+    },
+    {
+      path: 'orders',
+      name: 'RecycleOrders',
+      component: '/recycle/recovery/orders',
+      meta: {
+        title: 'menus.recycle.orders',
+        keepAlive: true,
+        menuId: 3546
+      }
     }
   ]
 }

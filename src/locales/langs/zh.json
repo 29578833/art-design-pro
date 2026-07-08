@@ -234,7 +234,8 @@
       "finance": "财务结算",
       "decision": "数据决策",
       "cxm": "车信盟",
-      "customers": "客户供应商管理"
+      "customers": "客户供应商管理",
+      "orders": "订单管理"
     },
     "result": {
       "title": "结果页面",

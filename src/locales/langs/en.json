@@ -234,7 +234,8 @@
       "finance": "Finance Settlement",
       "decision": "Data Decision",
       "cxm": "Vehicle Alliance",
-      "customers": "Customer & Supplier"
+      "customers": "Customer & Supplier",
+      "orders": "Order Management"
     },
     "result": {
       "title": "Result Page",

@@ -1,0 +1,216 @@
+/* 订单管理 - 列表页样式 */
+
+.orders-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 100%;
+  padding: 4px 0;
+
+  .order-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .order-page-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--art-gray-900);
+  }
+
+  .order-page-desc {
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--art-gray-500);
+  }
+
+  .order-page-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .order-table-card {
+    flex: 1;
+    margin-top: 0 !important;
+    overflow: hidden;
+    border-radius: calc(var(--custom-radius) + 2px) !important;
+
+    :deep(.el-card__body) {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    :deep(.art-table) {
+      flex: 1;
+      padding: 0 16px 12px;
+    }
+
+    :deep(.el-table) {
+      --el-table-border-color: var(--art-card-border);
+      --el-table-header-bg-color: #fafafa;
+      --el-table-row-hover-bg-color: #f5f9ff;
+
+      width: 100%;
+      font-size: 13px;
+      table-layout: fixed;
+    }
+
+    :deep(.el-table::before) {
+      display: none;
+    }
+
+    :deep(.el-table th.el-table__cell) {
+      height: 46px;
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--art-gray-600);
+      background: #fafafa !important;
+      border-bottom: 1px solid var(--art-card-border);
+    }
+
+    :deep(.el-table td.el-table__cell) {
+      padding: 12px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    :deep(.el-table__body tr:last-child td.el-table__cell) {
+      border-bottom: none;
+    }
+
+    :deep(.pagination.custom-pagination) {
+      padding: 8px 16px 14px;
+      border-top: 1px solid var(--art-card-border);
+    }
+  }
+
+  .order-no {
+    display: inline-block;
+    padding: 2px 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+    color: var(--art-gray-700);
+    background: var(--art-gray-100);
+    border-radius: 4px;
+  }
+
+  .order-type-tag,
+  .order-status-tag {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+    border-radius: 999px;
+
+    &.plain {
+      color: var(--art-gray-600);
+      background: var(--art-gray-100);
+    }
+  }
+
+  .order-plate-tag {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--art-gray-700);
+    background: var(--art-gray-100);
+    border: 1px solid var(--art-card-border);
+    border-radius: 4px;
+  }
+
+  .order-vehicle-cell {
+    min-width: 0;
+  }
+
+  .order-vehicle-empty {
+    font-size: 13px;
+    color: var(--art-gray-500);
+  }
+
+  .order-vehicle-sub {
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--art-gray-400);
+  }
+
+  .order-batch-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1890ff;
+  }
+
+  .order-delivery-tag {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+
+    &.tow {
+      color: #1890ff;
+      background: #e6f7ff;
+    }
+
+    &.self {
+      color: var(--art-gray-600);
+      background: var(--art-gray-100);
+    }
+  }
+
+  .order-plate {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--art-gray-800);
+  }
+
+  .order-customer-cell {
+    min-width: 0;
+  }
+
+  .order-customer-name {
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--art-gray-900);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .order-customer-phone {
+    font-size: 12px;
+    color: var(--art-gray-500);
+  }
+
+  .order-price {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1890ff;
+  }
+
+  .order-batch {
+    font-size: 12px;
+    color: #722ed1;
+  }
+
+  .order-creator,
+  .order-time {
+    font-size: 13px;
+    color: var(--art-gray-600);
+  }
+
+  .order-muted {
+    font-size: 13px;
+    color: var(--art-gray-400);
+  }
+}
