@@ -10,7 +10,7 @@
           <ArtSvgIcon icon="ri:download-2-line" class="mr-1" />
           导出
         </ElButton>
-        <ElButton type="primary" v-ripple>
+        <ElButton type="primary" v-ripple @click="openCreateDialog()">
           <ArtSvgIcon icon="ri:add-line" class="mr-1" />
           创建订单
         </ElButton>
@@ -42,6 +42,17 @@
         @pagination:current-change="handleCurrentChange"
       />
     </ElCard>
+
+    <OrderCreateDialog
+      v-model:visible="createDialogVisible"
+      :prefill-order="createPrefillOrder"
+      @submit="refreshAll"
+    />
+    <OrderEditDialog
+      v-model:visible="editDialogVisible"
+      :order-data="editingOrder"
+      @submit="refreshAll"
+    />
   </div>
 </template>
 
@@ -73,12 +84,18 @@
   import OrderTabBar from './modules/order-tab-bar.vue'
   import OrderSearch from './modules/order-search.vue'
   import OrderTableActions from './modules/order-table-actions.vue'
+  import OrderCreateDialog from './modules/order-create-dialog.vue'
+  import OrderEditDialog from './modules/order-edit-dialog.vue'
 
   defineOptions({ name: 'RecycleOrders' })
 
   const activeTab = ref<OrderTab>('all')
   const tabCounts = ref<OrderTabCount[]>([])
   const exporting = ref(false)
+  const createDialogVisible = ref(false)
+  const editDialogVisible = ref(false)
+  const createPrefillOrder = ref<RecycleOrder | null>(null)
+  const editingOrder = ref<RecycleOrder | null>(null)
 
   const defaultSearchForm = (): OrderSearchParams => ({
     current: 1,
@@ -333,12 +350,18 @@
     ElMessage.info(`审核详情：${getOrderDisplayNo(row)}`)
   }
 
+  function openCreateDialog(row?: RecycleOrder) {
+    createPrefillOrder.value = row || null
+    createDialogVisible.value = true
+  }
+
   function handleCreateOrder(row: RecycleOrder) {
-    ElMessage.info(`创建订单：${getOrderDisplayNo(row)}`)
+    openCreateDialog(row)
   }
 
   function handleEdit(row: RecycleOrder) {
-    ElMessage.info(`编辑订单：${getOrderDisplayNo(row)}`)
+    editingOrder.value = row
+    editDialogVisible.value = true
   }
 
   function handleAssignDriver(row: RecycleOrder) {

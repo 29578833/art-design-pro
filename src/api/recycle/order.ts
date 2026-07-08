@@ -1,6 +1,9 @@
 import request from '@/utils/http'
 import type {
+  OrderDetail,
   OrderList,
+  OrderSavePayload,
+  OrderSaveResult,
   OrderSearchParams,
   OrderTab,
   OrderTabCount,
@@ -205,4 +208,21 @@ export async function fetchOrderListForExport(
 ): Promise<RecycleOrder[]> {
   const res = await fetchOrderList({ ...params, current: 1, size: 9999 })
   return res.records
+}
+
+/** 订单详情 */
+export function fetchOrderDetail(id: number) {
+  return request.get<OrderDetail>({
+    url: `/scrap/order/detail/${id}`
+  })
+}
+
+/** 创建/编辑订单（传 id 则更新） */
+export function fetchSaveOrder(data: OrderSavePayload) {
+  const isEdit = Boolean(data.id)
+  return request.post<OrderSaveResult>({
+    url: '/scrap/order/create',
+    params: data,
+    showSuccessMessage: isEdit
+  })
 }

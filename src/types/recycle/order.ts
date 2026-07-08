@@ -181,3 +181,141 @@ export function isLeadAssigned(row: RecycleOrder) {
 export function isLeadViewed(row: RecycleOrder) {
   return row.status === 0 && Number(row.is_follow) === 1
 }
+
+/** 订单车辆项（接口原字段） */
+export interface OrderVehicle {
+  /** 车辆 ID */
+  id?: number
+  /** 车牌号 */
+  plate_no?: string
+  /** 车架号 */
+  vin?: string
+  /** 品牌 */
+  brand?: string
+  /** 车型 */
+  model?: string
+  /** 燃料类型 */
+  fuel_type?: string
+  /** 排放标准 */
+  emission_standard?: string
+  /** 登记日期 */
+  reg_date?: string
+  /** 出厂年份（详情扩展） */
+  vehicle_year?: string
+  /** 车身颜色 */
+  color?: string
+  /** 里程 */
+  mileage?: string | number
+}
+
+/** 订单详情（接口原字段） */
+export interface OrderDetail extends RecycleOrder {
+  /** 联系地址 */
+  address?: string
+  /** 客户 UID */
+  uid?: number
+  /** 取车联系人 */
+  pickup_contact_name?: string
+  /** 取车联系电话 */
+  pickup_contact_phone?: string
+  /** 取车地址 */
+  pickup_address?: string
+  /** 结算方式 */
+  settlement_method?: string
+  /** 缺件扣款：0 否 / 1 是 */
+  deduct_missing?: number
+  /** 自送费补贴 */
+  self_delivery_subsidy?: number | string
+  /** 回收单价 */
+  unit_price?: number | string
+  /** 车主类型：personal / non_personal */
+  owner_type?: string
+  /** 是否有代理人 */
+  has_agent?: number
+  /** 代理人姓名 */
+  agent_name?: string
+  /** 代理人电话 */
+  agent_phone?: string
+  /** 代理服务费 */
+  agent_fee?: number | string
+  /** 代理发票号 */
+  agent_invoice_no?: string
+  /** 开户行 */
+  bank_name?: string
+  /** 银行卡号 */
+  bank_card_number?: string
+  /** 开户姓名 */
+  bank_account_name?: string
+  /** 关联车辆列表 */
+  vehicles?: OrderVehicle[]
+  /** 首辆车（详情扩展） */
+  vehicle?: OrderVehicle
+}
+
+/** 创建/编辑订单提交参数（与 ScrapOrder/create 一致） */
+export interface OrderSavePayload {
+  /** 订单 ID，有值则更新 */
+  id?: number
+  /** 是否批次：0 否 / 1 是 */
+  is_batch?: number
+  /** 订单状态：0 线索 / 1 待审核 */
+  status?: number
+  /** 批次车辆数 */
+  batch_vehicle_count?: number
+  /** 客户姓名 */
+  real_name: string
+  /** 联系电话 */
+  phone: string
+  /** 联系地址 */
+  address?: string
+  /** 交付方式：self / tow */
+  delivery_type: 'self' | 'tow'
+  /** 取车联系人 */
+  pickup_contact_name?: string
+  /** 取车联系电话 */
+  pickup_contact_phone?: string
+  /** 取车地址 */
+  pickup_address?: string
+  /** 结算方式 */
+  settlement_method?: string
+  /** 缺件扣款：0 否 / 1 是 */
+  deduct_missing?: number
+  /** 自送费补贴 */
+  self_delivery_subsidy?: number
+  /** 回收单价/残值 */
+  unit_price?: number
+  /** 结算金额 */
+  settlement_amount?: number
+  /** 车主类型 */
+  owner_type: 'personal' | 'non_personal'
+  /** 是否有代理人 */
+  has_agent?: number
+  /** 代理人姓名 */
+  agent_name?: string
+  /** 代理人电话 */
+  agent_phone?: string
+  /** 代理服务费 */
+  agent_fee?: number
+  /** 代理发票号 */
+  agent_invoice_no?: string
+  /** 开户行 */
+  bank_name?: string
+  /** 银行卡号 */
+  bank_card_number?: string
+  /** 开户姓名 */
+  bank_account_name?: string
+  /** 车辆列表 */
+  vehicles?: OrderVehicle[]
+  /** 备注 */
+  remark?: string
+  /** 客户 UID */
+  uid?: number
+}
+
+/** 创建订单响应 */
+export interface OrderSaveResult {
+  /** 订单 ID */
+  id?: number
+  /** 订单编号 */
+  order_no?: string
+}

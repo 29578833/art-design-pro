@@ -1,0 +1,954 @@
+/* 创建订单向导弹窗 - 对齐 CreateOrderWizard 原型 */
+
+.order-create-dialog {
+  :deep(.el-dialog) {
+    display: flex;
+    flex-direction: column;
+    max-height: 92vh;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 8px;
+  }
+
+  :deep(.el-dialog__header) {
+    padding: 0;
+    margin: 0;
+  }
+
+  :deep(.el-dialog__body) {
+    flex: 1;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  :deep(.el-dialog__footer) {
+    padding: 0;
+  }
+
+  .dialog-header {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .dialog-header-left {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .dialog-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #262626;
+  }
+
+  .dialog-header-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .header-btn {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: #8c8c8c;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #fafafa;
+    }
+  }
+
+  .template-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 10;
+    width: 256px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
+  }
+
+  .template-item {
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #262626;
+    cursor: pointer;
+    border-bottom: 1px solid #fafafa;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: #fafafa;
+    }
+  }
+
+  .step-bar {
+    flex-shrink: 0;
+    padding: 16px 24px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .step-list {
+    display: flex;
+    align-items: center;
+  }
+
+  .step-item {
+    display: flex;
+    flex: 1;
+    align-items: center;
+  }
+
+  .step-node {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .step-circle {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    transition: all 0.2s;
+
+    &.done {
+      color: #fff;
+      background: #52c41a;
+    }
+
+    &.active {
+      color: #fff;
+      background: #1890ff;
+    }
+
+    &.pending {
+      color: #8c8c8c;
+      background: #f5f5f5;
+    }
+  }
+
+  .step-label {
+    font-size: 12px;
+    font-weight: 500;
+    transition: color 0.2s;
+
+    &.done {
+      color: #52c41a;
+    }
+
+    &.active {
+      color: #1890ff;
+    }
+
+    &.pending {
+      color: #8c8c8c;
+    }
+  }
+
+  .step-line {
+    flex: 1;
+    height: 1px;
+    margin: 0 12px;
+    transition: background 0.2s;
+
+    &.done {
+      background: #52c41a;
+    }
+
+    &.pending {
+      background: #e8e8e8;
+    }
+  }
+
+  .dialog-body {
+    flex: 1;
+    min-height: 0;
+    max-height: calc(92vh - 200px);
+    padding: 20px 24px;
+    overflow-y: auto;
+  }
+
+  .step-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .section-header {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #8c8c8c;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .section-header-right {
+    margin-left: auto;
+  }
+
+  .field-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: #595959;
+
+    .required {
+      margin-left: 2px;
+      color: #ff4d4f;
+    }
+  }
+
+  .form-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .form-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .col-span-2 {
+    grid-column: span 2;
+  }
+
+  /* 订单类型卡片 */
+  .order-type-block {
+    padding: 16px;
+    background: #e6f7ff;
+    border: 1px solid #91d5ff;
+    border-radius: 8px;
+  }
+
+  .order-type-title {
+    margin-bottom: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1890ff;
+  }
+
+  .order-type-cards {
+    display: flex;
+    gap: 12px;
+  }
+
+  .order-type-card {
+    flex: 1;
+    padding: 12px 16px;
+    text-align: left;
+    cursor: pointer;
+    background: rgb(255 255 255 / 60%);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #fff;
+    }
+
+    &.active {
+      background: #fff;
+      border-color: #1890ff;
+    }
+  }
+
+  .order-type-card-head {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 2px;
+  }
+
+  .radio-dot {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #d9d9d9;
+    border-radius: 50%;
+
+    &.active {
+      background: #1890ff;
+      border-color: #1890ff;
+
+      &::after {
+        display: block;
+        width: 8px;
+        height: 8px;
+        content: '';
+        background: #fff;
+        border-radius: 50%;
+      }
+    }
+  }
+
+  .order-type-card-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #262626;
+
+    &.active {
+      color: #1890ff;
+    }
+  }
+
+  .order-type-card-desc {
+    padding-left: 24px;
+    font-size: 12px;
+    color: #8c8c8c;
+  }
+
+  /* OCR 区块 */
+  .ocr-file-input {
+    display: none;
+  }
+
+  .ocr-block {
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    transition: all 0.2s;
+
+    &.default {
+      background: #fafafa;
+    }
+
+    &.success {
+      background: #f6ffed;
+      border-color: #b7eb8f;
+    }
+  }
+
+  .ocr-inner {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .ocr-text-title {
+    margin-bottom: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #262626;
+  }
+
+  .ocr-text-hint {
+    font-size: 12px;
+    font-weight: 400;
+    color: #8c8c8c;
+  }
+
+  .ocr-text-desc {
+    font-size: 12px;
+    color: #8c8c8c;
+  }
+
+  .ocr-success {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: #52c41a;
+  }
+
+  .btn-ocr {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    cursor: pointer;
+    background: #52c41a;
+    border: none;
+    border-radius: 4px;
+    transition: opacity 0.2s;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  /* 选项卡片（交付/结算方式） */
+  .option-cards {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .option-cards-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .option-card {
+    flex: 1;
+    padding: 12px 16px;
+    text-align: left;
+    cursor: pointer;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: #d9d9d9;
+    }
+
+    &.active {
+      background: #e6f7ff;
+      border-color: #1890ff;
+    }
+  }
+
+  .option-card-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #262626;
+
+    &.active {
+      color: #1890ff;
+    }
+  }
+
+  .option-card-desc {
+    margin-top: 2px;
+    font-size: 12px;
+    color: #8c8c8c;
+  }
+
+  /* 车辆卡片 */
+  .vehicle-card {
+    padding: 16px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+  }
+
+  .vehicle-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .vehicle-card-index {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .vehicle-index-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    background: #1890ff;
+    border-radius: 50%;
+  }
+
+  .vehicle-card-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #595959;
+  }
+
+  .btn-remove {
+    padding: 4px;
+    color: #8c8c8c;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    transition: all 0.2s;
+
+    &:hover {
+      color: #ff4d4f;
+      background: #fff1f0;
+    }
+  }
+
+  .vehicle-empty {
+    padding: 32px 16px;
+    text-align: center;
+    border: 2px dashed #e5e7eb;
+    border-radius: 8px;
+  }
+
+  .vehicle-empty-icon {
+    margin-bottom: 8px;
+    font-size: 40px;
+    color: #e5e7eb;
+  }
+
+  .vehicle-empty-text {
+    font-size: 14px;
+    color: #8c8c8c;
+  }
+
+  .vehicle-empty-hint {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #bfbfbf;
+  }
+
+  .btn-add-vehicle {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    padding: 6px 12px;
+    margin-top: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #1890ff;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid #1890ff;
+    border-radius: 4px;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #e6f7ff;
+    }
+  }
+
+  .btn-add-vehicle-outline {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 10px;
+    margin-top: 0;
+    font-size: 14px;
+    color: #1890ff;
+    cursor: pointer;
+    background: transparent;
+    border: 2px dashed rgb(24 144 255 / 40%);
+    border-radius: 8px;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #e6f7ff;
+      border-color: #1890ff;
+    }
+  }
+
+  .btn-add-inline {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #1890ff;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid #1890ff;
+    border-radius: 4px;
+
+    &:hover {
+      background: #e6f7ff;
+    }
+  }
+
+  /* 回收用户信息 */
+  .owner-block {
+    padding: 16px;
+    background: #fafafa;
+    border-radius: 8px;
+  }
+
+  .owner-block-title {
+    margin-bottom: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8c8c8c;
+  }
+
+  /* 取车信息 */
+  .pickup-block {
+    padding: 16px;
+    background: #fafafa;
+    border-radius: 8px;
+  }
+
+  /* 残值 */
+  .residual-block {
+    padding: 16px;
+    background: #fafafa;
+    border-radius: 8px;
+  }
+
+  .residual-input-wrap {
+    position: relative;
+
+    .unit-suffix {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      font-size: 12px;
+      color: #8c8c8c;
+      pointer-events: none;
+      transform: translateY(-50%);
+    }
+
+    :deep(.el-input__wrapper) {
+      padding-right: 56px;
+    }
+  }
+
+  /* 缺件免扣 */
+  .deduct-block {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    width: 100%;
+    padding: 12px;
+    background: #fafafa;
+    border-radius: 8px;
+  }
+
+  .deduct-label {
+    font-size: 14px;
+    color: #262626;
+    cursor: pointer;
+  }
+
+  .deduct-hint {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    color: #8c8c8c;
+  }
+
+  /* 代理人 */
+  .agent-block {
+    padding: 16px;
+    background: #fafafa;
+    border-radius: 8px;
+  }
+
+  .agent-toggle {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 12px;
+    color: #595959;
+    cursor: pointer;
+  }
+
+  /* 模板保存 */
+  .template-save-block {
+    padding: 16px;
+    border: 1px dashed #d9d9d9;
+    border-radius: 8px;
+  }
+
+  .template-save-head {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .template-save-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #262626;
+  }
+
+  .template-save-hint {
+    font-size: 12px;
+    color: #8c8c8c;
+  }
+
+  /* 确认汇总 */
+  .confirm-summary {
+    padding: 16px;
+    background: #e6f7ff;
+    border: 1px solid #bae7ff;
+    border-radius: 8px;
+  }
+
+  .confirm-summary-title {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #096dd9;
+  }
+
+  .confirm-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px 16px;
+    font-size: 12px;
+    color: #1890ff;
+
+    .value {
+      font-weight: 500;
+    }
+  }
+
+  /* 客户搜索输入框 */
+  .customer-autocomplete {
+    width: 100%;
+
+    .customer-search-icon {
+      font-size: 16px;
+      color: #bfbfbf;
+    }
+
+    :deep(.el-input__wrapper) {
+      padding-left: 8px;
+    }
+  }
+
+  /* 底栏 */
+  .dialog-footer {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: #fafafa;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .footer-step-hint {
+    font-size: 12px;
+    color: #8c8c8c;
+  }
+
+  .footer-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .btn-cancel {
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #595959;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+  }
+
+  .btn-prev {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #595959;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+
+    &:hover {
+      background: #fafafa;
+    }
+  }
+
+  .btn-next {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    cursor: pointer;
+    background: #1890ff;
+    border: none;
+    border-radius: 4px;
+    transition: opacity 0.2s;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  .btn-submit {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    padding: 8px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    cursor: pointer;
+    background: #52c41a;
+    border: none;
+    border-radius: 4px;
+    transition: opacity 0.2s;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  /* 成功页 */
+  .success-panel {
+    padding: 32px;
+    text-align: center;
+  }
+
+  .success-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    background: #f6ffed;
+    border-radius: 50%;
+  }
+
+  .success-icon {
+    font-size: 32px;
+    color: #52c41a;
+  }
+
+  .success-title {
+    margin-bottom: 4px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #262626;
+  }
+
+  .success-desc {
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: #8c8c8c;
+  }
+
+  .success-info {
+    padding: 16px;
+    margin-bottom: 24px;
+    text-align: left;
+    background: #fafafa;
+    border-radius: 8px;
+  }
+
+  .success-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 14px;
+    border-bottom: 1px solid #e5e7eb;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .success-info-label {
+    color: #8c8c8c;
+  }
+
+  .success-info-value {
+    font-weight: 500;
+    color: #262626;
+
+    &.primary {
+      color: #1890ff;
+    }
+  }
+
+  .status-tag-pending {
+    display: inline-flex;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #fa8c16;
+    background: #fff7e6;
+    border-radius: 4px;
+  }
+
+  .btn-confirm {
+    width: 100%;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #fff;
+    cursor: pointer;
+    background: #1890ff;
+    border: none;
+    border-radius: 4px;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #1677d9;
+    }
+  }
+
+  :deep(.el-input),
+  :deep(.el-select),
+  :deep(.el-date-editor) {
+    width: 100%;
+  }
+
+  :deep(.el-input__inner),
+  :deep(.el-select__wrapper) {
+    font-size: 13px;
+  }
+}
