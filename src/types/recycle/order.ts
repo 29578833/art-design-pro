@@ -97,18 +97,31 @@ export interface RecycleOrder {
 }
 
 /** 列表搜索参数 */
+/** 订单列表搜索参数 */
 export interface OrderSearchParams extends Api.Common.CommonSearchParams {
+  /** 页码 */
   page?: number
+  /** 每页条数 */
   limit?: number
+  /** 当前 tab 类型，决定列表类别 */
   tab?: OrderTab
+  /** 关键词 */
   keyword?: string
+  /** 订单来源（正式订单专用） */
   orderSource?: FormalOrderSource
+  /** 订单状态（正式订单专用） */
   orderStatus?: FormalOrderStatusFilter
+  /** 签约状态筛选 */
   signStatus?: SignFilter
+  /** 批量类型筛选 */
   batchType?: BatchTypeFilter
+  /** 跟进状态（线索专用） */
   leadFollowStatus?: LeadFollowFilter
+  /** 线索类型筛选 */
   leadType?: LeadTypeFilter
+  /** 拖车状态筛选 */
   towingStatus?: TowingStatusFilter
+  /** 订单进度 */
   progress?: ProgressFilter
 }
 

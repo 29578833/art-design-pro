@@ -58,6 +58,7 @@
 
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import type { ColumnOption } from '@/types/component'
   import {
     fetchAssignLeadFollow,
     fetchAuditOrder,
@@ -114,6 +115,50 @@
 
   const searchForm = ref<OrderSearchParams>(defaultSearchForm())
 
+  const STATUS_STYLE_MAP: Array<{ keywords: string[]; color: string; bgColor: string }> = [
+    { keywords: ['待跟进', '待派单', '拖车待接单'], color: '#FAAD14', bgColor: '#FFFBE6' },
+    {
+      keywords: ['线索指派', '待审核', '待入厂', '待拖车', '拖车中'],
+      color: '#1890FF',
+      bgColor: '#E6F7FF'
+    },
+    {
+      keywords: ['审核通过', '已跟进', '已完成', '拖车完成', '已注销'],
+      color: '#52C41A',
+      bgColor: '#F6FFED'
+    },
+    { keywords: ['审核驳回', '已驳回', '驳回'], color: '#FF4D4F', bgColor: '#FFF1F0' },
+    { keywords: ['入厂查验'], color: '#722ED1', bgColor: '#F9F0FF' },
+    { keywords: ['拆解中'], color: '#FA8C16', bgColor: '#FFF7E6' },
+    { keywords: ['注销中'], color: '#D4380D', bgColor: '#FFF2E8' }
+  ]
+
+  function resolveOrderStatusStyle(row: RecycleOrder) {
+    const label = getOrderStatusText(row)
+
+    if (row.order_type === 'customer_order' && row.status === 1) {
+      return { color: '#1890FF', bgColor: '#E6F7FF' }
+    }
+
+    if (row.order_type === 'tow') {
+      const towStatusMap: Record<number, { color: string; bgColor: string }> = {
+        1: { color: '#FAAD14', bgColor: '#FFFBE6' },
+        2: { color: '#1890FF', bgColor: '#E6F7FF' },
+        3: { color: '#1890FF', bgColor: '#E6F7FF' },
+        4: { color: '#52C41A', bgColor: '#F6FFED' }
+      }
+      const towStyle = towStatusMap[row.status]
+      if (towStyle) return towStyle
+    }
+
+    return (
+      STATUS_STYLE_MAP.find((item) => item.keywords.some((keyword) => label.includes(keyword))) || {
+        color: '#8C8C8C',
+        bgColor: '#FAFAFA'
+      }
+    )
+  }
+
   function renderTypeTag(row: RecycleOrder) {
     const cfg = resolveOrderTypeStyle(row)
     return h(
@@ -127,7 +172,15 @@
   }
 
   function renderStatusTag(row: RecycleOrder) {
-    return h('span', { class: 'order-status-tag plain' }, getOrderStatusText(row))
+    const cfg = resolveOrderStatusStyle(row)
+    return h(
+      'span',
+      {
+        class: 'order-status-tag',
+        style: { color: cfg.color, background: cfg.bgColor }
+      },
+      getOrderStatusText(row)
+    )
   }
 
   function renderCustomerCell(row: RecycleOrder) {
@@ -166,7 +219,10 @@
 
   function renderDeliveryMethod(row: RecycleOrder) {
     if (row.delivery_type === 'tow') {
-      return h('span', { class: 'order-delivery-tag tow' }, '上门拖车')
+      return h('span', { class: 'order-delivery-tag tow' }, [
+        h(ArtSvgIcon, { icon: 'ri:truck-line', class: 'order-delivery-icon' }),
+        '上门拖车'
+      ])
     }
     return h('span', { class: 'order-delivery-tag self' }, '自行送厂')
   }
@@ -201,9 +257,10 @@
     const isPendingReview = tab === 'pending_review'
     const isFormalOrAll = tab === 'formal_order' || tab === 'all' || tab === 'towing'
 
-    const cols = [
+    const cols: ColumnOption<RecycleOrder>[] = [
       {
         prop: 'order_no',
+        width: 200,
         label: isLead ? '线索编号' : '订单编号',
         formatter: (row: RecycleOrder) => h('span', { class: 'order-no' }, getOrderDisplayNo(row))
       }
@@ -255,7 +312,7 @@
       cols.push({
         prop: 'current_status_text',
         label: isLead ? '跟进状态' : '当前状态',
-        align: 'center' as const,
+        align: 'left',
         formatter: (row: RecycleOrder) => renderStatusTag(row)
       })
     }
@@ -264,11 +321,13 @@
       {
         prop: 'add_time_text',
         label: isLead ? '创建时间' : '提交时间',
+        align: 'left',
         formatter: (row: RecycleOrder) =>
           h('span', { class: 'order-time' }, row.add_time_text || '—')
       },
       {
         prop: 'creator_name',
+        align: 'center',
         label: isPendingReview ? '提交人' : isLead ? '线索来源' : '创建人',
         formatter: (row: RecycleOrder) =>
           h('span', { class: 'order-creator' }, row.creator_name || '—')
@@ -276,7 +335,9 @@
       {
         prop: 'operation',
         label: '操作',
-        align: 'center' as const,
+        width: 330,
+        align: 'center',
+        fixed: 'right',
         formatter: (row: RecycleOrder) => renderActions(row)
       }
     )
@@ -300,10 +361,10 @@
     core: {
       apiFn: fetchOrderList,
       apiParams: {
-        current: 1,
-        size: 20,
+        ...searchForm.value,
         tab: 'all',
-        ...searchForm.value
+        current: 1,
+        size: 20
       },
       paginationKey: { current: 'page', size: 'limit' },
       columnsFactory: () => buildColumns()
@@ -321,7 +382,7 @@
 
   function handleTabChange(tab: OrderTab) {
     searchForm.value = { ...defaultSearchForm(), tab }
-    replaceSearchParams({ tab, current: 1, ...searchForm.value })
+    replaceSearchParams({ ...searchForm.value, tab, current: 1 })
     resetColumns?.()
     getData()
   }
@@ -338,7 +399,7 @@
   function handleReset() {
     resetSearchParams()
     searchForm.value = { ...defaultSearchForm(), tab: activeTab.value }
-    replaceSearchParams({ tab: activeTab.value, ...searchForm.value })
+    replaceSearchParams({ ...searchForm.value, tab: activeTab.value })
     getData()
   }
 
