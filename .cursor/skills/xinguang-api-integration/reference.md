@@ -1,6 +1,6 @@
 # xinguang_api 管理后台接口参考
 
-> 路由文件：`xinguang_api/app/adminapi/route/scrap.php` 前缀：`/adminapi/scrap/` 鉴权：`AdminAuthTokenMiddleware` + `Authorization` 请求头
+> 路由文件：`xinguang_api/app/adminapi/route/scrap.php` 前缀：`/adminapi/scrap/` 鉴权：`AdminAuthTokenMiddleware` + `Authorization` 请求头。当前前端封装通常写 `/scrap/...`，由代理/baseURL 处理 adminapi 前缀。
 
 ## 通用约定
 
@@ -148,6 +148,19 @@
 | POST | tow/assign_driver/:id | 指派司机     |
 | POST | tow/update_status/:id | 更新状态     |
 
+### 附件 / 电子签名
+
+| 方法 | 路径                       | 说明                       |
+| ---- | -------------------------- | -------------------------- |
+| GET  | sign/templates             | 签名模板列表               |
+| POST | sign/save_template         | 保存签名模板               |
+| POST | sign/delete_template       | 删除签名模板               |
+| POST | sign/sign                  | 附件签名，支持多个附件 ID  |
+| POST | sign/sign_order            | 按订单批量签署所有待签附件 |
+| GET  | sign/order_attachments/:id | 指定订单附件列表及签名状态 |
+
+前端封装：`src/api/recycle/sign.ts`。签名前先上传签名图片拿到 `sign_url`，再调用签名接口。
+
 ### 数据看板 / 报表
 
 | 方法 | 路径                     | 说明       |
@@ -182,6 +195,7 @@
 | 后端模块 | 前端 API | 前端页面 | 类型 |
 | --- | --- | --- | --- |
 | order | api/recycle/order.ts | views/recycle/recovery/orders/ | types/recycle/order.ts |
+| sign | api/recycle/sign.ts | views/recycle/recovery/orders/modules/_sign_.vue | types/recycle/order.ts |
 | vehicle | api/recycle/vehicle.ts | views/recycle/recovery/vehicles/ | types/recycle/vehicle.ts |
 | lead | api/recycle/lead.ts | views/recycle/recovery/leads/ | types/recycle/lead.ts |
 | settlement | api/recycle/settlement.ts | views/recycle/finance/ | types/recycle/settlement.ts |

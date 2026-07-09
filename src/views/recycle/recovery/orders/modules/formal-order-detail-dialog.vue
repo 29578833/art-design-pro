@@ -75,7 +75,12 @@
         :detail="detail"
         :selected-vehicle-idx="selectedVehicleIdx"
       />
-      <FormalOrderAttachmentsTab v-else-if="activeTab === 'attachments'" :detail="detail" />
+      <FormalOrderAttachmentsTab
+        v-else-if="activeTab === 'attachments'"
+        :detail="detail"
+        :order-id="props.orderId ?? undefined"
+        @signed="loadDetail"
+      />
     </div>
 
     <!-- 底栏 -->

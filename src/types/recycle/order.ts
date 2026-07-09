@@ -253,21 +253,39 @@ export interface OrderStatusLog {
 export interface OrderAttachment {
   /** 附件 ID */
   id?: number
-  /** 附件类型 ID */
-  type_id?: number
-  /** 附件类型名称 */
-  type_name?: string
-  /** 文件 URL */
-  file_url?: string
+  /** 附件名称（后端 name 字段） */
+  name?: string
+  /** 附件文件名 */
+  filename?: string
+  /** 附件下载/查看地址（download_url，PDF 生成后有值） */
+  download_url?: string
+  /** 签名图片地址 */
+  sign_url?: string
+  /** 签名操作人 */
+  sign_by?: string
   /** 签名状态：0=待签 1=已签 */
   sign_status?: number
-  /** 签名时间 */
+  /** 签名时间（格式化字符串） */
   sign_time?: string
-  /** 推送时间 */
+  /** 推送时间（格式化字符串） */
   push_time?: string
-  /** 是否已签（后端计算字段） */
+  /** 是否已签（后端计算字段 sign_status==1） */
   signed?: boolean
   [key: string]: unknown
+}
+
+/** 签名模板 */
+export interface SignatureTemplate {
+  /** 模板 ID */
+  id: number
+  /** 模板名称 */
+  name: string
+  /** 签名图片地址 */
+  sign_url: string
+  /** 创建时间（时间戳） */
+  add_time?: number
+  /** 更新时间（时间戳） */
+  update_time?: number
 }
 
 /** 订单详情（接口原字段） */

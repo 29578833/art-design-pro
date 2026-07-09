@@ -15,10 +15,12 @@ description: >-
 
 ## 开发前必读
 
-1. 读原型对应 admin 组件，理解页面结构、Tab、弹窗、筛选字段
-2. 读 `回收拆车项目/src/app/types/order.ts` 获取订单/车辆状态枚举（**仅作业务参考，列表类型字段以 xinguang_api 接口为准**）
-3. 读 PRD 第四章：`回收拆车项目/src/imports/___KZ__-___________PRD_______1_.md`（管理后台功能设计）
-4. 对照 art-design-pro 现有页面惯例（如 `src/views/system/user/index.vue`）
+1. 读 `回收拆车项目/鑫广管理后台_UI设计规范文档_v1.md`（最新 PC 后台视觉/布局规范）
+2. 读原型对应 admin 组件，理解页面结构、Tab、弹窗、筛选字段
+3. 读 `回收拆车项目/src/app/types/order.ts` 获取订单/车辆状态枚举（**仅作业务参考，列表类型字段以 xinguang_api 接口为准**）
+4. 订单/车辆优先读最新 PC 文档：`回收拆车项目/src/imports/_v3-PC_-_________-______.md`，再对照 `回收拆车项目/src/imports/_v2-PC_-____-____.md`
+5. 读 PRD 第四章：`回收拆车项目/src/imports/___KZ__-___________PRD_______1_.md`（管理后台功能设计）
+6. 对照 art-design-pro 现有页面惯例（如 `src/views/system/user/index.vue`、`src/views/recycle/recovery/orders/`）
 
 详细模块映射、分期计划、目录结构见 [reference.md](reference.md)。
 
@@ -35,6 +37,21 @@ description: >-
 关键规则：切换批次车辆查看时，**回收订单商流状态不随车辆物流状态变化**。
 
 ## 技术迁移规范
+
+### 最新 PC UI 规范（优先级最高）
+
+来自 `鑫广管理后台_UI设计规范文档_v1.md`，新页面和重做页面必须优先遵守：
+
+- 主色：`#4169FF`；悬停 `#3558DD`；渐变终点 `#5B7FFF`
+- 页面背景：`#F8FAFF`；卡片白底；边框 `#E5E7EB` / `#F3F4F6`
+- 内容区：`p-4 space-y-4`；标准列表页结构为「工具栏卡片 → 状态 Tab 卡片 → 表格卡片」
+- 卡片圆角：`8px` / `12px`；阴影只用轻量 `shadow-sm`，不要重阴影
+- 表格表头背景固定浅灰，订单号/档案号/单据号用蓝色可点击样式
+- 状态必须用 Badge 展示，按语义区分：蓝=进行中、橙=待处理、绿=完成、红=异常、灰=草稿/终止
+- 主按钮用 `#4169FF`，创建/导入类主操作可用 `#4169FF` → `#5B7FFF` 渐变
+- 原型中的 Tailwind/lucide 只作视觉参考；Vue 实现仍用 Element Plus + Art 组件 + `ArtSvgIcon`
+
+若当前已实现页面仍大量使用 `#1890FF`，本次只改需求相关区域，不为了统一颜色做无关格式化或大范围重刷样式。
 
 ### 框架对照
 
@@ -182,16 +199,16 @@ description: >-
 
 **样式 token（与原型 hex 对齐，优先写 SCSS 变量或类名）：**
 
-| 用途            | 颜色                                           |
-| --------------- | ---------------------------------------------- |
-| 内容区背景      | `#FAFAFA` / `var(--art-gray-100)`              |
-| 卡片边框        | `#E5E7EB` 或 `#D9D9D9`                         |
-| 卡片圆角        | `8px`（`rounded-lg`）                          |
-| 主色 / 批次标签 | `#1890FF`，背景 `#E6F7FF`                      |
-| 审核高亮区      | 背景 `#FFF7E6`，边框 `#FFD591`，标题 `#FA8C16` |
-| 通过按钮        | `#52C41A`                                      |
-| 驳回按钮        | `#FF4D4F`                                      |
-| 只读 label      | 12px `#8C8C8C`；value 14px `#262626`           |
+| 用途            | 颜色                                                        |
+| --------------- | ----------------------------------------------------------- |
+| 内容区背景      | `#FAFAFA` / `var(--art-gray-100)`                           |
+| 卡片边框        | `#E5E7EB` 或 `#D9D9D9`                                      |
+| 卡片圆角        | `8px`（`rounded-lg`）                                       |
+| 主色 / 批次标签 | 新页面用 `#4169FF`，旧订单模块局部可沿用 `#1890FF` 保持一致 |
+| 审核高亮区      | 背景 `#FFF7E6`，边框 `#FFD591`，标题 `#FA8C16`              |
+| 通过按钮        | `#52C41A`                                                   |
+| 驳回按钮        | `#FF4D4F`                                                   |
+| 只读 label      | 12px `#8C8C8C`；value 14px `#262626`                        |
 
 **布局对照：**
 
@@ -320,12 +337,26 @@ npx vue-tsc --noEmit src/views/recycle/recovery/orders/index.vue
 
 ## 状态与标签
 
-从 `order.ts` 迁移 `STATUS_TEXT`、`STATUS_COLOR`、`ORDER_TYPE_CONFIG`，在 Vue 中用 `ElTag` 渲染：
+从 `order.ts` 迁移 `STATUS_TEXT`、`STATUS_COLOR`、`ORDER_TYPE_CONFIG`，在 Vue 中用 `ElTag` / Badge 渲染。最新 PC 规范的状态色语义优先；订单类型标签沿用业务色：
 
 - 线索：橙色系 `#FA8C16`
 - 客户订单：紫色 `#722ED1`
 - 员工订单：蓝色 `#1890FF`
 - 拖车单：青色 `#13C2C2`
+
+## 订单结算与附件签署（最新）
+
+订单管理、详情、审核、创建/编辑弹窗必须覆盖这些字段与交互：
+
+- 结算类型：个人结算 / 企业结算（旧文档或接口可能写“非个人结算”，展示文案以后端 `*_text` 或最新 PRD 为准）
+- 结算方式：重量结算 / 整备质量结算 / 整车结算
+- 结算字段：是否质检缺件免扣款、自送费补贴、残值/回收单价、结算金额
+- 非个人结算：显示并提交发票金额、发票号码
+- 代理人：有代理人时显示代理人姓名、电话、服务费、服务费发票号码
+- 订单详情 Tab：基本信息、流程/日志、附件与签署；批量回收订单要支持切换车辆，车辆物流状态独立展示
+- 附件签署：参考 `FormalOrderDetailModal.tsx`、`OrderSignature.tsx`，Vue 已有 `formal-order-attachments-tab.vue`、`sign-canvas-dialog.vue`、`sign-template-manager-dialog.vue`
+- 签名状态：`unsigned`（未生成）、`uploaded_unsigned`（待签名）、`signed`（已签名）；待签附件支持单个签名、一键批量签名、保存/套用签名模板
+- 附件类型以接口返回为准；无接口时可参考原型 11 类附件：报废机动车合同、反向开票、开票申请、回收价格审批表、回收价格审批价格模板标准、回收结算清单、回收证明、回收质检单、开票对账单、请款报销单、其他附件
 
 ## 分期优先级
 
@@ -357,6 +388,8 @@ npx vue-tsc --noEmit src/views/recycle/recovery/orders/index.vue
 | 车辆档案 | `admin/VehicleManagement.tsx` |
 | 客户管理 | `admin/CustomerManagement.tsx` |
 | 商务部对接 | `admin/CertificateManagement.tsx` |
+| 正式订单详情/附件签署 | `admin/FormalOrderDetailModal.tsx`, `admin/OrderSignature.tsx` |
+| 签名模板/批量签名 | `admin/FormalOrderDetailModal.tsx` |
 | 质检/入厂 | `admin/QualityControl.tsx`, `admin/VehicleEntryManagement.tsx` |
 | 拆解生产 | `admin/PickupManagement.tsx`, `admin/DismantlingManagement.tsx`, `admin/ProductionManagement.tsx` |
 | 仓储/结算/报表 | `admin/InventoryManagement.tsx`, `admin/SettlementManagement.tsx`, `admin/ReportsCenter.tsx` |

@@ -22,40 +22,53 @@
       </p>
     </div>
 
-    <!-- 列表区标题 + 一键签名 -->
+    <!-- 列表区标题行 -->
     <div class="foa-list-header">
       <span class="foa-list-title"> 订单附件（{{ totalCount }} 种类型） </span>
-      <ElButton v-if="pendingSignList.length" size="small" type="primary" @click="handleBatchSign">
-        <ArtSvgIcon icon="ri:zap-line" class="mr-1" />
-        一键签名
-      </ElButton>
+      <div class="foa-list-actions">
+        <!-- 管理模板 -->
+        <ElButton size="small" @click="templateManagerVisible = true">
+          <ArtSvgIcon icon="ri:star-line" class="mr-1" />
+          管理模板（{{ templateCount }}）
+        </ElButton>
+        <!-- 一键签名 -->
+        <ElButton
+          size="small"
+          type="primary"
+          :disabled="!pendingList.length"
+          @click="handleBatchSign"
+        >
+          <ArtSvgIcon icon="ri:zap-line" class="mr-1" />
+          一键签名
+        </ElButton>
+      </div>
     </div>
 
-    <!-- 附件列表 -->
+    <!-- 无附件 -->
     <div v-if="!totalCount" class="foa-empty">暂无附件</div>
 
+    <!-- 附件列表 -->
     <div v-else class="foa-list">
       <div
         v-for="att in props.detail.attachments"
         :key="att.id"
         class="foa-row"
-        :class="{ 'foa-row--signed': isAttSigned(att) }"
+        :class="{ 'foa-row--signed': isSigned(att) }"
       >
-        <!-- 左侧：图标 + 名称 -->
+        <!-- 左侧：图标 + 名称 + 标签 -->
         <div class="foa-row-left">
-          <div class="foa-file-icon" :class="{ 'foa-file-icon--signed': isAttSigned(att) }">
+          <div class="foa-file-icon" :class="{ 'foa-file-icon--signed': isSigned(att) }">
             <ArtSvgIcon
               icon="ri:file-text-line"
               class="foa-file-svg"
-              :class="isAttSigned(att) ? 'foa-file-svg--signed' : 'foa-file-svg--plain'"
+              :class="isSigned(att) ? 'foa-file-svg--signed' : 'foa-file-svg--plain'"
             />
           </div>
           <div class="foa-row-info">
-            <div class="foa-row-name">{{ att.type_name || `附件 ${att.id}` }}</div>
+            <div class="foa-row-name">{{ att.name || `附件 ${att.id}` }}</div>
             <div class="foa-row-sub">
-              <!-- 需要签名的标记 -->
               <span class="foa-sign-required" :style="signRequiredStyle(att)"> ● 需电子签名 </span>
-              <span v-if="att.sign_time && isAttSigned(att)" class="foa-sign-time">
+              <span v-if="isSigned(att) && att.sign_time" class="foa-sign-time">
                 签署时间：{{ att.sign_time }}
               </span>
             </div>
@@ -64,47 +77,61 @@
 
         <!-- 右侧：状态 + 操作 -->
         <div class="foa-row-right">
-          <!-- 状态徽章 -->
-          <span v-if="!isAttSigned(att)" class="foa-badge foa-badge--pending">待签名</span>
-          <span v-else class="foa-badge foa-badge--signed">已签名</span>
+          <!-- unsigned（PDF 未生成）：仅显示徽章，无操作按钮 -->
+          <template v-if="getStatus(att) === 'unsigned'">
+            <span class="foa-badge foa-badge--unsigned">未生成</span>
+          </template>
 
-          <!-- 查看按钮 -->
-          <button
-            v-if="att.file_url"
-            type="button"
-            class="foa-btn foa-btn--view"
-            @click="handlePreview(att.file_url!)"
-          >
-            <ArtSvgIcon icon="ri:download-line" class="foa-btn-icon" />
-            查看
-          </button>
+          <!-- uploaded_unsigned：待签名，可查看可签名 -->
+          <template v-else-if="getStatus(att) === 'uploaded_unsigned'">
+            <span class="foa-badge foa-badge--pending">待签名</span>
+            <button
+              type="button"
+              class="foa-btn foa-btn--view"
+              @click="handlePreview(att.download_url!)"
+            >
+              <ArtSvgIcon icon="ri:download-line" class="foa-btn-icon" />查看
+            </button>
+            <button type="button" class="foa-btn foa-btn--sign" @click="handleSingleSign(att)">
+              <ArtSvgIcon icon="ri:pen-nib-line" class="foa-btn-icon" />签名
+            </button>
+          </template>
 
-          <!-- 签名按钮（仅待签名显示） -->
-          <button
-            v-if="!isAttSigned(att)"
-            type="button"
-            class="foa-btn foa-btn--sign"
-            @click="openSign(att)"
-          >
-            <ArtSvgIcon icon="ri:pen-nib-line" class="foa-btn-icon" />
-            签名
-          </button>
-
-          <!-- 已签名标记 -->
-          <span v-if="isAttSigned(att)" class="foa-signed-check">
-            <ArtSvgIcon icon="ri:checkbox-circle-line" />
-            已签名
-          </span>
+          <!-- signed：已签名 -->
+          <template v-else>
+            <span class="foa-badge foa-badge--signed">已签名</span>
+            <button
+              v-if="att.download_url"
+              type="button"
+              class="foa-btn foa-btn--view"
+              @click="handlePreview(att.download_url!)"
+            >
+              <ArtSvgIcon icon="ri:download-line" class="foa-btn-icon" />查看
+            </button>
+            <span class="foa-signed-check">
+              <ArtSvgIcon icon="ri:checkbox-circle-line" />已签名
+            </span>
+          </template>
         </div>
       </div>
     </div>
 
-    <!-- 签名弹窗 -->
-    <FormalOrderSignDialog
-      v-if="signDialogVisible"
-      v-model:visible="signDialogVisible"
-      :attachment="signingAttachment"
+    <!-- 签名画布弹窗 -->
+    <SignCanvasDialog
+      v-if="canvasDialogVisible"
+      v-model:visible="canvasDialogVisible"
+      :mode="canvasMode"
+      :attachment-id="signingAttachId ?? undefined"
+      :attachment-ids="signingAttachIds"
+      :attachment-name="signingAttachName"
+      :order-id="props.orderId"
       @signed="handleSigned"
+    />
+
+    <!-- 模板管理弹窗 -->
+    <SignTemplateManagerDialog
+      v-if="templateManagerVisible"
+      v-model:visible="templateManagerVisible"
     />
 
     <!-- 文件预览 -->
@@ -118,72 +145,106 @@
 
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import { fetchSignTemplates } from '@/api/recycle/sign'
   import type { OrderAttachment, OrderDetail } from '@/types/recycle/order'
-  import FormalOrderSignDialog from './formal-order-sign-dialog.vue'
+  import SignCanvasDialog from './sign-canvas-dialog.vue'
+  import SignTemplateManagerDialog from './sign-template-manager-dialog.vue'
 
   const props = defineProps<{
     detail: Partial<OrderDetail>
+    orderId?: number
   }>()
 
   const emit = defineEmits<{
-    (e: 'signed', attachmentId: number): void
+    (e: 'signed'): void
   }>()
 
-  // ========== 统计 ==========
+  // ===== 附件状态判断 =====
+  type AttachStatus = 'unsigned' | 'uploaded_unsigned' | 'signed'
+
+  function getStatus(att: OrderAttachment): AttachStatus {
+    if (att.sign_status === 1 || att.signed) return 'signed'
+    if (att.download_url) return 'uploaded_unsigned'
+    return 'unsigned'
+  }
+
+  function isSigned(att: OrderAttachment): boolean {
+    return getStatus(att) === 'signed'
+  }
+
+  // "需电子签名"标签颜色：已签=绿色，待签=橙色，未生成=灰色
+  function signRequiredStyle(att: OrderAttachment) {
+    const s = getStatus(att)
+    if (s === 'signed') return { color: '#52C41A' }
+    if (s === 'uploaded_unsigned') return { color: '#FA8C16' }
+    return { color: '#BFBFBF' }
+  }
+
+  // ===== 统计 =====
   const totalCount = computed(() => props.detail.attachments?.length ?? 0)
-
   const needSignCount = computed(() => totalCount.value)
-
   const signedCount = computed(
-    () => props.detail.attachments?.filter((a) => isAttSigned(a)).length ?? 0
+    () => props.detail.attachments?.filter((a) => isSigned(a)).length ?? 0
   )
-
-  const pendingSignList = computed(
-    () => props.detail.attachments?.filter((a) => !isAttSigned(a)) ?? []
+  const pendingList = computed(
+    () => props.detail.attachments?.filter((a) => getStatus(a) === 'uploaded_unsigned') ?? []
   )
-
   const progressPct = computed(() =>
     needSignCount.value ? Math.round((signedCount.value / needSignCount.value) * 100) : 0
   )
 
-  function isAttSigned(att: OrderAttachment): boolean {
-    return att.sign_status === 1 || att.signed === true
-  }
+  // ===== 模板数量（用于按钮显示） =====
+  const templateCount = ref(0)
 
-  // 需签名的行：状态文字颜色与签名状态一致
-  function signRequiredStyle(att: OrderAttachment) {
-    if (isAttSigned(att)) return { color: '#52C41A' }
-    return { color: '#FA8C16' }
-  }
-
-  // ========== 签名弹窗 ==========
-  const signDialogVisible = ref(false)
-  const signingAttachment = ref<OrderAttachment | null>(null)
-  const batchQueue = ref<OrderAttachment[]>([])
-
-  function openSign(att: OrderAttachment) {
-    signingAttachment.value = att
-    signDialogVisible.value = true
-  }
-
-  function handleBatchSign() {
-    if (!pendingSignList.value.length) return
-    batchQueue.value = [...pendingSignList.value]
-    openSign(batchQueue.value[0])
-  }
-
-  function handleSigned(attachmentId: number) {
-    emit('signed', attachmentId)
-    const remaining = batchQueue.value.filter((a) => a.id !== attachmentId && !isAttSigned(a))
-    batchQueue.value = remaining
-    if (remaining.length) {
-      openSign(remaining[0])
-    } else {
-      batchQueue.value = []
+  async function refreshTemplateCount() {
+    try {
+      const list = await fetchSignTemplates()
+      templateCount.value = list.length
+    } catch {
+      templateCount.value = 0
     }
   }
 
-  // ========== 文件预览 ==========
+  onMounted(refreshTemplateCount)
+
+  // ===== 签名画布弹窗 =====
+  const canvasDialogVisible = ref(false)
+  const canvasMode = ref<'single' | 'batch'>('single')
+  const signingAttachId = ref<number | null>(null)
+  const signingAttachIds = ref<number[]>([])
+  const signingAttachName = ref('')
+
+  function handleSingleSign(att: OrderAttachment) {
+    canvasMode.value = 'single'
+    signingAttachId.value = att.id ?? null
+    signingAttachIds.value = []
+    signingAttachName.value = att.name || `附件 ${att.id}`
+    canvasDialogVisible.value = true
+  }
+
+  function handleBatchSign() {
+    const ids = pendingList.value.map((a) => a.id!).filter(Boolean)
+    if (!ids.length) return
+    canvasMode.value = 'batch'
+    signingAttachId.value = null
+    signingAttachIds.value = ids
+    signingAttachName.value = ''
+    canvasDialogVisible.value = true
+  }
+
+  function handleSigned() {
+    emit('signed')
+    refreshTemplateCount()
+  }
+
+  // ===== 模板管理弹窗 =====
+  const templateManagerVisible = ref(false)
+
+  watch(templateManagerVisible, (v) => {
+    if (!v) refreshTemplateCount()
+  })
+
+  // ===== 文件预览 =====
   const previewVisible = ref(false)
   const previewUrl = ref('')
 
@@ -277,6 +338,11 @@
     color: #262626;
   }
 
+  .foa-list-actions {
+    display: flex;
+    gap: 8px;
+  }
+
   .foa-empty {
     padding: 32px 0;
     font-size: 13px;
@@ -302,6 +368,10 @@
 
     &:hover {
       background: #f0f0f0;
+    }
+
+    &--signed:hover {
+      background: #f6ffed;
     }
 
     &--signed {
@@ -398,9 +468,14 @@
       color: #fa8c16;
       background: #fff7e6;
     }
+
+    &--unsigned {
+      color: #8c8c8c;
+      background: #f5f5f5;
+    }
   }
 
-  /* ===== 按钮 ===== */
+  /* ===== 操作按钮 ===== */
   .foa-btn {
     display: inline-flex;
     gap: 3px;
@@ -436,7 +511,6 @@
     font-size: 12px;
   }
 
-  /* ===== 已签名 check ===== */
   .foa-signed-check {
     display: inline-flex;
     gap: 3px;

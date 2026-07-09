@@ -16,7 +16,7 @@ description: >-
 
 ## 对接前必读（按顺序）
 
-1. 确认用户给的 URL → 在 `xinguang_api/app/adminapi/route/scrap.php` 找对应路由
+1. 确认用户给的 URL → 优先在当前前端 `src/api/recycle/` 查已有封装；有后端源码时再到 `xinguang_api/app/adminapi/route/scrap.php` 找对应路由
 2. 读 Controller 的 `getMore` / `postMore` 参数 → 确定请求字段
 3. 读 Services 返回结构 → 确定 `data` 内字段（通常是 `{ list, count }`）
 4. 读前端页面/类型 → 确定接口原字段（snake_case）与展示逻辑
@@ -30,9 +30,9 @@ description: >-
 | ---------------- | ------------------------------------------ |
 | 后端路由定义     | `scrap/order/list`（相对 adminapi 路由组） |
 | Controller 注释  | `/adminapi/scrap/order/list`               |
-| 前端 request url | `/adminapi/scrap/order/list`               |
+| 前端 request url | 当前项目多用 `/scrap/order/list`           |
 
-开发环境 Vite 代理：`/api` → `VITE_API_PROXY_URL`。若后端无前缀重写，前端 url 用 `/adminapi/scrap/...`；若走 Apifox Mock，按 Mock 实际路径写。
+开发环境 Vite 代理：`/api` → `VITE_API_PROXY_URL`。当前 `src/api/recycle/order.ts`、`sign.ts` 使用 `/scrap/...`；除非确认代理或后端前缀变化，不要擅自改成 `/adminapi/scrap/...`。
 
 改后端地址：`.env.development` 的 `VITE_API_PROXY_URL`。
 
@@ -77,7 +77,7 @@ import type { OrderList, OrderSearchParams } from '@/types/recycle/order'
 /** 订单列表 */
 export function fetchOrderList(params: OrderSearchParams) {
   return request.get<OrderList>({
-    url: '/adminapi/scrap/order/list',
+    url: '/scrap/order/list',
     params
   })
 }
@@ -85,7 +85,7 @@ export function fetchOrderList(params: OrderSearchParams) {
 /** 审核订单 */
 export function fetchAuditOrder(data: { id: number; status: number; remark?: string }) {
   return request.post({
-    url: '/adminapi/scrap/order/audit',
+    url: '/scrap/order/audit',
     params: data,
     showSuccessMessage: true
   })
@@ -95,7 +95,7 @@ export function fetchAuditOrder(data: { id: number; status: number; remark?: str
 约定：
 
 - 函数名 `fetch` + 动作 + 资源
-- GET 用 `params`，POST/PUT 用 `params`（http 层会自动转 body）
+- GET 用 `params`；POST/PUT 优先沿用同文件现有写法（订单接口多用 `params`，签名/上传相关已用 `data`）
 - 写操作加 `showSuccessMessage: true`
 - 一个业务域一个文件：`order.ts`、`vehicle.ts`、`settlement.ts`
 
@@ -197,6 +197,27 @@ export async function fetchOrderList(params: OrderSearchParams): Promise<OrderLi
 4. 弹窗 submit 调 create/update 接口，成功后 `refreshData()`
 5. 详情抽屉调 detail 接口或用列表行数据（视交互而定）
 
+## 签名与附件接口（当前前端已有）
+
+对应文件：`src/api/recycle/sign.ts`。订单详情附件 Tab、签名画布、签名模板管理必须复用这些封装：
+
+| 功能 | 前端函数 | 路径 | 关键参数 |
+| --- | --- | --- | --- |
+| 签名模板列表 | `fetchSignTemplates` | `/scrap/sign/templates` | - |
+| 保存模板 | `fetchSaveTemplate` | `/scrap/sign/save_template` | `name`, `sign_url` |
+| 删除模板 | `fetchDeleteTemplate` | `/scrap/sign/delete_template` | `id` |
+| 附件签名 | `fetchSignAttachments` | `/scrap/sign/sign` | `attach_id` 逗号分隔, `sign_url` |
+| 订单批量签名 | `fetchSignOrder` | `/scrap/sign/sign_order` | `order_id` 逗号分隔, `sign_url` |
+| 订单附件列表 | `fetchOrderAttachments` | `/scrap/sign/order_attachments/:orderId` | `orderId` |
+
+签名前先用项目上传接口拿到签名图片 URL（`uploadFileGetUrl`），再传 `sign_url`。附件列表项直接使用接口字段：`download_url`、`sign_url`、`sign_by`、`sign_status`、`sign_time`、`signed`，不要映射成 camelCase。
+
+附件状态判断：
+
+- 无 `download_url`：`unsigned`（未生成，只展示状态）
+- 有 `download_url` 且未签：`uploaded_unsigned`（可查看、可签名）
+- `sign_status === 1` 或 `signed === true`：`signed`（已签名）
+
 ## 读后端源码定位参数
 
 ```
@@ -208,7 +229,7 @@ xinguang_api/
 └── tests/scrap/                      # 接口行为参考
 ```
 
-Controller 示例：`ScrapOrder.php` → `index()` 接受 `page`、`limit`、`keyword`、`status` 等。
+Controller 示例：`ScrapOrder.php` → `index()` 接受 `page`、`limit`、`keyword`、`status` 等。当前仓库未包含 `xinguang_api` 时，以 `src/api/recycle/` 现有封装和用户提供接口为准，不凭空补后端路由。
 
 ## 单模块对接流程
 
