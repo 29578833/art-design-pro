@@ -7,7 +7,8 @@ import type {
   OrderSearchParams,
   OrderTab,
   OrderTabCount,
-  RecycleOrder
+  RecycleOrder,
+  TowDriverRecord
 } from '@/types/recycle/order'
 import { ORDER_TAB_CONFIG } from '@/types/recycle/order'
 
@@ -220,6 +221,45 @@ export async function fetchOrderListForExport(
 export function fetchOrderDetail(id: number) {
   return request.get<OrderDetail>({
     url: `/scrap/order/detail/${id}`
+  })
+}
+
+/** 拖车订单详情 */
+export function fetchTowOrderDetail(id: number) {
+  return request.get<OrderDetail>({
+    url: `/scrap/tow/detail/${id}`
+  })
+}
+
+/** 拖车司机记录列表 */
+export async function fetchTowDriverList(): Promise<TowDriverRecord[]> {
+  const res = await request.get<{ list: TowDriverRecord[]; count: number }>({
+    url: '/scrap/tow/driver/list'
+  })
+  return res.list || []
+}
+
+/** 指派拖车司机 */
+export function fetchDispatchTowDriver(data: {
+  id: number
+  driver_id?: number
+  driver_name: string
+  driver_phone: string
+  truck_plate?: string
+  tow_company?: string
+  delivery_address?: string
+}) {
+  return request.post({
+    url: `/scrap/tow/assign_driver/${data.id}`,
+    params: {
+      driver_id: data.driver_id || 0,
+      driver_name: data.driver_name,
+      driver_phone: data.driver_phone,
+      truck_plate: data.truck_plate || '',
+      tow_company: data.tow_company || '',
+      delivery_address: data.delivery_address || ''
+    },
+    showSuccessMessage: true
   })
 }
 

@@ -6,6 +6,7 @@
     destroy-on-close
     :show-close="false"
     class="order-create-dialog"
+    style="padding: 0 0 16px !important"
   >
     <!-- 提交成功 -->
     <template v-if="submitted">
@@ -49,7 +50,7 @@
       <div class="dialog-header">
         <div class="dialog-header-left">
           <span class="dialog-title">+ 创建订单</span>
-          <div style="position: relative">
+          <!-- <div style="position: relative">
             <button type="button" class="header-btn" @click="showTemplates = !showTemplates">
               <ArtSvgIcon icon="ri:book-open-line" />
               使用模板
@@ -64,16 +65,17 @@
                 {{ tpl.name }}
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
         <div class="dialog-header-right">
-          <button type="button" class="header-btn" :disabled="saving" @click="handleSaveDraft">
+          <!-- <button type="button" class="header-btn" :disabled="saving" @click="handleSaveDraft">
             <ArtSvgIcon icon="ri:save-line" />
             {{ saving ? '保存中…' : '保存草稿' }}
-          </button>
-          <button type="button" class="header-btn" @click="dialogVisible = false">
+          </button> -->
+          <!-- <button type="button" class="header-btn" @click="dialogVisible = false">
             <ArtSvgIcon icon="ri:close-line" />
-          </button>
+          </button> -->
+          <span><ArtSvgIcon icon="ri:close-line" /></span>
         </div>
       </div>
     </template>
@@ -747,14 +749,6 @@
     grade: string
   }
 
-  interface MockTemplate {
-    id: string
-    name: string
-    settlement_method: OrderCreateForm['settlement_method']
-    delivery_type: OrderCreateForm['delivery_type']
-    self_delivery_subsidy: string
-  }
-
   interface Props {
     visible: boolean
     /** 从线索创建时可传入预填数据 */
@@ -777,7 +771,6 @@
   const ocrDone = ref(false)
   const ocrFileInputRef = ref<HTMLInputElement>()
   let ocrDoneTimer: ReturnType<typeof setTimeout> | null = null
-  const showTemplates = ref(false)
   const mockOrderNo = ref('')
 
   const vehicleBrands = [
@@ -796,30 +789,6 @@
   ]
   const fuelTypes = ['汽油', '柴油', '纯电动', '插电混动', '油电混动']
   const emissionStandards = ['国一', '国二', '国三', '国四', '国五', '国六', '新能源']
-
-  const mockTemplates: MockTemplate[] = [
-    {
-      id: 'T001',
-      name: '个人报废-重量结算模板',
-      settlement_method: 'weight',
-      delivery_type: 'tow',
-      self_delivery_subsidy: '0'
-    },
-    {
-      id: 'T002',
-      name: '企业卖废铁-现金模板',
-      settlement_method: 'weight',
-      delivery_type: 'self',
-      self_delivery_subsidy: '500'
-    },
-    {
-      id: 'T003',
-      name: '个人自送-固定价格模板',
-      settlement_method: 'whole_vehicle',
-      delivery_type: 'self',
-      self_delivery_subsidy: '300'
-    }
-  ]
 
   const gradeColor: Record<string, string> = {
     vip: '#D4AF37',
@@ -918,11 +887,12 @@
     }))
   }
 
-  async function queryCustomers(queryString: string, cb: (results: CustomerOption[]) => void) {
+  /** 客户自动补全：返回数据给 ElAutocomplete，避免 async+cb 导致 Promise<void> 类型不兼容 */
+  async function queryCustomers(queryString: string) {
     try {
-      cb(await filteredCustomers(queryString))
+      return await filteredCustomers(queryString)
     } catch {
-      cb([])
+      return []
     }
   }
 
@@ -1025,7 +995,6 @@
     saving.value = false
     ocrLoading.value = false
     ocrDone.value = false
-    showTemplates.value = false
     form.value = defaultForm()
   }
 
@@ -1061,17 +1030,11 @@
     form.value.vehicles.splice(index, 1)
   }
 
-  function handleCustomerSelect(item: CustomerOption) {
-    form.value.uid = item.uid
-    form.value.real_name = item.real_name
-    form.value.phone = item.phone
-  }
-
-  function applyTemplate(tpl: MockTemplate) {
-    form.value.settlement_method = tpl.settlement_method
-    form.value.delivery_type = tpl.delivery_type
-    form.value.self_delivery_subsidy = tpl.self_delivery_subsidy
-    showTemplates.value = false
+  function handleCustomerSelect(item: Record<string, any>) {
+    const customer = item as CustomerOption
+    form.value.uid = customer.uid
+    form.value.real_name = customer.real_name
+    form.value.phone = customer.phone
   }
 
   function selectSettlementMethod(value: OrderCreateForm['settlement_method']) {
@@ -1142,21 +1105,6 @@
       // 错误提示由 http 层统一处理
     } finally {
       ocrLoading.value = false
-    }
-  }
-
-  async function handleSaveDraft() {
-    if (!form.value.real_name || !form.value.phone) {
-      ElMessage.warning('请先填写客户姓名和联系电话')
-      return
-    }
-
-    saving.value = true
-    try {
-      await fetchSaveOrder(buildSavePayload(0))
-      ElMessage.success('草稿已保存')
-    } finally {
-      saving.value = false
     }
   }
 

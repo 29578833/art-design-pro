@@ -351,6 +351,8 @@
 
 <style lang="scss">
   .lead-detail-dialog {
+    padding: 0 0 16px !important;
+
     .el-dialog__header {
       padding: 0;
       border-bottom: 1px solid #f0f0f0;
@@ -502,7 +504,6 @@
     }
 
     &--mono {
-      font-family: 'Courier New', Courier, monospace;
       font-size: 13px;
       color: #434343;
     }

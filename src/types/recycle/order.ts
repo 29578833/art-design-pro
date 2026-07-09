@@ -342,6 +342,51 @@ export interface OrderDetail extends RecycleOrder {
   follow_person_name?: string
   /** 线索跟进时间 */
   follow_time?: string
+  /** 司机姓名（拖车订单） */
+  driver_name?: string
+  /** 关联订单客户姓名（拖车订单详情） */
+  order_real_name?: string
+  /** 关联订单客户电话（拖车订单详情） */
+  order_phone?: string
+  /** 关联订单车牌号（拖车订单详情） */
+  order_plate_no?: string
+  /** 关联订单 VIN（拖车订单详情） */
+  order_vin?: string
+  /** 品牌车型拼接文案（拖车订单详情） */
+  brand_model?: string
+  /** 拖车司机 ID */
+  driver_id?: number
+  /** 派单时间（时间戳或格式化字符串，拖车订单） */
+  dispatch_time?: number | string
+  /** 派单人姓名（拖车订单） */
+  dispatch_by?: string
+  /** 接单时间（时间戳或格式化字符串，拖车订单） */
+  accept_time?: number | string
+  /** 出发时间（拖车订单） */
+  depart_time?: number | string
+  /** 拖车完成时间（时间戳或格式化字符串，拖车订单） */
+  completion_time?: number | string
+  /** 拖车完成时间（后端实际字段） */
+  complete_time?: number | string
+  /** 送达地址/目的厂区地址（拖车订单） */
+  delivery_address?: string
+  /** 到达照片列表（拖车订单，司机在小程序上传） */
+  completion_photos?: string[] | string
+  /** 到达照片列表（后端实际字段 images） */
+  images?: string[] | string
+  /** 司机电子签名图片 URL（拖车订单） */
+  driver_signature?: string
+  /** 拖车操作日志（后端 tow/detail 合并日志） */
+  operation_logs?: Array<{
+    action?: string
+    content?: string
+    operator_id?: number
+    operator_name?: string
+    operator_role?: string
+    add_time?: number | string
+    from_order_status_log?: boolean
+    [key: string]: unknown
+  }>
 }
 
 /** 创建/编辑订单提交参数（与 ScrapOrder/create 一致） */
@@ -424,4 +469,23 @@ export interface LeadFollowPerson {
   phone?: string
   /** 头像 */
   avatar?: string
+}
+
+/** 拖车司机记录（/scrap/tow/driver/list 返回） */
+export interface TowDriverRecord {
+  /** 司机记录 ID */
+  id: number
+  /** 司机姓名 */
+  driver_name?: string
+  /** 司机电话 */
+  driver_phone?: string
+  /** 拖车车牌 */
+  truck_plate?: string
+  /** 拖车公司 */
+  tow_company?: string
+  /** 后端拼接展示文案 */
+  label?: string
+  /** 关联用户 ID */
+  user_id?: number
+  [key: string]: unknown
 }

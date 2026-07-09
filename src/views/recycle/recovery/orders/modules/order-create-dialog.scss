@@ -1,14 +1,13 @@
 /* 创建订单向导弹窗 - 对齐 CreateOrderWizard 原型 */
 
 .order-create-dialog {
-  :deep(.el-dialog) {
-    display: flex;
-    flex-direction: column;
-    max-height: 92vh;
-    padding: 0;
-    overflow: hidden;
-    border-radius: 8px;
-  }
+  display: flex;
+  flex-direction: column;
+  max-height: 92vh;
+  padding: 0 0 16px !important;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 8px;
 
   :deep(.el-dialog__header) {
     padding: 0;

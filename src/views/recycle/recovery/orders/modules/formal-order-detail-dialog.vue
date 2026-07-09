@@ -304,6 +304,8 @@
 
 <style lang="scss">
   .fo-detail-dialog {
+    padding: 0 0 16px !important;
+
     .el-dialog__header {
       padding: 0;
       border-bottom: 1px solid #f0f0f0;

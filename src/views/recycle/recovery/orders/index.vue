@@ -69,6 +69,18 @@
       :order-id="formalDetailOrderId"
       @refresh="refreshAll"
     />
+    <TowOrderDetailDialog
+      v-model:visible="towDetailVisible"
+      :order-id="towDetailOrderId"
+      @refresh="refreshAll"
+    />
+    <TowDriverAssignDialog
+      v-model:visible="towAssignVisible"
+      :order-id="towAssignOrderId"
+      :current-driver-id="towAssignDriverId"
+      :delivery-address="towAssignDeliveryAddress"
+      @success="refreshAll"
+    />
   </div>
 </template>
 
@@ -93,6 +105,7 @@
     getOrderDisplayNo,
     getOrderStatusText,
     isLeadOrder,
+    isTowOrder,
     resolveOrderTypeStyle
   } from '@/types/recycle/order'
   import * as XLSX from 'xlsx'
@@ -104,6 +117,8 @@
   import LeadDetailDialog from './modules/lead-detail-dialog.vue'
   import LeadAssignDialog from './modules/lead-assign-dialog.vue'
   import FormalOrderDetailDialog from './modules/formal-order-detail-dialog.vue'
+  import TowOrderDetailDialog from './modules/tow-order-detail-dialog.vue'
+  import TowDriverAssignDialog from './modules/tow-driver-assign-dialog.vue'
 
   defineOptions({ name: 'RecycleOrders' })
 
@@ -120,6 +135,12 @@
   const assignOrderId = ref<number | null>(null)
   const formalDetailVisible = ref(false)
   const formalDetailOrderId = ref<number | null>(null)
+  const towDetailVisible = ref(false)
+  const towDetailOrderId = ref<number | null>(null)
+  const towAssignVisible = ref(false)
+  const towAssignOrderId = ref<number | null>(null)
+  const towAssignDriverId = ref<number | null>(null)
+  const towAssignDeliveryAddress = ref('')
 
   const defaultSearchForm = (): OrderSearchParams => ({
     current: 1,
@@ -430,6 +451,9 @@
     if (isLeadOrder(row)) {
       leadDetailOrderId.value = row.id
       leadDetailVisible.value = true
+    } else if (isTowOrder(row)) {
+      towDetailOrderId.value = row.id
+      towDetailVisible.value = true
     } else {
       formalDetailOrderId.value = row.id
       formalDetailVisible.value = true
@@ -459,12 +483,23 @@
     editDialogVisible.value = true
   }
 
+  function openTowAssignDialog(row: RecycleOrder) {
+    towAssignOrderId.value = row.id
+    towAssignDriverId.value =
+      typeof row.driver_id === 'number' || typeof row.driver_id === 'string'
+        ? Number(row.driver_id)
+        : null
+    towAssignDeliveryAddress.value =
+      typeof row.delivery_address === 'string' ? row.delivery_address : ''
+    towAssignVisible.value = true
+  }
+
   function handleAssignDriver(row: RecycleOrder) {
-    ElMessage.info(`指派司机：${getOrderDisplayNo(row)}`)
+    openTowAssignDialog(row)
   }
 
   function handleReassignDriver(row: RecycleOrder) {
-    ElMessage.info(`重新指派司机：${getOrderDisplayNo(row)}`)
+    openTowAssignDialog(row)
   }
 
   function handleContactDriver(row: RecycleOrder) {

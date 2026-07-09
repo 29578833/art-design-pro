@@ -434,7 +434,6 @@
   }
 
   .order-id {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 12px;
     color: var(--el-color-primary);
   }

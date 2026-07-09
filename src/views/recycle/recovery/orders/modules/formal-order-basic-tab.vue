@@ -499,7 +499,6 @@
     }
 
     &--mono {
-      font-family: 'Courier New', Courier, monospace;
       font-size: 13px;
       color: #434343;
     }
