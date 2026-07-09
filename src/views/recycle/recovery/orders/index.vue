@@ -53,6 +53,22 @@
       :order-data="editingOrder"
       @submit="refreshAll"
     />
+    <LeadDetailDialog
+      v-model:visible="leadDetailVisible"
+      :order-id="leadDetailOrderId"
+      @create-order="handleLeadDetailCreateOrder"
+      @refresh="refreshAll"
+    />
+    <LeadAssignDialog
+      v-model:visible="assignDialogVisible"
+      :order-id="assignOrderId"
+      @success="refreshAll"
+    />
+    <FormalOrderDetailDialog
+      v-model:visible="formalDetailVisible"
+      :order-id="formalDetailOrderId"
+      @refresh="refreshAll"
+    />
   </div>
 </template>
 
@@ -60,9 +76,7 @@
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import type { ColumnOption } from '@/types/component'
   import {
-    fetchAssignLeadFollow,
     fetchAuditOrder,
-    fetchLeadFollowPersons,
     fetchOrderList,
     fetchOrderListForExport,
     fetchOrderTabCounts,
@@ -87,6 +101,9 @@
   import OrderTableActions from './modules/order-table-actions.vue'
   import OrderCreateDialog from './modules/order-create-dialog.vue'
   import OrderEditDialog from './modules/order-edit-dialog.vue'
+  import LeadDetailDialog from './modules/lead-detail-dialog.vue'
+  import LeadAssignDialog from './modules/lead-assign-dialog.vue'
+  import FormalOrderDetailDialog from './modules/formal-order-detail-dialog.vue'
 
   defineOptions({ name: 'RecycleOrders' })
 
@@ -97,6 +114,12 @@
   const editDialogVisible = ref(false)
   const createPrefillOrder = ref<RecycleOrder | null>(null)
   const editingOrder = ref<RecycleOrder | null>(null)
+  const leadDetailVisible = ref(false)
+  const leadDetailOrderId = ref<number | null>(null)
+  const assignDialogVisible = ref(false)
+  const assignOrderId = ref<number | null>(null)
+  const formalDetailVisible = ref(false)
+  const formalDetailOrderId = ref<number | null>(null)
 
   const defaultSearchForm = (): OrderSearchParams => ({
     current: 1,
@@ -404,7 +427,18 @@
   }
 
   function handleView(row: RecycleOrder) {
-    ElMessage.info(`查看订单：${getOrderDisplayNo(row)}`)
+    if (isLeadOrder(row)) {
+      leadDetailOrderId.value = row.id
+      leadDetailVisible.value = true
+    } else {
+      formalDetailOrderId.value = row.id
+      formalDetailVisible.value = true
+    }
+  }
+
+  function handleLeadDetailCreateOrder(orderId: number) {
+    const row = data.value.find((r) => r.id === orderId) || null
+    openCreateDialog(row ?? undefined)
   }
 
   function handleAudit(row: RecycleOrder) {
@@ -467,25 +501,9 @@
     refreshAll()
   }
 
-  async function handleAssignLead(row: RecycleOrder) {
-    const persons = await fetchLeadFollowPersons()
-    if (!persons.length) {
-      ElMessage.warning('暂无可用跟进人')
-      return
-    }
-    const hint = persons.map((item) => `${item.nickname}（UID: ${item.uid}）`).join('、')
-    const { value } = await ElMessageBox.prompt(`可选跟进人：${hint}`, '指派跟进人', {
-      confirmButtonText: '确认指派',
-      cancelButtonText: '取消',
-      inputPlaceholder: '请输入跟进人 UID'
-    })
-    const followUid = Number(value)
-    if (!followUid) {
-      ElMessage.warning('请输入有效的跟进人 UID')
-      return
-    }
-    await fetchAssignLeadFollow({ id: row.id, followUid })
-    refreshAll()
+  function handleAssignLead(row: RecycleOrder) {
+    assignOrderId.value = row.id
+    assignDialogVisible.value = true
   }
 
   async function handleCompleteTow(row: RecycleOrder) {

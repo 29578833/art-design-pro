@@ -182,14 +182,20 @@ export function fetchAssignLeadFollow(data: { id: number; followUid: number }) {
   })
 }
 
+/** 标记线索已跟进（不指派） */
+export function fetchMarkLeadFollow(id: number) {
+  return request.post({
+    url: `/scrap/lead/follow/${id}`,
+    showSuccessMessage: true
+  })
+}
+
 /** 获取跟进人列表 */
 export async function fetchLeadFollowPersons(keyword = '') {
-  const res = await request.get<{ list: Array<{ uid: number; nickname: string; phone?: string }> }>(
-    {
-      url: '/scrap/lead/follow_persons',
-      params: { keyword, page: 1, limit: 50 }
-    }
-  )
+  const res = await request.get<{ list: import('@/types/recycle/order').LeadFollowPerson[] }>({
+    url: '/scrap/lead/follow_persons',
+    params: { keyword, page: 1, limit: 50 }
+  })
   return res.list || []
 }
 

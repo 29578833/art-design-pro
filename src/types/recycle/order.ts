@@ -219,6 +219,55 @@ export interface OrderVehicle {
   color?: string
   /** 里程 */
   mileage?: string | number
+  /** 车辆物流状态码 */
+  status?: number
+  /** 车辆物流状态文案 */
+  status_text?: string
+  [key: string]: unknown
+}
+
+/** 订单操作日志（status_logs[] 每项） */
+export interface OrderStatusLog {
+  /** 日志 ID */
+  id?: number
+  /** 订单 ID */
+  oid?: number
+  /** 变更前状态 */
+  from_status?: number
+  /** 变更后状态 */
+  to_status?: number
+  /** 变更描述 */
+  change_message?: string
+  /** 变更时间（时间戳） */
+  change_time?: number
+  /** 操作人 ID */
+  operator_id?: number
+  /** 操作人名称 */
+  operator_name?: string
+  /** 操作人类型：admin / user / system */
+  operator_type?: string
+  [key: string]: unknown
+}
+
+/** 订单附件（attachments[] 每项） */
+export interface OrderAttachment {
+  /** 附件 ID */
+  id?: number
+  /** 附件类型 ID */
+  type_id?: number
+  /** 附件类型名称 */
+  type_name?: string
+  /** 文件 URL */
+  file_url?: string
+  /** 签名状态：0=待签 1=已签 */
+  sign_status?: number
+  /** 签名时间 */
+  sign_time?: string
+  /** 推送时间 */
+  push_time?: string
+  /** 是否已签（后端计算字段） */
+  signed?: boolean
+  [key: string]: unknown
 }
 
 /** 订单详情（接口原字段） */
@@ -241,7 +290,7 @@ export interface OrderDetail extends RecycleOrder {
   self_delivery_subsidy?: number | string
   /** 回收单价 */
   unit_price?: number | string
-  /** 车主类型：personal / non_personal */
+  /** 车主类型：personal / company */
   owner_type?: string
   /** 是否有代理人 */
   has_agent?: number
@@ -263,6 +312,18 @@ export interface OrderDetail extends RecycleOrder {
   vehicles?: OrderVehicle[]
   /** 首辆车（详情扩展） */
   vehicle?: OrderVehicle
+  /** 操作/状态日志列表 */
+  status_logs?: OrderStatusLog[]
+  /** 附件列表 */
+  attachments?: OrderAttachment[]
+  /** 指派业务员名称 */
+  assign_name?: string
+  /** 指派业务员电话 */
+  assign_phone?: string
+  /** 线索跟进人名称 */
+  follow_person_name?: string
+  /** 线索跟进时间 */
+  follow_time?: string
 }
 
 /** 创建/编辑订单提交参数（与 ScrapOrder/create 一致） */
@@ -331,4 +392,18 @@ export interface OrderSaveResult {
   id?: number
   /** 订单编号 */
   order_no?: string
+}
+
+/** 线索跟进人（/scrap/lead/follow_persons 返回） */
+export interface LeadFollowPerson {
+  /** 用户 UID */
+  uid: number
+  /** 昵称 */
+  nickname?: string
+  /** 真实姓名 */
+  real_name?: string
+  /** 手机号 */
+  phone?: string
+  /** 头像 */
+  avatar?: string
 }
