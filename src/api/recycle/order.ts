@@ -174,6 +174,19 @@ export function fetchAuditOrder(data: { id: number; approved: boolean; remark?: 
   })
 }
 
+/** 批量审核订单 */
+export function fetchBatchAudit(data: { ids: number[]; approved: boolean; remark?: string }) {
+  return request.post({
+    url: '/scrap/order/batch_audit',
+    params: {
+      ids: data.ids.join(','),
+      approved: data.approved ? 1 : 0,
+      remark: data.remark || ''
+    },
+    showSuccessMessage: true
+  })
+}
+
 /** 指派线索跟进人 */
 export function fetchAssignLeadFollow(data: { id: number; followUid: number }) {
   return request.post({

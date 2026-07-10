@@ -235,7 +235,9 @@
       "decision": "Data Decision",
       "cxm": "Vehicle Alliance",
       "customers": "Customer & Supplier",
-      "orders": "Order Management"
+      "orders": "Order Management",
+      "orderAudit": "Order Audit",
+      "orderLead": "Lead Orders"
     },
     "result": {
       "title": "Result Page",

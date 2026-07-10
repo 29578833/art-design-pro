@@ -197,6 +197,23 @@
   const localLeadType = ref(props.modelValue.leadType || 'all')
   const localTowingStatus = ref(props.modelValue.towingStatus || 'all')
 
+  // 父级重置/切换 tab 时同步本地筛选项
+  watch(
+    () => props.modelValue,
+    (val) => {
+      keyword.value = val.keyword || ''
+      localProgress.value = val.progress || 'all'
+      localOrderSource.value = val.orderSource || 'all'
+      localOrderStatus.value = val.orderStatus || 'all'
+      localBatchType.value = val.batchType || 'all'
+      localSignStatus.value = val.signStatus || 'all'
+      localLeadFollowStatus.value = val.leadFollowStatus || 'all'
+      localLeadType.value = val.leadType || 'all'
+      localTowingStatus.value = val.towingStatus || 'all'
+    },
+    { deep: true }
+  )
+
   const searchPlaceholder = computed(() =>
     props.activeTab === 'lead' ? '搜索线索编号 / 客户手机号' : '搜索订单编号 / 车牌号 / 客户手机号'
   )
@@ -227,15 +244,6 @@
   }
 
   function handleReset() {
-    keyword.value = ''
-    localProgress.value = 'all'
-    localOrderSource.value = 'all'
-    localOrderStatus.value = 'all'
-    localBatchType.value = 'all'
-    localSignStatus.value = 'all'
-    localLeadFollowStatus.value = 'all'
-    localLeadType.value = 'all'
-    localTowingStatus.value = 'all'
     emit('reset')
   }
 </script>
