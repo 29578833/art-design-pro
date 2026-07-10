@@ -93,6 +93,10 @@ export interface RecycleOrder {
   source?: string
   /** 备注 */
   remark?: string
+  /** 待签名附件数量（列表扩展字段，有则直接展示） */
+  pending_sign_count?: number
+  /** 未签附件数量（列表扩展字段别名） */
+  unsigned_attach_count?: number
   [key: string]: unknown
 }
 

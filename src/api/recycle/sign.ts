@@ -1,5 +1,5 @@
 import request from '@/utils/http'
-import type { SignatureTemplate } from '@/types/recycle/order'
+import type { OrderAttachment, SignatureTemplate } from '@/types/recycle/order'
 
 /** 签名模板列表 */
 export function fetchSignTemplates(): Promise<SignatureTemplate[]> {
@@ -44,6 +44,10 @@ export function fetchSignOrder(orderIds: number[], signUrl: string): Promise<{ c
 }
 
 /** 获取指定订单的附件列表（含签名状态，独立接口） */
-export function fetchOrderAttachments(orderId: number) {
-  return request.get({ url: `/scrap/sign/order_attachments/${orderId}` })
+export async function fetchOrderAttachments(orderId: number): Promise<OrderAttachment[]> {
+  const res = await request.get<OrderAttachment[] | { list?: OrderAttachment[] }>({
+    url: `/scrap/sign/order_attachments/${orderId}`
+  })
+  if (Array.isArray(res)) return res
+  return res?.list || []
 }

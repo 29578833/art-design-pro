@@ -209,7 +209,7 @@
 
   // ===== 签名画布弹窗 =====
   const canvasDialogVisible = ref(false)
-  const canvasMode = ref<'single' | 'batch'>('single')
+  const canvasMode = ref<'single' | 'attachments'>('single')
   const signingAttachId = ref<number | null>(null)
   const signingAttachIds = ref<number[]>([])
   const signingAttachName = ref('')
@@ -225,7 +225,7 @@
   function handleBatchSign() {
     const ids = pendingList.value.map((a) => a.id!).filter(Boolean)
     if (!ids.length) return
-    canvasMode.value = 'batch'
+    canvasMode.value = 'attachments'
     signingAttachId.value = null
     signingAttachIds.value = ids
     signingAttachName.value = ''

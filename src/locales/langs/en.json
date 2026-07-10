@@ -237,7 +237,8 @@
       "customers": "Customer & Supplier",
       "orders": "Order Management",
       "orderAudit": "Order Audit",
-      "orderLead": "Lead Orders"
+      "orderLead": "Lead Orders",
+      "orderSign": "Attachment Signature"
     },
     "result": {
       "title": "Result Page",

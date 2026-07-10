@@ -42,6 +42,16 @@ export const recycleRecoveryRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'orders/sign',
+      name: 'RecycleOrderSign',
+      component: '/recycle/recovery/orders/sign',
+      meta: {
+        title: 'menus.recycle.orderSign',
+        keepAlive: true,
+        menuId: 3503
+      }
+    },
+    {
       path: 'orders',
       name: 'RecycleOrders',
       component: '/recycle/recovery/orders',

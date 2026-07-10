@@ -237,7 +237,8 @@
       "customers": "客户供应商管理",
       "orders": "订单管理",
       "orderAudit": "订单审核",
-      "orderLead": "线索订单"
+      "orderLead": "线索订单",
+      "orderSign": "附件签名"
     },
     "result": {
       "title": "结果页面",

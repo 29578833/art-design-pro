@@ -14,7 +14,7 @@
       <div class="sc-header">
         <div class="sc-header-left">
           <ArtSvgIcon icon="ri:pen-nib-line" class="sc-header-icon" />
-          <span class="sc-header-title">{{ isBatch ? '批量签名' : '电子签名' }}</span>
+          <span class="sc-header-title">{{ headerTitle }}</span>
         </div>
         <button type="button" class="sc-close-btn" @click="dialogVisible = false">
           <ArtSvgIcon icon="ri:close-line" />
@@ -23,17 +23,27 @@
     </template>
 
     <div class="sc-body">
-      <!-- 批量模式提示条 -->
-      <div v-if="isBatch" class="sc-batch-tip">
+      <!-- 多订单批量 -->
+      <div v-if="resolvedMode === 'orders'" class="sc-batch-tip">
+        <ArtSvgIcon icon="ri:layers-line" class="sc-batch-tip-icon" />
+        <span>
+          将为
+          <strong>{{ orderIdsCount }}</strong>
+          个订单的全部待签名附件完成签署
+        </span>
+      </div>
+
+      <!-- 多附件批量 -->
+      <div v-else-if="resolvedMode === 'attachments'" class="sc-batch-tip">
         <ArtSvgIcon icon="ri:zap-line" class="sc-batch-tip-icon" />
         <span>
           批量签名模式：将为
-          <strong>{{ props.attachmentIds?.length ?? 0 }}</strong>
+          <strong>{{ attachmentIdsCount }}</strong>
           份待签名附件完成签署
         </span>
       </div>
 
-      <!-- 单个模式提示 -->
+      <!-- 单附件 -->
       <div v-else class="sc-single-tip">
         <ArtSvgIcon icon="ri:file-text-line" class="sc-single-tip-icon" />
         <div class="sc-single-tip-text">
@@ -108,7 +118,7 @@
             :disabled="!hasContent || (saveAsTemplate && !templateName.trim())"
             @click="confirmSign"
           >
-            {{ isBatch ? '批量签名' : '确认签名' }}
+            {{ confirmLabel }}
           </ElButton>
         </div>
       </div>
@@ -127,18 +137,22 @@
   import { uploadFileGetUrl } from '@/api/upload'
   import type { SignatureTemplate } from '@/types/recycle/order'
 
+  /** single=单附件 / attachments=多附件 / orders=多订单；batch 兼容旧调用→attachments */
+  export type SignCanvasMode = 'single' | 'attachments' | 'orders' | 'batch'
+
   interface Props {
     visible: boolean
-    /** single=单附件签名, batch=一键批量签名 */
-    mode: 'single' | 'batch'
-    /** single 模式：单个附件 ID */
+    mode: SignCanvasMode
+    /** single：单个附件 ID */
     attachmentId?: number
-    /** batch 模式：多个附件 ID */
+    /** attachments / 旧 batch：多个附件 ID */
     attachmentIds?: number[]
-    /** 附件名称（单个模式提示用） */
+    /** 附件名称（single 提示用） */
     attachmentName?: string
-    /** 订单 ID（可用于 sign_order 接口，作为 batch 模式备用） */
+    /** 兼容旧调用：单订单备用 */
     orderId?: number
+    /** orders：多个订单 ID */
+    orderIds?: number[]
   }
 
   const props = defineProps<Props>()
@@ -152,7 +166,32 @@
     set: (v) => emit('update:visible', v)
   })
 
-  const isBatch = computed(() => props.mode === 'batch')
+  /** 归一化模式：batch → attachments */
+  const resolvedMode = computed<'single' | 'attachments' | 'orders'>(() => {
+    if (props.mode === 'batch' || props.mode === 'attachments') return 'attachments'
+    if (props.mode === 'orders') return 'orders'
+    return 'single'
+  })
+
+  const attachmentIdsCount = computed(() => props.attachmentIds?.length ?? 0)
+  const orderIdsCount = computed(() => {
+    if (props.orderIds?.length) return props.orderIds.length
+    return props.orderId ? 1 : 0
+  })
+
+  const headerTitle = computed(() => {
+    if (resolvedMode.value === 'orders') return '批量一键签名'
+    if (resolvedMode.value === 'attachments') return '批量签名'
+    return '电子签名'
+  })
+
+  const confirmLabel = computed(() => {
+    if (resolvedMode.value === 'orders') return '一键完成全部签名'
+    if (resolvedMode.value === 'attachments') return '批量签名'
+    return '确认签名'
+  })
+
+  const isBatch = computed(() => resolvedMode.value !== 'single')
 
   // ===== 模板 =====
   const templates = ref<SignatureTemplate[]>([])
@@ -282,18 +321,30 @@
       })
       const signUrl = await uploadFileGetUrl(blob, { fieldName: 'file' })
 
-      // 2. 签名
-      if (isBatch.value) {
+      // 2. 按模式提交签名
+      if (resolvedMode.value === 'orders') {
+        const ids = props.orderIds?.length ? props.orderIds : props.orderId ? [props.orderId] : []
+        if (!ids.length) {
+          ElMessage.warning('请选择要签名的订单')
+          return
+        }
+        await fetchSignOrder(ids, signUrl)
+      } else if (resolvedMode.value === 'attachments') {
         const ids = props.attachmentIds ?? []
         if (ids.length) {
           await fetchSignAttachments(ids, signUrl)
         } else if (props.orderId) {
+          // 兼容：无附件 ID 时按单订单签全部待签
           await fetchSignOrder([props.orderId], signUrl)
+        } else {
+          ElMessage.warning('请选择要签名的附件')
+          return
         }
+      } else if (props.attachmentId) {
+        await fetchSignAttachments([props.attachmentId], signUrl)
       } else {
-        if (props.attachmentId) {
-          await fetchSignAttachments([props.attachmentId], signUrl)
-        }
+        ElMessage.warning('缺少附件信息')
+        return
       }
 
       // 3. 保存为模板（可选）
