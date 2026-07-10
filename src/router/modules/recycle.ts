@@ -22,6 +22,16 @@ export const recycleRecoveryRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'orders',
+      name: 'RecycleOrders',
+      component: '/recycle/recovery/orders',
+      meta: {
+        title: 'menus.recycle.orders',
+        keepAlive: true,
+        menuId: 3546
+      }
+    },
+    {
       path: 'orders/audit',
       name: 'RecycleOrderAudit',
       component: '/recycle/recovery/orders/audit',
@@ -49,16 +59,6 @@ export const recycleRecoveryRoutes: AppRouteRecord = {
         title: 'menus.recycle.orderSign',
         keepAlive: true,
         menuId: 3503
-      }
-    },
-    {
-      path: 'orders',
-      name: 'RecycleOrders',
-      component: '/recycle/recovery/orders',
-      meta: {
-        title: 'menus.recycle.orders',
-        keepAlive: true,
-        menuId: 3546
       }
     }
   ]
