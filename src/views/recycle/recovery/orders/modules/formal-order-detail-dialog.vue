@@ -498,7 +498,7 @@
 
   /* ===== 内容区 ===== */
   .fo-body {
-    min-height: 300px;
+    min-height: 600px;
     max-height: calc(90vh - 220px);
     padding: 16px 20px;
     overflow-y: auto;

@@ -60,6 +60,16 @@ export const recycleRecoveryRoutes: AppRouteRecord = {
         keepAlive: true,
         menuId: 3503
       }
+    },
+    {
+      path: 'vehicles',
+      name: 'RecycleVehicles',
+      component: '/recycle/recovery/vehicles',
+      meta: {
+        title: 'menus.recycle.vehicles',
+        keepAlive: true,
+        menuId: 3518
+      }
     }
   ]
 }

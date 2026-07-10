@@ -238,7 +238,8 @@
       "orders": "Order Management",
       "orderAudit": "Order Audit",
       "orderLead": "Lead Orders",
-      "orderSign": "Attachment Signature"
+      "orderSign": "Attachment Signature",
+      "vehicles": "Vehicle Archives"
     },
     "result": {
       "title": "Result Page",
