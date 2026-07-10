@@ -1078,6 +1078,8 @@
 <!-- el-dialog 深层覆盖（不含 scoped） -->
 <style lang="scss">
   .td-detail-dialog {
+    padding: 0 !important;
+
     .el-dialog__header {
       padding: 0;
       border-bottom: 1px solid #f0f0f0;

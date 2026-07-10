@@ -38,7 +38,7 @@
           :disabled="!pendingList.length"
           @click="handleBatchSign"
         >
-          <ArtSvgIcon icon="ri:zap-line" class="mr-1" />
+          <ArtSvgIcon icon="ri:edit-line" class="mr-1" />
           一键签名
         </ElButton>
       </div>
@@ -67,10 +67,15 @@
           <div class="foa-row-info">
             <div class="foa-row-name">{{ att.name || `附件 ${att.id}` }}</div>
             <div class="foa-row-sub">
-              <span class="foa-sign-required" :style="signRequiredStyle(att)"> ● 需电子签名 </span>
-              <span v-if="isSigned(att) && att.sign_time" class="foa-sign-time">
-                签署时间：{{ att.sign_time }}
-              </span>
+              <template v-if="isSigned(att)">
+                <span class="foa-sign-time"> 签名人：{{ att.sign_by || '-' }} </span>
+                <span class="foa-sign-time"> 签署时间：{{ att.sign_time }} </span>
+              </template>
+              <template v-else>
+                <span class="foa-sign-required" :style="signRequiredStyle(att)">
+                  ● 需电子签名
+                </span>
+              </template>
             </div>
           </div>
         </div>
@@ -108,9 +113,9 @@
             >
               <ArtSvgIcon icon="ri:download-line" class="foa-btn-icon" />查看
             </button>
-            <span class="foa-signed-check">
+            <!-- <span class="foa-signed-check">
               <ArtSvgIcon icon="ri:checkbox-circle-line" />已签名
-            </span>
+            </span> -->
           </template>
         </div>
       </div>
@@ -160,6 +165,9 @@
   }>()
 
   // ===== 附件状态判断 =====
+  // 'unsigned'：未生成文件
+  // 'uploaded_unsigned'：已上传文件但未签名
+  // 'signed'：已签名
   type AttachStatus = 'unsigned' | 'uploaded_unsigned' | 'signed'
 
   function getStatus(att: OrderAttachment): AttachStatus {
@@ -363,6 +371,7 @@
     justify-content: space-between;
     padding: 10px 12px;
     background: #f8f9fb;
+    border: 1px solid #eee;
     border-radius: 8px;
     transition: background 0.15s;
 

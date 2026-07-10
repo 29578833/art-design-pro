@@ -1,5 +1,5 @@
 <template>
-  <div class="orders-page art-full-height">
+  <div class="orders-page art-full-height sign-page">
     <div class="order-page-header">
       <div>
         <div class="order-page-title">订单附件签名</div>
@@ -33,7 +33,7 @@
       </ElButton>
 
       <ElButton type="primary" :disabled="!selectedRows.length" @click="openBatchSign">
-        <ArtSvgIcon icon="ri:layers-line" class="mr-1" />
+        <ArtSvgIcon icon="ri:check-line" class="mr-1" />
         批量一键签名{{ selectedRows.length ? `（${selectedRows.length}）` : '' }}
       </ElButton>
     </div>
@@ -78,6 +78,12 @@
     />
 
     <SignTemplateManagerDialog v-model:visible="templateVisible" />
+
+    <FormalOrderDetailDialog
+      v-model:visible="formalDetailVisible"
+      :order-id="formalDetailOrderId"
+      @refresh="handleSigned"
+    />
   </div>
 </template>
 
@@ -91,6 +97,7 @@
   import OrderSignDialog from '../modules/order-sign-dialog.vue'
   import BatchOrderSignDialog from '../modules/batch-order-sign-dialog.vue'
   import SignTemplateManagerDialog from '../modules/sign-template-manager-dialog.vue'
+  import FormalOrderDetailDialog from '../modules/formal-order-detail-dialog.vue'
 
   defineOptions({ name: 'RecycleOrderSign' })
 
@@ -105,6 +112,8 @@
   const templateVisible = ref(false)
   const orderSignVisible = ref(false)
   const batchSignVisible = ref(false)
+  const formalDetailVisible = ref(false)
+  const formalDetailOrderId = ref<number | null>(null)
   const signingOrderId = ref<number | null>(null)
   const signingOrderNo = ref('')
   const signingRealName = ref('')
@@ -176,6 +185,11 @@
     orderSignVisible.value = true
   }
 
+  function openOrderDetail(row: RecycleOrder) {
+    formalDetailOrderId.value = row.id
+    formalDetailVisible.value = true
+  }
+
   function buildColumns(): ColumnOption<RecycleOrder>[] {
     return [
       { type: 'selection', width: 48, fixed: 'left' },
@@ -185,11 +199,11 @@
         label: '订单编号',
         formatter: (row: RecycleOrder) =>
           h(
-            'button',
+            'a',
             {
-              type: 'button',
-              class: 'order-no sign-order-link',
-              onClick: () => openOrderSign(row)
+              href: 'javascript:void(0)',
+              class: 'order-no',
+              onClick: () => openOrderDetail(row)
             },
             getOrderDisplayNo(row)
           )
@@ -213,31 +227,33 @@
       {
         prop: 'pending_sign_count',
         label: '待签附件',
-        width: 100,
         formatter: (row: RecycleOrder) => renderPendingCount(row)
       },
       {
         prop: 'sign_status',
         label: '签名状态',
-        width: 110,
         formatter: () => h('span', { class: 'order-status-tag sign-status-pending' }, '待签名')
       },
       {
         prop: 'operation',
         label: '操作',
-        width: 120,
         align: 'center',
         fixed: 'right',
         formatter: (row: RecycleOrder) =>
-          h(
-            'button',
-            {
-              type: 'button',
-              class: 'sign-go-btn',
-              onClick: () => openOrderSign(row)
-            },
-            '去签名'
-          )
+          h('div', { class: 'order-actions' }, [
+            h(
+              'button',
+              {
+                type: 'button',
+                class: 'order-action-btn ghost',
+                onClick: () => openOrderSign(row)
+              },
+              [
+                h(ArtSvgIcon, { icon: 'ri:pen-nib-line', class: 'order-action-icon' }),
+                h('span', '去签名')
+              ]
+            )
+          ])
       }
     ]
   }
@@ -312,75 +328,58 @@
   @use '../orders';
 </style>
 
-<style scoped lang="scss">
-  .sign-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    padding: 16px;
-    background: var(--default-box-color);
-    border: 1px solid var(--art-card-border);
-    border-radius: calc(var(--custom-radius) + 2px);
-  }
-
-  .order-toolbar-search {
-    flex: 1;
-    min-width: 260px;
-
-    :deep(.el-input__wrapper) {
-      box-shadow: 0 0 0 1px var(--art-card-border) inset;
+<style lang="scss">
+  .sign-page {
+    .sign-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      padding: 16px;
+      background: var(--default-box-color);
+      border: 1px solid var(--art-card-border);
+      border-radius: calc(var(--custom-radius) + 2px);
     }
-  }
 
-  .order-toolbar-search-icon {
-    font-size: 16px;
-    color: var(--art-gray-400);
-  }
+    .order-toolbar-search {
+      flex: 1;
+      min-width: 260px;
 
-  .sign-toolbar-count {
-    flex-shrink: 0;
-    font-size: 13px;
-    color: var(--art-gray-500);
-    white-space: nowrap;
+      :deep(.el-input__wrapper) {
+        box-shadow: 0 0 0 1px var(--art-card-border) inset;
+      }
+    }
 
-    em {
-      font-style: normal;
+    .order-toolbar-search-icon {
+      font-size: 16px;
+      color: var(--art-gray-400);
+    }
+
+    .sign-toolbar-count {
+      flex-shrink: 0;
+      font-size: 13px;
+      color: var(--art-gray-500);
+      white-space: nowrap;
+
+      em {
+        font-style: normal;
+        font-weight: 600;
+        color: var(--art-gray-800);
+      }
+    }
+
+    .sign-pending-num {
+      font-size: 14px;
       font-weight: 600;
-      color: var(--art-gray-800);
+      color: #d48806;
     }
-  }
 
-  .sign-pending-num {
-    font-size: 14px;
-    font-weight: 600;
-    color: #d48806;
-  }
-
-  .sign-status-pending {
-    color: #d48806 !important;
-    background: #fffbe6 !important;
-    border-color: #ffe58f !important;
-  }
-
-  .sign-order-link {
-    padding: 0;
-    cursor: pointer;
-    background: none;
-    border: none;
-  }
-
-  .sign-go-btn {
-    padding: 0;
-    font-size: 13px;
-    font-weight: 500;
-    color: #1677ff;
-    cursor: pointer;
-    background: none;
-    border: none;
-
-    &:hover {
-      text-decoration: underline;
+    .sign-status-pending {
+      color: #d48806 !important;
+      background: #fffbe6 !important;
+      border-color: #ffe58f !important;
     }
+
+    background: #f5f5f5;
   }
 </style>

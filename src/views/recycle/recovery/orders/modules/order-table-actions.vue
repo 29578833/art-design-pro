@@ -62,15 +62,16 @@
     ]
 
     // 客户订单待审核 status=1
-    if (row.order_type === 'customer_order' && row.status === 1) {
+    // row.order_type === 'customer_order' &&
+    if (['customer_order', 'staff_order'].includes(row.order_type) && row.status === 1) {
       actions.push(
-        {
-          key: 'audit',
-          label: '审核详情',
-          icon: 'ri:file-list-3-line',
-          variant: 'ghost',
-          onClick: () => emit('audit', row)
-        },
+        // {
+        //   key: 'audit',
+        //   label: '审核详情',
+        //   icon: 'ri:file-list-3-line',
+        //   variant: 'ghost',
+        //   onClick: () => emit('audit', row)
+        // },
         {
           key: 'approve',
           label: '通过',
@@ -129,16 +130,16 @@
     }
 
     // 正式回收订单
-    if (row.order_type === 'customer_order' || row.order_type === 'staff_order') {
-      actions.push({
-        key: 'edit',
-        label: '编辑',
-        icon: 'ri:edit-line',
-        variant: 'ghost',
-        onClick: () => emit('edit', row)
-      })
-      return actions
-    }
+    // if (row.order_type === 'customer_order' || row.order_type === 'staff_order') {
+    //   actions.push({
+    //     key: 'edit',
+    //     label: '编辑',
+    //     icon: 'ri:edit-line',
+    //     variant: 'ghost',
+    //     onClick: () => emit('edit', row)
+    //   })
+    //   return actions
+    // }
 
     // 拖车订单 status: 1待派单 2待拖车 3拖车中 4已完成
     if (isTowOrder(row)) {
@@ -191,85 +192,4 @@
   })
 </script>
 
-<style scoped lang="scss">
-  .order-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .order-action-btn {
-    display: inline-flex;
-    gap: 4px;
-    align-items: center;
-    height: 28px;
-    padding: 0 10px;
-    font-size: 12px;
-    line-height: 1;
-    white-space: nowrap;
-    cursor: pointer;
-    border: 1px solid transparent;
-    border-radius: 6px;
-    transition: all 0.2s;
-
-    &.default {
-      color: var(--art-gray-700);
-      background: #fff;
-      border-color: var(--art-card-border);
-
-      &:hover {
-        color: #1677ff;
-        background: #f0f7ff;
-        border-color: #91caff;
-      }
-    }
-
-    &.ghost {
-      color: #1677ff;
-      background: #f0f7ff;
-      border-color: #91caff;
-
-      &:hover {
-        background: #e6f4ff;
-      }
-    }
-
-    &.primary {
-      color: #fff;
-      background: #1677ff;
-      border-color: #1677ff;
-
-      &:hover {
-        background: #0958d9;
-        border-color: #0958d9;
-      }
-    }
-
-    &.success {
-      color: #fff;
-      background: #52c41a;
-      border-color: #52c41a;
-
-      &:hover {
-        background: #389e0d;
-        border-color: #389e0d;
-      }
-    }
-
-    &.danger {
-      color: #ff4d4f;
-      background: #fff;
-      border-color: #ff4d4f;
-
-      &:hover {
-        background: #fff1f0;
-      }
-    }
-  }
-
-  .order-action-icon {
-    font-size: 13px;
-  }
-</style>
+<!-- 操作按钮样式见 ../orders.scss -->

@@ -64,7 +64,11 @@
     </div>
 
     <!-- 内容区 -->
-    <div v-loading="loading" class="fo-body">
+    <div
+      v-loading="loading"
+      class="fo-body"
+      :class="activeTab === 'attachments' ? 'bg-white!' : ''"
+    >
       <FormalOrderBasicTab
         v-if="activeTab === 'basic'"
         :detail="detail"
@@ -86,21 +90,17 @@
     <!-- 底栏 -->
     <template #footer>
       <div class="fo-footer">
-        <div class="fo-footer-left">
-          <span v-if="detail.order_no" class="fo-footer-no">
+        <div class="fo-footer-left text-left">
+          <!-- <span v-if="detail.order_no" class="fo-footer-no">
             <ArtSvgIcon icon="ri:file-list-3-line" class="fo-footer-no-icon" />
             {{ detail.order_no }}
-          </span>
-        </div>
-        <div class="fo-footer-right">
-          <ElButton @click="dialogVisible = false">关闭</ElButton>
-
+          </span> -->
           <!-- 客户申请 + 待审核：审核操作 -->
           <template v-if="isPendingReview">
             <ElButton class="fo-btn-reject" :loading="submitting" @click="handleReject">
               审核驳回
             </ElButton>
-            <ElButton type="success" :loading="submitting" @click="handleApprove">
+            <ElButton type="primary" :loading="submitting" @click="handleApprove">
               审核通过
             </ElButton>
           </template>
@@ -110,6 +110,9 @@
             <ArtSvgIcon icon="ri:money-cny-circle-line" class="mr-1" />
             查看结算详情
           </ElButton>
+        </div>
+        <div class="fo-footer-right">
+          <ElButton @click="dialogVisible = false">关闭</ElButton>
         </div>
       </div>
     </template>
@@ -254,8 +257,9 @@
 
   // ========== Footer 动作 ==========
   const isPendingReview = computed(() => {
-    const src = detail.value.source || ''
-    return detail.value.status === 1 && ['miniapp', 'mini_program'].includes(src)
+    // const src = detail.value.source || ''
+    // return detail.value.status === 1 && ['miniapp', 'mini_program'].includes(src)
+    return detail.value.status === 1
   })
 
   const submitting = ref(false)

@@ -6,6 +6,7 @@
     destroy-on-close
     :show-close="false"
     class="sc-dialog"
+    style="padding: 0 0 16px !important"
     @opened="onOpened"
     @closed="onClosed"
   >
@@ -22,10 +23,10 @@
       </div>
     </template>
 
-    <div class="sc-body">
+    <div class="sc-body p-16px">
       <!-- 多订单批量 -->
       <div v-if="resolvedMode === 'orders'" class="sc-batch-tip">
-        <ArtSvgIcon icon="ri:layers-line" class="sc-batch-tip-icon" />
+        <ArtSvgIcon icon="ri:file-list-3-line" class="sc-batch-tip-icon" />
         <span>
           将为
           <strong>{{ orderIdsCount }}</strong>
@@ -35,7 +36,7 @@
 
       <!-- 多附件批量 -->
       <div v-else-if="resolvedMode === 'attachments'" class="sc-batch-tip">
-        <ArtSvgIcon icon="ri:zap-line" class="sc-batch-tip-icon" />
+        <ArtSvgIcon icon="ri:file-list-3-line" class="sc-batch-tip-icon" />
         <span>
           批量签名模式：将为
           <strong>{{ attachmentIdsCount }}</strong>

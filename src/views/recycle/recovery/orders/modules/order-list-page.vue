@@ -386,7 +386,12 @@
       prop: 'order_no',
       width: 200,
       label: isLead ? '线索编号' : '订单编号',
-      formatter: (row: RecycleOrder) => h('span', { class: 'order-no' }, getOrderDisplayNo(row))
+      formatter: (row: RecycleOrder) =>
+        h(
+          'a',
+          { href: 'javascript:void(0)', class: 'order-no', onClick: () => handleView(row) },
+          getOrderDisplayNo(row)
+        )
     })
 
     if (!isPendingReview && !isLead) {

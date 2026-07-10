@@ -104,6 +104,92 @@
     font-size: 14px;
     font-weight: 500;
     color: #1677ff;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .order-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .order-action-btn {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    height: 28px;
+    padding: 0 10px;
+    font-size: 12px;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    transition: all 0.2s;
+
+    &.default {
+      color: var(--art-gray-700);
+      background: #fff;
+      border-color: var(--art-card-border);
+
+      &:hover {
+        color: #1677ff;
+        background: #f0f7ff;
+        border-color: #91caff;
+      }
+    }
+
+    &.ghost {
+      color: #1677ff;
+      background: #f0f7ff;
+      border-color: #91caff;
+
+      &:hover {
+        background: #e6f4ff;
+      }
+    }
+
+    &.primary {
+      color: #fff;
+      background: #1677ff;
+      border-color: #1677ff;
+
+      &:hover {
+        background: #0958d9;
+        border-color: #0958d9;
+      }
+    }
+
+    &.success {
+      color: #fff;
+      background: #52c41a;
+      border-color: #52c41a;
+
+      &:hover {
+        background: #389e0d;
+        border-color: #389e0d;
+      }
+    }
+
+    &.danger {
+      color: #ff4d4f;
+      background: #fff;
+      border-color: #ff4d4f;
+
+      &:hover {
+        background: #fff1f0;
+      }
+    }
+  }
+
+  .order-action-icon {
+    font-size: 13px;
   }
 
   .order-type-tag,

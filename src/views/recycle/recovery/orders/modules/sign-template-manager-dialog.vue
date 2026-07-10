@@ -6,6 +6,7 @@
     destroy-on-close
     :show-close="false"
     class="stm-dialog"
+    style="padding: 0 0 16px !important"
     @opened="loadTemplates"
   >
     <!-- Header -->
@@ -51,6 +52,7 @@
             confirm-button-text="确认删除"
             cancel-button-text="取消"
             @confirm="handleDelete(tpl.id)"
+            :width="200"
           >
             <template #reference>
               <button type="button" class="stm-del-btn" title="删除模板">

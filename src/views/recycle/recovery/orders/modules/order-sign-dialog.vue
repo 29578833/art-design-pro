@@ -365,18 +365,23 @@
     display: inline-flex;
     gap: 4px;
     align-items: center;
-    padding: 4px 8px;
+    height: 28px;
+    padding: 0 10px;
     font-size: 12px;
-    color: #1677ff;
+    line-height: 1;
+    color: var(--art-gray-700);
+    white-space: nowrap;
     cursor: pointer;
-    background: transparent;
-    border: 1px solid #91caff;
+    background: #fff;
+    border: 1px solid transparent;
+    border-color: var(--art-card-border);
     border-radius: 6px;
-    transition: all 0.15s;
+    transition: all 0.2s;
 
     &:hover {
-      color: #0958d9;
-      background: #e6f4ff;
+      color: #1677ff;
+      background: #f0f7ff;
+      border-color: #91caff;
     }
   }
 
