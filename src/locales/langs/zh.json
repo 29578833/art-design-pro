@@ -239,7 +239,8 @@
       "orderAudit": "订单审核",
       "orderLead": "线索订单",
       "orderSign": "附件签名",
-      "vehicles": "车辆档案"
+      "vehicles": "车辆档案",
+      "factoryQuality": "质检管理"
     },
     "result": {
       "title": "结果页面",

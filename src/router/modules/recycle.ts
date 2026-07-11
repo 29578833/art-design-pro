@@ -68,7 +68,7 @@ export const recycleRecoveryRoutes: AppRouteRecord = {
       meta: {
         title: 'menus.recycle.vehicles',
         keepAlive: true,
-        menuId: 3518
+        menuId: 3504
       }
     }
   ]
@@ -84,7 +84,18 @@ export const recycleFactoryRoutes: AppRouteRecord = {
     icon: 'ri:building-2-line',
     menuId: 3494
   },
-  children: []
+  children: [
+    {
+      path: 'quality',
+      name: 'RecycleFactoryQuality',
+      component: '/recycle/factory/quality',
+      meta: {
+        title: 'menus.recycle.factoryQuality',
+        keepAlive: true,
+        menuId: 3521
+      }
+    }
+  ]
 }
 
 /** 拆解生产域 */

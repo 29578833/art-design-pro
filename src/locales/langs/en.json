@@ -239,7 +239,8 @@
       "orderAudit": "Order Audit",
       "orderLead": "Lead Orders",
       "orderSign": "Attachment Signature",
-      "vehicles": "Vehicle Archives"
+      "vehicles": "Vehicle Archives",
+      "factoryQuality": "Quality Inspection"
     },
     "result": {
       "title": "Result Page",
