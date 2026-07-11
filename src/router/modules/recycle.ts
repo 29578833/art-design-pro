@@ -128,6 +128,16 @@ export const recycleDismantleRoutes: AppRouteRecord = {
         keepAlive: true,
         menuId: 3549
       }
+    },
+    {
+      path: 'work',
+      name: 'RecycleDismantleWork',
+      component: '/recycle/dismantle/work',
+      meta: {
+        title: 'menus.recycle.dismantleWork',
+        keepAlive: true,
+        menuId: 3550
+      }
     }
   ]
 }

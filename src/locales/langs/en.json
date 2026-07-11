@@ -242,7 +242,8 @@
       "vehicles": "Vehicle Archives",
       "factoryQuality": "Quality Inspection",
       "factoryEntry": "Raw Material Inbound",
-      "dismantlePickup": "Material Pickup"
+      "dismantlePickup": "Material Pickup",
+      "dismantleWork": "Dismantle Work Orders"
     },
     "result": {
       "title": "Result Page",

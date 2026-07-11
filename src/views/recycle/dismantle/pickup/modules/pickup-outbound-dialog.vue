@@ -164,7 +164,7 @@
             <template #label>
               <span class="pickup-field-label">出库单号（系统生成）</span>
             </template>
-            <div class="pickup-readonly-field">{{ previewOutboundNo }}</div>
+            <div class="pickup-readonly-field">提交后生成出库单号</div>
           </ElFormItem>
           <ElFormItem>
             <template #label>
@@ -249,12 +249,6 @@
   const dialogVisible = computed({
     get: () => props.visible,
     set: (val) => emit('update:visible', val)
-  })
-
-  const previewOutboundNo = computed(() => {
-    const date = new Date()
-    const ymd = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`
-    return `CK${ymd}${String(Date.now()).slice(-4)}`
   })
 
   const previewOutboundTime = computed(() => {
