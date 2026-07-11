@@ -7,6 +7,7 @@ import type {
   WarehouseEntrySaveParams,
   WarehouseEntrySearchParams,
   WarehouseEntryStats,
+  WarehouseLocationGridArea,
   WarehouseLocationOption
 } from '@/types/recycle/warehouse'
 
@@ -101,6 +102,13 @@ export async function fetchAllWarehouseLocations() {
     }
   })
   return res.list || []
+}
+
+/** 库位网格（按区域分组） */
+export async function fetchWarehouseLocationGrid() {
+  return request.get<WarehouseLocationGridArea[]>({
+    url: '/scrap/warehouse/location_grid'
+  })
 }
 
 /** 确认原料入库 */

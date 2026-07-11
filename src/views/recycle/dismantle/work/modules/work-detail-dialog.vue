@@ -293,7 +293,7 @@
     return [
       { label: '净重', value: item?.net_weight ? `${item.net_weight}${item.unit || 'kg'}` : '—' },
       { label: '库位', value: item?.parking_spot || '—' },
-      { label: '关联订单', value: item?.order_id ? String(item.order_id) : '—' },
+      { label: '关联订单', value: item?.order_no ? String(item.order_no) : '—' },
       { label: '质检结论', value: item?.qc_result || '—' },
       { label: '负责人', value: item?.person_in_charge || '未指派' },
       { label: '创建时间', value: item?.add_time_text || '—' }

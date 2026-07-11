@@ -243,7 +243,8 @@
       "factoryQuality": "Quality Inspection",
       "factoryEntry": "Raw Material Inbound",
       "dismantlePickup": "Material Pickup",
-      "dismantleWork": "Dismantle Work Orders"
+      "dismantleWork": "Dismantle Work Orders",
+      "dismantleProduct": "Product Storage"
     },
     "result": {
       "title": "Result Page",

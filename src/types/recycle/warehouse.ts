@@ -115,6 +115,25 @@ export interface WarehouseLocationOption {
   [key: string]: unknown
 }
 
+/** 库位网格槽位 */
+export interface WarehouseLocationGridSlot {
+  id: number
+  location_no?: string
+  area?: string
+  shelf?: string
+  layer?: string
+  /** 0空闲 1已占用 */
+  status?: number
+  vehicle_count?: number
+  max_capacity?: number
+}
+
+/** 库位网格区域分组 */
+export interface WarehouseLocationGridArea {
+  area: string
+  slots: WarehouseLocationGridSlot[]
+}
+
 /** 仓库区域选项 */
 export interface WarehouseAreaOption {
   /** 区域ID */

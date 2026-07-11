@@ -243,7 +243,8 @@
       "factoryQuality": "质检管理",
       "factoryEntry": "原料入库",
       "dismantlePickup": "领料管理",
-      "dismantleWork": "拆解管理"
+      "dismantleWork": "拆解管理",
+      "dismantleProduct": "产物入库"
     },
     "result": {
       "title": "结果页面",
