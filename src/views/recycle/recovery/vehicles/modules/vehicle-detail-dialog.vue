@@ -657,7 +657,7 @@
 </script>
 
 <style scoped lang="scss">
-  @use '../vehicles-dialog';
+  @use '../vehicles-dialog' as *;
 
   .vd-shell {
     display: flex;

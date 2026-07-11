@@ -40,6 +40,8 @@
     </ElCard>
 
     <VehicleDetailDialog v-model:visible="detailVisible" :vehicle-id="detailVehicleId" />
+
+    <FormalOrderDetailDialog v-model:visible="orderDetailVisible" :order-id="orderDetailOrderId" />
   </div>
 </template>
 
@@ -51,7 +53,7 @@
   } from '@/api/recycle/vehicle'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { useTable } from '@/hooks/core/useTable'
-  import { ElButton } from 'element-plus'
+  import { ElMessage } from 'element-plus'
   import type {
     ScrapVehicle,
     VehicleSearchParams,
@@ -62,6 +64,7 @@
   import VehicleTabBar from './modules/vehicle-tab-bar.vue'
   import VehicleSearch from './modules/vehicle-search.vue'
   import VehicleDetailDialog from './modules/vehicle-detail-dialog.vue'
+  import FormalOrderDetailDialog from '../orders/modules/formal-order-detail-dialog.vue'
 
   defineOptions({ name: 'RecycleVehicles' })
 
@@ -82,6 +85,9 @@
 
   const detailVisible = ref(false)
   const detailVehicleId = ref(0)
+
+  const orderDetailVisible = ref(false)
+  const orderDetailOrderId = ref<number | null>(null)
 
   const statCards = computed(() => [
     { label: '档案总量', value: statusCounts.value.total, color: '#4169FF' },
@@ -128,18 +134,28 @@
     detailVisible.value = true
   }
 
+  function openOrderDetailFromVehicle(row: ScrapVehicle) {
+    if (!row.order_id) {
+      ElMessage.warning('该车辆未关联订单')
+      return
+    }
+    orderDetailOrderId.value = row.order_id
+    orderDetailVisible.value = true
+  }
+
   function buildColumns() {
     return [
       {
         prop: 'vehicle_no',
         label: '档案号',
-        minWidth: 150,
+        minWidth: 120,
         formatter: (row: ScrapVehicle) => {
           const no = row.vehicle_no || row.archive_no || '—'
           return h(
-            'span',
+            'a',
             {
-              class: 'vehicle-no-link',
+              href: 'javascript:void(0)',
+              class: 'order-no',
               onClick: () => openDetail(row)
             },
             no
@@ -184,9 +200,19 @@
       {
         prop: 'order_no',
         label: '关联订单',
-        minWidth: 140,
+        minWidth: 120,
         formatter: (row: ScrapVehicle) =>
-          h('span', { class: 'vehicle-no-link' }, row.order_no || '—')
+          row.order_no
+            ? h(
+                'a',
+                {
+                  href: 'javascript:void(0)',
+                  class: 'order-no',
+                  onClick: () => openOrderDetailFromVehicle(row)
+                },
+                row.order_no
+              )
+            : h('span', { class: 'text-gray-400' }, '—')
       },
       {
         prop: 'update_time_text',
@@ -197,14 +223,21 @@
       {
         prop: 'operation',
         label: '操作',
-        width: 80,
+        width: 200,
+        align: 'center',
         fixed: 'right',
         formatter: (row: ScrapVehicle) =>
-          h(
-            ElButton,
-            { type: 'primary', link: true, size: 'small', onClick: () => openDetail(row) },
-            () => '查看'
-          )
+          h('div', { class: 'order-actions' }, [
+            h(
+              'button',
+              {
+                type: 'button',
+                class: 'order-action-btn default',
+                onClick: () => openDetail(row)
+              },
+              [h(ArtSvgIcon, { icon: 'ri:eye-line', class: 'order-action-icon' }), '查看']
+            )
+          ])
       }
     ]
   }
