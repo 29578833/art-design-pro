@@ -240,7 +240,8 @@
       "orderLead": "线索订单",
       "orderSign": "附件签名",
       "vehicles": "车辆档案",
-      "factoryQuality": "质检管理"
+      "factoryQuality": "质检管理",
+      "factoryEntry": "原料入库"
     },
     "result": {
       "title": "结果页面",

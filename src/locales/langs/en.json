@@ -240,7 +240,8 @@
       "orderLead": "Lead Orders",
       "orderSign": "Attachment Signature",
       "vehicles": "Vehicle Archives",
-      "factoryQuality": "Quality Inspection"
+      "factoryQuality": "Quality Inspection",
+      "factoryEntry": "Raw Material Inbound"
     },
     "result": {
       "title": "Result Page",

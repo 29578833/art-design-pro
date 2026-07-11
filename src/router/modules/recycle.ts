@@ -94,6 +94,16 @@ export const recycleFactoryRoutes: AppRouteRecord = {
         keepAlive: true,
         menuId: 3521
       }
+    },
+    {
+      path: 'entry',
+      name: 'RecycleFactoryEntry',
+      component: '/recycle/factory/entry',
+      meta: {
+        title: 'menus.recycle.factoryEntry',
+        keepAlive: true,
+        menuId: 3522
+      }
     }
   ]
 }
