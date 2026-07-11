@@ -123,14 +123,33 @@
             <div v-for="(photo, index) in photoList" :key="photo.code" class="work-photo-card">
               <div
                 class="work-photo-upload"
-                :class="{ 'has-image': photo.url, 'is-disabled': !timeFieldsFilled || isCompleted }"
-                @click="handlePhotoClick(index)"
+                :class="{
+                  'has-image': photo.url,
+                  'is-disabled': !photo.url && (!timeFieldsFilled || isCompleted)
+                }"
               >
-                <img v-if="photo.url" :src="photo.url" alt="" class="work-photo-preview" />
-                <template v-else>
+                <template v-if="photo.url">
+                  <button
+                    v-if="!isCompleted"
+                    type="button"
+                    class="work-photo-delete"
+                    @click.stop="removePhoto(index)"
+                  >
+                    <ArtSvgIcon icon="ri:close-line" />
+                  </button>
+                  <ElImage
+                    :src="photo.url"
+                    :preview-src-list="previewUrlList"
+                    :initial-index="getPreviewIndex(index)"
+                    fit="cover"
+                    class="work-photo-preview"
+                    preview-teleported
+                  />
+                </template>
+                <div v-else class="work-photo-empty" @click="handlePhotoClick(index)">
                   <ArtSvgIcon icon="ri:camera-line" class="text-2xl" />
                   <span>点击上传</span>
-                </template>
+                </div>
                 <input
                   :ref="(el) => setPhotoInputRef(el, index)"
                   type="file"
@@ -254,6 +273,14 @@
 
   const uploadedPhotoCount = computed(() => photoList.value.filter((item) => item.url).length)
 
+  const previewUrlList = computed(() =>
+    photoList.value.filter((item) => item.url).map((item) => item.url!)
+  )
+
+  function getPreviewIndex(index: number) {
+    return photoList.value.slice(0, index + 1).filter((item) => item.url).length - 1
+  }
+
   const statusStyle = computed(() => {
     const status = plateItem.value?.status
     if (status === undefined || status === null) return {}
@@ -290,6 +317,11 @@
   function handlePhotoClick(index: number) {
     if (!timeFieldsFilled.value || isCompleted.value) return
     photoInputRefs.value[index]?.click()
+  }
+
+  function removePhoto(index: number) {
+    if (isCompleted.value) return
+    photoList.value[index] = { ...photoList.value[index], url: '' }
   }
 
   async function handlePhotoChange(event: Event, index: number) {
@@ -623,34 +655,74 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      gap: 4px;
       align-items: center;
       justify-content: center;
       aspect-ratio: 16 / 9;
+      overflow: hidden;
       font-size: 14px;
       color: #9ca3af;
-      cursor: pointer;
       background: #f3f4f6;
       transition: background 0.2s;
 
-      &:hover:not(.is-disabled) {
-        background: #e5e7eb;
-      }
-
       &.has-image {
+        cursor: default;
         background: #000;
       }
 
-      &.is-disabled {
+      &.is-disabled .work-photo-empty {
         cursor: not-allowed;
-        // opacity: 0.6;
+        opacity: 0.6;
+      }
+    }
+
+    .work-photo-empty {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      transition: background 0.2s;
+
+      .work-photo-upload:not(.is-disabled) &:hover {
+        background: #e5e7eb;
+      }
+    }
+
+    .work-photo-delete {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      font-size: 12px;
+      color: #fff;
+      cursor: pointer;
+      background: rgb(0 0 0 / 55%);
+      border: none;
+      border-radius: 50%;
+
+      &:hover {
+        background: rgb(0 0 0 / 75%);
       }
     }
 
     .work-photo-preview {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      cursor: zoom-in;
+
+      :deep(.el-image__inner) {
+        width: 100%;
+        height: 100%;
+      }
     }
 
     .work-photo-input {
