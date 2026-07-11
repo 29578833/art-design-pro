@@ -91,6 +91,18 @@ export async function fetchWarehouseLocations(warehouseAreaId: number) {
   return res.list || []
 }
 
+/** 全部库位列表（各仓库区域库位合并为一维数组） */
+export async function fetchAllWarehouseLocations() {
+  const res = await request.get<{ list: WarehouseLocationOption[]; count: number }>({
+    url: '/scrap/warehouse/location_list',
+    params: {
+      page: 1,
+      limit: 500
+    }
+  })
+  return res.list || []
+}
+
 /** 确认原料入库 */
 export async function confirmWarehouseEntry(data: WarehouseEntryConfirmParams) {
   return request.post<WarehouseEntryConfirmResult>({

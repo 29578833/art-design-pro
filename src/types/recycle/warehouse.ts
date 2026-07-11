@@ -108,6 +108,8 @@ export interface WarehouseLocationOption {
   status_text?: string
   /** 最大容量 */
   max_capacity?: number
+  /** 当前车辆数 */
+  vehicle_count?: number
   /** 备注 */
   remark?: string
   [key: string]: unknown

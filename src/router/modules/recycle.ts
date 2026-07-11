@@ -118,7 +118,18 @@ export const recycleDismantleRoutes: AppRouteRecord = {
     icon: 'ri:tools-line',
     menuId: 3496
   },
-  children: []
+  children: [
+    {
+      path: 'pickup',
+      name: 'RecycleDismantlePickup',
+      component: '/recycle/dismantle/pickup',
+      meta: {
+        title: 'menus.recycle.dismantlePickup',
+        keepAlive: true,
+        menuId: 3549
+      }
+    }
+  ]
 }
 
 /** 仓储销售域 */

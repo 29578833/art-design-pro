@@ -241,7 +241,8 @@
       "orderSign": "Attachment Signature",
       "vehicles": "Vehicle Archives",
       "factoryQuality": "Quality Inspection",
-      "factoryEntry": "Raw Material Inbound"
+      "factoryEntry": "Raw Material Inbound",
+      "dismantlePickup": "Material Pickup"
     },
     "result": {
       "title": "Result Page",

@@ -522,3 +522,13 @@ html.dark .el-card {
 .el-table--default .el-table__cell {
   padding: 12px 0 !important;
 }
+
+.el-form-item__label {
+  font-size: 14px !important;
+  height: 26px !important;
+  line-height: 32px !important;
+
+  span {
+    font-size: 14px !important;
+  }
+}

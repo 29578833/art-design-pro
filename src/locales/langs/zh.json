@@ -241,7 +241,8 @@
       "orderSign": "附件签名",
       "vehicles": "车辆档案",
       "factoryQuality": "质检管理",
-      "factoryEntry": "原料入库"
+      "factoryEntry": "原料入库",
+      "dismantlePickup": "领料管理"
     },
     "result": {
       "title": "结果页面",
