@@ -582,7 +582,6 @@
   }
 
   .pickup-vehicle-plate {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 14px;
     font-weight: 600;
     color: #111827;
@@ -678,7 +677,6 @@
   .pickup-readonly-field {
     width: 100%;
     padding: 2px 12px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 12px;
     color: #6b7280;
     background: #f9fafb;

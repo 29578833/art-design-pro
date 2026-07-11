@@ -248,7 +248,6 @@
     color: #111827;
 
     &.mono {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 12px;
     }
   }

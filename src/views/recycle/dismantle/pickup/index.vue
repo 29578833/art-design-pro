@@ -141,7 +141,7 @@
         'span',
         {
           class: 'order-status-tag',
-          style: { color: cfg.color, background: cfg.bg }
+          style: { color: cfg.color, background: cfg.bg, borderColor: cfg.color }
         },
         cfg.label
       ),

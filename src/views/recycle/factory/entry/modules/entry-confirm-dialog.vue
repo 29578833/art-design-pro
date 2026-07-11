@@ -455,7 +455,6 @@
   .entry-no-preview {
     width: 100%;
     padding: 8px 12px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 12px;
     line-height: 20px;
     color: #6b7280;

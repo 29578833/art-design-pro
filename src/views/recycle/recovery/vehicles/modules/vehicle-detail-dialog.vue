@@ -852,10 +852,6 @@
     color: $vm-text;
     word-break: break-all;
 
-    &.mono {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    }
-
     &.link {
       color: $vm-primary;
     }
