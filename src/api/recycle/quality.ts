@@ -130,20 +130,26 @@ export async function fetchQualityByOrder(orderId: number, vehicleId?: number) {
 // ==================== 质检创建/更新 ====================
 
 /** 创建质检记录（步骤1） */
-export async function createQuality(data: QualityCreateParams) {
+export async function createQuality(
+  data: QualityCreateParams,
+  options?: { showSuccessMessage?: boolean }
+) {
   return request.post<QualityCreateResult>({
     url: '/scrap/quality/create',
     params: data,
-    showSuccessMessage: true
+    showSuccessMessage: options?.showSuccessMessage ?? true
   })
 }
 
 /** 更新质检记录（步骤2或步骤3） */
-export async function updateQuality(data: QualityUpdateParams) {
+export async function updateQuality(
+  data: QualityUpdateParams,
+  options?: { showSuccessMessage?: boolean }
+) {
   return request.post({
     url: '/scrap/quality/update',
     params: data,
-    showSuccessMessage: true
+    showSuccessMessage: options?.showSuccessMessage ?? true
   })
 }
 

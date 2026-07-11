@@ -1,7 +1,7 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    width="820px"
+    width="900px"
     align-center
     destroy-on-close
     :show-close="false"
@@ -12,12 +12,12 @@
       <div class="qr-header">
         <div>
           <div class="qr-header-title">车辆质检报告</div>
-          <div v-if="detail" class="qr-header-sub">
+          <div v-if="detail && !loading" class="qr-header-sub">
             {{ detail.check_no || '—' }} · {{ detail.plate_no || '—' }} · {{ brandModelText }}
           </div>
         </div>
         <div class="qr-header-actions">
-          <ElButton type="primary" @click="downloadPdf">
+          <ElButton type="primary" :disabled="loading || !detail" @click="downloadPdf">
             <ArtSvgIcon icon="ri:download-2-line" class="qr-btn-icon" />
             下载PDF
           </ElButton>
@@ -28,172 +28,174 @@
       </div>
     </template>
 
-    <div v-loading="loading" class="qr-body">
-      <template v-if="detail">
-        <!-- ① 报告标题区 -->
-        <div class="qr-title-card">
-          <div class="qr-main-title">鑫广汽车拆解 · 车辆质检报告</div>
-          <div class="qr-title-meta">
-            报告编号：<span class="qr-mono">{{ detail.check_no || '—' }}</span>
-            <span class="qr-meta-divider">|</span>
-            质检时间：{{ detail.check_time || '—' }}
-            <span class="qr-meta-divider">|</span>
-            质检员：{{ detail.inspector_name || '—' }}
-          </div>
-        </div>
-
-        <!-- ② 车辆基本信息 -->
-        <div class="qr-card">
-          <div class="qr-card-title">车辆基本信息</div>
-          <div class="qr-info-grid">
-            <div v-for="field in vehicleFields" :key="field.label" class="qr-info-row">
-              <span class="qr-info-label">{{ field.label }}</span>
-              <span class="qr-info-value">{{ field.value }}</span>
+    <div v-loading="loading" class="qr-main">
+      <div class="qr-body">
+        <template v-if="detail">
+          <!-- ① 报告标题区 -->
+          <div class="qr-title-card">
+            <div class="qr-main-title">鑫广汽车拆解 · 车辆质检报告</div>
+            <div class="qr-title-meta">
+              报告编号：<span class="qr-mono">{{ detail.check_no || '—' }}</span>
+              <span class="qr-meta-divider">|</span>
+              质检时间：{{ detail.check_time || '—' }}
+              <span class="qr-meta-divider">|</span>
+              质检员：{{ detail.inspector_name || '—' }}
             </div>
           </div>
-        </div>
 
-        <!-- ③ 入场称重信息 -->
-        <div class="qr-card">
-          <div class="qr-card-title">入场称重信息</div>
-          <div class="qr-stat-grid cols-4">
-            <div v-for="stat in weightStats" :key="stat.label" class="qr-stat-box">
-              <div class="qr-stat-label">{{ stat.label }}</div>
-              <div class="qr-stat-value" :style="{ color: stat.color }">{{ stat.value }}</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ④ 质检汇总 -->
-        <div class="qr-card">
-          <div class="qr-card-title">质检汇总</div>
-          <div class="qr-stat-grid cols-4 mb-4">
-            <div v-for="stat in summaryStats" :key="stat.label" class="qr-stat-box">
-              <div class="qr-stat-label">{{ stat.label }}</div>
-              <div class="qr-stat-value" :style="{ color: stat.color, fontSize: '16px' }">
-                {{ stat.value }}
+          <!-- ② 车辆基本信息 -->
+          <div class="qr-card">
+            <div class="qr-card-title">车辆基本信息</div>
+            <div class="qr-info-grid">
+              <div v-for="field in vehicleFields" :key="field.label" class="qr-info-row">
+                <span class="qr-info-label">{{ field.label }}</span>
+                <span class="qr-info-value">{{ field.value }}</span>
               </div>
             </div>
           </div>
-          <div class="qr-conclusion-banner" :style="conclusionBannerStyle">
-            <ArtSvgIcon
-              :icon="conclusionPass ? 'ri:checkbox-circle-line' : 'ri:error-warning-line'"
-              class="qr-conclusion-icon"
-              :style="{ color: conclusionPass ? '#52c41a' : '#ff7875' }"
-            />
-            <div>
-              <div
-                class="qr-conclusion-main"
-                :style="{ color: conclusionPass ? '#389e0d' : '#cf1322' }"
-              >
-                质检结论：{{ conclusionMainText }}
-              </div>
-              <div
-                class="qr-conclusion-sub"
-                :style="{ color: conclusionPass ? '#52c41a' : '#ff4d4f' }"
-              >
-                {{ conclusionSubText }}
+
+          <!-- ③ 入场称重信息 -->
+          <div class="qr-card">
+            <div class="qr-card-title">入场称重信息</div>
+            <div class="qr-stat-grid cols-4">
+              <div v-for="stat in weightStats" :key="stat.label" class="qr-stat-box">
+                <div class="qr-stat-label">{{ stat.label }}</div>
+                <div class="qr-stat-value" :style="{ color: stat.color }">{{ stat.value }}</div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- ⑤ 6大类别逐项明细 -->
-        <div class="qr-card">
-          <div class="qr-card-title">质检逐项明细（6大类别）</div>
-          <div class="qr-category-list">
-            <div v-for="cat in groupedCategories" :key="cat.name" class="qr-category-block">
-              <div class="qr-category-head">
-                <div class="qr-category-icon" :style="{ background: getCategoryBg(cat.name) }">
-                  <ArtSvgIcon
-                    :icon="getCategoryIcon(cat.name)"
-                    :style="{ color: getCategoryColor(cat.name) }"
-                  />
+          <!-- ④ 质检汇总 -->
+          <div class="qr-card">
+            <div class="qr-card-title">质检汇总</div>
+            <div class="qr-stat-grid cols-4 mb-4">
+              <div v-for="stat in summaryStats" :key="stat.label" class="qr-stat-box">
+                <div class="qr-stat-label">{{ stat.label }}</div>
+                <div class="qr-stat-value" :style="{ color: stat.color, fontSize: '16px' }">
+                  {{ stat.value }}
                 </div>
-                <span class="qr-category-name">{{ cat.name }}</span>
-                <span class="qr-category-count">共 {{ cat.items.length }} 项</span>
-                <span v-if="cat.missing > 0 || cat.damaged > 0" class="qr-category-problem">
-                  {{ cat.missing > 0 ? `缺失${cat.missing}` : '' }}
-                  {{ cat.missing > 0 && cat.damaged > 0 ? '·' : '' }}
-                  {{ cat.damaged > 0 ? `损坏${cat.damaged}` : '' }}
-                </span>
-                <span v-else class="qr-category-ok">全部完好</span>
               </div>
-              <div class="qr-item-grid">
+            </div>
+            <div class="qr-conclusion-banner" :style="conclusionBannerStyle">
+              <ArtSvgIcon
+                :icon="conclusionPass ? 'ri:checkbox-circle-line' : 'ri:error-warning-line'"
+                class="qr-conclusion-icon"
+                :style="{ color: conclusionPass ? '#52c41a' : '#ff7875' }"
+              />
+              <div>
                 <div
-                  v-for="item in cat.items"
-                  :key="item.id"
-                  class="qr-item-cell"
-                  :style="getItemCellStyle(item.status)"
+                  class="qr-conclusion-main"
+                  :style="{ color: conclusionPass ? '#389e0d' : '#cf1322' }"
                 >
-                  <span class="qr-item-name">{{ item.item_name }}</span>
-                  <div class="qr-item-right">
-                    <span v-if="item.status !== 1" class="qr-item-deduct">
-                      -¥{{ Number(item.deduction_amount || 0).toFixed(0) }}
-                    </span>
-                    <span class="qr-item-badge" :style="getItemBadgeStyle(item.status)">
-                      {{ QC_ITEM_STATUS_CFG[item.status]?.short || '—' }}
-                    </span>
+                  质检结论：{{ conclusionMainText }}
+                </div>
+                <div
+                  class="qr-conclusion-sub"
+                  :style="{ color: conclusionPass ? '#52c41a' : '#ff4d4f' }"
+                >
+                  {{ conclusionSubText }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ⑤ 6大类别逐项明细 -->
+          <div class="qr-card">
+            <div class="qr-card-title">质检逐项明细（6大类别）</div>
+            <div class="qr-category-list">
+              <div v-for="cat in groupedCategories" :key="cat.name" class="qr-category-block">
+                <div class="qr-category-head">
+                  <div class="qr-category-icon" :style="{ background: getCategoryBg(cat.name) }">
+                    <ArtSvgIcon
+                      :icon="getCategoryIcon(cat.name)"
+                      :style="{ color: getCategoryColor(cat.name) }"
+                    />
+                  </div>
+                  <span class="qr-category-name">{{ cat.name }}</span>
+                  <span class="qr-category-count">共 {{ cat.items.length }} 项</span>
+                  <span v-if="cat.missing > 0 || cat.damaged > 0" class="qr-category-problem">
+                    {{ cat.missing > 0 ? `缺失${cat.missing}` : '' }}
+                    {{ cat.missing > 0 && cat.damaged > 0 ? '·' : '' }}
+                    {{ cat.damaged > 0 ? `损坏${cat.damaged}` : '' }}
+                  </span>
+                  <span v-else class="qr-category-ok">全部完好</span>
+                </div>
+                <div class="qr-item-grid">
+                  <div
+                    v-for="item in cat.items"
+                    :key="item.id"
+                    class="qr-item-cell"
+                    :style="getItemCellStyle(item.status)"
+                  >
+                    <span class="qr-item-name">{{ item.item_name }}</span>
+                    <div class="qr-item-right">
+                      <span v-if="item.status !== 1" class="qr-item-deduct">
+                        -¥{{ Number(item.deduction_amount || 0).toFixed(0) }}
+                      </span>
+                      <span class="qr-item-badge" :style="getItemBadgeStyle(item.status)">
+                        {{ QC_ITEM_STATUS_CFG[item.status]?.short || '—' }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- ⑥ 缺损件扣款明细 -->
-        <div v-if="badItems.length > 0" class="qr-card">
-          <div class="qr-card-title">缺损件扣款明细</div>
-          <table class="qr-deduct-table">
-            <thead>
-              <tr>
-                <th>零部件名称</th>
-                <th>问题类型</th>
-                <th>扣款金额（元）</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in badItems" :key="item.id">
-                <td>{{ item.item_name }}</td>
-                <td>
-                  <span class="qr-problem-tag" :style="getItemBadgeStyle(item.status)">
-                    {{ QC_ITEM_STATUS_CFG[item.status]?.label }}
-                  </span>
-                </td>
-                <td class="qr-deduct-amount">
-                  -¥{{ Number(item.actual_deduction ?? item.deduction_amount ?? 0).toFixed(2) }}
-                </td>
-              </tr>
-              <tr class="qr-deduct-total">
-                <td colspan="2">合计扣款</td>
-                <td class="qr-deduct-amount">
-                  -¥{{ Number(detail.total_deduction || 0).toFixed(2) }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+          <!-- ⑥ 缺损件扣款明细 -->
+          <div v-if="badItems.length > 0" class="qr-card">
+            <div class="qr-card-title">缺损件扣款明细</div>
+            <table class="qr-deduct-table">
+              <thead>
+                <tr>
+                  <th>零部件名称</th>
+                  <th>问题类型</th>
+                  <th>扣款金额（元）</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in badItems" :key="item.id">
+                  <td>{{ item.item_name }}</td>
+                  <td>
+                    <span class="qr-problem-tag" :style="getItemBadgeStyle(item.status)">
+                      {{ QC_ITEM_STATUS_CFG[item.status]?.label }}
+                    </span>
+                  </td>
+                  <td class="qr-deduct-amount">
+                    -¥{{ Number(item.actual_deduction ?? item.deduction_amount ?? 0).toFixed(2) }}
+                  </td>
+                </tr>
+                <tr class="qr-deduct-total">
+                  <td colspan="2">合计扣款</td>
+                  <td class="qr-deduct-amount">
+                    -¥{{ Number(detail.total_deduction || 0).toFixed(2) }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-        <!-- ⑦ 确认签章 -->
-        <div class="qr-card">
-          <div class="qr-card-title">确认签章</div>
-          <div class="qr-sign-grid">
-            <div v-for="role in SIGN_ROLES" :key="role" class="qr-sign-item">
-              <div class="qr-sign-role">{{ role }}</div>
-              <div class="qr-sign-box">
-                <span class="qr-sign-placeholder">签名 / 盖章</span>
+          <!-- ⑦ 确认签章 -->
+          <div class="qr-card">
+            <div class="qr-card-title">确认签章</div>
+            <div class="qr-sign-grid">
+              <div v-for="role in SIGN_ROLES" :key="role" class="qr-sign-item">
+                <div class="qr-sign-role">{{ role }}</div>
+                <div class="qr-sign-box">
+                  <span class="qr-sign-placeholder">签名 / 盖章</span>
+                </div>
+                <div class="qr-sign-date">日期：________________</div>
               </div>
-              <div class="qr-sign-date">日期：________________</div>
             </div>
           </div>
-        </div>
 
-        <!-- ⑧ 免责声明 -->
-        <div class="qr-disclaimer">
-          本报告由鑫广汽车拆解管理系统自动生成 · 报告编号 {{ detail.check_no || '—' }} ·
-          如有疑问请联系质检部门
-        </div>
-      </template>
+          <!-- ⑧ 免责声明 -->
+          <div class="qr-disclaimer">
+            本报告由鑫广汽车拆解管理系统自动生成 · 报告编号 {{ detail.check_no || '—' }} ·
+            如有疑问请联系质检部门
+          </div>
+        </template>
+      </div>
     </div>
   </ElDialog>
 </template>
@@ -381,6 +383,7 @@
   async function loadDetail() {
     if (!props.checkId) return
     loading.value = true
+    detail.value = null
     try {
       detail.value = await fetchQualityDetail(props.checkId)
     } catch {
@@ -468,11 +471,16 @@
     }
   }
 
+  .qr-main {
+    position: relative;
+    min-height: 420px;
+  }
+
   .qr-body {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    max-height: calc(92vh - 80px);
+    height: 750px;
     padding: 20px 24px;
     overflow-y: auto;
     background: #f5f5f5;

@@ -28,386 +28,395 @@
       </div>
     </template>
 
-    <!-- 自定义步骤条 -->
-    <div class="qc-step-bar">
-      <div v-for="(label, i) in QC_STEP_LABELS" :key="label" class="qc-step-item">
-        <div class="qc-step-node-wrap">
+    <div v-loading="initializing" class="qc-main">
+      <!-- 自定义步骤条 -->
+      <div class="qc-step-bar">
+        <div v-for="(label, i) in QC_STEP_LABELS" :key="label" class="qc-step-item">
+          <div class="qc-step-node-wrap">
+            <div
+              class="qc-step-node"
+              :class="{
+                'is-done': i < currentStep,
+                'is-active': i === currentStep
+              }"
+            >
+              <ArtSvgIcon v-if="i < currentStep" icon="ri:check-line" />
+              <span v-else>{{ i + 1 }}</span>
+            </div>
+            <span
+              class="qc-step-label"
+              :class="{
+                'is-done': i < currentStep,
+                'is-active': i === currentStep
+              }"
+              >{{ label }}</span
+            >
+          </div>
           <div
-            class="qc-step-node"
-            :class="{
-              'is-done': i < currentStep,
-              'is-active': i === currentStep
-            }"
-          >
-            <ArtSvgIcon v-if="i < currentStep" icon="ri:check-line" />
-            <span v-else>{{ i + 1 }}</span>
-          </div>
-          <span
-            class="qc-step-label"
-            :class="{
-              'is-done': i < currentStep,
-              'is-active': i === currentStep
-            }"
-            >{{ label }}</span
-          >
+            v-if="i < QC_STEP_LABELS.length - 1"
+            class="qc-step-line"
+            :class="{ 'is-done': i < currentStep }"
+          />
         </div>
-        <div
-          v-if="i < QC_STEP_LABELS.length - 1"
-          class="qc-step-line"
-          :class="{ 'is-done': i < currentStep }"
-        />
       </div>
-    </div>
 
-    <div class="qc-body">
-      <!-- Step1 入场信息 -->
-      <div v-show="currentStep === 0" class="qc-step-panel">
-        <div class="qc-section">
-          <div class="qc-section-title">车辆信息</div>
-          <div class="qc-readonly-grid">
-            <div v-for="field in vehicleReadonlyFields" :key="field.label" class="qc-readonly-item">
-              <span class="qc-readonly-label">{{ field.label }}</span>
-              <span class="qc-readonly-value">{{ field.value }}</span>
+      <div class="qc-body">
+        <!-- Step1 入场信息 -->
+        <div v-show="currentStep === 0" class="qc-step-panel">
+          <div class="qc-section">
+            <div class="qc-section-title">车辆信息</div>
+            <div class="qc-readonly-grid">
+              <div
+                v-for="field in vehicleReadonlyFields"
+                :key="field.label"
+                class="qc-readonly-item"
+              >
+                <span class="qc-readonly-label">{{ field.label }}</span>
+                <span class="qc-readonly-value">{{ field.value }}</span>
+              </div>
+            </div>
+
+            <div class="qc-form-grid">
+              <div class="qc-form-field">
+                <label class="qc-field-label">有无车牌（多选）</label>
+                <div class="qc-toggle-row">
+                  <button
+                    v-for="opt in PLATE_STATUS_OPTIONS"
+                    :key="opt"
+                    type="button"
+                    class="qc-toggle-btn"
+                    :class="{ 'is-active is-warn': step1Form.plate_status_arr.includes(opt) }"
+                    @click="togglePlateStatus(opt)"
+                    >{{ opt }}</button
+                  >
+                </div>
+              </div>
+
+              <div class="qc-form-field">
+                <label class="qc-field-label">是否注销<span class="required">*</span></label>
+                <div class="qc-toggle-row">
+                  <button
+                    v-for="opt in CANCELLED_OPTIONS"
+                    :key="opt.value"
+                    type="button"
+                    class="qc-toggle-btn"
+                    :class="{ 'is-active': step1Form.is_cancelled === opt.value }"
+                    @click="step1Form.is_cancelled = opt.value"
+                    >{{ opt.label }}</button
+                  >
+                </div>
+              </div>
+
+              <div class="qc-form-field">
+                <label class="qc-field-label">轮毂材质<span class="required">*</span></label>
+                <div class="qc-toggle-row">
+                  <button
+                    v-for="opt in WHEEL_MATERIAL_OPTIONS"
+                    :key="opt"
+                    type="button"
+                    class="qc-toggle-btn"
+                    :class="{ 'is-active': step1Form.wheel_material === opt }"
+                    @click="step1Form.wheel_material = opt"
+                    >{{ opt }}</button
+                  >
+                </div>
+              </div>
+
+              <div class="qc-form-field">
+                <label class="qc-field-label">车辆类型<span class="required">*</span></label>
+                <ElSelect
+                  v-model="step1Form.factory_type"
+                  placeholder="请选择车辆类型"
+                  filterable
+                  clearable
+                  :loading="loadingCllx"
+                  class="qc-full-width"
+                >
+                  <ElOption
+                    v-for="opt in cllxOptions"
+                    :key="opt.value"
+                    :label="opt.label"
+                    :value="opt.value"
+                  />
+                </ElSelect>
+              </div>
             </div>
           </div>
 
-          <div class="qc-form-grid">
-            <div class="qc-form-field">
-              <label class="qc-field-label">有无车牌（多选）</label>
-              <div class="qc-toggle-row">
-                <button
-                  v-for="opt in PLATE_STATUS_OPTIONS"
-                  :key="opt"
-                  type="button"
-                  class="qc-toggle-btn"
-                  :class="{ 'is-active is-warn': step1Form.plate_status_arr.includes(opt) }"
-                  @click="togglePlateStatus(opt)"
-                  >{{ opt }}</button
-                >
+          <div class="qc-section">
+            <div class="qc-section-title">称重计量</div>
+            <div class="qc-weight-grid">
+              <div class="qc-form-field">
+                <label class="qc-field-label">毛重（kg）<span class="required">*</span></label>
+                <ElInputNumber
+                  v-model="step1Form.weight"
+                  :min="0"
+                  :precision="2"
+                  placeholder="毛重"
+                  class="qc-full-width"
+                  controls-position="right"
+                />
+              </div>
+              <div class="qc-form-field">
+                <label class="qc-field-label">皮重（kg）</label>
+                <ElInputNumber
+                  v-model="step1Form.tare_weight"
+                  :min="0"
+                  :precision="2"
+                  placeholder="皮重"
+                  class="qc-full-width"
+                  controls-position="right"
+                />
+              </div>
+              <div class="qc-form-field">
+                <label class="qc-field-label">扣杂（kg）</label>
+                <ElInputNumber
+                  v-model="step1Form.deduction_weight"
+                  :min="0"
+                  :precision="2"
+                  placeholder="0"
+                  class="qc-full-width"
+                  controls-position="right"
+                />
+              </div>
+              <div class="qc-form-field">
+                <label class="qc-field-label">净重（kg）</label>
+                <div class="qc-net-weight">{{ netWeightDisplay }}</div>
               </div>
             </div>
-
-            <div class="qc-form-field">
-              <label class="qc-field-label">是否注销<span class="required">*</span></label>
-              <div class="qc-toggle-row">
-                <button
-                  v-for="opt in CANCELLED_OPTIONS"
-                  :key="opt.value"
-                  type="button"
-                  class="qc-toggle-btn"
-                  :class="{ 'is-active': step1Form.is_cancelled === opt.value }"
-                  @click="step1Form.is_cancelled = opt.value"
-                  >{{ opt.label }}</button
-                >
-              </div>
-            </div>
-
-            <div class="qc-form-field">
-              <label class="qc-field-label">轮毂材质<span class="required">*</span></label>
-              <div class="qc-toggle-row">
-                <button
-                  v-for="opt in WHEEL_MATERIAL_OPTIONS"
-                  :key="opt"
-                  type="button"
-                  class="qc-toggle-btn"
-                  :class="{ 'is-active': step1Form.wheel_material === opt }"
-                  @click="step1Form.wheel_material = opt"
-                  >{{ opt }}</button
-                >
-              </div>
-            </div>
-
-            <div class="qc-form-field">
-              <label class="qc-field-label">车辆类型<span class="required">*</span></label>
+            <div class="qc-form-field qc-inspector-field">
+              <label class="qc-field-label">负责质检员<span class="required">*</span></label>
               <ElSelect
-                v-model="step1Form.factory_type"
-                placeholder="请选择车辆类型"
+                v-model="inspectorName"
+                placeholder="请选择"
                 filterable
                 clearable
-                :loading="loadingCllx"
+                :loading="loadingInspectors"
                 class="qc-full-width"
               >
                 <ElOption
-                  v-for="opt in cllxOptions"
-                  :key="opt.value"
-                  :label="opt.label"
-                  :value="opt.value"
+                  v-for="item in inspectorOptions"
+                  :key="item.id"
+                  :label="item.nickname || item.account"
+                  :value="item.nickname || item.account"
                 />
               </ElSelect>
             </div>
           </div>
-        </div>
 
-        <div class="qc-section">
-          <div class="qc-section-title">称重计量</div>
-          <div class="qc-weight-grid">
-            <div class="qc-form-field">
-              <label class="qc-field-label">毛重（kg）<span class="required">*</span></label>
-              <ElInputNumber
-                v-model="step1Form.weight"
-                :min="0"
-                :precision="2"
-                placeholder="毛重"
-                class="qc-full-width"
-                controls-position="right"
-              />
-            </div>
-            <div class="qc-form-field">
-              <label class="qc-field-label">皮重（kg）</label>
-              <ElInputNumber
-                v-model="step1Form.tare_weight"
-                :min="0"
-                :precision="2"
-                placeholder="皮重"
-                class="qc-full-width"
-                controls-position="right"
-              />
-            </div>
-            <div class="qc-form-field">
-              <label class="qc-field-label">扣杂（kg）</label>
-              <ElInputNumber
-                v-model="step1Form.deduction_weight"
-                :min="0"
-                :precision="2"
-                placeholder="0"
-                class="qc-full-width"
-                controls-position="right"
-              />
-            </div>
-            <div class="qc-form-field">
-              <label class="qc-field-label">净重（kg）</label>
-              <div class="qc-net-weight">{{ netWeightDisplay }}</div>
-            </div>
-          </div>
-          <div class="qc-form-field qc-inspector-field">
-            <label class="qc-field-label">负责质检员<span class="required">*</span></label>
-            <ElSelect
-              v-model="inspectorName"
-              placeholder="请选择"
-              filterable
-              clearable
-              :loading="loadingInspectors"
-              class="qc-full-width"
-            >
-              <ElOption
-                v-for="item in inspectorOptions"
-                :key="item.id"
-                :label="item.nickname || item.account"
-                :value="item.nickname || item.account"
-              />
-            </ElSelect>
-          </div>
-        </div>
-
-        <div class="qc-section">
-          <div class="qc-section-title">入场照片（8张）</div>
-          <input
-            ref="photoInputRef"
-            type="file"
-            accept="image/*"
-            class="qc-photo-input"
-            @change="handlePhotoFileChange"
-          />
-          <div class="qc-photo-grid">
-            <div
-              v-for="photo in QC_ENTRY_PHOTO_CONFIG"
-              :key="photo.field"
-              class="qc-photo-slot"
-              :class="{
-                'has-photo': !!entryPhotos[photo.field],
-                'is-uploading': uploadingPhotoField === photo.field
-              }"
-              @click="handleEmptyPhotoSlotClick(photo.field)"
-            >
-              <template v-if="entryPhotos[photo.field]">
-                <button
-                  type="button"
-                  class="qc-photo-delete"
-                  title="删除照片"
-                  @click.stop="handleDeletePhoto(photo.field)"
-                >
-                  <ArtSvgIcon icon="ri:close-line" />
-                </button>
-                <ElImage
-                  :src="entryPhotos[photo.field]"
-                  :preview-src-list="[entryPhotos[photo.field]]"
-                  fit="cover"
-                  class="qc-photo-preview-image"
-                  preview-teleported
-                />
-              </template>
-              <ArtSvgIcon v-else icon="ri:camera-line" class="qc-photo-icon" />
-              <span class="qc-photo-label">{{ photo.label }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="qc-section">
-          <div class="qc-section-title">监销设置</div>
-          <div class="qc-toggle-row qc-monitor-row">
-            <button
-              v-for="opt in SUPERVISION_OPTIONS"
-              :key="opt.value"
-              type="button"
-              class="qc-toggle-btn qc-monitor-btn"
-              :class="{ 'is-active': step1Form.is_supervision === opt.value }"
-              @click="step1Form.is_supervision = opt.value"
-              >{{ opt.label }}</button
-            >
-          </div>
-        </div>
-      </div>
-
-      <!-- Step2 质检查验 -->
-      <div v-show="currentStep === 1" class="qc-step-panel">
-        <div class="qc-legend">
-          <span class="qc-legend-tag good">有（完好）</span>
-          <span class="qc-legend-tag miss">缺（缺失）</span>
-          <span class="qc-legend-hint">点击选择每个部件状态，缺失项自动计入扣款</span>
-        </div>
-
-        <div v-loading="loadingItems" class="qc-categories">
-          <div v-for="cat in inspectionCategories" :key="cat.id" class="qc-category-card">
-            <div class="qc-category-head" :style="{ background: getCategoryBg(cat.category_name) }">
-              <div class="qc-category-icon-wrap">
-                <ArtSvgIcon
-                  :icon="getCategoryIcon(cat.category_name)"
-                  :style="{ color: getCategoryColor(cat.category_name) }"
-                />
-              </div>
-              <span
-                class="qc-category-name"
-                :style="{ color: getCategoryColor(cat.category_name) }"
+          <div class="qc-section">
+            <div class="qc-section-title">入场照片（8张）</div>
+            <input
+              ref="photoInputRef"
+              type="file"
+              accept="image/*"
+              class="qc-photo-input"
+              @change="handlePhotoFileChange"
+            />
+            <div class="qc-photo-grid">
+              <div
+                v-for="photo in QC_ENTRY_PHOTO_CONFIG"
+                :key="photo.field"
+                class="qc-photo-slot"
+                :class="{
+                  'has-photo': !!entryPhotos[photo.field],
+                  'is-uploading': uploadingPhotoField === photo.field
+                }"
+                @click="handleEmptyPhotoSlotClick(photo.field)"
               >
-                {{ cat.category_name }}
-              </span>
-              <span class="qc-category-count">共{{ cat.items?.length || 0 }}项</span>
-              <span v-if="getCatMissing(cat) > 0" class="qc-category-badge miss">
-                缺失{{ getCatMissing(cat) }}
-              </span>
-              <span v-if="getCatDamaged(cat) > 0" class="qc-category-badge damage">
-                损坏{{ getCatDamaged(cat) }}
-              </span>
+                <template v-if="entryPhotos[photo.field]">
+                  <button
+                    type="button"
+                    class="qc-photo-delete"
+                    title="删除照片"
+                    @click.stop="handleDeletePhoto(photo.field)"
+                  >
+                    <ArtSvgIcon icon="ri:close-line" />
+                  </button>
+                  <ElImage
+                    :src="entryPhotos[photo.field]"
+                    :preview-src-list="[entryPhotos[photo.field]]"
+                    fit="cover"
+                    class="qc-photo-preview-image"
+                    preview-teleported
+                  />
+                </template>
+                <ArtSvgIcon v-else icon="ri:camera-line" class="qc-photo-icon" />
+                <span class="qc-photo-label">{{ photo.label }}</span>
+              </div>
             </div>
-            <div class="qc-category-body">
-              <div v-for="item in cat.items" :key="item.id" class="qc-item-row">
-                <span class="qc-item-name">{{ item.item_name }}</span>
-                <button type="button" class="qc-item-camera" title="上传照片">
-                  <ArtSvgIcon icon="ri:camera-line" />
-                </button>
-                <div class="qc-item-btns">
-                  <button
-                    type="button"
-                    class="qc-result-btn present"
-                    :class="{ active: getItemPresent(item, cat.category_name) }"
-                    @click="setItemPresent(item, cat.category_name)"
-                    >有</button
-                  >
-                  <button
-                    type="button"
-                    class="qc-result-btn missing"
-                    :class="{ active: getItemMissing(item, cat.category_name) }"
-                    @click="setItemMissing(item, cat.category_name)"
-                    >缺</button
-                  >
+          </div>
+
+          <div class="qc-section">
+            <div class="qc-section-title">监销设置</div>
+            <div class="qc-toggle-row qc-monitor-row">
+              <button
+                v-for="opt in SUPERVISION_OPTIONS"
+                :key="opt.value"
+                type="button"
+                class="qc-toggle-btn qc-monitor-btn"
+                :class="{ 'is-active': step1Form.is_supervision === opt.value }"
+                @click="step1Form.is_supervision = opt.value"
+                >{{ opt.label }}</button
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Step2 质检查验 -->
+        <div v-show="currentStep === 1" class="qc-step-panel">
+          <div class="qc-legend">
+            <span class="qc-legend-tag good">有（完好）</span>
+            <span class="qc-legend-tag miss">缺（缺失）</span>
+            <span class="qc-legend-hint">点击选择每个部件状态，缺失项自动计入扣款</span>
+          </div>
+
+          <div v-loading="loadingItems" class="qc-categories">
+            <div v-for="cat in inspectionCategories" :key="cat.id" class="qc-category-card">
+              <div
+                class="qc-category-head"
+                :style="{ background: getCategoryBg(cat.category_name) }"
+              >
+                <div class="qc-category-icon-wrap">
+                  <ArtSvgIcon
+                    :icon="getCategoryIcon(cat.category_name)"
+                    :style="{ color: getCategoryColor(cat.category_name) }"
+                  />
+                </div>
+                <span
+                  class="qc-category-name"
+                  :style="{ color: getCategoryColor(cat.category_name) }"
+                >
+                  {{ cat.category_name }}
+                </span>
+                <span class="qc-category-count">共{{ cat.items?.length || 0 }}项</span>
+                <span v-if="getCatMissing(cat) > 0" class="qc-category-badge miss">
+                  缺失{{ getCatMissing(cat) }}
+                </span>
+                <span v-if="getCatDamaged(cat) > 0" class="qc-category-badge damage">
+                  损坏{{ getCatDamaged(cat) }}
+                </span>
+              </div>
+              <div class="qc-category-body">
+                <div v-for="item in cat.items" :key="item.id" class="qc-item-row">
+                  <span class="qc-item-name">{{ item.item_name }}</span>
+                  <button type="button" class="qc-item-camera" title="上传照片">
+                    <ArtSvgIcon icon="ri:camera-line" />
+                  </button>
+                  <div class="qc-item-btns">
+                    <button
+                      type="button"
+                      class="qc-result-btn present"
+                      :class="{ active: getItemPresent(item, cat.category_name) }"
+                      @click="setItemPresent(item, cat.category_name)"
+                      >有</button
+                    >
+                    <button
+                      type="button"
+                      class="qc-result-btn missing"
+                      :class="{ active: getItemMissing(item, cat.category_name) }"
+                      @click="setItemMissing(item, cat.category_name)"
+                      >缺</button
+                    >
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="qc-deduct-bar">
-          <div class="qc-deduct-stats">
-            <div class="qc-deduct-stat">
-              <span class="qc-deduct-label">缺失件</span>
-              <span class="qc-deduct-value miss">{{ missingCount }}项</span>
+          <div class="qc-deduct-bar">
+            <div class="qc-deduct-stats">
+              <div class="qc-deduct-stat">
+                <span class="qc-deduct-label">缺失件</span>
+                <span class="qc-deduct-value miss">{{ missingCount }}项</span>
+              </div>
+              <div class="qc-deduct-stat">
+                <span class="qc-deduct-label">损坏件</span>
+                <span class="qc-deduct-value damage">{{ damagedCount }}项</span>
+              </div>
+              <div class="qc-deduct-stat">
+                <span class="qc-deduct-label">缺件扣款合计</span>
+                <span class="qc-deduct-value total">¥{{ totalDeduction.toFixed(2) }}</span>
+              </div>
             </div>
-            <div class="qc-deduct-stat">
-              <span class="qc-deduct-label">损坏件</span>
-              <span class="qc-deduct-value damage">{{ damagedCount }}项</span>
+            <label class="qc-no-deduct">
+              <ElCheckbox v-model="noDeductMissing" />
+              <span>缺件免扣款</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Step3 质检报告 -->
+        <div v-show="currentStep === 2" class="qc-step-panel">
+          <div class="qc-summary-grid">
+            <div class="qc-summary-card" style="background: #e6f7ff">
+              <div class="qc-summary-label">车辆净重</div>
+              <div class="qc-summary-value" style="color: #1677ff">{{ netWeightDisplay }}</div>
             </div>
-            <div class="qc-deduct-stat">
-              <span class="qc-deduct-label">缺件扣款合计</span>
-              <span class="qc-deduct-value total">¥{{ totalDeduction.toFixed(2) }}</span>
+            <div class="qc-summary-card" style="background: #fff1f0">
+              <div class="qc-summary-label">缺失件数</div>
+              <div class="qc-summary-value" style="color: #ff4d4f">{{ missingCount }}项</div>
+            </div>
+            <div class="qc-summary-card" style="background: #fff7e6">
+              <div class="qc-summary-label">损坏件数</div>
+              <div class="qc-summary-value" style="color: #fa8c16">{{ damagedCount }}项</div>
+            </div>
+            <div class="qc-summary-card" style="background: #fff1f0">
+              <div class="qc-summary-label">缺件扣款</div>
+              <div class="qc-summary-value" style="color: #ff4d4f"
+                >¥{{ totalDeduction.toFixed(2) }}</div
+              >
             </div>
           </div>
-          <label class="qc-no-deduct">
-            <ElCheckbox v-model="noDeductMissing" />
-            <span>缺件免扣款</span>
-          </label>
-        </div>
-      </div>
 
-      <!-- Step3 质检报告 -->
-      <div v-show="currentStep === 2" class="qc-step-panel">
-        <div class="qc-summary-grid">
-          <div class="qc-summary-card" style="background: #e6f7ff">
-            <div class="qc-summary-label">车辆净重</div>
-            <div class="qc-summary-value" style="color: #1677ff">{{ netWeightDisplay }}</div>
-          </div>
-          <div class="qc-summary-card" style="background: #fff1f0">
-            <div class="qc-summary-label">缺失件数</div>
-            <div class="qc-summary-value" style="color: #ff4d4f">{{ missingCount }}项</div>
-          </div>
-          <div class="qc-summary-card" style="background: #fff7e6">
-            <div class="qc-summary-label">损坏件数</div>
-            <div class="qc-summary-value" style="color: #fa8c16">{{ damagedCount }}项</div>
-          </div>
-          <div class="qc-summary-card" style="background: #fff1f0">
-            <div class="qc-summary-label">缺件扣款</div>
-            <div class="qc-summary-value" style="color: #ff4d4f"
-              >¥{{ totalDeduction.toFixed(2) }}</div
-            >
-          </div>
-        </div>
-
-        <div v-if="abnormalItems.length > 0" class="qc-abnormal-card">
-          <div class="qc-abnormal-title">质检异常清单</div>
-          <div v-for="ab in abnormalItems" :key="ab.key" class="qc-abnormal-row">
-            <div class="qc-abnormal-left">
-              <ArtSvgIcon
-                :icon="ab.status === 2 ? 'ri:close-circle-line' : 'ri:error-warning-line'"
-                :class="ab.status === 2 ? 'text-red' : 'text-orange'"
-              />
-              <span :class="ab.status === 2 ? 'text-red' : 'text-orange'">{{ ab.name }}</span>
-              <span class="qc-abnormal-type">（{{ ab.status === 2 ? '缺失' : '损坏' }}）</span>
+          <div v-if="abnormalItems.length > 0" class="qc-abnormal-card">
+            <div class="qc-abnormal-title">质检异常清单</div>
+            <div v-for="ab in abnormalItems" :key="ab.key" class="qc-abnormal-row">
+              <div class="qc-abnormal-left">
+                <ArtSvgIcon
+                  :icon="ab.status === 2 ? 'ri:close-circle-line' : 'ri:error-warning-line'"
+                  :class="ab.status === 2 ? 'text-red' : 'text-orange'"
+                />
+                <span :class="ab.status === 2 ? 'text-red' : 'text-orange'">{{ ab.name }}</span>
+                <span class="qc-abnormal-type">（{{ ab.status === 2 ? '缺失' : '损坏' }}）</span>
+              </div>
+              <span v-if="ab.status === 2" class="qc-abnormal-amount">-¥{{ ab.amount }}</span>
             </div>
-            <span v-if="ab.status === 2" class="qc-abnormal-amount">-¥{{ ab.amount }}</span>
           </div>
-        </div>
 
-        <div class="qc-conclusion-section">
-          <label class="qc-field-label">质检结论<span class="required">*</span></label>
-          <div class="qc-conclusion-btns">
-            <button
-              v-for="opt in QC_CONCLUSION_OPTIONS"
-              :key="opt.value"
-              type="button"
-              class="qc-conclusion-btn"
-              :style="getConclusionBtnStyle(opt)"
-              @click="conclusionType = opt.value"
-              >{{ opt.label }}</button
-            >
+          <div class="qc-conclusion-section">
+            <label class="qc-field-label">质检结论<span class="required">*</span></label>
+            <div class="qc-conclusion-btns">
+              <button
+                v-for="opt in QC_CONCLUSION_OPTIONS"
+                :key="opt.value"
+                type="button"
+                class="qc-conclusion-btn"
+                :style="getConclusionBtnStyle(opt)"
+                @click="conclusionType = opt.value"
+                >{{ opt.label }}</button
+              >
+            </div>
+            <ElInput
+              v-model="inspectorRemark"
+              type="textarea"
+              :rows="3"
+              placeholder="质检员备注说明（损坏情况说明、特殊处理建议等）"
+              class="qc-remark-input"
+            />
           </div>
-          <ElInput
-            v-model="inspectorRemark"
-            type="textarea"
-            :rows="3"
-            placeholder="质检员备注说明（损坏情况说明、特殊处理建议等）"
-            class="qc-remark-input"
-          />
-        </div>
 
-        <div class="qc-sign-bar">
-          <div>
-            <span class="qc-sign-muted">质检员：</span>
-            <span class="qc-sign-value">{{
-              inspectorName || queueItem?.inspector_name || '—'
-            }}</span>
-          </div>
-          <div>
-            <span class="qc-sign-muted">质检时间：</span>
-            <span class="qc-sign-value">{{ checkTimeText }}</span>
+          <div class="qc-sign-bar">
+            <div>
+              <span class="qc-sign-muted">质检员：</span>
+              <span class="qc-sign-value">{{
+                inspectorName || queueItem?.inspector_name || '—'
+              }}</span>
+            </div>
+            <div>
+              <span class="qc-sign-muted">质检时间：</span>
+              <span class="qc-sign-value">{{ checkTimeText }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -418,11 +427,13 @@
         <span class="qc-footer-step">步骤 {{ currentStep + 1 }} / {{ QC_STEP_LABELS.length }}</span>
         <div class="qc-footer-actions">
           <ElButton @click="handleClose">取消</ElButton>
-          <ElButton v-if="currentStep > 0" @click="prevStep">上一步</ElButton>
+          <ElButton v-if="currentStep > 0" :disabled="initializing" @click="prevStep"
+            >上一步</ElButton
+          >
           <ElButton
             v-if="currentStep < 2"
             type="primary"
-            :disabled="!canNext"
+            :disabled="!canNext || initializing"
             :loading="submitting"
             @click="nextStep"
           >
@@ -432,7 +443,7 @@
           <ElButton
             v-if="currentStep === 2"
             type="success"
-            :disabled="!conclusionType"
+            :disabled="!conclusionType || initializing"
             :loading="submitting"
             @click="handleSubmit"
           >
@@ -514,6 +525,7 @@
 
   const currentStep = ref(0)
   const submitting = ref(false)
+  const initializing = ref(false)
   const checkId = ref(0)
   const inspectorName = ref('')
 
@@ -826,20 +838,25 @@
   }
 
   async function initWorkbench(item: QualityQueueItem) {
-    resetForm()
-    await Promise.all([loadCllxCascade(), loadInspectors()])
+    initializing.value = true
     try {
-      const existing = await fetchQualityByOrder(item.order_id, item.vehicle_id)
-      if (!existing?.id) return
+      resetForm()
+      await Promise.all([loadCllxCascade(), loadInspectors()])
+      try {
+        const existing = await fetchQualityByOrder(item.order_id, item.vehicle_id)
+        if (!existing?.id) return
 
-      populateStep1FromCheck(existing)
-      await loadItems()
-      if (existing.items?.length) {
-        populateItemsFromCheck(existing.items)
+        populateStep1FromCheck(existing)
+        await loadItems()
+        if (existing.items?.length) {
+          populateItemsFromCheck(existing.items)
+        }
+        currentStep.value = resolveResumeStep(existing)
+      } catch {
+        // 无历史记录时保持新建流程
       }
-      currentStep.value = resolveResumeStep(existing)
-    } catch {
-      // 无历史记录时保持新建流程
+    } finally {
+      initializing.value = false
     }
   }
 
@@ -858,13 +875,16 @@
       try {
         const step1Payload = buildStep1Payload()
         if (checkId.value) {
-          await updateQuality({ id: checkId.value, ...step1Payload })
+          await updateQuality({ id: checkId.value, ...step1Payload }, { showSuccessMessage: false })
         } else {
-          const res = await createQuality({
-            order_id: props.queueItem?.order_id || 0,
-            vehicle_id: props.queueItem?.vehicle_id || 0,
-            ...step1Payload
-          })
+          const res = await createQuality(
+            {
+              order_id: props.queueItem?.order_id || 0,
+              vehicle_id: props.queueItem?.vehicle_id || 0,
+              ...step1Payload
+            },
+            { showSuccessMessage: false }
+          )
           checkId.value = res.id
         }
         if (!inspectionCategories.value.length) {
@@ -879,10 +899,13 @@
     } else if (currentStep.value === 1) {
       submitting.value = true
       try {
-        await updateQuality({
-          id: checkId.value,
-          items: buildAllItems()
-        })
+        await updateQuality(
+          {
+            id: checkId.value,
+            items: buildAllItems()
+          },
+          { showSuccessMessage: false }
+        )
         currentStep.value = 2
       } catch {
         // 错误已由 http 拦截器处理
@@ -1091,8 +1114,13 @@
     }
   }
 
+  .qc-main {
+    position: relative;
+    min-height: 420px;
+  }
+
   .qc-body {
-    max-height: calc(92vh - 200px);
+    max-height: calc(92vh - 260px);
     overflow-y: auto;
   }
 
