@@ -1,6 +1,6 @@
 # xinguang_api 管理后台接口参考
 
-> 路由文件：`xinguang_api/app/adminapi/route/scrap.php` 前缀：`/adminapi/scrap/` 鉴权：`AdminAuthTokenMiddleware` + `Authorization` 请求头。当前前端封装通常写 `/scrap/...`，由代理/baseURL 处理 adminapi 前缀。
+> 后端代码位于 `D:\ROOT\QXB\xinguang-api\xinguang_api`（下文简称 `xinguang_api/`）。路由文件：`xinguang_api/app/adminapi/route/scrap.php` 前缀：`/adminapi/scrap/` 鉴权：`AdminAuthTokenMiddleware` + `Authorization` 请求头。当前前端封装通常写 `/scrap/...`，由代理/baseURL 处理 adminapi 前缀。
 
 ## 通用约定
 
@@ -219,6 +219,8 @@
 ---
 
 ## 后端源码速查
+
+> 后端代码绝对路径：`D:\ROOT\QXB\xinguang-api\xinguang_api`（目录树中简称 `xinguang_api/`）
 
 | 文件                                       | 作用                          |
 | ------------------------------------------ | ----------------------------- |

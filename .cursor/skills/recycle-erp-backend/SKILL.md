@@ -6,11 +6,17 @@ description: >-
 
 # 鑫广汽拆回收 ERP 后台开发
 
+## 路径配置
+
+- **原型代码**：`C:\Users\29758\Desktop\figma_prototype`（React + shadcn，仅作 UI/交互/字段参考，不直接复制）
+- **后端代码**：`D:\ROOT\QXB\xinguang-api\xinguang_api`（ThinkPHP / CRMEB，scrap 模块）
+- **目标项目**：`art-design-pro`（Vue 3 + Element Plus + Pinia + Vue Router）
+
+> 下文所有 `回收拆车项目/` 即原型代码目录，`xinguang_api/` 即后端代码目录。
+
 ## 范围约束（必须遵守）
 
 - **只做 ERP 管理后台**，忽略小程序端全部页面与角色（owner/staff/reviewer/admin/driver）
-- **目标项目**：`art-design-pro`（Vue 3 + Element Plus + Pinia + Vue Router）
-- **原型参考**：`回收拆车项目/`（React + shadcn，仅作 UI/交互/字段参考，不直接复制）
 - **不处理格式化**：不做无关 prettier/stylelint 调整
 
 ## 开发前必读

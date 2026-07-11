@@ -8,8 +8,8 @@ description: >-
 
 ## 范围
 
-- **前端**：`art-design-pro`（Vue 3 + Element Plus）
-- **后端**：`xinguang_api/`（ThinkPHP / CRMEB，报废回收业务在 `scrap` 模块）
+- **前端**：`art-design-pro`（Vue 3 + Element Plus，当前工作区）
+- **后端**：`D:\ROOT\QXB\xinguang-api\xinguang_api`（ThinkPHP / CRMEB，报废回收业务在 `scrap` 模块；下文简称 `xinguang_api/`）
 - **只做 ERP 管理后台**：对接 `app/adminapi/route/scrap.php`，忽略 `app/api/route/scrap.php` 小程序接口
 
 页面开发规范见 [recycle-erp-backend](../recycle-erp-backend/SKILL.md)，本 skill 只覆盖 API 层对接。
@@ -219,6 +219,8 @@ export async function fetchOrderList(params: OrderSearchParams): Promise<OrderLi
 - `sign_status === 1` 或 `signed === true`：`signed`（已签名）
 
 ## 读后端源码定位参数
+
+> 后端代码位于 `D:\ROOT\QXB\xinguang-api\xinguang_api`（下文目录树简称 `xinguang_api/`）。
 
 ```
 xinguang_api/
