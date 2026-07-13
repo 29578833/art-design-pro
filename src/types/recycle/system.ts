@@ -156,6 +156,29 @@ export interface SystemRoleEditResult {
 /** 数据字典状态：0禁用 1启用 */
 export type DataDictStatus = 0 | 1
 
+/** 左侧字典分类（system/crud/data_dictionary_list） */
+export interface DataDictCategory {
+  id: number
+  /** 字典名称 */
+  name?: string
+  /** 字典标识（对应 scrap dict_type） */
+  mark?: string
+  /** 层级：0 一级 / 1 多级 */
+  level?: number
+  /** 状态 */
+  status?: number
+  add_time?: string
+  [key: string]: unknown
+}
+
+/** 字典分类保存 */
+export interface DataDictCategorySaveParams {
+  name: string
+  mark: string
+  level?: number
+  status?: number
+}
+
 /** 数据字典列表项 */
 export interface DataDictItem {
   /** 主键 ID */

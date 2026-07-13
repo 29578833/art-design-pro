@@ -3,7 +3,7 @@
  * @Author: wy
  * @Date: 2026-07-06 12:14:19
  * @LastEditors: NUMBER\29758
- * @LastEditTime: 2026-07-13 15:52:34
+ * @LastEditTime: 2026-07-13 17:06:45
  */
 import { AppRouteRecord } from '@/types/router'
 
@@ -45,6 +45,16 @@ export const systemRoutes: AppRouteRecord = {
         title: 'menus.system.miniprogram',
         keepAlive: true,
         menuId: 3465
+      }
+    },
+    {
+      path: 'dict',
+      name: 'SystemDict',
+      component: '/system/dict',
+      meta: {
+        title: 'menus.system.dict',
+        keepAlive: true,
+        menuId: 3430
       }
     },
     {
