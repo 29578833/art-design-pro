@@ -265,8 +265,8 @@
     },
     "system": {
       "title": "System Settings",
-      "user": "User Manage",
-      "role": "Role Manage",
+      "user": "User Accounts",
+      "role": "Role Permissions",
       "userCenter": "User Center",
       "menu": "Menu Manage"
     }

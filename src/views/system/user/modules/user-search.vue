@@ -1,112 +1,85 @@
 <template>
-  <ArtSearchBar
-    ref="searchBarRef"
-    v-model="formData"
-    :items="formItems"
-    :rules="rules"
-    @reset="handleReset"
-    @search="handleSearch"
-  >
-  </ArtSearchBar>
+  <div class="user-search-panel">
+    <div class="user-toolbar">
+      <ElInput
+        v-model="keyword"
+        class="user-toolbar-search"
+        placeholder="搜索用户名 / 真实姓名 / 手机号"
+        clearable
+        @keyup.enter="emitSearch"
+        @clear="emitSearch"
+      >
+        <template #prefix>
+          <ArtSvgIcon icon="ri:search-line" class="user-toolbar-search-icon" />
+        </template>
+      </ElInput>
+      <ElButton text @click="handleReset">重置</ElButton>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
+  import type { SystemAdminSearchParams } from '@/types/recycle/system'
+  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+
   interface Props {
-    modelValue: Api.SystemManage.UserSearchParams
+    searchForm: SystemAdminSearchParams
   }
+
   interface Emits {
-    (e: 'update:modelValue', value: Api.SystemManage.UserSearchParams): void
-    (e: 'search', params: Api.SystemManage.UserSearchParams): void
+    (e: 'update:searchForm', value: SystemAdminSearchParams): void
+    (e: 'search', form: SystemAdminSearchParams): void
     (e: 'reset'): void
   }
+
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
 
-  // 表单数据双向绑定
-  const searchBarRef = ref()
-  const formData = computed({
-    get: () => props.modelValue,
-    set: (val) => emit('update:modelValue', val)
-  })
+  const keyword = ref('')
 
-  // 校验规则
-  const rules = {
-    // userName: [{ required: true, message: '请输入用户名', trigger: 'blur' }]
-  }
-
-  // 动态 options
-  const statusOptions = ref<{ label: string; value: string; disabled?: boolean }[]>([])
-
-  // 模拟接口返回状态数据
-  function fetchStatusOptions(): Promise<typeof statusOptions.value> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([
-          { label: '在线', value: '1' },
-          { label: '离线', value: '2' },
-          { label: '异常', value: '3' },
-          { label: '注销', value: '4' }
-        ])
-      }, 1000)
-    })
-  }
-
-  onMounted(async () => {
-    statusOptions.value = await fetchStatusOptions()
-  })
-
-  // 表单配置
-  const formItems = computed(() => [
-    {
-      label: '用户名',
-      key: 'userName',
-      type: 'input',
-      placeholder: '请输入用户名',
-      clearable: true
+  watch(
+    () => props.searchForm,
+    (form) => {
+      keyword.value = form.name || ''
     },
-    {
-      label: '手机号',
-      key: 'userPhone',
-      type: 'input',
-      props: { placeholder: '请输入手机号', maxlength: '11' }
-    },
-    {
-      label: '邮箱',
-      key: 'userEmail',
-      type: 'input',
-      props: { placeholder: '请输入邮箱' }
-    },
-    {
-      label: '状态',
-      key: 'status',
-      type: 'select',
-      props: {
-        placeholder: '请选择状态',
-        options: statusOptions.value
-      }
-    },
-    {
-      label: '性别',
-      key: 'userGender',
-      type: 'radiogroup',
-      props: {
-        options: [
-          { label: '男', value: '1' },
-          { label: '女', value: '2' }
-        ]
-      }
+    { deep: true, immediate: true }
+  )
+
+  function emitSearch() {
+    const form: SystemAdminSearchParams = {
+      name: keyword.value.trim() || undefined
     }
-  ])
+    emit('update:searchForm', form)
+    emit('search', form)
+  }
 
-  // 事件
   function handleReset() {
-    console.log('重置表单')
     emit('reset')
   }
-
-  async function handleSearch(params: Api.SystemManage.UserSearchParams) {
-    await searchBarRef.value.validate()
-    emit('search', params)
-    console.log('表单数据', params)
-  }
 </script>
+
+<style scoped lang="scss">
+  .user-search-panel {
+    flex-shrink: 0;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+  }
+
+  .user-toolbar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 16px;
+  }
+
+  .user-toolbar-search {
+    flex: 1;
+    max-width: 360px;
+  }
+
+  .user-toolbar-search-icon {
+    font-size: 14px;
+    color: #9ca3af;
+  }
+</style>
