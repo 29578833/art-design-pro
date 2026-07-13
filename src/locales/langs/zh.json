@@ -267,6 +267,7 @@
       "title": "系统管理",
       "user": "用户账户",
       "role": "角色权限",
+      "miniprogram": "小程序管理",
       "userCenter": "个人中心",
       "menu": "菜单管理"
     }

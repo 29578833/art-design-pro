@@ -1,3 +1,10 @@
+/*
+ * @Descripttion:
+ * @Author: wy
+ * @Date: 2026-07-06 12:14:19
+ * @LastEditors: NUMBER\29758
+ * @LastEditTime: 2026-07-13 15:52:34
+ */
 import { AppRouteRecord } from '@/types/router'
 
 export const systemRoutes: AppRouteRecord = {
@@ -28,6 +35,16 @@ export const systemRoutes: AppRouteRecord = {
         title: 'menus.system.role',
         keepAlive: true,
         menuId: 19
+      }
+    },
+    {
+      path: 'miniprogram',
+      name: 'Miniprogram',
+      component: '/system/miniprogram',
+      meta: {
+        title: 'menus.system.miniprogram',
+        keepAlive: true,
+        menuId: 3465
       }
     },
     {

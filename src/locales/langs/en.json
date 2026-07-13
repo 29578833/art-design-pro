@@ -267,6 +267,7 @@
       "title": "System Settings",
       "user": "User Accounts",
       "role": "Role Permissions",
+      "miniprogram": "Miniprogram",
       "userCenter": "User Center",
       "menu": "Menu Manage"
     }
