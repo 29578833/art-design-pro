@@ -130,7 +130,7 @@
   .inv-detail-sub {
     margin-top: 4px;
     font-size: 12px;
-    color: var(--art-gray-400);
+    color: var(--art-gray-600);
   }
 
   .inv-detail-badges {
@@ -167,7 +167,7 @@
       flex-shrink: 0;
       width: 72px;
       font-size: 12px;
-      color: var(--art-gray-400);
+      color: var(--art-gray-600);
     }
 
     .value {

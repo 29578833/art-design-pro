@@ -247,7 +247,10 @@
       "dismantleProduct": "Product Storage",
       "warehouseInventory": "Inventory Management",
       "warehouseOutbound": "Sales Outbound",
-      "warehouseLocation": "Location Management"
+      "warehouseLocation": "Location Management",
+      "financeSettlement": "Settlement List",
+      "financePayment": "Payment Records",
+      "financeSalesman": "Salesman Stats"
     },
     "result": {
       "title": "Result Page",

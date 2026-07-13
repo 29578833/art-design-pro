@@ -247,7 +247,10 @@
       "dismantleProduct": "产物入库",
       "warehouseInventory": "库存管理",
       "warehouseOutbound": "销售出库",
-      "warehouseLocation": "库位管理"
+      "warehouseLocation": "库位管理",
+      "financeSettlement": "结算列表",
+      "financePayment": "付款流水",
+      "financeSalesman": "业务员统计"
     },
     "result": {
       "title": "结果页面",
