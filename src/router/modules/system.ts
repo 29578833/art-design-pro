@@ -61,6 +61,26 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'log',
+      name: 'SystemLog',
+      component: '/system/log',
+      meta: {
+        title: 'menus.system.log',
+        keepAlive: true,
+        menuId: 47
+      }
+    },
+    {
+      path: 'notify',
+      name: 'SystemNotify',
+      component: '/system/notify',
+      meta: {
+        title: 'menus.system.notify',
+        keepAlive: true,
+        menuId: 898
+      }
+    },
+    {
       path: 'user-center',
       name: 'UserCenter',
       component: '/system/user-center',

@@ -270,6 +270,8 @@
       "miniprogram": "Miniprogram",
       "dict": "Data Dictionary",
       "price": "Price Config",
+      "log": "Operation Logs",
+      "notify": "System Notify",
       "userCenter": "User Center",
       "menu": "Menu Manage"
     }

@@ -1,0 +1,90 @@
+.sys-log-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  padding: 4px 0;
+  overflow: hidden;
+
+  .sys-log-header {
+    flex-shrink: 0;
+  }
+
+  .sys-log-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--art-gray-900);
+  }
+
+  .sys-log-desc {
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--art-gray-500);
+  }
+
+  .sys-log-list {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .sys-log-table-card {
+    flex: 1;
+    min-height: 0;
+    margin-top: 0 !important;
+    overflow: hidden;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+
+    :deep(.el-card__body) {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    :deep(.art-table) {
+      flex: 1;
+      min-height: 0;
+      padding: 0;
+    }
+
+    :deep(.el-table th.el-table__cell) {
+      height: 45px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      background: #f9fafb !important;
+    }
+
+    :deep(.pagination.custom-pagination) {
+      flex-shrink: 0;
+      padding: 8px 16px 14px;
+      border-top: 1px solid var(--art-card-border);
+    }
+  }
+
+  .log-page-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 12px;
+    color: #4b5563;
+    background: #f3f4f6;
+    border-radius: 4px;
+  }
+
+  .log-muted {
+    font-size: 12px;
+    color: #9ca3af;
+  }
+
+  .log-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+    color: #6b7280;
+  }
+}
