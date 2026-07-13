@@ -162,7 +162,38 @@ export const recycleWarehouseRoutes: AppRouteRecord = {
     icon: 'ri:store-2-line',
     menuId: 3495
   },
-  children: []
+  children: [
+    {
+      path: 'inventory',
+      name: 'RecycleWarehouseInventory',
+      component: '/recycle/warehouse/inventory',
+      meta: {
+        title: 'menus.recycle.warehouseInventory',
+        keepAlive: true,
+        menuId: 3518
+      }
+    },
+    {
+      path: 'outbound',
+      name: 'RecycleWarehouseOutbound',
+      component: '/recycle/warehouse/outbound',
+      meta: {
+        title: 'menus.recycle.warehouseOutbound',
+        keepAlive: true,
+        menuId: 3517
+      }
+    },
+    {
+      path: 'location',
+      name: 'RecycleWarehouseLocation',
+      component: '/recycle/warehouse/location',
+      meta: {
+        title: 'menus.recycle.warehouseLocation',
+        keepAlive: true,
+        menuId: 3519
+      }
+    }
+  ]
 }
 
 /** 财务结算域 */

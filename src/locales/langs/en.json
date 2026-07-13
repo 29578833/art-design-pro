@@ -244,7 +244,10 @@
       "factoryEntry": "Raw Material Inbound",
       "dismantlePickup": "Material Pickup",
       "dismantleWork": "Dismantle Work Orders",
-      "dismantleProduct": "Product Storage"
+      "dismantleProduct": "Product Storage",
+      "warehouseInventory": "Inventory Management",
+      "warehouseOutbound": "Sales Outbound",
+      "warehouseLocation": "Location Management"
     },
     "result": {
       "title": "Result Page",
