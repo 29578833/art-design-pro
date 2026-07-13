@@ -1,10 +1,3 @@
-/*
- * @Descripttion:
- * @Author: wy
- * @Date: 2026-07-06 12:14:19
- * @LastEditors: NUMBER\29758
- * @LastEditTime: 2026-07-13 17:06:45
- */
 import { AppRouteRecord } from '@/types/router'
 
 export const systemRoutes: AppRouteRecord = {
@@ -55,6 +48,16 @@ export const systemRoutes: AppRouteRecord = {
         title: 'menus.system.dict',
         keepAlive: true,
         menuId: 3430
+      }
+    },
+    {
+      path: 'price',
+      name: 'SystemPrice',
+      component: '/system/price',
+      meta: {
+        title: 'menus.system.price',
+        keepAlive: true,
+        menuId: 3488
       }
     },
     {

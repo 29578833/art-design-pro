@@ -269,6 +269,7 @@
       "role": "Role Permissions",
       "miniprogram": "Miniprogram",
       "dict": "Data Dictionary",
+      "price": "Price Config",
       "userCenter": "User Center",
       "menu": "Menu Manage"
     }

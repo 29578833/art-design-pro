@@ -269,6 +269,7 @@
       "role": "角色权限",
       "miniprogram": "小程序管理",
       "dict": "数据字典",
+      "price": "价格配置",
       "userCenter": "个人中心",
       "menu": "菜单管理"
     }

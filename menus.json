@@ -1,0 +1,447 @@
+[
+  {
+    "id": 7,
+    "pid": 0,
+    "path": "\/admin\/index",
+    "title": "主页",
+    "icon": "s-home",
+    "header": "home",
+    "is_header": 1,
+    "is_show": 1,
+    "auth": ["hidden"]
+  },
+  {
+    "id": 3473,
+    "pid": 0,
+    "path": "\/admin\/scrap\/order",
+    "title": "回收业务",
+    "icon": "user-solid",
+    "header": "scrap",
+    "is_header": 0,
+    "is_show": 1,
+    "auth": ["hidden"],
+    "children": [
+      {
+        "id": 3545,
+        "pid": 3473,
+        "path": "\/admin\/scrap\/customer",
+        "title": "客户供应商管理",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3500,
+        "pid": 3473,
+        "path": "\/admin\/scrap\/order\/",
+        "title": "订单管理",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3502,
+        "pid": 3473,
+        "path": "\/admin\/scrap\/order\/audit",
+        "title": "订单审核",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3501,
+        "pid": 3473,
+        "path": "\/admin\/scrap\/order\/lead",
+        "title": "线索订单",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3503,
+        "pid": 3473,
+        "path": "\/admin\/scrap\/order\/sign",
+        "title": "附件签名",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3504,
+        "pid": 3473,
+        "path": "\/admin\/scrap\/vehicle\/list",
+        "title": "车辆档案",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3546,
+        "pid": 3473,
+        "path": "\/admin\/scrap\/accept-local",
+        "title": "商务部对接",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      }
+    ]
+  },
+  {
+    "id": 3494,
+    "pid": 0,
+    "path": "\/admin\/scrap\/vehicle",
+    "title": "厂区运营",
+    "icon": "s-promotion",
+    "header": "",
+    "is_header": 0,
+    "is_show": 1,
+    "auth": ["hidden"],
+    "children": [
+      {
+        "id": 3521,
+        "pid": 3494,
+        "path": "\/admin\/scrap\/quality",
+        "title": "质检管理",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3516,
+        "pid": 3494,
+        "path": "\/admin\/scrap\/warehouse\/entry",
+        "title": "原料入库",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      }
+    ]
+  },
+  {
+    "id": 3496,
+    "pid": 0,
+    "path": "\/admin\/scrap\/dismantle",
+    "title": "拆解生产",
+    "icon": "menu",
+    "header": "",
+    "is_header": 0,
+    "is_show": 1,
+    "auth": ["hidden"],
+    "children": [
+      {
+        "id": 3549,
+        "pid": 3496,
+        "path": "\/admin\/scrap\/material",
+        "title": "领料管理",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3522,
+        "pid": 3496,
+        "path": "\/admin\/scrap\/plate",
+        "title": "拆解管理",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3524,
+        "pid": 3496,
+        "path": "\/admin\/scrap\/output",
+        "title": "产物入库",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      }
+    ]
+  },
+  {
+    "id": 3495,
+    "pid": 0,
+    "path": "\/admin\/scrap\/warehouse",
+    "title": "仓储销售",
+    "icon": "s-marketing",
+    "header": "",
+    "is_header": 0,
+    "is_show": 1,
+    "auth": ["hidden"],
+    "children": [
+      {
+        "id": 3518,
+        "pid": 3495,
+        "path": "\/admin\/scrap\/inventory",
+        "title": "库存管理",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3517,
+        "pid": 3495,
+        "path": "\/admin\/scrap\/warehouse\/exit",
+        "title": "销售出库",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3519,
+        "pid": 3495,
+        "path": "\/admin\/scrap\/warehouse\/location",
+        "title": "库位管理",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      }
+    ]
+  },
+  {
+    "id": 3485,
+    "pid": 0,
+    "path": "\/admin\/scrap\/settlement",
+    "title": "财务结算",
+    "icon": "s-finance",
+    "header": "scrap",
+    "is_header": 0,
+    "is_show": 1,
+    "auth": ["hidden"],
+    "children": [
+      {
+        "id": 3528,
+        "pid": 3485,
+        "path": "\/admin\/scrap\/settlement",
+        "title": "待结算列表",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3550,
+        "pid": 3485,
+        "path": "\/admin\/scrap\/payment-log",
+        "title": "付款流水",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3531,
+        "pid": 3485,
+        "path": "\/admin\/scrap\/business-stats",
+        "title": "业务员统计",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      }
+    ]
+  },
+  {
+    "id": 3476,
+    "pid": 0,
+    "path": "\/admin\/scrap\/certificate",
+    "title": "数据决策",
+    "icon": "s-management",
+    "header": "scrap",
+    "is_header": 0,
+    "is_show": 1,
+    "auth": ["hidden"],
+    "children": [
+      {
+        "id": 3484,
+        "pid": 3476,
+        "path": "\/admin\/",
+        "title": "数据看板",
+        "icon": "",
+        "header": "scrap",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3475,
+        "pid": 3476,
+        "path": "\/admin\/echarts\/dataDecision",
+        "title": "报表中心",
+        "icon": "",
+        "header": "scrap",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3520,
+        "pid": 3476,
+        "path": "\/admin\/echarts\/trend",
+        "title": "趋势分析",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "pid": 0,
+    "path": "\/admin\/setting",
+    "title": "系统管理",
+    "icon": "s-tools",
+    "header": "setting",
+    "is_header": 1,
+    "is_show": 1,
+    "auth": ["hidden"],
+    "children": [
+      {
+        "id": 20,
+        "pid": 12,
+        "path": "\/admin\/setting\/system_admin\/index",
+        "title": "用户账号",
+        "icon": "",
+        "header": "setting",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 19,
+        "pid": 12,
+        "path": "\/admin\/setting\/system_role\/index",
+        "title": "角色权限",
+        "icon": "",
+        "header": "setting",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3430,
+        "pid": 12,
+        "path": "\/admin\/system\/code_data_dictionary",
+        "title": "数据字典",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3488,
+        "pid": 12,
+        "path": "\/admin\/scrap\/config\/collect_price",
+        "title": "价格配置",
+        "icon": "",
+        "header": "scrap",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 47,
+        "pid": 12,
+        "path": "\/admin\/system\/maintain\/system_log\/index",
+        "title": "操作日志",
+        "icon": "",
+        "header": "system",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 898,
+        "pid": 12,
+        "path": "\/admin\/setting\/notification\/index",
+        "title": "系统通知",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3465,
+        "pid": 12,
+        "path": "\/admin\/app\/miniprogram",
+        "title": "小程序管理",
+        "icon": "",
+        "header": "scrap",
+        "is_header": 1,
+        "is_show": 1,
+        "auth": ["hidden"]
+      }
+    ]
+  },
+  {
+    "id": 3542,
+    "pid": 0,
+    "path": "\/admin\/system",
+    "title": "车信盟",
+    "icon": "message-solid",
+    "header": "setting",
+    "is_header": 1,
+    "is_show": 1,
+    "auth": ["hidden"],
+    "children": [
+      {
+        "id": 3543,
+        "pid": 3542,
+        "path": "\/admin\/scrap\/accept",
+        "title": "报废车受理",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      },
+      {
+        "id": 3544,
+        "pid": 3542,
+        "path": "\/admin\/scrap\/bfdj",
+        "title": "报废车登记",
+        "icon": "",
+        "header": "",
+        "is_header": 0,
+        "is_show": 1,
+        "auth": ["hidden"]
+      }
+    ]
+  }
+]
