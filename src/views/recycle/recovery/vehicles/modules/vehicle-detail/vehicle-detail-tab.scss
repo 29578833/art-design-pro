@@ -1,0 +1,541 @@
+@use '../../vehicles-dialog' as *;
+
+.vd-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.vd-section-title {
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: $vm-text-sub;
+  text-transform: uppercase;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.vd-section-box {
+  padding: 4px 16px;
+  background: $vm-gray-50;
+  border-radius: 8px;
+}
+
+.vd-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid #fafafa;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.vd-row-label {
+  flex-shrink: 0;
+  width: 112px;
+  padding-top: 2px;
+  font-size: 12px;
+  color: $vm-text-sub;
+}
+
+.vd-row-value {
+  flex: 1;
+  font-size: 14px;
+  color: $vm-text;
+  word-break: break-all;
+
+  &.link {
+    color: $vm-primary;
+  }
+
+  &.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+}
+
+.vd-photo-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+
+  .vd-section-title {
+    margin-bottom: 0;
+    border-bottom: none;
+  }
+}
+
+.vd-photo-count {
+  font-size: 12px;
+  color: $vm-text-sub;
+}
+
+.vd-photo-grid {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+
+  &.cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  &.cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  &.cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.vd-photo-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: $vm-gray-100;
+  border: 1px dashed $vm-border;
+  border-radius: 6px;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: $vm-primary;
+  }
+}
+
+.vd-photo-img {
+  width: 100%;
+  height: 100%;
+}
+
+.vd-photo-camera {
+  font-size: 14px;
+  color: #d9d9d9;
+}
+
+.vd-photo-name {
+  display: block;
+  margin-top: 4px;
+  overflow: hidden;
+  font-size: 9px;
+  color: $vm-text-sub;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vd-media-block {
+  padding-top: 16px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.vd-media-title {
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #434343;
+}
+
+.vd-media-grid-section {
+  margin-bottom: 16px;
+}
+
+.vd-media-grid-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: $vm-text-sub;
+  text-transform: uppercase;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.vd-photo-label-top {
+  margin-bottom: 4px;
+  font-size: 10px;
+  color: $vm-text-sub;
+}
+
+.vd-cert-card {
+  margin-bottom: 16px;
+  overflow: hidden;
+  border: 1px solid $vm-border;
+  border-radius: 8px;
+}
+
+.vd-cert-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: $vm-gray-50;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.vd-cert-head-left {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.vd-cert-icon {
+  font-size: 14px;
+  color: $vm-primary;
+}
+
+.vd-cert-head-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #434343;
+}
+
+.vd-cert-tag {
+  padding: 2px 6px;
+  font-size: 10px;
+  color: $vm-text-sub;
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.vd-cert-source {
+  font-size: 12px;
+  color: $vm-text-sub;
+}
+
+.vd-cert-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.vd-cert-btn {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 4px;
+
+  &.outline {
+    color: $vm-primary;
+    background: #fff;
+    border: 1px solid $vm-primary;
+  }
+
+  &.primary {
+    color: #fff;
+    background: $vm-primary;
+    border: 1px solid $vm-primary;
+  }
+}
+
+.vd-cert-body {
+  padding: 12px 16px;
+  background: #fff;
+}
+
+.vd-cert-preview {
+  overflow: hidden;
+  border: 1px solid $vm-border;
+  border-radius: 6px;
+}
+
+.vd-cert-preview-title {
+  padding: 8px 0;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  border-bottom: 1px solid $vm-border;
+}
+
+.vd-cert-preview-meta {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: $vm-text-sub;
+  border-bottom: 1px solid #f5f5f5;
+
+  em {
+    font-style: normal;
+    font-weight: 500;
+    color: $vm-primary;
+  }
+}
+
+.vd-cert-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px 16px;
+  padding: 8px 12px;
+  font-size: 12px;
+
+  .lbl {
+    margin-right: 4px;
+    color: $vm-text-sub;
+  }
+}
+
+.vd-tab-panel {
+  // 流程类 Tab 容器
+}
+
+.vd-panel-label {
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: $vm-text-sub;
+  text-transform: uppercase;
+}
+
+.vd-timeline-item {
+  display: flex;
+  gap: 12px;
+}
+
+.vd-timeline-rail {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.vd-timeline-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  background: $vm-gray-100;
+  border: 2px solid #d9d9d9;
+  border-radius: 50%;
+
+  &.done {
+    background: $vm-success;
+    border-color: $vm-success;
+  }
+}
+
+.vd-check-icon {
+  font-size: 12px;
+  color: #fff;
+}
+
+.vd-timeline-line {
+  flex: 1;
+  width: 1px;
+  min-height: 20px;
+  margin: 4px 0;
+  background: $vm-border;
+
+  &.done {
+    background: $vm-success;
+  }
+}
+
+.vd-timeline-content {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 16px;
+}
+
+.vd-timeline-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: $vm-text;
+
+  &.muted {
+    color: $vm-text-sub;
+  }
+}
+
+.vd-timeline-time,
+.vd-timeline-note {
+  margin-top: 2px;
+  font-size: 12px;
+  color: $vm-text-sub;
+}
+
+.vd-v20-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vd-v20-card {
+  padding: 16px;
+  border: 1px solid $vm-border;
+  border-radius: 8px;
+
+  &.done {
+    background: #fafffe;
+    border-color: #b7eb8f;
+  }
+
+  &.current {
+    background: #fff7e6;
+    border-color: #fa8c16;
+  }
+
+  &.pending {
+    background: $vm-gray-50;
+    border-color: $vm-border;
+  }
+}
+
+.vd-v20-left {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.vd-v20-circle {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  border-radius: 50%;
+
+  &.done {
+    background: $vm-success;
+  }
+
+  &.current {
+    background: #fa8c16;
+  }
+
+  &.pending {
+    color: $vm-text-sub;
+    background: $vm-border;
+  }
+}
+
+.vd-v20-title-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.vd-v20-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: $vm-text;
+
+  &.muted {
+    color: $vm-text-sub;
+  }
+}
+
+.vd-v20-badge {
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+
+  &.done {
+    color: $vm-success;
+    background: #f6ffed;
+  }
+
+  &.current {
+    color: #fa8c16;
+    background: #fff7e6;
+  }
+
+  &.pending {
+    color: $vm-text-sub;
+    background: $vm-gray-100;
+  }
+}
+
+.vd-v20-desc,
+.vd-v20-time {
+  margin-top: 4px;
+  font-size: 12px;
+  color: $vm-text-sub;
+}
+
+.vd-log-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.vd-log-item {
+  display: flex;
+  gap: 12px;
+}
+
+.vd-log-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vd-log-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  background: $vm-primary;
+  border-radius: 50%;
+}
+
+.vd-log-line {
+  flex: 1;
+  width: 1px;
+  margin: 4px 0;
+  background: #e8e8e8;
+}
+
+.vd-log-content {
+  flex: 1;
+  padding-bottom: 16px;
+}
+
+.vd-log-action {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.vd-log-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: $vm-text;
+}
+
+.vd-log-op {
+  font-size: 12px;
+  color: $vm-text-sub;
+}
+
+.vd-empty-panel {
+  padding: 32px 0;
+  color: $vm-text-sub;
+  text-align: center;
+
+  p {
+    margin-top: 8px;
+    font-size: 14px;
+  }
+}
+
+.vd-empty-icon {
+  font-size: 32px;
+  color: #d9d9d9;
+}

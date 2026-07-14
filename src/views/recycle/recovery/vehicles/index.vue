@@ -44,6 +44,7 @@
     <VehicleArchiveEditDialog
       v-model:visible="editVisible"
       :vehicle-id="editVehicleId"
+      :vehicle-row="editVehicleRow"
       @success="handleEditSuccess"
     />
 
@@ -69,7 +70,7 @@
   } from '@/types/recycle/vehicle'
   import VehicleTabBar from './modules/vehicle-tab-bar.vue'
   import VehicleSearch from './modules/vehicle-search.vue'
-  import VehicleDetailDialog from './modules/vehicle-detail-dialog.vue'
+  import VehicleDetailDialog from './modules/vehicle-detail/index.vue'
   import VehicleArchiveEditDialog from './modules/vehicle-archive-edit-dialog.vue'
   import FormalOrderDetailDialog from '../orders/modules/formal-order-detail-dialog.vue'
 
@@ -95,6 +96,7 @@
 
   const editVisible = ref(false)
   const editVehicleId = ref(0)
+  const editVehicleRow = ref<ScrapVehicle | null>(null)
 
   const orderDetailVisible = ref(false)
   const orderDetailOrderId = ref<number | null>(null)
@@ -146,7 +148,12 @@
 
   function openEdit(row: ScrapVehicle) {
     editVehicleId.value = row.id
+    editVehicleRow.value = row
     editVisible.value = true
+  }
+
+  function handleDownloadCert(row: ScrapVehicle) {
+    window.open(`https://bfc.chexinmeng.com/hszma4?id=${row.id}`, '_blank')
   }
 
   function openOrderDetailFromVehicle(row: ScrapVehicle) {
@@ -238,7 +245,7 @@
       {
         prop: 'operation',
         label: '操作',
-        width: 260,
+        width: 320,
         align: 'center',
         fixed: 'right',
         formatter: (row: ScrapVehicle) => {
@@ -267,6 +274,17 @@
               )
             )
           }
+          actions.push(
+            h(
+              'button',
+              {
+                type: 'button',
+                class: 'order-action-btn default',
+                onClick: () => handleDownloadCert(row)
+              },
+              [h(ArtSvgIcon, { icon: 'ri:download-line', class: 'order-action-icon' }), '下载证明']
+            )
+          )
           return h('div', { class: 'order-actions' }, actions)
         }
       }

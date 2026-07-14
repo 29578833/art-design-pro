@@ -264,4 +264,52 @@ export interface ScrapVehicleDetail extends ScrapVehicle {
   cancel_flow?: VehicleFlowStep[]
   /** 操作日志 */
   operation_logs?: VehicleStatusLog[]
+  /** 所有人类型 1=企业 2=个人 */
+  syq?: number
+  /** 关联拖车订单号 */
+  tow_order_no?: string
+  /** 线索单号 */
+  lead_no?: string
+  /** 关联线索订单号 */
+  lead_order_no?: string
+  /** 车主证件号（接口字段） */
+  owner_id_number?: string
+  /** 所有人证件图 */
+  owner_id_front_image?: string
+  owner_id_back_image?: string
+  owner_license_image?: string
+  owner_missing_image?: string
+  /** 车辆证件图 */
+  license_front_image?: string
+  license_back_image?: string
+  license_both_image?: string
+  cert_image?: string
+  owner_change_image?: string
+  /** 代理人证件图 */
+  agent_id_front_image?: string
+  agent_id_back_image?: string
+  agent_auth_image?: string
+  agent_id_number?: string
+  /** 拖车进场照 */
+  photo_front?: string
+  photo_side?: string
+  photo_back?: string
+  photo_interior?: string
+  /** 行驶证/产证编号 */
+  license_no?: string
+  cert_no?: string
+  vehicle_model?: string
+  plate_type?: string
+  fuel_nature?: string
+  register_date?: string
+  year?: string | number
+  monitor_type?: string
+  usage_type?: string
+  displacement?: string | number
+  power_kw?: string | number
+  /** 自送费补贴 */
+  self_delivery_subsidy?: string | number
+  /** 创建人 */
+  created_by?: string
+  created_at?: string
 }

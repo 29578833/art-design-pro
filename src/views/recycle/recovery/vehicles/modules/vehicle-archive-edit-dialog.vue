@@ -15,7 +15,7 @@
         <div class="ae-title">编辑车辆档案</div>
         <div class="ae-tags">
           <span class="ae-tag blue">{{ hplxLabel }}</span>
-          <span class="ae-tag purple">{{ syqLabel }}</span>
+          <span class="ae-tag" :class="isPersonal ? 'orange' : 'purple'">{{ syqLabel }}</span>
         </div>
       </div>
     </template>
@@ -65,17 +65,20 @@
       <div class="ae-step-bar">
         <template v-for="(s, i) in visibleSteps" :key="s.id">
           <button type="button" class="ae-step-item" @click="goToStep(s.id)">
-            <span class="ae-step-num" :class="{ cur: step === s.id, done: step > s.id }">
-              {{ step > s.id ? '✓' : i + 1 }}
+            <span class="ae-step-num" :class="{ cur: step === s.id, done: stepComplete[s.id - 1] }">
+              {{ stepComplete[s.id - 1] ? '✓' : i + 1 }}
             </span>
-            <span class="ae-step-label" :class="{ cur: step === s.id, done: step > s.id }">
+            <span
+              class="ae-step-label"
+              :class="{ cur: step === s.id, done: stepComplete[s.id - 1] }"
+            >
               {{ s.label }}
             </span>
           </button>
           <div
             v-if="i < visibleSteps.length - 1"
             class="ae-step-line"
-            :class="{ done: step > s.id }"
+            :class="{ done: stepComplete[s.id - 1] }"
           />
         </template>
       </div>
@@ -113,14 +116,16 @@
           <span v-else class="ae-link-chip empty">待生成</span>
         </div>
         <div>
-          <span class="ae-link-label">车牌号</span>
-          <span v-if="linkInfo.plate_no" class="ae-link-chip gray">{{ linkInfo.plate_no }}</span>
-          <span v-else class="ae-link-chip empty">—</span>
+          <span class="ae-link-label">拖车订单号</span>
+          <span v-if="linkInfo.tow_order_no" class="ae-link-chip gray">{{
+            linkInfo.tow_order_no
+          }}</span>
+          <span v-else class="ae-link-chip empty">无拖车单</span>
         </div>
         <div>
-          <span class="ae-link-label">采集ID</span>
-          <span v-if="cjid" class="ae-link-chip gray">{{ cjid }}</span>
-          <span v-else class="ae-link-chip empty">提交后生成</span>
+          <span class="ae-link-label">线索单号</span>
+          <span v-if="linkInfo.lead_no" class="ae-link-chip gray">{{ linkInfo.lead_no }}</span>
+          <span v-else class="ae-link-chip empty">无线索单</span>
         </div>
       </div>
 
@@ -205,10 +210,32 @@
               <ElRow :gutter="16">
                 <ElCol :span="12">
                   <ElFormItem label="证件类型" required>
-                    <ElInput
-                      :model-value="isCompany ? '统一社会信用代码' : '居民身份证'"
-                      disabled
-                    />
+                    <ElSelect
+                      v-if="isCompany"
+                      v-model="ownerForm.sfzmmc"
+                      placeholder="请选择"
+                      style="width: 100%"
+                    >
+                      <ElOption
+                        v-for="opt in companyIdTypeOptions"
+                        :key="opt.value"
+                        :label="opt.label"
+                        :value="opt.value"
+                      />
+                    </ElSelect>
+                    <ElSelect
+                      v-else
+                      v-model="ownerForm.sfzmmc"
+                      placeholder="请选择"
+                      style="width: 100%"
+                    >
+                      <ElOption
+                        v-for="opt in naturalIdTypeOptions"
+                        :key="opt.value"
+                        :label="opt.label"
+                        :value="opt.value"
+                      />
+                    </ElSelect>
                   </ElFormItem>
                 </ElCol>
                 <ElCol :span="12">
@@ -242,7 +269,7 @@
           </div>
         </template>
 
-        <!-- Step2 车辆信息（仅沪牌） -->
+        <!-- Step2 车辆信息 -->
         <template v-else-if="step === 2">
           <div class="ae-ocr-box">
             <div class="ae-ocr-head">
@@ -584,7 +611,7 @@
         <!-- Step3 代理人 -->
         <template v-else-if="step === 3">
           <div class="ae-section">
-            <ElCheckbox v-model="hasAgent" :disabled="isSubmitted"
+            <ElCheckbox v-model="hasAgent" :disabled="isSubmitted" @change="onAgentToggle"
               >代办场景（有代理人代为办理）</ElCheckbox
             >
           </div>
@@ -665,51 +692,51 @@
 
         <!-- Step4 实名认证 -->
         <template v-else-if="step === 4">
-          <div class="ae-section-title">实名认证（请完成一项实名认证）</div>
+          <div class="ae-section-title">所有人代人代理实名认证（请完成一项实名认证）</div>
           <div class="ae-ocr-box">
             <div class="ae-auth-row">
               <span style="width: 72px; font-size: 12px; color: #9ca3af">所有人认证</span>
               <span style="flex: 1; font-weight: 500">{{
-                ownerForm.syr || '（请先填写姓名）'
+                ownerForm.syr || (isPersonal ? '（请填写所有人姓名）' : '（请填写企业名称）')
               }}</span>
               <ElTag :type="ownerAuthed ? 'success' : 'warning'" size="small">
                 {{ ownerAuthed ? '已认证' : '待认证' }}
               </ElTag>
-              <ElButton size="small" @click="openAuth('syr')">{{
-                ownerAuthed ? '重新认证' : '认证'
-              }}</ElButton>
+              <ElButton
+                size="small"
+                type="primary"
+                :disabled="isSubmitted"
+                @click="openAuth('syr')"
+              >
+                去认证
+              </ElButton>
             </div>
             <div class="ae-auth-meta">
               <span>证件号：{{ ownerForm.sfzmhm || '—' }}</span>
               <span>联系电话：{{ ownerForm.dh || '—' }}</span>
             </div>
-            <template v-if="hasAgent">
-              <div class="ae-auth-row">
-                <span style="width: 72px; font-size: 12px; color: #9ca3af">代理人认证</span>
-                <span style="flex: 1; font-weight: 500">{{
-                  agentForm.jbr || '（请先填写姓名）'
-                }}</span>
-                <ElTag :type="agentAuthed ? 'success' : 'warning'" size="small">
-                  {{ agentAuthed ? '已认证' : '待认证' }}
-                </ElTag>
-                <ElButton size="small" @click="openAuth('dlr')">{{
-                  agentAuthed ? '重新认证' : '认证'
-                }}</ElButton>
-              </div>
-              <div class="ae-auth-meta">
-                <span>证件号：{{ agentForm.jbrsfzmhm || '—' }}</span>
-                <span>联系电话：{{ agentForm.jbrdh || '—' }}</span>
-              </div>
-            </template>
+            <div class="ae-auth-row">
+              <span style="width: 72px; font-size: 12px; color: #9ca3af">代理人认证</span>
+              <span style="flex: 1; font-weight: 500">{{
+                agentForm.jbr || '（请填写代理人姓名）'
+              }}</span>
+              <ElTag :type="agentAuthed ? 'success' : 'warning'" size="small">
+                {{ agentAuthed ? '已认证' : '待认证' }}
+              </ElTag>
+              <ElButton
+                size="small"
+                type="primary"
+                :disabled="isSubmitted"
+                @click="openAuth('dlr')"
+              >
+                去认证
+              </ElButton>
+            </div>
+            <div class="ae-auth-meta">
+              <span>证件号：{{ agentForm.jbrsfzmhm || '—' }}</span>
+              <span>联系电话：{{ agentForm.jbrdh || '—' }}</span>
+            </div>
           </div>
-          <ElAlert
-            v-if="!cjid"
-            type="info"
-            :closable="false"
-            show-icon
-            title="采集 ID 尚未生成：可先本地标记认证，提交商务部时会自动创建外部记录并发起实名。"
-            style="margin-top: 12px"
-          />
         </template>
 
         <!-- Step5 影像材料 -->
@@ -717,31 +744,230 @@
           <div class="ae-readonly-box">
             <div class="ae-readonly-head">
               <span>
-                报废车机动车回收证明
+                报废机动车回收证明
                 <span class="ae-readonly-badge">商务部同步 · 只读</span>
               </span>
               <div>
-                <ElButton size="small" @click="handleFetchArchive">抓取档案</ElButton>
+                <!-- <ElButton size="small" @click="handleCertificateAction('view')">查看</ElButton> -->
+                <ElButton size="small" type="primary" @click="handleCertificateAction">
+                  下载
+                </ElButton>
               </div>
             </div>
-            <div style="padding: 16px; font-size: 13px; color: #6b7280">
-              提交商务部成功后，回收证明将由商务部数字化管理平台同步，可在此处查看/下载。
+            <div class="ae-cert-preview">
+              <div v-if="scrapFilesLoading" class="ae-cert-empty">加载回收证明数据...</div>
+              <div v-else-if="scrapDjid" class="ae-cert-empty">
+                登记单号：{{ scrapDjid }}，可点击右上角查看/下载完整回收证明
+              </div>
+              <div v-else class="ae-cert-empty">暂无回收证明数据</div>
             </div>
+          </div>
+
+          <div class="ae-material-tip" :class="{ warn: isSubmitted }">
+            <ArtSvgIcon :icon="isSubmitted ? 'ri:error-warning-line' : 'ri:information-line'" />
+            {{
+              isSubmitted
+                ? '已提交至商务部，材料不可修改，但可点击查看大图。'
+                : '所有材料支持单/多图上传、预览、删除；核心材料均支持上传"缺失情况说明图片"作为替代凭证。'
+            }}
+          </div>
+
+          <div class="ae-section-title">所有人证件材料</div>
+          <div class="ae-ocr-grid" :class="isCompany ? '' : 'cols-3'">
+            <template v-if="isCompany">
+              <UploadSlot
+                label="营业执照原件"
+                required
+                :url="ownerImages.syrzp"
+                :readonly="isSubmitted"
+                @upload="(f) => handleOwnerUpload('syrzp', f)"
+                @remove="() => handleOwnerRemove('syrzp')"
+              />
+              <UploadSlot
+                label="缺失情况说明"
+                :url="ownerImages.qksmzp"
+                :readonly="isSubmitted"
+                @upload="(f) => handleOwnerUpload('qksmzp', f)"
+                @remove="() => handleOwnerRemove('qksmzp')"
+              />
+            </template>
+            <template v-else>
+              <UploadSlot
+                label="身份证正面"
+                required
+                :url="ownerImages.sfz1zp || ownerImages.syrzp"
+                :readonly="isSubmitted"
+                @upload="(f) => handleOwnerUpload('sfz1zp', f)"
+                @remove="() => handleOwnerRemove('sfz1zp')"
+              />
+              <UploadSlot
+                label="身份证反面"
+                required
+                :url="ownerImages.sfz2zp"
+                :readonly="isSubmitted"
+                @upload="(f) => handleOwnerUpload('sfz2zp', f)"
+                @remove="() => handleOwnerRemove('sfz2zp')"
+              />
+              <UploadSlot
+                label="缺失情况说明"
+                :url="ownerImages.qksmzp"
+                :readonly="isSubmitted"
+                @upload="(f) => handleOwnerUpload('qksmzp', f)"
+                @remove="() => handleOwnerRemove('qksmzp')"
+              />
+            </template>
+          </div>
+
+          <div class="ae-section-title">车辆证件材料</div>
+          <div class="ae-ocr-grid cols-4">
+            <UploadSlot
+              label="行驶证正页"
+              required
+              :url="vehicleImages.xszzp"
+              :readonly="isSubmitted"
+              @upload="(f) => handleVehicleUpload('xszzp', f)"
+              @remove="() => handleVehicleRemove('xszzp')"
+            />
+            <UploadSlot
+              label="行驶证副页"
+              required
+              :url="vehicleImages.xszzpfy"
+              :readonly="isSubmitted"
+              @upload="(f) => handleVehicleUpload('xszzpfy', f)"
+              @remove="() => handleVehicleRemove('xszzpfy')"
+            />
+            <UploadSlot
+              label="正副背面"
+              required
+              :url="vehicleImages.xszbmzp"
+              :readonly="isSubmitted"
+              @upload="(f) => handleVehicleUpload('xszbmzp', f)"
+              @remove="() => handleVehicleRemove('xszbmzp')"
+            />
+            <UploadSlot
+              label="产证一二页"
+              required
+              :url="vehicleImages.czzp"
+              :readonly="isSubmitted"
+              @upload="(f) => handleVehicleUpload('czzp', f)"
+              @remove="() => handleVehicleRemove('czzp')"
+            />
+          </div>
+          <div class="ae-ocr-grid cols-4" style="margin-top: 12px">
+            <UploadSlot
+              label="产权变更页（如有）"
+              :url="ownerImages.blpzzp"
+              :readonly="isSubmitted"
+              @upload="(f) => handleOwnerUpload('blpzzp', f)"
+              @remove="() => handleOwnerRemove('blpzzp')"
+            />
+          </div>
+
+          <div class="ae-section-title">拖车进场照片</div>
+          <div v-if="isSubmitted" class="ae-ocr-grid cols-4">
+            <div v-for="item in towReadonlyItems" :key="item.field" class="ae-readonly-photo">
+              <div class="ae-readonly-photo-label">{{ item.label }}</div>
+              <div class="ae-readonly-slot">
+                <ElImage
+                  v-if="getScrapFileUrl(item.field)"
+                  :src="getScrapFileUrl(item.field)"
+                  fit="cover"
+                  class="ae-readonly-img"
+                  :preview-src-list="[getScrapFileUrl(item.field)]"
+                  preview-teleported
+                />
+                <template v-else>
+                  <ArtSvgIcon icon="ri:camera-line" style="margin-bottom: 4px; font-size: 20px" />
+                  暂无图片
+                </template>
+              </div>
+            </div>
+          </div>
+          <div v-else class="ae-ocr-grid cols-4">
+            <UploadSlot
+              label="拖车单"
+              required
+              :url="materialImages.photo_front"
+              @upload="(f) => handleMaterialUpload('photo_front', f)"
+              @remove="() => handleMaterialRemove('photo_front')"
+            />
+            <UploadSlot
+              label="整车照"
+              required
+              :url="materialImages.photo_side"
+              @upload="(f) => handleMaterialUpload('photo_side', f)"
+              @remove="() => handleMaterialRemove('photo_side')"
+            />
+            <UploadSlot
+              label="车架拓印照"
+              :url="materialImages.photo_back"
+              @upload="(f) => handleMaterialUpload('photo_back', f)"
+              @remove="() => handleMaterialRemove('photo_back')"
+            />
+            <UploadSlot
+              label="车架号照"
+              :url="materialImages.photo_interior"
+              @upload="(f) => handleMaterialUpload('photo_interior', f)"
+              @remove="() => handleMaterialRemove('photo_interior')"
+            />
+          </div>
+
+          <div class="ae-section-title">代理人证件材料</div>
+          <div class="ae-ocr-grid">
+            <UploadSlot
+              label="代理人身份证正面"
+              required
+              :url="agentImages.jbrsfz1zp"
+              :readonly="isSubmitted"
+              @upload="(f) => handleAgentUpload('jbrsfz1zp', f)"
+              @remove="() => handleAgentRemove('jbrsfz1zp')"
+            />
+            <UploadSlot
+              label="代理人身份证反面"
+              required
+              :url="agentImages.jbrsfz2zp"
+              :readonly="isSubmitted"
+              @upload="(f) => handleAgentUpload('jbrsfz2zp', f)"
+              @remove="() => handleAgentRemove('jbrsfz2zp')"
+            />
+            <UploadSlot
+              label="委托说明"
+              required
+              :url="agentImages.jbrzp"
+              :readonly="isSubmitted"
+              @upload="(f) => handleAgentUpload('jbrzp', f)"
+              @remove="() => handleAgentRemove('jbrzp')"
+            />
+          </div>
+
+          <div class="ae-material-tip warn">
+            <ArtSvgIcon icon="ri:error-warning-line" />
+            以下照片是从商务部系统同步的，数据不可在本系统修改。
           </div>
 
           <div class="ae-readonly-box">
             <div class="ae-readonly-head">
               <span>
                 报废车拆解照片
-                <span class="ae-readonly-badge">商务部同步 · 只读</span>
+                <span class="ae-readonly-badge">本地缓存 · 只读</span>
               </span>
             </div>
             <div class="ae-readonly-grid">
-              <div v-for="name in dismantlePhotoNames" :key="name">
-                <div style="margin-bottom: 6px; font-size: 12px; color: #6b7280">{{ name }}</div>
+              <div v-for="item in dismantlePhotoItems" :key="item.field" class="ae-readonly-photo">
+                <div class="ae-readonly-photo-label">{{ item.label }}</div>
                 <div class="ae-readonly-slot">
-                  <ArtSvgIcon icon="ri:camera-line" style="margin-bottom: 4px; font-size: 20px" />
-                  商务部系统同步
+                  <ElImage
+                    v-if="getScrapFileUrl(item.field)"
+                    :src="getScrapFileUrl(item.field)"
+                    fit="cover"
+                    class="ae-readonly-img"
+                    :preview-src-list="[getScrapFileUrl(item.field)]"
+                    preview-teleported
+                  />
+                  <template v-else>
+                    <ArtSvgIcon icon="ri:camera-line" style="margin-bottom: 4px; font-size: 20px" />
+                    暂无图片
+                  </template>
                 </div>
               </div>
             </div>
@@ -755,11 +981,28 @@
               </span>
             </div>
             <div class="ae-readonly-grid">
-              <div v-for="name in cancelPhotoNames" :key="name">
-                <div style="margin-bottom: 6px; font-size: 12px; color: #6b7280">{{ name }}</div>
+              <div class="ae-readonly-photo">
+                <div class="ae-readonly-photo-label">回收证明</div>
                 <div class="ae-readonly-slot">
                   <ArtSvgIcon icon="ri:camera-line" style="margin-bottom: 4px; font-size: 20px" />
-                  商务部系统同步
+                  {{ scrapDjid ? '已领取' : '未领取' }}
+                </div>
+              </div>
+              <div v-for="item in cancelPhotoItems" :key="item.field" class="ae-readonly-photo">
+                <div class="ae-readonly-photo-label">{{ item.label }}</div>
+                <div class="ae-readonly-slot">
+                  <ElImage
+                    v-if="getScrapFileUrl(item.field)"
+                    :src="getScrapFileUrl(item.field)"
+                    fit="cover"
+                    class="ae-readonly-img"
+                    :preview-src-list="[getScrapFileUrl(item.field)]"
+                    preview-teleported
+                  />
+                  <template v-else>
+                    <ArtSvgIcon icon="ri:camera-line" style="margin-bottom: 4px; font-size: 20px" />
+                    暂无图片
+                  </template>
                 </div>
               </div>
             </div>
@@ -841,25 +1084,55 @@
     </template>
   </ElDialog>
 
-  <!-- 认证弹窗 -->
-  <ElDialog v-model="authVisible" title="实名认证" width="560px" align-center append-to-body>
-    <div style="margin-bottom: 12px; font-size: 14px">
+  <!-- 认证弹窗（对齐 admin） -->
+  <ElDialog
+    v-model="authVisible"
+    title="实名认证"
+    width="720px"
+    align-center
+    append-to-body
+    @closed="handleAuthDialogClosed"
+  >
+    <div style="margin-bottom: 16px; font-size: 14px">
       认证人：
       <b>{{ authType === 'syr' ? ownerForm.syr || '—' : agentForm.jbr || '—' }}</b>
     </div>
-    <ElRadioGroup v-model="authMethod" style="margin-bottom: 16px">
-      <ElRadioButton value="sms">短信认证</ElRadioButton>
-      <ElRadioButton value="scan">扫码认证</ElRadioButton>
-    </ElRadioGroup>
-    <ElForm v-if="authMethod === 'sms'" label-position="top">
-      <ElFormItem label="手机号">
-        <ElInput v-model="authPhone" placeholder="手机号" />
-      </ElFormItem>
-    </ElForm>
-    <div v-else style="font-size: 12px; line-height: 1.7; color: #6b7280">
-      <p>1. 将跳转至认证页面进行扫码认证，请打开支付宝 APP（推荐）或微信扫码功能。</p>
-      <p>2. 扫码认证完成后关闭本窗口即可。</p>
-    </div>
+    <ElRow :gutter="40">
+      <ElCol :span="12">
+        <ElCheckbox v-model="authSmsChecked" @change="onAuthSmsModeChange">短信认证</ElCheckbox>
+        <ElInput
+          v-model="authPhone"
+          placeholder="请输入手机号"
+          maxlength="11"
+          clearable
+          style="margin-top: 12px"
+        />
+        <div v-if="authPhone && !authSending && authSmsCountdown <= 0" class="ae-auth-hint">
+          即将发送认证短信到【{{ authPhone }}】。
+        </div>
+        <div v-if="authSmsCountdown > 0" class="ae-auth-hint">
+          验证码已发送，{{ authSmsCountdown }}秒后可重新发送。
+        </div>
+        <div v-if="authSending" class="ae-auth-hint">短信发送中...</div>
+      </ElCol>
+      <ElCol :span="12">
+        <ElCheckbox v-model="authQrChecked" @change="onAuthQrModeChange">扫码认证</ElCheckbox>
+        <ol class="ae-auth-qr-steps">
+          <li>将跳转至认证页面进行扫码认证，请打开支付宝 APP（推荐）或微信扫码功能。</li>
+          <li>扫码认证完成后关闭本窗口即可。</li>
+        </ol>
+        <ElButton
+          v-if="authQrChecked"
+          type="primary"
+          size="small"
+          :loading="authQrLoading"
+          style="width: 100%; margin-top: 16px"
+          @click="handleAuthQrScan"
+        >
+          去认证
+        </ElButton>
+      </ElCol>
+    </ElRow>
     <ElAlert
       type="error"
       :closable="false"
@@ -869,7 +1142,15 @@
     />
     <template #footer>
       <ElButton @click="authVisible = false">取消</ElButton>
-      <ElButton type="primary" :loading="authSending" @click="confirmAuth">确定</ElButton>
+      <ElButton
+        v-if="authSmsChecked"
+        type="primary"
+        :loading="authSending"
+        :disabled="authSmsCountdown > 0"
+        @click="handleAuthSendSms"
+      >
+        {{ authSmsCountdown > 0 ? `短信已发送(${authSmsCountdown})` : '发送认证短信' }}
+      </ElButton>
     </template>
   </ElDialog>
 </template>
@@ -914,6 +1195,8 @@
   const props = defineProps<{
     visible: boolean
     vehicleId: number
+    /** 列表行数据，对齐 admin archiveEdit.open(id, row) */
+    vehicleRow?: import('@/types/recycle/vehicle').ScrapVehicle | null
   }>()
 
   const emit = defineEmits<{
@@ -975,8 +1258,8 @@
   const linkInfo = reactive({
     order_no: '',
     archive_no: '',
-    plate_no: '',
-    owner_name: ''
+    tow_order_no: '',
+    lead_no: ''
   })
 
   const ownerForm = reactive({
@@ -995,7 +1278,8 @@
     syrzp: '',
     sfz1zp: '',
     sfz2zp: '',
-    qksmzp: ''
+    qksmzp: '',
+    blpzzp: ''
   })
 
   const vehicleForm = reactive({
@@ -1043,9 +1327,26 @@
     xszbmzp: '',
     czzp: ''
   })
+  const materialImages = reactive({
+    photo_front: '',
+    photo_side: '',
+    photo_back: '',
+    photo_interior: ''
+  })
+
+  const scrapDjid = ref('')
+  const scrapFilesLoading = ref(false)
   const cllxPath = ref('')
   const cllxOptions = ref<CllxCascadeNode[]>([])
   const scrapCacheFiles = ref<Record<string, { url?: string }>>({})
+
+  const companyIdTypeOptions = [
+    { label: '统一社会信用代码', value: 'N' },
+    { label: '组织机构代码证书', value: 'B' },
+    { label: '单位注销证明', value: 'J' },
+    { label: '驻华机构证明', value: 'L' },
+    { label: '个体工商户营业执照注册号', value: 'P' }
+  ]
 
   const hasAgent = ref(true)
   const agentForm = reactive({
@@ -1071,9 +1372,13 @@
 
   const authVisible = ref(false)
   const authType = ref<'syr' | 'dlr'>('syr')
-  const authMethod = ref<'sms' | 'scan'>('sms')
   const authPhone = ref('')
   const authSending = ref(false)
+  const authSmsChecked = ref(true)
+  const authQrChecked = ref(false)
+  const authSmsCountdown = ref(0)
+  const authQrLoading = ref(false)
+  let authSmsTimer: ReturnType<typeof setInterval> | null = null
 
   const ocrLoading = reactive<Record<string, boolean>>({})
   const ocrDone = reactive<Record<string, boolean>>({})
@@ -1110,19 +1415,159 @@
     (t) => ({ label: t, value: t })
   )
 
-  const dismantlePhotoNames = [
-    '车架照',
-    '发动机照',
-    '变速箱照',
-    '方向器照',
-    '前桥照',
-    '后桥照',
-    '钢印部照片'
+  const dismantlePhotoItems = [
+    { label: '车架照', field: 'cjzp' },
+    { label: '发动机照', field: 'fdjzp' },
+    { label: '变速箱照', field: 'bsqzp' },
+    { label: '方向器照', field: 'fxjzp' },
+    { label: '前桥照', field: 'qqzp' },
+    { label: '后桥照', field: 'hqzp' },
+    { label: '钢印部照片', field: 'gybwzp' }
   ]
-  const cancelPhotoNames = ['回收证明', '销毁号牌照', '注销证明', '领取人']
+  const cancelPhotoItems = [
+    { label: '销毁号牌照', field: 'xhhpzp' },
+    { label: '注销证明', field: 'zxzmzp' },
+    { label: '领取人', field: 'lqrsfz1zp' }
+  ]
+  const towReadonlyItems = [
+    { label: '拖车单', field: 'tcjczp' },
+    { label: '整车照', field: 'zczp' },
+    { label: '车架拓印照', field: 'gyzp' },
+    { label: '车架号照', field: 'cjhzp' },
+    { label: '发动机照', field: 'fdjhzp' }
+  ]
+
+  const naturalIdTypeOptions = ref<DictOpt[]>([{ label: '居民身份证', value: 'A' }])
+
+  const stepComplete = computed(() => [1, 2, 3, 4, 5].map((n) => isStepComplete(n)))
 
   function str(v: unknown) {
     return v === null || v === undefined ? '' : String(v)
+  }
+
+  function formatDate(raw: unknown) {
+    if (!raw) return ''
+    const s = String(raw)
+    if (s.length === 8 && /^\d{8}$/.test(s)) {
+      return `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}`
+    }
+    return s
+  }
+
+  function hasVal(v: unknown) {
+    return v !== '' && v !== null && v !== undefined
+  }
+
+  function nonZero(v: unknown) {
+    return hasVal(v) && v !== 0 && v !== '0'
+  }
+
+  /** 对齐 admin isStepComplete */
+  function isStepComplete(stepNo: number) {
+    if (stepNo === 1) {
+      if (!hasVal(ownerForm.sfzmmc) || !hasVal(ownerForm.syr) || !hasVal(ownerForm.sfzmhm))
+        return false
+      if (!hasVal(ownerForm.dh) || !hasVal(ownerForm.dz)) return false
+      if (isPersonal.value) {
+        return hasVal(ownerImages.sfz1zp || ownerImages.syrzp) && hasVal(ownerImages.sfz2zp)
+      }
+      return hasVal(ownerImages.syrzp)
+    }
+    if (stepNo === 2) {
+      if (
+        !hasVal(vehicleImages.xszzp) ||
+        !hasVal(vehicleImages.xszzpfy) ||
+        !hasVal(vehicleImages.xszbmzp) ||
+        !hasVal(vehicleImages.czzp)
+      )
+        return false
+      if (!hasVal(vehicleForm.clsbdh) || !hasVal(vehicleForm.hphm) || !hasVal(vehicleForm.hpzl))
+        return false
+      if (!hasVal(vehicleForm.cllx) || !hasVal(vehicleForm.syxz) || !hasVal(vehicleForm.xszbh))
+        return false
+      if (!hasVal(vehicleForm.czbh) || !hasVal(vehicleForm.ppxh)) return false
+      if (!hasVal(vehicleForm.ccdjrq) || !hasVal(vehicleForm.rlzl) || !hasVal(vehicleForm.fdjh))
+        return false
+      if (!hasVal(vehicleForm.csys)) return false
+      if (!nonZero(vehicleForm.cwkc) || !nonZero(vehicleForm.cwkk) || !nonZero(vehicleForm.cwkg))
+        return false
+      if (!nonZero(vehicleForm.pl) || !nonZero(vehicleForm.gl)) return false
+      if (!nonZero(vehicleForm.zbzl) || !nonZero(vehicleForm.zzl) || !nonZero(vehicleForm.hdzk))
+        return false
+      if (!hasVal(vehicleForm.delivery_method) || !hasVal(vehicleForm.settlement_type)) return false
+      if (!hasVal(vehicleForm.settlement_method)) return false
+      if (vehicleForm.delivery_method === 'tow') {
+        if (
+          !hasVal(vehicleForm.tow_pickup_address) ||
+          !hasVal(vehicleForm.tow_pickup_contact) ||
+          !hasVal(vehicleForm.tow_pickup_phone)
+        )
+          return false
+      } else if (vehicleForm.delivery_method === 'self') {
+        if (
+          !hasVal(vehicleForm.self_delivery_address) ||
+          !hasVal(vehicleForm.self_delivery_name) ||
+          !hasVal(vehicleForm.self_delivery_phone)
+        )
+          return false
+      }
+      if (
+        !hasVal(vehicleForm.bank_name) ||
+        !hasVal(vehicleForm.bank_branch) ||
+        !hasVal(vehicleForm.bank_card_no)
+      )
+        return false
+      return true
+    }
+    if (stepNo === 3) {
+      if (!hasAgent.value) return true
+      return (
+        hasVal(agentImages.jbrsfz1zp) &&
+        hasVal(agentImages.jbrsfz2zp) &&
+        hasVal(agentImages.jbrzp) &&
+        hasVal(agentForm.jbr) &&
+        hasVal(agentForm.jbrsfzmhm) &&
+        hasVal(agentForm.jbrdh)
+      )
+    }
+    if (stepNo === 4) {
+      if (!ownerAuthed.value) return false
+      if (hasAgent.value && !agentAuthed.value) return false
+      return true
+    }
+    if (stepNo === 5) {
+      if (!hasVal(materialImages.photo_front) || !hasVal(materialImages.photo_side)) return false
+      if (isPersonal.value) {
+        if (!hasVal(ownerImages.sfz1zp || ownerImages.syrzp) || !hasVal(ownerImages.sfz2zp))
+          return false
+      } else if (!hasVal(ownerImages.syrzp)) {
+        return false
+      }
+      if (
+        !hasVal(vehicleImages.xszzp) ||
+        !hasVal(vehicleImages.xszzpfy) ||
+        !hasVal(vehicleImages.xszbmzp) ||
+        !hasVal(vehicleImages.czzp)
+      )
+        return false
+      if (hasAgent.value) {
+        if (
+          !hasVal(agentImages.jbrsfz1zp) ||
+          !hasVal(agentImages.jbrsfz2zp) ||
+          !hasVal(agentImages.jbrzp)
+        )
+          return false
+      }
+      return true
+    }
+    return false
+  }
+
+  function getScrapFileUrl(field: string) {
+    const fileData = scrapCacheFiles.value[field]
+    if (!fileData) return ''
+    if (typeof fileData === 'string') return fileData
+    return fileData.url || ''
   }
 
   async function loadDict(type: string, fallback: DictOpt[]) {
@@ -1139,15 +1584,17 @@
   }
 
   async function loadOptions() {
-    const [hpzl, syxz, rlzl, cascade] = await Promise.all([
+    const [hpzl, syxz, rlzl, naturalId, cascade] = await Promise.all([
       loadDict('hpzl', FALLBACK_HPZL),
       loadDict('syxz', FALLBACK_SYXZ),
       loadDict('rlzl', FALLBACK_RLZL),
+      loadDict('id_type_natural', [{ label: '居民身份证', value: 'A' }]),
       fetchCllxCascade().catch(() => [] as CllxCascadeNode[])
     ])
     hpzlDict.value = hpzl
     syxzDict.value = syxz
     rlzlDict.value = rlzl
+    naturalIdTypeOptions.value = naturalId
     cllxOptions.value = cascade || []
   }
 
@@ -1233,7 +1680,10 @@
     cllxPath.value = ''
     Object.keys(ocrLoading).forEach((k) => delete ocrLoading[k])
     Object.keys(ocrDone).forEach((k) => delete ocrDone[k])
-    Object.assign(linkInfo, { order_no: '', archive_no: '', plate_no: '', owner_name: '' })
+    Object.assign(linkInfo, { order_no: '', archive_no: '', tow_order_no: '', lead_no: '' })
+    Object.keys(materialImages).forEach((k) => ((materialImages as Record<string, string>)[k] = ''))
+    scrapDjid.value = ''
+    scrapCacheFiles.value = {}
   }
 
   /** 车辆详情回填（对齐 admin loadVehicleData） */
@@ -1242,8 +1692,8 @@
     const detail = await fetchVehicleDetail(props.vehicleId)
     linkInfo.order_no = str(detail.order_no)
     linkInfo.archive_no = str(detail.vehicle_no || detail.archive_no)
-    linkInfo.plate_no = str(detail.plate_no)
-    linkInfo.owner_name = str(detail.owner_name)
+    linkInfo.tow_order_no = str((detail as Record<string, unknown>).tow_order_no)
+    linkInfo.lead_no = str((detail as Record<string, unknown>).lead_no)
     existingOwnerSyncId.value = Number(detail.owner_sync_id || 0)
 
     if (detail.syq) syq.value = Number(detail.syq) as AcceptSyq
@@ -1277,6 +1727,10 @@
     if (detail.has_agent === 0) hasAgent.value = false
     agentForm.jbr = str(detail.agent_name)
     agentForm.jbrdh = str(detail.agent_phone)
+    materialImages.photo_front = str((detail as Record<string, unknown>).photo_front)
+    materialImages.photo_side = str((detail as Record<string, unknown>).photo_side)
+    materialImages.photo_back = str((detail as Record<string, unknown>).photo_back)
+    materialImages.photo_interior = str((detail as Record<string, unknown>).photo_interior)
   }
 
   /** sync 回显（对齐 admin processAcceptData） */
@@ -1317,7 +1771,7 @@
 
     Object.keys(vehicleForm).forEach((k) => {
       if (v[k] !== undefined && v[k] !== null && v[k] !== '') {
-        ;(vehicleForm as Record<string, unknown>)[k] = str(v[k])
+        ;(vehicleForm as Record<string, unknown>)[k] = k === 'ccdjrq' ? formatDate(v[k]) : str(v[k])
       }
     })
     if (v.cllx) {
@@ -1336,8 +1790,10 @@
     if (xszbmzp) vehicleImages.xszbmzp = xszbmzp
     const czzp = imgUrl(vehicleImgs.czzp)
     if (czzp) vehicleImages.czzp = czzp
+    const blpzzp = imgUrl(vehicleImgs.blpzzp) || imgUrl(vehicleImgs.tcjczp)
+    if (blpzzp) ownerImages.blpzzp = blpzzp
 
-    if (a.jbr || a.jbrdh || a.jbrsfzmhm) hasAgent.value = true
+    if (a.jbr || a.jbrdh || a.jbrsfzmhm || Number(a.has_agent) === 1) hasAgent.value = true
     if (a.jbr) agentForm.jbr = str(a.jbr)
     if (a.jbrsfzmhm) agentForm.jbrsfzmhm = str(a.jbrsfzmhm)
     if (a.jbrdh) agentForm.jbrdh = str(a.jbrdh)
@@ -1361,18 +1817,29 @@
   }
 
   async function loadScrapFiles() {
-    if (!props.vehicleId) return
+    if (!props.vehicleId || scrapFilesLoading.value) return
+    scrapFilesLoading.value = true
     try {
       const res = await fetchAcceptFilesCache(props.vehicleId)
       scrapCacheFiles.value = (res.bfcj || {}) as Record<string, { url?: string }>
+      scrapDjid.value = str(res.djid)
     } catch {
       scrapCacheFiles.value = {}
+      scrapDjid.value = ''
+    } finally {
+      scrapFilesLoading.value = false
     }
   }
 
   /** 打开流程：对齐 admin VehicleArchiveEdit.open */
   async function openEditor() {
     if (!props.vehicleId) return
+    if (props.vehicleRow?.owner_sync_id) {
+      existingOwnerSyncId.value = Number(props.vehicleRow.owner_sync_id)
+    }
+    if (Number(props.vehicleRow?.is_submitted_commerce) === 1) {
+      isSubmitted.value = true
+    }
     loading.value = true
     try {
       await loadVehicleData()
@@ -1451,9 +1918,43 @@
       ownerForm.sfzmmc = isPersonal.value ? 'A' : 'N'
       phase.value = 'form'
       step.value = 1
+      emit('success')
     } finally {
       initLoading.value = false
     }
+  }
+
+  function onAgentToggle(val: boolean) {
+    if (!val) {
+      agentForm.jbr = ''
+      agentForm.jbrsfzmhm = ''
+      agentForm.jbrdh = ''
+      agentForm.jbrsmrz = ''
+      agentImages.jbrsfz1zp = ''
+      agentImages.jbrsfz2zp = ''
+      agentImages.jbrzp = ''
+    }
+  }
+
+  async function handleMaterialUpload(field: string, file: File) {
+    const url = await fetchAcceptUploadImage({
+      file,
+      vehicle_id: props.vehicleId,
+      field
+    })
+    if (url) (materialImages as Record<string, string>)[field] = url
+  }
+
+  function handleMaterialRemove(field: string) {
+    ;(materialImages as Record<string, string>)[field] = ''
+  }
+
+  function handleCertificateAction() {
+    if (!scrapDjid.value) {
+      ElMessage.warning('暂无回收证明数据')
+      return
+    }
+    window.open(`https://bfc.chexinmeng.com/hszma4?id=${scrapDjid.value}`, '_blank')
   }
 
   async function handleOwnerUpload(field: string, file: File) {
@@ -1593,7 +2094,8 @@
       xszzp: vehicleImages.xszzp || '',
       tcjczp: vehicleImages.xszzpfy || '',
       xszbmzp: vehicleImages.xszbmzp || '',
-      czzp: vehicleImages.czzp || ''
+      czzp: vehicleImages.czzp || '',
+      blpzzp: ownerImages.blpzzp || ''
     }
     if (isPersonal.value) {
       base.sfz1zp = ownerImages.sfz1zp || ownerImages.syrzp || ''
@@ -1725,7 +2227,7 @@
     try {
       await saveCurrentStep()
       draftSaved.value = true
-      if (step.value >= 4) ElMessage.success('暂存成功')
+      ElMessage.success('暂存成功')
     } finally {
       saving.value = false
     }
@@ -1761,48 +2263,110 @@
 
   function openAuth(type: 'syr' | 'dlr') {
     if (isSubmitted.value) return
+    const person = type === 'syr' ? ownerForm.syr : agentForm.jbr
+    if (!person) {
+      ElMessage.warning('请先填写认证人信息')
+      return
+    }
     authType.value = type
-    authMethod.value = 'sms'
     authPhone.value = type === 'syr' ? ownerForm.dh : agentForm.jbrdh
+    authSmsChecked.value = true
+    authQrChecked.value = false
+    authSmsCountdown.value = 0
     authVisible.value = true
   }
 
-  async function confirmAuth() {
-    if (authMethod.value === 'sms' && !authPhone.value.trim()) {
-      ElMessage.warning('请填写手机号')
+  function onAuthSmsModeChange(val: boolean) {
+    if (val) authQrChecked.value = false
+    else authQrChecked.value = true
+  }
+
+  function onAuthQrModeChange(val: boolean) {
+    if (val) authSmsChecked.value = false
+    else authSmsChecked.value = true
+  }
+
+  function handleAuthDialogClosed() {
+    if (authSmsTimer) {
+      clearInterval(authSmsTimer)
+      authSmsTimer = null
+    }
+    authSmsCountdown.value = 0
+    loadAcceptDataByVehicleId()
+  }
+
+  async function handleAuthSendSms() {
+    if (!authPhone.value.trim()) {
+      ElMessage.warning('请输入手机号')
+      return
+    }
+    if (!/^1[3-9]\d{9}$/.test(authPhone.value)) {
+      ElMessage.warning('手机号格式不正确')
+      return
+    }
+    if (!cjid.value) {
+      ElMessage.warning('受理记录初始化中，请稍后重试')
       return
     }
     authSending.value = true
     try {
-      if (cjid.value) {
-        await fetchAcceptAuthSms({
-          cjid: cjid.value,
-          tel: authPhone.value || (authType.value === 'syr' ? ownerForm.dh : agentForm.jbrdh),
-          type: authType.value,
-          verifyType: authMethod.value
-        })
-      } else {
-        ElMessage.info('采集 ID 尚未生成，已本地标记认证状态，提交商务部时会创建外部记录')
-      }
-      // 对齐业务可用：认证后写入 syrsmrz/jbrsmrz（admin 依赖 sync 回显，此处主动落库）
-      if (authType.value === 'syr') {
-        ownerForm.syrsmrz = '1'
-        await fetchAcceptSaveOwner({
-          vehicle_id: props.vehicleId,
-          syrsmrz: '1'
-        })
-      } else {
-        agentForm.jbrsmrz = '1'
-        await fetchAcceptSaveAgent({
-          vehicle_id: props.vehicleId,
-          has_agent: 1,
-          jbrsmrz: '1'
-        })
-      }
-      authVisible.value = false
-      ElMessage.success('认证状态已更新')
+      await fetchAcceptAuthSms({
+        cjid: cjid.value,
+        tel: authPhone.value,
+        type: authType.value,
+        verifyType: 'sms'
+      })
+      authSmsCountdown.value = 30
+      if (authSmsTimer) clearInterval(authSmsTimer)
+      authSmsTimer = setInterval(() => {
+        authSmsCountdown.value -= 1
+        if (authSmsCountdown.value <= 0 && authSmsTimer) {
+          clearInterval(authSmsTimer)
+          authSmsTimer = null
+        }
+      }, 1000)
     } finally {
       authSending.value = false
+    }
+  }
+
+  async function handleAuthQrScan() {
+    if (!authPhone.value.trim()) {
+      ElMessage.warning('请输入手机号')
+      return
+    }
+    if (!/^1[3-9]\d{9}$/.test(authPhone.value)) {
+      ElMessage.warning('手机号格式不正确')
+      return
+    }
+    if (!cjid.value) {
+      ElMessage.warning('受理记录初始化中，请稍后重试')
+      return
+    }
+    authQrLoading.value = true
+    try {
+      const res = (await fetchAcceptAuthSms({
+        cjid: cjid.value,
+        tel: authPhone.value,
+        type: authType.value,
+        verifyType: 'scan'
+      })) as Record<string, unknown>
+      const result = res?.result
+      let url = ''
+      if (typeof result === 'string' && result.startsWith('http')) url = result
+      else if (result && typeof result === 'object') {
+        const r = result as Record<string, string>
+        url = r.url || r.authorizeUrl || r.redirectUrl || r.link || r.scanUrl || r.qrUrl || ''
+      }
+      if (!url) {
+        url = String(
+          res.url || res.authorizeUrl || res.redirectUrl || res.link || res.scanUrl || ''
+        )
+      }
+      if (url) window.open(url, '_blank')
+      else ElMessage.warning('未获取到扫码认证链接')
+    } finally {
+      authQrLoading.value = false
     }
   }
 
