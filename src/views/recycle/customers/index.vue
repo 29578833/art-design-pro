@@ -99,8 +99,6 @@
   const groupOptions = ref<UserGroupOption[]>([])
   const activeLevelId = ref<number | 'all'>('all')
 
-  const avatarColors = ['#1890FF', '#722ED1', '#13C2C2', '#FA8C16', '#52C41A', '#EB2F96']
-
   const searchForm = ref<PartnerSearchParams>({
     current: 1,
     size: 20,
@@ -110,10 +108,6 @@
     cooperationType: 'all',
     status: 'all'
   })
-
-  function getAvatarColor(name: string) {
-    return avatarColors[(name.charCodeAt(0) || 0) % avatarColors.length]
-  }
 
   const {
     columns,
@@ -152,7 +146,7 @@
                 'div',
                 {
                   class: 'partner-avatar',
-                  style: { background: getAvatarColor(row.name) }
+                  style: { background: '#1D84FF' }
                 },
                 row.name.slice(0, 1)
               ),

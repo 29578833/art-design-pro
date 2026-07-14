@@ -250,7 +250,28 @@ export const recycleDecisionRoutes: AppRouteRecord = {
     icon: 'ri:bar-chart-box-line',
     menuId: 3476
   },
-  children: []
+  children: [
+    {
+      path: 'reports',
+      name: 'RecycleDecisionReports',
+      component: '/recycle/decision/reports',
+      meta: {
+        title: 'menus.recycle.reports',
+        keepAlive: true,
+        menuId: 3475
+      }
+    },
+    {
+      path: 'trends',
+      name: 'RecycleDecisionTrends',
+      component: '/recycle/decision/trends',
+      meta: {
+        title: 'menus.recycle.trends',
+        keepAlive: true,
+        menuId: 3520
+      }
+    }
+  ]
 }
 
 /** 车信盟域 */
