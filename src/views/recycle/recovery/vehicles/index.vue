@@ -41,6 +41,12 @@
 
     <VehicleDetailDialog v-model:visible="detailVisible" :vehicle-id="detailVehicleId" />
 
+    <VehicleArchiveEditDialog
+      v-model:visible="editVisible"
+      :vehicle-id="editVehicleId"
+      @success="handleEditSuccess"
+    />
+
     <FormalOrderDetailDialog v-model:visible="orderDetailVisible" :order-id="orderDetailOrderId" />
   </div>
 </template>
@@ -64,6 +70,7 @@
   import VehicleTabBar from './modules/vehicle-tab-bar.vue'
   import VehicleSearch from './modules/vehicle-search.vue'
   import VehicleDetailDialog from './modules/vehicle-detail-dialog.vue'
+  import VehicleArchiveEditDialog from './modules/vehicle-archive-edit-dialog.vue'
   import FormalOrderDetailDialog from '../orders/modules/formal-order-detail-dialog.vue'
 
   defineOptions({ name: 'RecycleVehicles' })
@@ -85,6 +92,9 @@
 
   const detailVisible = ref(false)
   const detailVehicleId = ref(0)
+
+  const editVisible = ref(false)
+  const editVehicleId = ref(0)
 
   const orderDetailVisible = ref(false)
   const orderDetailOrderId = ref<number | null>(null)
@@ -132,6 +142,11 @@
   function openDetail(row: ScrapVehicle) {
     detailVehicleId.value = row.id
     detailVisible.value = true
+  }
+
+  function openEdit(row: ScrapVehicle) {
+    editVehicleId.value = row.id
+    editVisible.value = true
   }
 
   function openOrderDetailFromVehicle(row: ScrapVehicle) {
@@ -223,11 +238,11 @@
       {
         prop: 'operation',
         label: '操作',
-        width: 200,
+        width: 260,
         align: 'center',
         fixed: 'right',
-        formatter: (row: ScrapVehicle) =>
-          h('div', { class: 'order-actions' }, [
+        formatter: (row: ScrapVehicle) => {
+          const actions = [
             h(
               'button',
               {
@@ -237,7 +252,23 @@
               },
               [h(ArtSvgIcon, { icon: 'ri:eye-line', class: 'order-action-icon' }), '查看']
             )
-          ])
+          ]
+          // 已提交商务部时不显示编辑（对齐 admin）
+          if (Number(row.is_submitted_commerce) !== 1) {
+            actions.push(
+              h(
+                'button',
+                {
+                  type: 'button',
+                  class: 'order-action-btn primary',
+                  onClick: () => openEdit(row)
+                },
+                [h(ArtSvgIcon, { icon: 'ri:edit-line', class: 'order-action-icon' }), '编辑档案']
+              )
+            )
+          }
+          return h('div', { class: 'order-actions' }, actions)
+        }
       }
     ]
   }
@@ -277,6 +308,11 @@
     } catch {
       // 统计失败不阻断列表
     }
+  }
+
+  function handleEditSuccess() {
+    getData()
+    loadCounts()
   }
 
   // function refreshAll() {

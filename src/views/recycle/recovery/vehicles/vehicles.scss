@@ -168,6 +168,18 @@
         border-color: #91caff;
       }
     }
+
+    &.primary {
+      color: #4169ff;
+      background: #fff;
+      border-color: #4169ff;
+
+      &:hover {
+        color: #3558dd;
+        background: #eef2ff;
+        border-color: #3558dd;
+      }
+    }
   }
 
   .order-action-icon {
