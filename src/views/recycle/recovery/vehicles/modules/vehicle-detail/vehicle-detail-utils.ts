@@ -1,5 +1,56 @@
 import type { AcceptSyncFiles } from '@/types/recycle/accept'
-import type { ScrapVehicleDetail, VehicleFlowStep } from '@/types/recycle/vehicle'
+import type { ScrapVehicleDetail, VehicleDimStatus, VehicleFlowStep } from '@/types/recycle/vehicle'
+
+/** 对齐 xinguang_api ScrapVehicleServices 状态常量 */
+const VEHICLE_STATUS = {
+  ACCEPT_PENDING: 3,
+  QC: 2,
+  DISMANTLE_PENDING: 4,
+  CANCEL_PENDING: 5,
+  COMPLETED: 6
+} as const
+
+const DIM_NOT_STARTED = { label: '未开始', color: '#d9d9d9', bg: '#f5f5f5' }
+
+/** 三维度状态计算，与列表接口 computeDimStatus 保持一致 */
+export function computeDimStatus(status: number): VehicleDimStatus {
+  const tow =
+    status === VEHICLE_STATUS.ACCEPT_PENDING
+      ? { label: '待派单', color: '#fa8c16', bg: '#fff7e6' }
+      : status >= VEHICLE_STATUS.QC
+        ? { label: '拖车完成', color: '#52c41a', bg: '#f6ffed' }
+        : DIM_NOT_STARTED
+
+  let factory = DIM_NOT_STARTED
+  if (status === VEHICLE_STATUS.ACCEPT_PENDING) {
+    factory = { label: '待入厂', color: '#fa8c16', bg: '#fff7e6' }
+  } else if (status === VEHICLE_STATUS.QC) {
+    factory = { label: '待查验', color: '#fa8c16', bg: '#fff7e6' }
+  } else if (status === VEHICLE_STATUS.DISMANTLE_PENDING) {
+    factory = { label: '已领料', color: '#fa8c16', bg: '#fff7e6' }
+  } else if (status >= VEHICLE_STATUS.CANCEL_PENDING) {
+    factory = { label: '已拆解', color: '#52c41a', bg: '#f6ffed' }
+  }
+
+  let cancel = DIM_NOT_STARTED
+  if (status === VEHICLE_STATUS.CANCEL_PENDING) {
+    cancel = { label: '待缴库', color: '#fa8c16', bg: '#fff7e6' }
+  } else if (status >= VEHICLE_STATUS.COMPLETED) {
+    cancel = { label: '已注销', color: '#52c41a', bg: '#f6ffed' }
+  }
+
+  return { tow, factory, cancel }
+}
+
+/** 解析详情三维度状态：优先接口/列表 dim_status，否则按 status 计算 */
+export function resolveDimStatus(
+  detail: Pick<ScrapVehicleDetail, 'status' | 'dim_status' | 'status_text'>,
+  fallback?: VehicleDimStatus
+): VehicleDimStatus {
+  if (detail.dim_status) return detail.dim_status
+  if (fallback) return fallback
+  return computeDimStatus(Number(detail.status) || 0)
+}
 
 export interface PhotoSlot {
   key: string

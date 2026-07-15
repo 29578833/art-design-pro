@@ -16,13 +16,12 @@
     </div>
   </div>
 
-  <div class="ae-material-tip" :class="{ warn: readonly }">
-    <ArtSvgIcon :icon="readonly ? 'ri:error-warning-line' : 'ri:information-line'" />
-    {{
-      readonly
-        ? '已提交至商务部，材料不可修改，但可点击查看大图。'
-        : '所有材料支持单/多图上传、预览、删除；核心材料均支持上传“缺失情况说明图片”作为替代凭证。'
-    }}
+  <div v-if="readonly" class="ae-material-tip warn">
+    <ArtSvgIcon icon="ri:error-warning-line" class="ae-material-tip-icon" />
+    <span>已提交至商务部，材料不可修改，但可点击查看大图。</span>
+  </div>
+  <div v-else class="ae-material-tip">
+    所有材料支持上传、预览、删除；核心材料均支持上传"缺失情况说明图片"作为替代凭证。
   </div>
 
   <div class="ae-section-title">所有人证件材料</div>
@@ -183,8 +182,8 @@
   </div>
 
   <div class="ae-material-tip warn">
-    <ArtSvgIcon icon="ri:error-warning-line" />
-    以下照片是从商务部系统同步的，数据不可在本系统修改。
+    <ArtSvgIcon icon="ri:error-warning-line" class="ae-material-tip-icon" />
+    <span>以下照片是从商务部系统同步的，数据不可在本系统修改。</span>
   </div>
 
   <div class="ae-readonly-box">

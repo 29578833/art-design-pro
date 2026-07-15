@@ -259,18 +259,17 @@
         <ElCol :span="8">
           <ElFormItem label="结算类型">
             <ElSelect v-model="form.settlement_type" clearable>
-              <ElOption label="报废" value="报废" />
-              <ElOption label="卖废铁" value="卖废铁" />
-              <ElOption label="其他" value="其他" />
+              <ElOption label="个人报废车" value="personal" />
+              <ElOption label="非个人报废车" value="non_personal" />
             </ElSelect>
           </ElFormItem>
         </ElCol>
         <ElCol :span="8">
           <ElFormItem label="结算方式">
             <ElSelect v-model="form.settlement_method" clearable>
-              <ElOption label="重量结算" value="重量结算" />
-              <ElOption label="整备质量结算" value="整备质量结算" />
-              <ElOption label="整车结算" value="整车结算" />
+              <ElOption label="重量结算" value="weight" />
+              <ElOption label="整备质量结算" value="curb_weight" />
+              <ElOption label="整车结算" value="unit" />
             </ElSelect>
           </ElFormItem>
         </ElCol>

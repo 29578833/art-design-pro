@@ -41,7 +41,11 @@
       />
     </ElCard>
 
-    <VehicleDetailDialog v-model:visible="detailVisible" :vehicle-id="detailVehicleId" />
+    <VehicleDetailDialog
+      v-model:visible="detailVisible"
+      :vehicle-id="detailVehicleId"
+      :initial-dim-status="detailDimStatus"
+    />
 
     <VehicleArchiveEditDialog
       v-model:visible="editVisible"
@@ -65,6 +69,7 @@
   import { ElMessage } from 'element-plus'
   import type {
     ScrapVehicle,
+    VehicleDimStatus,
     VehicleSearchParams,
     VehicleStatusCounts,
     VehicleTab,
@@ -95,6 +100,7 @@
 
   const detailVisible = ref(false)
   const detailVehicleId = ref(0)
+  const detailDimStatus = ref<VehicleDimStatus | undefined>()
 
   const editVisible = ref(false)
   const editVehicleId = ref(0)
@@ -145,6 +151,7 @@
 
   function openDetail(row: ScrapVehicle) {
     detailVehicleId.value = row.id
+    detailDimStatus.value = row.dim_status
     detailVisible.value = true
   }
 

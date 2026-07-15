@@ -77,19 +77,25 @@
 <script setup lang="ts">
   import { fetchAcceptFilesCache, fetchAcceptSyncFiles } from '@/api/recycle/accept'
   import { fetchVehicleDetail } from '@/api/recycle/vehicle'
-  import type { ScrapVehicleDetail, VehicleDimStatusItem } from '@/types/recycle/vehicle'
+  import type {
+    ScrapVehicleDetail,
+    VehicleDimStatus,
+    VehicleDimStatusItem
+  } from '@/types/recycle/vehicle'
   import VehicleDetailCancelTab from './vehicle-detail-cancel-tab.vue'
   import VehicleDetailEntryTab from './vehicle-detail-entry-tab.vue'
   import VehicleDetailInfoTab from './vehicle-detail-info-tab.vue'
   import VehicleDetailLogTab from './vehicle-detail-log-tab.vue'
   import VehicleDetailTowTab from './vehicle-detail-tow-tab.vue'
-  import { brandModelText, mergeAcceptSyncPatch } from './vehicle-detail-utils'
+  import { brandModelText, mergeAcceptSyncPatch, resolveDimStatus } from './vehicle-detail-utils'
 
   defineOptions({ name: 'VehicleDetailDialog' })
 
   interface Props {
     visible: boolean
     vehicleId?: number
+    /** 列表行带入的三维状态，详情接口未返回 dim_status 时兜底 */
+    initialDimStatus?: VehicleDimStatus
   }
 
   interface Emits {
@@ -97,7 +103,8 @@
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    vehicleId: 0
+    vehicleId: 0,
+    initialDimStatus: undefined
   })
   const emit = defineEmits<Emits>()
 
@@ -125,43 +132,22 @@
   const headerBrandModel = computed(() => brandModelText(detail.value))
 
   const dimOverview = computed(() => {
-    const dim = detail.value.dim_status
-    const fallback = (label: string, icon: string): VehicleDimStatusItem & { icon: string } => ({
+    const dim = resolveDimStatus(detail.value, props.initialDimStatus)
+    const toItem = (
+      label: string,
+      icon: string,
+      data: VehicleDimStatusItem
+    ): VehicleDimStatusItem & { icon: string; label: string; text: string } => ({
       label,
       icon,
-      text: '—',
-      color: '#8c8c8c',
-      bg: '#f5f5f5'
+      text: data.label || '—',
+      color: data.color || '#8c8c8c',
+      bg: data.bg || '#f5f5f5'
     })
-    if (!dim) {
-      return [
-        { ...fallback('拖车', 'ri:truck-line'), text: detail.value.status_text || '—' },
-        { ...fallback('入厂', 'ri:box-3-line'), text: detail.value.status_text || '—' },
-        { ...fallback('注销', 'ri:file-text-line'), text: detail.value.status_text || '—' }
-      ]
-    }
     return [
-      {
-        label: '拖车',
-        icon: 'ri:truck-line',
-        text: dim.tow?.label || '—',
-        color: dim.tow?.color || '#8c8c8c',
-        bg: dim.tow?.bg || '#f5f5f5'
-      },
-      {
-        label: '入厂',
-        icon: 'ri:box-3-line',
-        text: dim.factory?.label || '—',
-        color: dim.factory?.color || '#8c8c8c',
-        bg: dim.factory?.bg || '#f5f5f5'
-      },
-      {
-        label: '注销',
-        icon: 'ri:file-text-line',
-        text: dim.cancel?.label || '—',
-        color: dim.cancel?.color || '#8c8c8c',
-        bg: dim.cancel?.bg || '#f5f5f5'
-      }
+      toItem('拖车', 'ri:truck-line', dim.tow),
+      toItem('入厂', 'ri:box-3-line', dim.factory),
+      toItem('注销', 'ri:file-text-line', dim.cancel)
     ]
   })
 

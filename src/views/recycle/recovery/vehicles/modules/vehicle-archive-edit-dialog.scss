@@ -592,6 +592,34 @@ $ae-sub: #8c8c8c;
   color: $ae-sub;
 }
 
+.ae-material-tip {
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #1890ff;
+  background: #e6f7ff;
+  border: 1px solid #91d5ff;
+  border-radius: 8px;
+
+  &.warn {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    color: #ad6800;
+    background: #fffbe6;
+    border-color: #ffe58f;
+  }
+}
+
+.ae-material-tip-icon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  font-size: 14px;
+}
+
 .ae-readonly-box {
   margin-bottom: 16px;
   overflow: hidden;
