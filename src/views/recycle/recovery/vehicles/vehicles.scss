@@ -57,6 +57,14 @@
     line-height: 1.2;
   }
 
+  .vehicle-search-panel {
+    flex-shrink: 0;
+    overflow: hidden;
+    background: var(--default-box-color);
+    border: 1px solid var(--art-card-border);
+    border-radius: calc(var(--custom-radius) + 2px);
+  }
+
   .vehicle-table-card {
     flex: 1;
     margin-top: 0 !important;

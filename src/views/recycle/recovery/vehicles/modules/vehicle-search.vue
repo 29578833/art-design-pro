@@ -1,5 +1,5 @@
 <template>
-  <div class="vehicle-toolbar">
+  <div class="vehicle-toolbar" :class="{ embedded: props.embedded }">
     <ElInput
       v-model="keyword"
       class="vehicle-toolbar-search"
@@ -22,6 +22,8 @@
 
   interface Props {
     modelValue: VehicleSearchParams
+    /** 嵌入 Tab 面板内时不重复外框 */
+    embedded?: boolean
   }
 
   interface Emits {
@@ -30,7 +32,9 @@
     (e: 'reset'): void
   }
 
-  const props = defineProps<Props>()
+  const props = withDefaults(defineProps<Props>(), {
+    embedded: false
+  })
   const emit = defineEmits<Emits>()
 
   const keyword = computed({
@@ -56,16 +60,25 @@
     flex-wrap: wrap;
     gap: 12px;
     align-items: center;
-    padding: 12px 16px;
+    padding: 16px;
     background: var(--default-box-color);
     border: 1px solid var(--art-card-border);
     border-radius: calc(var(--custom-radius) + 2px);
+
+    &.embedded {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+    }
   }
 
   .vehicle-toolbar-search {
     flex: 1;
-    min-width: 240px;
-    max-width: 420px;
+    min-width: 260px;
+
+    :deep(.el-input__wrapper) {
+      box-shadow: 0 0 0 1px var(--art-card-border) inset;
+    }
   }
 
   .vehicle-toolbar-search-icon {

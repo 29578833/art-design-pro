@@ -17,14 +17,20 @@
       </div>
     </div>
 
-    <OrderTabBar
-      v-if="showTabBar"
-      v-model="activeTab"
-      :counts="tabCounts"
-      @change="handleTabChange"
-    />
+    <div v-if="showTabBar" class="order-search-panel">
+      <OrderTabBar v-model="activeTab" :counts="tabCounts" @change="handleTabChange" />
+
+      <OrderSearch
+        v-model="searchForm"
+        :active-tab="activeTab"
+        embedded
+        @search="handleSearch"
+        @reset="handleReset"
+      />
+    </div>
 
     <OrderSearch
+      v-else
       v-model="searchForm"
       :active-tab="activeTab"
       @search="handleSearch"

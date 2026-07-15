@@ -1,5 +1,5 @@
 <template>
-  <div class="order-toolbar">
+  <div class="order-toolbar" :class="{ embedded: props.embedded }">
     <ElInput
       v-model="keyword"
       class="order-toolbar-search"
@@ -176,15 +176,19 @@
   interface Props {
     modelValue: OrderSearchParams
     activeTab: OrderTab
+    /** 嵌入 Tab 面板内时不重复外框 */
+    embedded?: boolean
   }
 
+  const props = withDefaults(defineProps<Props>(), {
+    embedded: false
+  })
   interface Emits {
     (e: 'update:modelValue', value: OrderSearchParams): void
     (e: 'search'): void
     (e: 'reset'): void
   }
 
-  const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
 
   const keyword = ref(props.modelValue.keyword || '')
@@ -258,6 +262,12 @@
     background: var(--default-box-color);
     border: 1px solid var(--art-card-border);
     border-radius: calc(var(--custom-radius) + 2px);
+
+    &.embedded {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+    }
   }
 
   .order-toolbar-search {

@@ -17,9 +17,11 @@
       </div>
     </div>
 
-    <VehicleTabBar v-model="activeTab" :counts="tabCounts" @change="handleTabChange" />
+    <div class="vehicle-search-panel">
+      <VehicleTabBar v-model="activeTab" :counts="tabCounts" @change="handleTabChange" />
 
-    <VehicleSearch v-model="searchForm" @search="handleSearch" @reset="handleReset" />
+      <VehicleSearch v-model="searchForm" embedded @search="handleSearch" @reset="handleReset" />
+    </div>
 
     <ElCard
       class="vehicle-table-card art-table-card"
