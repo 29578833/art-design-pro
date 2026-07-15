@@ -4,6 +4,68 @@ export type AcceptHplx = 1 | 2 | 3
 /** 所有权：1=单位/企业 2=个人（以 Service 注释与 submit 逻辑为准） */
 export type AcceptSyq = 1 | 2
 
+/** 商务部受理列表筛选 */
+export interface AcceptListParams {
+  current?: number
+  size?: number
+  page?: number
+  limit?: number
+  /** 是否车管：1=车管，0=非车管 */
+  is_vehicle_mgmt?: '' | 0 | 1
+  /** 车架号 */
+  clsbdh?: string
+  /** 受理人 */
+  yhsjhm?: string
+  /** 来源平台 */
+  platform?: string
+  /** 所有人 */
+  syr?: string
+  /** 所有人实名认证状态 */
+  syrsmrz?: string
+  /** 代理人 */
+  jbr?: string
+  /** 代理人实名认证状态 */
+  jbrsmrz?: string
+  /** 受理状态 */
+  zt?: string
+  startsj?: string
+  endsj?: string
+}
+
+/** 商务部受理列表项 */
+export interface AcceptListItem {
+  /** 车信盟采集 ID，未提交前可能为空 */
+  id: string
+  /** 本地车辆 ID */
+  vehicle_id: number
+  owner_sync_id?: number
+  order_no?: string
+  order_status?: number | string
+  clsbdh?: string
+  hphm?: string
+  vehicle_type?: string
+  cllx?: string
+  cllx_name?: string
+  is_vehicle_mgmt?: boolean
+  syr?: string
+  dh?: string
+  syr_verified?: boolean
+  jbr?: string
+  jbrdh?: string
+  jbr_verified?: boolean
+  yhsjhm_dictText?: string
+  accept_time?: string
+  bidui_text?: string
+  bidui_type?: string
+  zt?: string
+  zt_text?: string
+  is_submitted_commerce?: boolean | number
+  action?: unknown[]
+}
+
+/** 商务部受理分页数据 */
+export type AcceptList = Api.Common.PaginatedResponse<AcceptListItem>
+
 /** 初始化表单入参 */
 export interface AcceptInitFormParams {
   /** 号牌类型 */

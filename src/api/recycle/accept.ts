@@ -4,6 +4,9 @@ import type {
   AcceptIdCardOcrData,
   AcceptInitFormParams,
   AcceptInitFormResult,
+  AcceptList,
+  AcceptListItem,
+  AcceptListParams,
   AcceptLicenseOcrData,
   AcceptOriginFields,
   AcceptRegCertOcrData,
@@ -15,6 +18,40 @@ import type {
   AcceptUploadResult
 } from '@/types/recycle/accept'
 import type { DrivingLicenseOcrData } from '@/types/recycle/ocr'
+
+function resolvePagination(params: AcceptListParams) {
+  return {
+    page: Number(params.page ?? params.current ?? 1),
+    limit: Number(params.limit ?? params.size ?? 20)
+  }
+}
+
+/** 回收业务下的商务部对接受理列表（本地数据源） */
+export async function fetchAcceptLocalList(params: AcceptListParams): Promise<AcceptList> {
+  const { page, limit } = resolvePagination(params)
+  const res = await request.get<{ list: AcceptListItem[]; total: number } | AcceptListItem[]>({
+    url: '/scrap/accept_local/list',
+    params: {
+      page,
+      limit,
+      is_vehicle_mgmt: params.is_vehicle_mgmt ?? '',
+      clsbdh: params.clsbdh?.trim() || '',
+      yhsjhm: params.yhsjhm?.trim() || '',
+      platform: params.platform || '',
+      syr: params.syr?.trim() || '',
+      syrsmrz: params.syrsmrz ?? '',
+      jbr: params.jbr?.trim() || '',
+      jbrsmrz: params.jbrsmrz ?? '',
+      zt: params.zt || '',
+      startsj: params.startsj || '',
+      endsj: params.endsj || ''
+    }
+  })
+
+  const list = Array.isArray(res) ? res : res.list || []
+  const total = Array.isArray(res) ? list.length : Number(res.total || 0)
+  return { records: list, total, current: page, size: limit }
+}
 
 /** 初始化受理表单（创建/绑定 owner_sync） */
 export function fetchAcceptInitForm(data: AcceptInitFormParams) {

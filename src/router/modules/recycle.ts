@@ -28,7 +28,7 @@ export const recycleRecoveryRoutes: AppRouteRecord = {
       meta: {
         title: 'menus.recycle.orders',
         keepAlive: true,
-        menuId: 3546
+        menuId: 3500
       }
     },
     {
@@ -69,6 +69,16 @@ export const recycleRecoveryRoutes: AppRouteRecord = {
         title: 'menus.recycle.vehicles',
         keepAlive: true,
         menuId: 3504
+      }
+    },
+    {
+      path: 'commerce',
+      name: 'RecycleCommerce',
+      component: '/recycle/recovery/commerce',
+      meta: {
+        title: 'menus.recycle.commerce',
+        keepAlive: true,
+        menuId: 3546
       }
     }
   ]

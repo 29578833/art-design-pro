@@ -67,21 +67,35 @@
 
   defineOptions({ name: 'VehicleArchiveUploadSlot' })
 
-  const props = defineProps<{
+  interface Props {
+    /** 上传项名称。 */
     label: string
+    /** 是否为必传项。 */
     required?: boolean
+    /** 已上传图片地址。 */
     url?: string
+    /** 是否启用 OCR 操作。 */
     enableOcr?: boolean
+    /** OCR 是否正在识别。 */
     ocrLoading?: boolean
+    /** OCR 是否识别完成。 */
     ocrDone?: boolean
+    /** OCR 可识别字段提示。 */
     ocrHint?: string
+    /** OCR 完成后的按钮文案。 */
     ocrFilledText?: string
+    /** 是否只读。 */
     readonly?: boolean
-  }>()
+  }
+
+  const props = defineProps<Props>()
 
   const emit = defineEmits<{
+    /** 选中本地文件。 */
     upload: [file: File]
+    /** 请求执行 OCR。 */
     ocr: []
+    /** 请求删除已上传文件。 */
     remove: []
   }>()
 
@@ -90,9 +104,9 @@
 
   const filledLabel = computed(() => {
     if (props.ocrFilledText) return props.ocrFilledText
-    if (!props.ocrHint) return '已填充'
-    const count = props.ocrHint.replace(/…$/, '').split('·').filter(Boolean).length
-    return count ? `已填充（${count}项）` : '已填充'
+    if (!props.ocrHint) return '已填入'
+    const count = props.ocrHint.replace(/…/, '').split('·').filter(Boolean).length
+    return count ? `已填入（${count}项）` : '已填入'
   })
 
   function triggerPick() {
@@ -100,8 +114,8 @@
     inputRef.value?.click()
   }
 
-  function onFileChange(e: Event) {
-    const input = e.target as HTMLInputElement
+  function onFileChange(event: Event) {
+    const input = event.target as HTMLInputElement
     const file = input.files?.[0]
     if (file) emit('upload', file)
     input.value = ''

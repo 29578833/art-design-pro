@@ -20,994 +20,115 @@
       </div>
     </template>
 
-    <!-- 场景选择 -->
-    <div v-if="phase === 'scene'" class="ae-scene">
-      <div class="ae-scene-group">
-        <div class="ae-scene-title">车辆属地 *</div>
-        <div class="ae-scene-grid cols-3">
-          <button
-            v-for="item in hplxOptions"
-            :key="item.value"
-            type="button"
-            class="ae-scene-card"
-            :class="{ active: hplx === item.value }"
-            @click="hplx = item.value"
-          >
-            <div class="name">{{ item.label }}</div>
-            <div class="desc">{{ item.desc }}</div>
-          </button>
-        </div>
-      </div>
-      <div class="ae-scene-group">
-        <div class="ae-scene-title">所有权类型 *</div>
-        <div class="ae-scene-grid cols-2">
-          <button
-            v-for="item in syqOptions"
-            :key="item.value"
-            type="button"
-            class="ae-scene-card"
-            :class="{ active: syq === item.value }"
-            @click="syq = item.value"
-          >
-            <div class="name">{{ item.label }}</div>
-            <div class="desc">{{ item.desc }}</div>
-          </button>
-        </div>
-      </div>
-      <div class="ae-scene-summary">
-        当前场景：
-        <b>{{ hplxLabel }} · {{ syqLabel }}</b>
-      </div>
-    </div>
+    <SceneSelector
+      v-if="phase === 'scene'"
+      v-model:hplx="hplx"
+      v-model:syq="syq"
+      :hplx-options="hplxOptions"
+      :syq-options="syqOptions"
+      :hplx-label="hplxLabel"
+      :syq-label="syqLabel"
+    />
 
-    <!-- 多步编辑 -->
     <div v-else class="ae-form-wrap">
-      <div class="ae-step-bar">
-        <template v-for="(s, i) in visibleSteps" :key="s.id">
-          <button type="button" class="ae-step-item" @click="goToStep(s.id)">
-            <span class="ae-step-num" :class="{ cur: step === s.id, done: stepComplete[s.id - 1] }">
-              {{ stepComplete[s.id - 1] ? '✓' : i + 1 }}
-            </span>
-            <span
-              class="ae-step-label"
-              :class="{ cur: step === s.id, done: stepComplete[s.id - 1] }"
-            >
-              {{ s.label }}
-            </span>
-          </button>
-          <div
-            v-if="i < visibleSteps.length - 1"
-            class="ae-step-line"
-            :class="{ done: stepComplete[s.id - 1] }"
-          />
-        </template>
-      </div>
-
-      <div class="ae-meta-bar">
-        <div>
-          <span class="ae-meta-label">车辆属地：</span>
-          <span class="ae-meta-value">{{ hplxLabel }}</span>
-        </div>
-        <div>
-          <span class="ae-meta-label">所有权：</span>
-          <span class="ae-meta-value">{{ syqLabel }}</span>
-        </div>
-        <div>
-          <span class="ae-meta-label">受理时间：</span>
-          <span class="ae-meta-value">{{ acceptTime }}</span>
-        </div>
-        <div>
-          <span class="ae-meta-label">受理人：</span>
-          <span class="ae-meta-value">当前用户</span>
-        </div>
-      </div>
-
-      <div class="ae-link-bar">
-        <div>
-          <span class="ae-link-label">关联回收订单号</span>
-          <span v-if="linkInfo.order_no" class="ae-link-chip">{{ linkInfo.order_no }}</span>
-          <span v-else class="ae-link-chip empty">未关联</span>
-        </div>
-        <div>
-          <span class="ae-link-label">车辆档案单号</span>
-          <span v-if="linkInfo.archive_no" class="ae-link-chip gray">{{
-            linkInfo.archive_no
-          }}</span>
-          <span v-else class="ae-link-chip empty">待生成</span>
-        </div>
-        <div>
-          <span class="ae-link-label">拖车订单号</span>
-          <span v-if="linkInfo.tow_order_no" class="ae-link-chip gray">{{
-            linkInfo.tow_order_no
-          }}</span>
-          <span v-else class="ae-link-chip empty">无拖车单</span>
-        </div>
-        <div>
-          <span class="ae-link-label">线索单号</span>
-          <span v-if="linkInfo.lead_no" class="ae-link-chip gray">{{ linkInfo.lead_no }}</span>
-          <span v-else class="ae-link-chip empty">无线索单</span>
-        </div>
-      </div>
+      <ProgressHeader
+        :steps="visibleSteps"
+        :current-step="step"
+        :step-complete="stepComplete"
+        :hplx-label="hplxLabel"
+        :syq-label="syqLabel"
+        :accept-time="acceptTime"
+        :link-info="linkInfo"
+        @change-step="goToStep"
+      />
 
       <div v-loading="loading" class="ae-body">
-        <!-- Step1 所有人 -->
-        <template v-if="step === 1">
-          <div class="ae-ocr-box">
-            <div class="ae-ocr-head">
-              <ArtSvgIcon icon="ri:qr-scan-2-line" />
-              证件照片上传 & OCR智能识别
-              <span class="ae-ocr-tip">— 点击各照片格的 OCR识别 按钮，自动填充下方字段</span>
-            </div>
-            <div class="ae-ocr-grid">
-              <template v-if="isCompany">
-                <UploadSlot
-                  label="营业执照原件"
-                  required
-                  enable-ocr
-                  ocr-hint="企业全称·统一社会信用代码…"
-                  :url="ownerImages.syrzp"
-                  :ocr-loading="!!ocrLoading.license"
-                  :ocr-done="!!ocrDone.license"
-                  :readonly="isSubmitted"
-                  @upload="(f) => handleOwnerUpload('syrzp', f)"
-                  @remove="() => handleOwnerRemove('syrzp')"
-                  @ocr="runLicenseOcr"
-                />
-                <UploadSlot
-                  label="缺失情况说明"
-                  :url="ownerImages.qksmzp"
-                  :readonly="isSubmitted"
-                  @upload="(f) => handleOwnerUpload('qksmzp', f)"
-                  @remove="() => handleOwnerRemove('qksmzp')"
-                />
-              </template>
-              <template v-else>
-                <UploadSlot
-                  label="身份证正面"
-                  required
-                  enable-ocr
-                  ocr-hint="所有人姓名·身份证号码…"
-                  :url="ownerImages.sfz1zp || ownerImages.syrzp"
-                  :ocr-loading="!!ocrLoading.id_front"
-                  :ocr-done="!!ocrDone.id_front"
-                  :readonly="isSubmitted"
-                  @upload="(f) => handleOwnerUpload('sfz1zp', f)"
-                  @remove="() => handleOwnerRemove('sfz1zp')"
-                  @ocr="() => runIdCardOcr('front')"
-                />
-                <UploadSlot
-                  label="身份证反面"
-                  required
-                  enable-ocr
-                  ocr-hint="身份证号码（核验）"
-                  ocr-filled-text="已核验"
-                  :url="ownerImages.sfz2zp"
-                  :ocr-loading="!!ocrLoading.id_back"
-                  :ocr-done="!!ocrDone.id_back"
-                  :readonly="isSubmitted"
-                  @upload="(f) => handleOwnerUpload('sfz2zp', f)"
-                  @remove="() => handleOwnerRemove('sfz2zp')"
-                  @ocr="() => runIdCardOcr('back')"
-                />
-                <UploadSlot
-                  label="缺失情况说明"
-                  :url="ownerImages.qksmzp"
-                  :readonly="isSubmitted"
-                  @upload="(f) => handleOwnerUpload('qksmzp', f)"
-                  @remove="() => handleOwnerRemove('qksmzp')"
-                />
-              </template>
-            </div>
-            <div v-if="ownerOcrFilled" class="ae-ocr-ok">
-              <ArtSvgIcon icon="ri:checkbox-circle-line" />
-              OCR已识别，以下字段已自动填充，请核对后继续
-            </div>
-          </div>
+        <OwnerStep
+          v-if="step === 1"
+          :form="ownerForm"
+          :is-company="isCompany"
+          :images="ownerImages"
+          :id-type-options="isCompany ? companyIdTypeOptions : naturalIdTypeOptions"
+          :ocr-loading="ocrLoading"
+          :ocr-done="ocrDone"
+          :ocr-filled="ownerOcrFilled"
+          :readonly="isSubmitted"
+          @upload="handleOwnerUpload"
+          @remove="handleOwnerRemove"
+          @ocr-id-card="runIdCardOcr"
+          @ocr-license="runLicenseOcr"
+        />
 
-          <div class="ae-section">
-            <div class="ae-section-title">所有人信息</div>
-            <ElForm label-position="top" :disabled="isSubmitted">
-              <ElRow :gutter="16">
-                <ElCol :span="12">
-                  <ElFormItem label="证件类型" required>
-                    <ElSelect
-                      v-if="isCompany"
-                      v-model="ownerForm.sfzmmc"
-                      placeholder="请选择"
-                      style="width: 100%"
-                    >
-                      <ElOption
-                        v-for="opt in companyIdTypeOptions"
-                        :key="opt.value"
-                        :label="opt.label"
-                        :value="opt.value"
-                      />
-                    </ElSelect>
-                    <ElSelect
-                      v-else
-                      v-model="ownerForm.sfzmmc"
-                      placeholder="请选择"
-                      style="width: 100%"
-                    >
-                      <ElOption
-                        v-for="opt in naturalIdTypeOptions"
-                        :key="opt.value"
-                        :label="opt.label"
-                        :value="opt.value"
-                      />
-                    </ElSelect>
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem :label="isCompany ? '企业完整名称' : '所有人姓名'" required>
-                    <ElInput
-                      v-model="ownerForm.syr"
-                      :placeholder="isCompany ? '企业工商注册全称' : '真实姓名'"
-                    />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem
-                    :label="isCompany ? '统一社会信用代码（18位）' : '身份证号码（18位）'"
-                    required
-                  >
-                    <ElInput v-model="ownerForm.sfzmhm" maxlength="18" placeholder="18位证件号码" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem :label="isCompany ? '联系电话' : '联系电话（11位）'" required>
-                    <ElInput v-model="ownerForm.dh" placeholder="联系电话" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="24">
-                  <ElFormItem :label="isCompany ? '企业注册地址' : '联系地址'" required>
-                    <ElInput v-model="ownerForm.dz" placeholder="详细地址" />
-                  </ElFormItem>
-                </ElCol>
-              </ElRow>
-            </ElForm>
-          </div>
-        </template>
+        <VehicleStep
+          v-else-if="step === 2"
+          v-model:cllx-path="cllxPath"
+          :form="vehicleForm"
+          :images="vehicleImages"
+          :hpzl-options="hpzlDict"
+          :syxz-options="syxzDict"
+          :rlzl-options="rlzlDict"
+          :cllx-options="cllxOptions"
+          :ocr-loading="ocrLoading"
+          :ocr-done="ocrDone"
+          :ocr-filled="vehicleOcrFilled"
+          :readonly="isSubmitted"
+          @upload="handleVehicleUpload"
+          @remove="handleVehicleRemove"
+          @ocr-driving="runDrivingOcr"
+          @ocr-cert="runRegCertOcr"
+          @change-cllx="onCllxChange"
+        />
 
-        <!-- Step2 车辆信息 -->
-        <template v-else-if="step === 2">
-          <div class="ae-ocr-box">
-            <div class="ae-ocr-head">
-              <ArtSvgIcon icon="ri:qr-scan-2-line" />
-              行驶证 / 产证上传 & OCR智能识别
-              <span class="ae-ocr-tip">— 点击各照片格的 OCR识别 按钮，自动填充下方字段</span>
-            </div>
-            <div class="ae-ocr-grid cols-4">
-              <UploadSlot
-                label="行驶证正页"
-                required
-                enable-ocr
-                ocr-hint="车牌号·车辆类型…"
-                :url="vehicleImages.xszzp"
-                :ocr-loading="!!ocrLoading.driving_front"
-                :ocr-done="!!ocrDone.driving_front"
-                :readonly="isSubmitted"
-                @upload="(f) => handleVehicleUpload('xszzp', f)"
-                @remove="() => handleVehicleRemove('xszzp')"
-                @ocr="() => runDrivingOcr('front')"
-              />
-              <UploadSlot
-                label="行驶证副页"
-                required
-                enable-ocr
-                ocr-hint="车牌号·行驶证编号…"
-                :url="vehicleImages.xszzpfy"
-                :ocr-loading="!!ocrLoading.driving_back"
-                :ocr-done="!!ocrDone.driving_back"
-                :readonly="isSubmitted"
-                @upload="(f) => handleVehicleUpload('xszzpfy', f)"
-                @remove="() => handleVehicleRemove('xszzpfy')"
-                @ocr="() => runDrivingOcr('back')"
-              />
-              <UploadSlot
-                label="正副背面"
-                required
-                enable-ocr
-                ocr-hint="车牌号·品牌型号"
-                :url="vehicleImages.xszbmzp"
-                :ocr-loading="!!ocrLoading.driving_both"
-                :ocr-done="!!ocrDone.driving_both"
-                :readonly="isSubmitted"
-                @upload="(f) => handleVehicleUpload('xszbmzp', f)"
-                @remove="() => handleVehicleRemove('xszbmzp')"
-                @ocr="() => runDrivingOcr('both')"
-              />
-              <UploadSlot
-                label="产证一二页"
-                required
-                enable-ocr
-                ocr-hint="产证编号·行驶证编号…"
-                :url="vehicleImages.czzp"
-                :ocr-loading="!!ocrLoading.cert"
-                :ocr-done="!!ocrDone.cert"
-                :readonly="isSubmitted"
-                @upload="(f) => handleVehicleUpload('czzp', f)"
-                @remove="() => handleVehicleRemove('czzp')"
-                @ocr="runRegCertOcr"
-              />
-            </div>
-            <div v-if="vehicleOcrFilled" class="ae-ocr-ok">
-              <ArtSvgIcon icon="ri:checkbox-circle-line" />
-              OCR已识别，以下字段已自动填充，请核对后继续
-            </div>
-          </div>
+        <AgentStep
+          v-else-if="step === 3"
+          v-model:has-agent="hasAgent"
+          :form="agentForm"
+          :images="agentImages"
+          :ocr-loading="ocrLoading"
+          :ocr-done="ocrDone"
+          :ocr-filled="agentOcrFilled"
+          :readonly="isSubmitted"
+          @toggle="onAgentToggle"
+          @upload="handleAgentUpload"
+          @remove="handleAgentRemove"
+          @ocr-id-card="runAgentIdOcr"
+        />
 
-          <div class="ae-section">
-            <div class="ae-section-title">车辆信息</div>
-            <ElForm label-position="top" :disabled="isSubmitted">
-              <ElRow :gutter="16">
-                <ElCol :span="24">
-                  <ElFormItem label="车架号" required>
-                    <ElInput v-model="vehicleForm.clsbdh" placeholder="请填写" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="号牌号码" required>
-                    <ElInput v-model="vehicleForm.hphm" placeholder="如：沪BE8210" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="号牌种类" required>
-                    <ElSelect v-model="vehicleForm.hpzl" placeholder="请选择" filterable clearable>
-                      <ElOption
-                        v-for="opt in hpzlDict"
-                        :key="opt.value"
-                        :label="opt.label"
-                        :value="opt.value"
-                      />
-                    </ElSelect>
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="车辆类型">
-                    <ElCascader
-                      v-model="cllxPath"
-                      :options="cllxOptions"
-                      :props="{
-                        value: 'value',
-                        label: 'label',
-                        children: 'children',
-                        emitPath: false
-                      }"
-                      clearable
-                      filterable
-                      style="width: 100%"
-                      @change="onCllxChange"
-                    />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="使用性质">
-                    <ElSelect v-model="vehicleForm.syxz" placeholder="请选择" filterable clearable>
-                      <ElOption
-                        v-for="opt in syxzDict"
-                        :key="opt.value"
-                        :label="opt.label"
-                        :value="opt.value"
-                      />
-                    </ElSelect>
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="行驶证编号" required>
-                    <ElInput v-model="vehicleForm.xszbh" placeholder="请输入行驶证编号" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="产证编号" required>
-                    <ElInput v-model="vehicleForm.czbh" placeholder="请输入产证编号" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="24">
-                  <ElFormItem label="品牌型号" required>
-                    <ElInput v-model="vehicleForm.ppxh" placeholder="如：中沃牌SWB6106MG" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="车辆品牌">
-                    <ElInput v-model="vehicleForm.clpp1" placeholder="品牌" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="车辆型号">
-                    <ElInput v-model="vehicleForm.clxh" placeholder="型号" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="注册登记日期">
-                    <ElDatePicker
-                      v-model="vehicleForm.ccdjrq"
-                      type="date"
-                      value-format="YYYY-MM-DD"
-                      style="width: 100%"
-                    />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="燃油种类">
-                    <ElSelect v-model="vehicleForm.rlzl" placeholder="请选择" filterable clearable>
-                      <ElOption
-                        v-for="opt in rlzlDict"
-                        :key="opt.value"
-                        :label="opt.label"
-                        :value="opt.value"
-                      />
-                    </ElSelect>
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="发动机号码">
-                    <ElInput v-model="vehicleForm.fdjh" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="发动机型号">
-                    <ElInput v-model="vehicleForm.fdjxh" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="8">
-                  <ElFormItem label="外廓长(mm)">
-                    <ElInput v-model="vehicleForm.cwkc" type="number" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="8">
-                  <ElFormItem label="外廓宽(mm)">
-                    <ElInput v-model="vehicleForm.cwkk" type="number" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="8">
-                  <ElFormItem label="外廓高(mm)">
-                    <ElInput v-model="vehicleForm.cwkg" type="number" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="排量(ml)">
-                    <ElInput v-model="vehicleForm.pl" type="number" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="功率(kw)">
-                    <ElInput v-model="vehicleForm.gl" type="number" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="整备质量(kg)">
-                    <ElInput v-model="vehicleForm.zbzl" type="number" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="总质量(kg)">
-                    <ElInput v-model="vehicleForm.zzl" type="number" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="核定载人数">
-                    <ElInput v-model="vehicleForm.hdzk" type="number" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="车身颜色">
-                    <ElInput v-model="vehicleForm.csys" />
-                  </ElFormItem>
-                </ElCol>
-              </ElRow>
-            </ElForm>
-          </div>
+        <AuthenticationStep
+          v-else-if="step === 4"
+          :owner-form="ownerForm"
+          :agent-form="agentForm"
+          :is-personal="isPersonal"
+          :owner-authed="ownerAuthed"
+          :agent-authed="agentAuthed"
+          :readonly="isSubmitted"
+          @authenticate="openAuth"
+        />
 
-          <div class="ae-section">
-            <div class="ae-section-title">送货方式</div>
-            <div class="ae-delivery-grid">
-              <button
-                type="button"
-                class="ae-delivery-card"
-                :class="{ active: vehicleForm.delivery_method === 'tow' }"
-                @click="vehicleForm.delivery_method = 'tow'"
-              >
-                <div class="name">需要拖车运输</div>
-                <div class="desc">预约上门取车</div>
-              </button>
-              <button
-                type="button"
-                class="ae-delivery-card"
-                :class="{ active: vehicleForm.delivery_method === 'self' }"
-                @click="vehicleForm.delivery_method = 'self'"
-              >
-                <div class="name">自行送车</div>
-                <div class="desc">车主自行驾驶或运输</div>
-              </button>
-            </div>
-            <ElForm label-position="top">
-              <ElRow :gutter="16">
-                <ElCol :span="24">
-                  <ElFormItem
-                    :label="vehicleForm.delivery_method === 'tow' ? '上门取车地址' : '自送地址'"
-                  >
-                    <ElInput
-                      v-if="vehicleForm.delivery_method === 'tow'"
-                      v-model="vehicleForm.tow_pickup_address"
-                    />
-                    <ElInput v-else v-model="vehicleForm.self_delivery_address" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="联系人">
-                    <ElInput
-                      v-if="vehicleForm.delivery_method === 'tow'"
-                      v-model="vehicleForm.tow_pickup_contact"
-                    />
-                    <ElInput v-else v-model="vehicleForm.self_delivery_name" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="12">
-                  <ElFormItem label="联系电话">
-                    <ElInput
-                      v-if="vehicleForm.delivery_method === 'tow'"
-                      v-model="vehicleForm.tow_pickup_phone"
-                    />
-                    <ElInput v-else v-model="vehicleForm.self_delivery_phone" />
-                  </ElFormItem>
-                </ElCol>
-              </ElRow>
-            </ElForm>
-          </div>
-
-          <div class="ae-section">
-            <div class="ae-section-title">结算信息</div>
-            <ElForm label-position="top">
-              <ElRow :gutter="16">
-                <ElCol :span="8">
-                  <ElFormItem label="结算类型">
-                    <ElSelect v-model="vehicleForm.settlement_type" clearable>
-                      <ElOption label="报废" value="报废" />
-                      <ElOption label="卖废铁" value="卖废铁" />
-                      <ElOption label="其他" value="其他" />
-                    </ElSelect>
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="8">
-                  <ElFormItem label="结算方式">
-                    <ElSelect v-model="vehicleForm.settlement_method" clearable>
-                      <ElOption label="重量结算" value="重量结算" />
-                      <ElOption label="整备质量结算" value="整备质量结算" />
-                      <ElOption label="整车结算" value="整车结算" />
-                    </ElSelect>
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="8">
-                  <ElFormItem label="结算金额（元）">
-                    <ElInput v-model="vehicleForm.settlement_amount" type="number" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="8">
-                  <ElFormItem label="开户姓名/名称">
-                    <ElInput v-model="vehicleForm.bank_name" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="8">
-                  <ElFormItem label="开户银行">
-                    <ElInput v-model="vehicleForm.bank_branch" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="8">
-                  <ElFormItem label="银行卡号">
-                    <ElInput v-model="vehicleForm.bank_card_no" maxlength="19" />
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="24">
-                  <ElFormItem label="备注说明">
-                    <ElInput v-model="vehicleForm.remark" type="textarea" :rows="3" />
-                  </ElFormItem>
-                </ElCol>
-              </ElRow>
-            </ElForm>
-          </div>
-        </template>
-
-        <!-- Step3 代理人 -->
-        <template v-else-if="step === 3">
-          <div class="ae-section">
-            <ElCheckbox v-model="hasAgent" :disabled="isSubmitted" @change="onAgentToggle"
-              >代办场景（有代理人代为办理）</ElCheckbox
-            >
-          </div>
-          <template v-if="hasAgent">
-            <div class="ae-ocr-box">
-              <div class="ae-ocr-head">
-                <ArtSvgIcon icon="ri:qr-scan-2-line" />
-                代理人证件上传 & OCR智能识别
-                <span class="ae-ocr-tip">— 点击各照片格的 OCR识别 按钮，自动填充下方字段</span>
-              </div>
-              <div class="ae-ocr-grid">
-                <UploadSlot
-                  label="代理人身份证正面"
-                  required
-                  enable-ocr
-                  ocr-hint="代理人姓名·身份证号码…"
-                  :url="agentImages.jbrsfz1zp"
-                  :ocr-loading="!!ocrLoading.agent_front"
-                  :ocr-done="!!ocrDone.agent_front"
-                  :readonly="isSubmitted"
-                  @upload="(f) => handleAgentUpload('jbrsfz1zp', f)"
-                  @remove="() => handleAgentRemove('jbrsfz1zp')"
-                  @ocr="() => runAgentIdOcr('front')"
-                />
-                <UploadSlot
-                  label="代理人身份证反面"
-                  required
-                  enable-ocr
-                  ocr-hint="代理人身份证号码（核验）"
-                  ocr-filled-text="已核验"
-                  :url="agentImages.jbrsfz2zp"
-                  :ocr-loading="!!ocrLoading.agent_back"
-                  :ocr-done="!!ocrDone.agent_back"
-                  :readonly="isSubmitted"
-                  @upload="(f) => handleAgentUpload('jbrsfz2zp', f)"
-                  @remove="() => handleAgentRemove('jbrsfz2zp')"
-                  @ocr="() => runAgentIdOcr('back')"
-                />
-                <UploadSlot
-                  label="委托说明"
-                  required
-                  :url="agentImages.jbrzp"
-                  :readonly="isSubmitted"
-                  @upload="(f) => handleAgentUpload('jbrzp', f)"
-                  @remove="() => handleAgentRemove('jbrzp')"
-                />
-              </div>
-              <div v-if="agentOcrFilled" class="ae-ocr-ok">
-                <ArtSvgIcon icon="ri:checkbox-circle-line" />
-                OCR已识别，以下字段已自动填充，请核对后继续
-              </div>
-            </div>
-            <div class="ae-section">
-              <div class="ae-section-title">代理人信息</div>
-              <ElForm label-position="top">
-                <ElRow :gutter="16">
-                  <ElCol :span="12">
-                    <ElFormItem label="代理人姓名" required>
-                      <ElInput v-model="agentForm.jbr" />
-                    </ElFormItem>
-                  </ElCol>
-                  <ElCol :span="12">
-                    <ElFormItem label="代理人证件号码（18位）" required>
-                      <ElInput v-model="agentForm.jbrsfzmhm" maxlength="18" />
-                    </ElFormItem>
-                  </ElCol>
-                  <ElCol :span="12">
-                    <ElFormItem label="代理人联系电话（11位）" required>
-                      <ElInput v-model="agentForm.jbrdh" />
-                    </ElFormItem>
-                  </ElCol>
-                </ElRow>
-              </ElForm>
-            </div>
-          </template>
-          <ElEmpty v-else description="未勾选代办，可直接进入下一步" :image-size="80" />
-        </template>
-
-        <!-- Step4 实名认证 -->
-        <template v-else-if="step === 4">
-          <div class="ae-section-title">所有人代人代理实名认证（请完成一项实名认证）</div>
-          <div class="ae-ocr-box">
-            <div class="ae-auth-row">
-              <span style="width: 72px; font-size: 12px; color: #9ca3af">所有人认证</span>
-              <span style="flex: 1; font-weight: 500">{{
-                ownerForm.syr || (isPersonal ? '（请填写所有人姓名）' : '（请填写企业名称）')
-              }}</span>
-              <ElTag :type="ownerAuthed ? 'success' : 'warning'" size="small">
-                {{ ownerAuthed ? '已认证' : '待认证' }}
-              </ElTag>
-              <ElButton
-                size="small"
-                type="primary"
-                :disabled="isSubmitted"
-                @click="openAuth('syr')"
-              >
-                去认证
-              </ElButton>
-            </div>
-            <div class="ae-auth-meta">
-              <span>证件号：{{ ownerForm.sfzmhm || '—' }}</span>
-              <span>联系电话：{{ ownerForm.dh || '—' }}</span>
-            </div>
-            <div class="ae-auth-row">
-              <span style="width: 72px; font-size: 12px; color: #9ca3af">代理人认证</span>
-              <span style="flex: 1; font-weight: 500">{{
-                agentForm.jbr || '（请填写代理人姓名）'
-              }}</span>
-              <ElTag :type="agentAuthed ? 'success' : 'warning'" size="small">
-                {{ agentAuthed ? '已认证' : '待认证' }}
-              </ElTag>
-              <ElButton
-                size="small"
-                type="primary"
-                :disabled="isSubmitted"
-                @click="openAuth('dlr')"
-              >
-                去认证
-              </ElButton>
-            </div>
-            <div class="ae-auth-meta">
-              <span>证件号：{{ agentForm.jbrsfzmhm || '—' }}</span>
-              <span>联系电话：{{ agentForm.jbrdh || '—' }}</span>
-            </div>
-          </div>
-        </template>
-
-        <!-- Step5 影像材料 -->
-        <template v-else-if="step === 5">
-          <div class="ae-readonly-box">
-            <div class="ae-readonly-head">
-              <span>
-                报废机动车回收证明
-                <span class="ae-readonly-badge">商务部同步 · 只读</span>
-              </span>
-              <div>
-                <!-- <ElButton size="small" @click="handleCertificateAction('view')">查看</ElButton> -->
-                <ElButton size="small" type="primary" @click="handleCertificateAction">
-                  下载
-                </ElButton>
-              </div>
-            </div>
-            <div class="ae-cert-preview">
-              <div v-if="scrapFilesLoading" class="ae-cert-empty">加载回收证明数据...</div>
-              <div v-else-if="scrapDjid" class="ae-cert-empty">
-                登记单号：{{ scrapDjid }}，可点击右上角查看/下载完整回收证明
-              </div>
-              <div v-else class="ae-cert-empty">暂无回收证明数据</div>
-            </div>
-          </div>
-
-          <div class="ae-material-tip" :class="{ warn: isSubmitted }">
-            <ArtSvgIcon :icon="isSubmitted ? 'ri:error-warning-line' : 'ri:information-line'" />
-            {{
-              isSubmitted
-                ? '已提交至商务部，材料不可修改，但可点击查看大图。'
-                : '所有材料支持单/多图上传、预览、删除；核心材料均支持上传"缺失情况说明图片"作为替代凭证。'
-            }}
-          </div>
-
-          <div class="ae-section-title">所有人证件材料</div>
-          <div class="ae-ocr-grid" :class="isCompany ? '' : 'cols-3'">
-            <template v-if="isCompany">
-              <UploadSlot
-                label="营业执照原件"
-                required
-                :url="ownerImages.syrzp"
-                :readonly="isSubmitted"
-                @upload="(f) => handleOwnerUpload('syrzp', f)"
-                @remove="() => handleOwnerRemove('syrzp')"
-              />
-              <UploadSlot
-                label="缺失情况说明"
-                :url="ownerImages.qksmzp"
-                :readonly="isSubmitted"
-                @upload="(f) => handleOwnerUpload('qksmzp', f)"
-                @remove="() => handleOwnerRemove('qksmzp')"
-              />
-            </template>
-            <template v-else>
-              <UploadSlot
-                label="身份证正面"
-                required
-                :url="ownerImages.sfz1zp || ownerImages.syrzp"
-                :readonly="isSubmitted"
-                @upload="(f) => handleOwnerUpload('sfz1zp', f)"
-                @remove="() => handleOwnerRemove('sfz1zp')"
-              />
-              <UploadSlot
-                label="身份证反面"
-                required
-                :url="ownerImages.sfz2zp"
-                :readonly="isSubmitted"
-                @upload="(f) => handleOwnerUpload('sfz2zp', f)"
-                @remove="() => handleOwnerRemove('sfz2zp')"
-              />
-              <UploadSlot
-                label="缺失情况说明"
-                :url="ownerImages.qksmzp"
-                :readonly="isSubmitted"
-                @upload="(f) => handleOwnerUpload('qksmzp', f)"
-                @remove="() => handleOwnerRemove('qksmzp')"
-              />
-            </template>
-          </div>
-
-          <div class="ae-section-title">车辆证件材料</div>
-          <div class="ae-ocr-grid cols-4">
-            <UploadSlot
-              label="行驶证正页"
-              required
-              :url="vehicleImages.xszzp"
-              :readonly="isSubmitted"
-              @upload="(f) => handleVehicleUpload('xszzp', f)"
-              @remove="() => handleVehicleRemove('xszzp')"
-            />
-            <UploadSlot
-              label="行驶证副页"
-              required
-              :url="vehicleImages.xszzpfy"
-              :readonly="isSubmitted"
-              @upload="(f) => handleVehicleUpload('xszzpfy', f)"
-              @remove="() => handleVehicleRemove('xszzpfy')"
-            />
-            <UploadSlot
-              label="正副背面"
-              required
-              :url="vehicleImages.xszbmzp"
-              :readonly="isSubmitted"
-              @upload="(f) => handleVehicleUpload('xszbmzp', f)"
-              @remove="() => handleVehicleRemove('xszbmzp')"
-            />
-            <UploadSlot
-              label="产证一二页"
-              required
-              :url="vehicleImages.czzp"
-              :readonly="isSubmitted"
-              @upload="(f) => handleVehicleUpload('czzp', f)"
-              @remove="() => handleVehicleRemove('czzp')"
-            />
-          </div>
-          <div class="ae-ocr-grid cols-4" style="margin-top: 12px">
-            <UploadSlot
-              label="产权变更页（如有）"
-              :url="ownerImages.blpzzp"
-              :readonly="isSubmitted"
-              @upload="(f) => handleOwnerUpload('blpzzp', f)"
-              @remove="() => handleOwnerRemove('blpzzp')"
-            />
-          </div>
-
-          <div class="ae-section-title">拖车进场照片</div>
-          <div v-if="isSubmitted" class="ae-ocr-grid cols-4">
-            <div v-for="item in towReadonlyItems" :key="item.field" class="ae-readonly-photo">
-              <div class="ae-readonly-photo-label">{{ item.label }}</div>
-              <div class="ae-readonly-slot">
-                <ElImage
-                  v-if="getScrapFileUrl(item.field)"
-                  :src="getScrapFileUrl(item.field)"
-                  fit="cover"
-                  class="ae-readonly-img"
-                  :preview-src-list="[getScrapFileUrl(item.field)]"
-                  preview-teleported
-                />
-                <template v-else>
-                  <ArtSvgIcon icon="ri:camera-line" style="margin-bottom: 4px; font-size: 20px" />
-                  暂无图片
-                </template>
-              </div>
-            </div>
-          </div>
-          <div v-else class="ae-ocr-grid cols-4">
-            <UploadSlot
-              label="拖车单"
-              required
-              :url="materialImages.photo_front"
-              @upload="(f) => handleMaterialUpload('photo_front', f)"
-              @remove="() => handleMaterialRemove('photo_front')"
-            />
-            <UploadSlot
-              label="整车照"
-              required
-              :url="materialImages.photo_side"
-              @upload="(f) => handleMaterialUpload('photo_side', f)"
-              @remove="() => handleMaterialRemove('photo_side')"
-            />
-            <UploadSlot
-              label="车架拓印照"
-              :url="materialImages.photo_back"
-              @upload="(f) => handleMaterialUpload('photo_back', f)"
-              @remove="() => handleMaterialRemove('photo_back')"
-            />
-            <UploadSlot
-              label="车架号照"
-              :url="materialImages.photo_interior"
-              @upload="(f) => handleMaterialUpload('photo_interior', f)"
-              @remove="() => handleMaterialRemove('photo_interior')"
-            />
-          </div>
-
-          <div class="ae-section-title">代理人证件材料</div>
-          <div class="ae-ocr-grid">
-            <UploadSlot
-              label="代理人身份证正面"
-              required
-              :url="agentImages.jbrsfz1zp"
-              :readonly="isSubmitted"
-              @upload="(f) => handleAgentUpload('jbrsfz1zp', f)"
-              @remove="() => handleAgentRemove('jbrsfz1zp')"
-            />
-            <UploadSlot
-              label="代理人身份证反面"
-              required
-              :url="agentImages.jbrsfz2zp"
-              :readonly="isSubmitted"
-              @upload="(f) => handleAgentUpload('jbrsfz2zp', f)"
-              @remove="() => handleAgentRemove('jbrsfz2zp')"
-            />
-            <UploadSlot
-              label="委托说明"
-              required
-              :url="agentImages.jbrzp"
-              :readonly="isSubmitted"
-              @upload="(f) => handleAgentUpload('jbrzp', f)"
-              @remove="() => handleAgentRemove('jbrzp')"
-            />
-          </div>
-
-          <div class="ae-material-tip warn">
-            <ArtSvgIcon icon="ri:error-warning-line" />
-            以下照片是从商务部系统同步的，数据不可在本系统修改。
-          </div>
-
-          <div class="ae-readonly-box">
-            <div class="ae-readonly-head">
-              <span>
-                报废车拆解照片
-                <span class="ae-readonly-badge">本地缓存 · 只读</span>
-              </span>
-            </div>
-            <div class="ae-readonly-grid">
-              <div v-for="item in dismantlePhotoItems" :key="item.field" class="ae-readonly-photo">
-                <div class="ae-readonly-photo-label">{{ item.label }}</div>
-                <div class="ae-readonly-slot">
-                  <ElImage
-                    v-if="getScrapFileUrl(item.field)"
-                    :src="getScrapFileUrl(item.field)"
-                    fit="cover"
-                    class="ae-readonly-img"
-                    :preview-src-list="[getScrapFileUrl(item.field)]"
-                    preview-teleported
-                  />
-                  <template v-else>
-                    <ArtSvgIcon icon="ri:camera-line" style="margin-bottom: 4px; font-size: 20px" />
-                    暂无图片
-                  </template>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="ae-readonly-box">
-            <div class="ae-readonly-head">
-              <span>
-                办证注销
-                <span class="ae-readonly-badge">商务部同步 · 只读</span>
-              </span>
-            </div>
-            <div class="ae-readonly-grid">
-              <div class="ae-readonly-photo">
-                <div class="ae-readonly-photo-label">回收证明</div>
-                <div class="ae-readonly-slot">
-                  <ArtSvgIcon icon="ri:camera-line" style="margin-bottom: 4px; font-size: 20px" />
-                  {{ scrapDjid ? '已领取' : '未领取' }}
-                </div>
-              </div>
-              <div v-for="item in cancelPhotoItems" :key="item.field" class="ae-readonly-photo">
-                <div class="ae-readonly-photo-label">{{ item.label }}</div>
-                <div class="ae-readonly-slot">
-                  <ElImage
-                    v-if="getScrapFileUrl(item.field)"
-                    :src="getScrapFileUrl(item.field)"
-                    fit="cover"
-                    class="ae-readonly-img"
-                    :preview-src-list="[getScrapFileUrl(item.field)]"
-                    preview-teleported
-                  />
-                  <template v-else>
-                    <ArtSvgIcon icon="ri:camera-line" style="margin-bottom: 4px; font-size: 20px" />
-                    暂无图片
-                  </template>
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
+        <MaterialsStep
+          v-else-if="step === 5"
+          :is-company="isCompany"
+          :readonly="isSubmitted"
+          :scrap-djid="scrapDjid"
+          :scrap-files-loading="scrapFilesLoading"
+          :owner-images="ownerImages"
+          :vehicle-images="vehicleImages"
+          :agent-images="agentImages"
+          :material-images="materialImages"
+          :tow-readonly-items="towReadonlyItems"
+          :dismantle-photo-items="dismantlePhotoItems"
+          :cancel-photo-items="cancelPhotoItems"
+          :get-scrap-file-url="getScrapFileUrl"
+          @download-certificate="handleCertificateAction"
+          @upload-owner="handleOwnerUpload"
+          @remove-owner="handleOwnerRemove"
+          @upload-vehicle="handleVehicleUpload"
+          @remove-vehicle="handleVehicleRemove"
+          @upload-agent="handleAgentUpload"
+          @remove-agent="handleAgentRemove"
+          @upload-material="handleMaterialUpload"
+          @remove-material="handleMaterialRemove"
+        />
       </div>
     </div>
 
@@ -1174,33 +295,54 @@
     fetchAcceptSyncFiles,
     fetchAcceptUploadImage
   } from '@/api/recycle/accept'
-  import type { AcceptSubmitResult } from '@/types/recycle/accept'
+  import type { AcceptHplx, AcceptSubmitResult, AcceptSyq } from '@/types/recycle/accept'
   import { fetchCllxCascade, fetchDataDictList } from '@/api/recycle/data-dict'
   import { fetchVehicleDetail } from '@/api/recycle/vehicle'
-  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
-  import type { AcceptHplx, AcceptSyq } from '@/types/recycle/accept'
   import type { CllxCascadeNode } from '@/types/recycle/data-dict'
+  import type { ScrapVehicle } from '@/types/recycle/vehicle'
   import { ElMessage } from 'element-plus'
-  import UploadSlot from './vehicle-archive-upload-slot.vue'
+  import AgentStep from './vehicle-archive/agent-step.vue'
+  import AuthenticationStep from './vehicle-archive/authentication-step.vue'
+  import MaterialsStep from './vehicle-archive/materials-step.vue'
+  import OwnerStep from './vehicle-archive/owner-step.vue'
+  import ProgressHeader from './vehicle-archive/progress-header.vue'
+  import SceneSelector from './vehicle-archive/scene-selector.vue'
+  import VehicleStep from './vehicle-archive/vehicle-step.vue'
   import {
     applyDrivingOcrResult,
     applyIdCardFrontResult,
     applyLicenseOcrResult,
     applyRegCertOcrResult
-  } from './vehicle-archive-ocr'
+  } from './vehicle-archive/ocr'
+  import type {
+    ArchiveAgentForm,
+    ArchiveAgentImages,
+    ArchiveCacheFile,
+    ArchiveDictOption,
+    ArchiveLinkInfo,
+    ArchiveMaterialImages,
+    ArchiveOwnerForm,
+    ArchiveOwnerImages,
+    ArchiveVehicleForm,
+    ArchiveVehicleImages
+  } from './vehicle-archive/types'
   import './vehicle-archive-edit-dialog.scss'
 
   defineOptions({ name: 'VehicleArchiveEditDialog' })
 
   const props = defineProps<{
+    /** 是否显示档案编辑弹窗。 */
     visible: boolean
+    /** 当前车辆主键。 */
     vehicleId: number
     /** 列表行数据，对齐 admin archiveEdit.open(id, row) */
-    vehicleRow?: import('@/types/recycle/vehicle').ScrapVehicle | null
+    vehicleRow?: ScrapVehicle | null
   }>()
 
   const emit = defineEmits<{
+    /** 更新弹窗显示状态。 */
     'update:visible': [boolean]
+    /** 档案提交成功。 */
     success: []
   }>()
 
@@ -1255,14 +397,14 @@
     { id: 5, label: '影像材料' }
   ]
 
-  const linkInfo = reactive({
+  const linkInfo = reactive<ArchiveLinkInfo>({
     order_no: '',
     archive_no: '',
     tow_order_no: '',
     lead_no: ''
   })
 
-  const ownerForm = reactive({
+  const ownerForm = reactive<ArchiveOwnerForm>({
     syr: '',
     sfzmhm: '',
     dh: '',
@@ -1274,7 +416,7 @@
     zcbj: '',
     syq: ''
   })
-  const ownerImages = reactive<Record<string, string>>({
+  const ownerImages = reactive<ArchiveOwnerImages>({
     syrzp: '',
     sfz1zp: '',
     sfz2zp: '',
@@ -1282,7 +424,7 @@
     blpzzp: ''
   })
 
-  const vehicleForm = reactive({
+  const vehicleForm = reactive<ArchiveVehicleForm>({
     clsbdh: '',
     hphm: '',
     hpzl: '',
@@ -1321,13 +463,13 @@
     bank_card_no: '',
     remark: ''
   })
-  const vehicleImages = reactive<Record<string, string>>({
+  const vehicleImages = reactive<ArchiveVehicleImages>({
     xszzp: '',
     xszzpfy: '',
     xszbmzp: '',
     czzp: ''
   })
-  const materialImages = reactive({
+  const materialImages = reactive<ArchiveMaterialImages>({
     photo_front: '',
     photo_side: '',
     photo_back: '',
@@ -1338,7 +480,7 @@
   const scrapFilesLoading = ref(false)
   const cllxPath = ref('')
   const cllxOptions = ref<CllxCascadeNode[]>([])
-  const scrapCacheFiles = ref<Record<string, { url?: string }>>({})
+  const scrapCacheFiles = ref<Record<string, ArchiveCacheFile>>({})
 
   const companyIdTypeOptions = [
     { label: '统一社会信用代码', value: 'N' },
@@ -1349,13 +491,13 @@
   ]
 
   const hasAgent = ref(true)
-  const agentForm = reactive({
+  const agentForm = reactive<ArchiveAgentForm>({
     jbr: '',
     jbrsfzmhm: '',
     jbrdh: '',
     jbrsmrz: ''
   })
-  const agentImages = reactive<Record<string, string>>({
+  const agentImages = reactive<ArchiveAgentImages>({
     jbrsfz1zp: '',
     jbrsfz2zp: '',
     jbrzp: ''
@@ -1389,10 +531,9 @@
   )
   const agentOcrFilled = computed(() => !!(ocrDone.agent_front || ocrDone.agent_back))
 
-  type DictOpt = { label: string; value: string }
-  const hpzlDict = ref<DictOpt[]>([])
-  const syxzDict = ref<DictOpt[]>([])
-  const rlzlDict = ref<DictOpt[]>([])
+  const hpzlDict = ref<ArchiveDictOption[]>([])
+  const syxzDict = ref<ArchiveDictOption[]>([])
+  const rlzlDict = ref<ArchiveDictOption[]>([])
 
   const FALLBACK_HPZL = [
     '大型汽车',
@@ -1437,7 +578,7 @@
     { label: '发动机照', field: 'fdjhzp' }
   ]
 
-  const naturalIdTypeOptions = ref<DictOpt[]>([{ label: '居民身份证', value: 'A' }])
+  const naturalIdTypeOptions = ref<ArchiveDictOption[]>([{ label: '居民身份证', value: 'A' }])
 
   const stepComplete = computed(() => [1, 2, 3, 4, 5].map((n) => isStepComplete(n)))
 
@@ -1570,7 +711,7 @@
     return fileData.url || ''
   }
 
-  async function loadDict(type: string, fallback: DictOpt[]) {
+  async function loadDict(type: string, fallback: ArchiveDictOption[]) {
     try {
       const res = await fetchDataDictList({ dict_type: type, status: 1, page: 1, limit: 200 })
       const list = (res.list || []).map((i) => ({
@@ -1633,7 +774,9 @@
       zcbj: '',
       syq: '2'
     })
-    Object.keys(ownerImages).forEach((k) => (ownerImages[k] = ''))
+    ;(Object.keys(ownerImages) as (keyof ArchiveOwnerImages)[]).forEach(
+      (key) => (ownerImages[key] = '')
+    )
     Object.assign(vehicleForm, {
       clsbdh: '',
       hphm: '',
@@ -1673,15 +816,21 @@
       bank_card_no: '',
       remark: ''
     })
-    Object.keys(vehicleImages).forEach((k) => (vehicleImages[k] = ''))
+    ;(Object.keys(vehicleImages) as (keyof ArchiveVehicleImages)[]).forEach(
+      (key) => (vehicleImages[key] = '')
+    )
     Object.assign(agentForm, { jbr: '', jbrsfzmhm: '', jbrdh: '', jbrsmrz: '' })
-    Object.keys(agentImages).forEach((k) => (agentImages[k] = ''))
+    ;(Object.keys(agentImages) as (keyof ArchiveAgentImages)[]).forEach(
+      (key) => (agentImages[key] = '')
+    )
     hasAgent.value = true
     cllxPath.value = ''
     Object.keys(ocrLoading).forEach((k) => delete ocrLoading[k])
     Object.keys(ocrDone).forEach((k) => delete ocrDone[k])
     Object.assign(linkInfo, { order_no: '', archive_no: '', tow_order_no: '', lead_no: '' })
-    Object.keys(materialImages).forEach((k) => ((materialImages as Record<string, string>)[k] = ''))
+    ;(Object.keys(materialImages) as (keyof ArchiveMaterialImages)[]).forEach(
+      (key) => (materialImages[key] = '')
+    )
     scrapDjid.value = ''
     scrapCacheFiles.value = {}
   }
@@ -1821,7 +970,7 @@
     scrapFilesLoading.value = true
     try {
       const res = await fetchAcceptFilesCache(props.vehicleId)
-      scrapCacheFiles.value = (res.bfcj || {}) as Record<string, { url?: string }>
+      scrapCacheFiles.value = (res.bfcj || {}) as Record<string, ArchiveCacheFile>
       scrapDjid.value = str(res.djid)
     } catch {
       scrapCacheFiles.value = {}
@@ -1936,17 +1085,17 @@
     }
   }
 
-  async function handleMaterialUpload(field: string, file: File) {
+  async function handleMaterialUpload(field: keyof ArchiveMaterialImages, file: File) {
     const url = await fetchAcceptUploadImage({
       file,
       vehicle_id: props.vehicleId,
       field
     })
-    if (url) (materialImages as Record<string, string>)[field] = url
+    if (url) materialImages[field] = url
   }
 
-  function handleMaterialRemove(field: string) {
-    ;(materialImages as Record<string, string>)[field] = ''
+  function handleMaterialRemove(field: keyof ArchiveMaterialImages) {
+    materialImages[field] = ''
   }
 
   function handleCertificateAction() {
@@ -1957,7 +1106,7 @@
     window.open(`https://bfc.chexinmeng.com/hszma4?id=${scrapDjid.value}`, '_blank')
   }
 
-  async function handleOwnerUpload(field: string, file: File) {
+  async function handleOwnerUpload(field: keyof ArchiveOwnerImages, file: File) {
     const url = await fetchAcceptUploadImage({
       file,
       vehicle_id: props.vehicleId,
@@ -1970,7 +1119,7 @@
     }
   }
 
-  async function handleVehicleUpload(field: string, file: File) {
+  async function handleVehicleUpload(field: keyof ArchiveVehicleImages, file: File) {
     const url = await fetchAcceptUploadImage({
       file,
       vehicle_id: props.vehicleId,
@@ -1979,7 +1128,7 @@
     if (url) vehicleImages[field] = url
   }
 
-  async function handleAgentUpload(field: string, file: File) {
+  async function handleAgentUpload(field: keyof ArchiveAgentImages, file: File) {
     const url = await fetchAcceptUploadImage({
       file,
       vehicle_id: props.vehicleId,
@@ -1988,23 +1137,23 @@
     if (url) agentImages[field] = url
   }
 
-  const OWNER_OCR_KEY: Record<string, string> = {
+  const OWNER_OCR_KEY: Partial<Record<keyof ArchiveOwnerImages, string>> = {
     syrzp: 'license',
     sfz1zp: 'id_front',
     sfz2zp: 'id_back'
   }
-  const VEHICLE_OCR_KEY: Record<string, string> = {
+  const VEHICLE_OCR_KEY: Partial<Record<keyof ArchiveVehicleImages, string>> = {
     xszzp: 'driving_front',
     xszzpfy: 'driving_back',
     xszbmzp: 'driving_both',
     czzp: 'cert'
   }
-  const AGENT_OCR_KEY: Record<string, string> = {
+  const AGENT_OCR_KEY: Partial<Record<keyof ArchiveAgentImages, string>> = {
     jbrsfz1zp: 'agent_front',
     jbrsfz2zp: 'agent_back'
   }
 
-  function handleOwnerRemove(field: string) {
+  function handleOwnerRemove(field: keyof ArchiveOwnerImages) {
     ownerImages[field] = ''
     if (field === 'sfz1zp') ownerImages.syrzp = ''
     const ocrKey = OWNER_OCR_KEY[field]
@@ -2014,7 +1163,7 @@
     }
   }
 
-  function handleVehicleRemove(field: string) {
+  function handleVehicleRemove(field: keyof ArchiveVehicleImages) {
     vehicleImages[field] = ''
     const ocrKey = VEHICLE_OCR_KEY[field]
     if (ocrKey) {
@@ -2023,7 +1172,7 @@
     }
   }
 
-  function handleAgentRemove(field: string) {
+  function handleAgentRemove(field: keyof ArchiveAgentImages) {
     agentImages[field] = ''
     const ocrKey = AGENT_OCR_KEY[field]
     if (ocrKey) {
@@ -2156,7 +1305,7 @@
     ocrLoading[key] = true
     try {
       const data = await fetchAcceptRecognizeDrivingLicense(url)
-      applyDrivingOcrResult(data as Record<string, unknown>, vehicleForm, ownerForm)
+      applyDrivingOcrResult(data as unknown as Record<string, unknown>, vehicleForm, ownerForm)
       if (data.vehicle_type) cllxPath.value = str(data.vehicle_type)
       ocrDone[key] = true
       ElMessage.success('OCR识别成功')
@@ -2276,12 +1425,12 @@
     authVisible.value = true
   }
 
-  function onAuthSmsModeChange(val: boolean) {
+  function onAuthSmsModeChange(val: unknown) {
     if (val) authQrChecked.value = false
     else authQrChecked.value = true
   }
 
-  function onAuthQrModeChange(val: boolean) {
+  function onAuthQrModeChange(val: unknown) {
     if (val) authSmsChecked.value = false
     else authSmsChecked.value = true
   }
