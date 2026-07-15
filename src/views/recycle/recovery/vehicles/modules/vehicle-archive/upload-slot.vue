@@ -8,7 +8,7 @@
       <template v-if="url">
         <ElImage
           :src="url"
-          fit="cover"
+          fit="contain"
           class="ae-slot-img"
           :preview-src-list="[url]"
           preview-teleported
