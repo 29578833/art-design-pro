@@ -16,16 +16,16 @@
           :ocr-loading="!!ocrLoading.license"
           :ocr-done="!!ocrDone.license"
           :readonly="readonly"
-          @upload="(file) => emit('upload', 'syrzp', file)"
-          @remove="emit('remove', 'syrzp')"
-          @ocr="emit('ocr-license')"
+          @upload="(file) => handleUpload('syrzp', file)"
+          @remove="handleRemove('syrzp')"
+          @ocr="runLicenseOcr"
         />
         <UploadSlot
           label="缺失情况说明"
           :url="images.qksmzp"
           :readonly="readonly"
-          @upload="(file) => emit('upload', 'qksmzp', file)"
-          @remove="emit('remove', 'qksmzp')"
+          @upload="(file) => handleUpload('qksmzp', file)"
+          @remove="handleRemove('qksmzp')"
         />
       </template>
       <template v-else>
@@ -38,9 +38,9 @@
           :ocr-loading="!!ocrLoading.id_front"
           :ocr-done="!!ocrDone.id_front"
           :readonly="readonly"
-          @upload="(file) => emit('upload', 'sfz1zp', file)"
-          @remove="emit('remove', 'sfz1zp')"
-          @ocr="emit('ocr-id-card', 'front')"
+          @upload="(file) => handleUpload('sfz1zp', file)"
+          @remove="handleRemove('sfz1zp')"
+          @ocr="runIdCardOcr('front')"
         />
         <UploadSlot
           label="身份证反面"
@@ -52,16 +52,16 @@
           :ocr-loading="!!ocrLoading.id_back"
           :ocr-done="!!ocrDone.id_back"
           :readonly="readonly"
-          @upload="(file) => emit('upload', 'sfz2zp', file)"
-          @remove="emit('remove', 'sfz2zp')"
-          @ocr="emit('ocr-id-card', 'back')"
+          @upload="(file) => handleUpload('sfz2zp', file)"
+          @remove="handleRemove('sfz2zp')"
+          @ocr="runIdCardOcr('back')"
         />
         <UploadSlot
           label="缺失情况说明"
           :url="images.qksmzp"
           :readonly="readonly"
-          @upload="(file) => emit('upload', 'qksmzp', file)"
-          @remove="emit('remove', 'qksmzp')"
+          @upload="(file) => handleUpload('qksmzp', file)"
+          @remove="handleRemove('qksmzp')"
         />
       </template>
     </div>
@@ -119,47 +119,182 @@
 </template>
 
 <script setup lang="ts">
+  import {
+    fetchAcceptRecognizeIdCard,
+    fetchAcceptRecognizeLicense,
+    fetchAcceptSaveOwner,
+    fetchAcceptUploadImage
+  } from '@/api/recycle/accept'
+  import type { AcceptHplx, AcceptSyq } from '@/types/recycle/accept'
+  import { fetchDataDictList } from '@/api/recycle/data-dict'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import { ElMessage } from 'element-plus'
+  import { COMPANY_ID_TYPE_OPTIONS, OWNER_OCR_KEY } from './archive-constants'
+  import { applyIdCardFrontResult, applyLicenseOcrResult } from './ocr'
   import UploadSlot from './upload-slot.vue'
   import type {
     ArchiveDictOption,
     ArchiveOcrState,
     ArchiveOwnerForm,
-    ArchiveOwnerImages
+    ArchiveOwnerImages,
+    ArchiveVehicleForm,
+    ArchiveVehicleImages
   } from './types'
 
   defineOptions({ name: 'VehicleArchiveOwnerStep' })
 
-  interface Props {
-    /** 是否为企业或单位所有人。 */
-    isCompany: boolean
-    /** 所有人证件图片。 */
-    images: ArchiveOwnerImages
-    /** 可选证件类型。 */
-    idTypeOptions: ArchiveDictOption[]
-    /** OCR 加载状态。 */
-    ocrLoading: ArchiveOcrState
-    /** OCR 完成状态。 */
-    ocrDone: ArchiveOcrState
-    /** 是否已有 OCR 字段回填。 */
-    ocrFilled: boolean
+  const props = defineProps<{
+    /** 车辆 ID。 */
+    vehicleId: number
+    /** 车辆属地。 */
+    hplx: AcceptHplx
+    /** 所有权类型。 */
+    syq: AcceptSyq
     /** 是否只读。 */
     readonly: boolean
+    /** 车辆表单（保存时需要 hpzl）。 */
+    vehicleForm: ArchiveVehicleForm
+    /** 车辆证件图片（保存时需要）。 */
+    vehicleImages: ArchiveVehicleImages
+  }>()
+
+  const form = defineModel<ArchiveOwnerForm>('form', { required: true })
+  const images = defineModel<ArchiveOwnerImages>('images', { required: true })
+
+  const isCompany = computed(() => props.syq === 1)
+  const isPersonal = computed(() => props.syq === 2)
+  const ocrLoading = reactive<ArchiveOcrState>({})
+  const ocrDone = reactive<ArchiveOcrState>({})
+  const naturalIdTypeOptions = ref<ArchiveDictOption[]>([{ label: '居民身份证', value: 'A' }])
+
+  const idTypeOptions = computed(() =>
+    isCompany.value ? COMPANY_ID_TYPE_OPTIONS : naturalIdTypeOptions.value
+  )
+  const ocrFilled = computed(() => !!(ocrDone.license || ocrDone.id_front || ocrDone.id_back))
+
+  async function loadIdTypeOptions() {
+    try {
+      const res = await fetchDataDictList({
+        dict_type: 'id_type_natural',
+        status: 1,
+        page: 1,
+        limit: 200
+      })
+      const list = (res.list || []).map((i) => ({
+        label: i.dict_label || String(i.dict_value ?? ''),
+        value: String(i.dict_value ?? '')
+      }))
+      naturalIdTypeOptions.value = list.length ? list : [{ label: '居民身份证', value: 'A' }]
+    } catch {
+      naturalIdTypeOptions.value = [{ label: '居民身份证', value: 'A' }]
+    }
   }
 
-  defineProps<Props>()
+  function clearOcrState() {
+    Object.keys(ocrLoading).forEach((k) => delete ocrLoading[k])
+    Object.keys(ocrDone).forEach((k) => delete ocrDone[k])
+  }
 
-  /** 所有人表单模型。 */
-  const form = defineModel<ArchiveOwnerForm>('form', { required: true })
+  async function handleUpload(field: keyof ArchiveOwnerImages, file: File) {
+    const url = await fetchAcceptUploadImage({
+      file,
+      vehicle_id: props.vehicleId,
+      field
+    })
+    if (url) {
+      images.value[field] = url
+      if (field === 'sfz1zp') images.value.syrzp = url
+    }
+  }
 
-  const emit = defineEmits<{
-    /** 上传所有人材料。 */
-    upload: [field: keyof ArchiveOwnerImages, file: File]
-    /** 删除所有人材料。 */
-    remove: [field: keyof ArchiveOwnerImages]
-    /** 识别所有人身份证。 */
-    'ocr-id-card': [side: 'front' | 'back']
-    /** 识别企业营业执照。 */
-    'ocr-license': []
-  }>()
+  function handleRemove(field: keyof ArchiveOwnerImages) {
+    images.value[field] = ''
+    if (field === 'sfz1zp') images.value.syrzp = ''
+    const ocrKey = OWNER_OCR_KEY[field]
+    if (ocrKey) {
+      delete ocrDone[ocrKey]
+      delete ocrLoading[ocrKey]
+    }
+  }
+
+  async function runIdCardOcr(side: 'front' | 'back') {
+    const url = side === 'front' ? images.value.sfz1zp || images.value.syrzp : images.value.sfz2zp
+    if (!url) {
+      ElMessage.warning(`请先上传身份证${side === 'front' ? '正面' : '反面'}`)
+      return
+    }
+    const key = side === 'front' ? 'id_front' : 'id_back'
+    ocrLoading[key] = true
+    try {
+      const data = await fetchAcceptRecognizeIdCard(url, side)
+      if (side === 'front') {
+        applyIdCardFrontResult(data as Record<string, unknown>, form.value, true)
+        ocrDone[key] = true
+        ElMessage.success('OCR识别成功')
+      } else if (data.id_number && data.id_number !== form.value.sfzmhm) {
+        ElMessage.warning('身份证号码不一致，请核实')
+      } else {
+        ocrDone[key] = true
+        ElMessage.success('身份证反面识别成功')
+      }
+    } finally {
+      ocrLoading[key] = false
+    }
+  }
+
+  async function runLicenseOcr() {
+    if (!images.value.syrzp) {
+      ElMessage.warning('请先上传营业执照原件')
+      return
+    }
+    ocrLoading.license = true
+    try {
+      const data = await fetchAcceptRecognizeLicense(images.value.syrzp)
+      applyLicenseOcrResult(data as Record<string, unknown>, form.value)
+      ocrDone.license = true
+      ElMessage.success('OCR识别成功')
+    } finally {
+      ocrLoading.license = false
+    }
+  }
+
+  function mapOwnerFields() {
+    const base: Record<string, unknown> = {
+      vehicle_id: props.vehicleId,
+      syr: form.value.syr || '',
+      sfzmhm: form.value.sfzmhm || '',
+      dh: form.value.dh || '',
+      dz: form.value.dz || '',
+      sfzmmc: form.value.sfzmmc || (isPersonal.value ? 'A' : 'N'),
+      hpzl: props.vehicleForm.hpzl || form.value.hpzl || '',
+      syq: String(props.syq),
+      zcbj: props.hplx === 3 ? '0' : '1',
+      sfyd: props.hplx === 1 ? '0' : '1',
+      syrsmrz: form.value.syrsmrz || '',
+      syrzp: isPersonal.value
+        ? images.value.sfz1zp || images.value.syrzp || ''
+        : images.value.syrzp || '',
+      qksmzp: images.value.qksmzp || '',
+      xszzp: props.vehicleImages.xszzp || '',
+      tcjczp: props.vehicleImages.xszzpfy || '',
+      xszbmzp: props.vehicleImages.xszbmzp || '',
+      czzp: props.vehicleImages.czzp || '',
+      blpzzp: images.value.blpzzp || ''
+    }
+    if (isPersonal.value) {
+      base.sfz1zp = images.value.sfz1zp || images.value.syrzp || ''
+      base.sfz2zp = images.value.sfz2zp || ''
+    }
+    return base
+  }
+
+  async function save() {
+    await fetchAcceptSaveOwner(mapOwnerFields() as never)
+  }
+
+  onMounted(() => {
+    loadIdTypeOptions()
+  })
+
+  defineExpose({ save, clearOcrState, handleUpload, handleRemove })
 </script>

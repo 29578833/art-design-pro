@@ -15,9 +15,9 @@
         :ocr-loading="!!ocrLoading.driving_front"
         :ocr-done="!!ocrDone.driving_front"
         :readonly="readonly"
-        @upload="(file) => emit('upload', 'xszzp', file)"
-        @remove="emit('remove', 'xszzp')"
-        @ocr="emit('ocr-driving', 'front')"
+        @upload="(file) => handleUpload('xszzp', file)"
+        @remove="handleRemove('xszzp')"
+        @ocr="runDrivingOcr('front')"
       />
       <UploadSlot
         label="行驶证副页"
@@ -28,9 +28,9 @@
         :ocr-loading="!!ocrLoading.driving_back"
         :ocr-done="!!ocrDone.driving_back"
         :readonly="readonly"
-        @upload="(file) => emit('upload', 'xszzpfy', file)"
-        @remove="emit('remove', 'xszzpfy')"
-        @ocr="emit('ocr-driving', 'back')"
+        @upload="(file) => handleUpload('xszzpfy', file)"
+        @remove="handleRemove('xszzpfy')"
+        @ocr="runDrivingOcr('back')"
       />
       <UploadSlot
         label="正副背面"
@@ -41,9 +41,9 @@
         :ocr-loading="!!ocrLoading.driving_both"
         :ocr-done="!!ocrDone.driving_both"
         :readonly="readonly"
-        @upload="(file) => emit('upload', 'xszbmzp', file)"
-        @remove="emit('remove', 'xszbmzp')"
-        @ocr="emit('ocr-driving', 'both')"
+        @upload="(file) => handleUpload('xszbmzp', file)"
+        @remove="handleRemove('xszbmzp')"
+        @ocr="runDrivingOcr('both')"
       />
       <UploadSlot
         label="产证一二页"
@@ -54,9 +54,9 @@
         :ocr-loading="!!ocrLoading.cert"
         :ocr-done="!!ocrDone.cert"
         :readonly="readonly"
-        @upload="(file) => emit('upload', 'czzp', file)"
-        @remove="emit('remove', 'czzp')"
-        @ocr="emit('ocr-cert')"
+        @upload="(file) => handleUpload('czzp', file)"
+        @remove="handleRemove('czzp')"
+        @ocr="runRegCertOcr"
       />
     </div>
     <div v-if="ocrFilled" class="ae-ocr-ok">
@@ -83,7 +83,7 @@
           <ElFormItem label="号牌种类" required>
             <ElSelect v-model="form.hpzl" placeholder="请选择" filterable clearable>
               <ElOption
-                v-for="option in hpzlOptions"
+                v-for="option in hpzlDict"
                 :key="option.value"
                 :label="option.label"
                 :value="option.value"
@@ -105,7 +105,7 @@
               clearable
               filterable
               style="width: 100%"
-              @change="emit('change-cllx', $event)"
+              @change="onCllxChange"
             />
           </ElFormItem>
         </ElCol>
@@ -113,7 +113,7 @@
           <ElFormItem label="使用性质">
             <ElSelect v-model="form.syxz" placeholder="请选择" filterable clearable>
               <ElOption
-                v-for="option in syxzOptions"
+                v-for="option in syxzDict"
                 :key="option.value"
                 :label="option.label"
                 :value="option.value"
@@ -160,7 +160,7 @@
           <ElFormItem label="燃油种类">
             <ElSelect v-model="form.rlzl" placeholder="请选择" filterable clearable>
               <ElOption
-                v-for="option in rlzlOptions"
+                v-for="option in rlzlDict"
                 :key="option.value"
                 :label="option.label"
                 :value="option.value"
@@ -298,59 +298,163 @@
 </template>
 
 <script setup lang="ts">
+  import {
+    fetchAcceptRecognizeDrivingLicense,
+    fetchAcceptRecognizeRegCert,
+    fetchAcceptSaveVehicle,
+    fetchAcceptUploadImage
+  } from '@/api/recycle/accept'
+  import type { AcceptHplx } from '@/types/recycle/accept'
+  import { fetchCllxCascade, fetchDataDictList } from '@/api/recycle/data-dict'
   import type { CllxCascadeNode } from '@/types/recycle/data-dict'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import type { CascaderOption } from 'element-plus'
+  import { ElMessage } from 'element-plus'
+  import { FALLBACK_HPZL, FALLBACK_RLZL, FALLBACK_SYXZ, VEHICLE_OCR_KEY } from './archive-constants'
+  import { str } from './archive-utils'
+  import { applyDrivingOcrResult, applyRegCertOcrResult } from './ocr'
   import UploadSlot from './upload-slot.vue'
   import type {
     ArchiveDictOption,
     ArchiveOcrState,
+    ArchiveOwnerForm,
     ArchiveVehicleForm,
     ArchiveVehicleImages
   } from './types'
 
   defineOptions({ name: 'VehicleArchiveVehicleStep' })
 
-  interface Props {
-    /** 车辆证件图片。 */
-    images: ArchiveVehicleImages
-    /** 号牌种类选项。 */
-    hpzlOptions: ArchiveDictOption[]
-    /** 使用性质选项。 */
-    syxzOptions: ArchiveDictOption[]
-    /** 燃料种类选项。 */
-    rlzlOptions: ArchiveDictOption[]
-    /** 车辆类型级联选项。 */
-    cllxOptions: CllxCascadeNode[]
-    /** OCR 加载状态。 */
-    ocrLoading: ArchiveOcrState
-    /** OCR 完成状态。 */
-    ocrDone: ArchiveOcrState
-    /** 是否已有 OCR 字段回填。 */
-    ocrFilled: boolean
+  const props = defineProps<{
+    /** 车辆 ID。 */
+    vehicleId: number
+    /** 车辆属地。 */
+    hplx: AcceptHplx
+    /** 所有人表单（OCR 回填用）。 */
+    ownerForm: ArchiveOwnerForm
     /** 是否只读。 */
     readonly: boolean
-  }
+  }>()
 
-  const props = defineProps<Props>()
-
-  const cascaderOptions = computed(() => props.cllxOptions as unknown as CascaderOption[])
-
-  /** 车辆表单模型。 */
   const form = defineModel<ArchiveVehicleForm>('form', { required: true })
-  /** 当前车辆类型值。 */
+  const images = defineModel<ArchiveVehicleImages>('images', { required: true })
   const cllxPath = defineModel<string>('cllxPath', { required: true })
 
-  const emit = defineEmits<{
-    /** 上传车辆证件。 */
-    upload: [field: keyof ArchiveVehicleImages, file: File]
-    /** 删除车辆证件。 */
-    remove: [field: keyof ArchiveVehicleImages]
-    /** 识别行驶证。 */
-    'ocr-driving': [side: 'front' | 'back' | 'both']
-    /** 识别机动车登记证书。 */
-    'ocr-cert': []
-    /** 修改车辆类型。 */
-    'change-cllx': [value: unknown]
-  }>()
+  const ocrLoading = reactive<ArchiveOcrState>({})
+  const ocrDone = reactive<ArchiveOcrState>({})
+  const hpzlDict = ref<ArchiveDictOption[]>([])
+  const syxzDict = ref<ArchiveDictOption[]>([])
+  const rlzlDict = ref<ArchiveDictOption[]>([])
+  const cllxOptions = ref<CllxCascadeNode[]>([])
+
+  const cascaderOptions = computed(() => cllxOptions.value as unknown as CascaderOption[])
+  const ocrFilled = computed(
+    () => !!(ocrDone.driving_front || ocrDone.driving_back || ocrDone.driving_both || ocrDone.cert)
+  )
+
+  async function loadDict(type: string, fallback: ArchiveDictOption[]) {
+    try {
+      const res = await fetchDataDictList({ dict_type: type, status: 1, page: 1, limit: 200 })
+      const list = (res.list || []).map((i) => ({
+        label: i.dict_label || String(i.dict_value ?? ''),
+        value: String(i.dict_value ?? '')
+      }))
+      return list.length ? list : fallback
+    } catch {
+      return fallback
+    }
+  }
+
+  async function loadOptions() {
+    const [hpzl, syxz, rlzl, cascade] = await Promise.all([
+      loadDict('hpzl', FALLBACK_HPZL),
+      loadDict('syxz', FALLBACK_SYXZ),
+      loadDict('rlzl', FALLBACK_RLZL),
+      fetchCllxCascade().catch(() => [] as CllxCascadeNode[])
+    ])
+    hpzlDict.value = hpzl
+    syxzDict.value = syxz
+    rlzlDict.value = rlzl
+    cllxOptions.value = cascade || []
+  }
+
+  function clearOcrState() {
+    Object.keys(ocrLoading).forEach((k) => delete ocrLoading[k])
+    Object.keys(ocrDone).forEach((k) => delete ocrDone[k])
+  }
+
+  function onCllxChange(val: unknown) {
+    form.value.cllx = val == null || Array.isArray(val) ? '' : String(val)
+  }
+
+  async function handleUpload(field: keyof ArchiveVehicleImages, file: File) {
+    const url = await fetchAcceptUploadImage({
+      file,
+      vehicle_id: props.vehicleId,
+      field
+    })
+    if (url) images.value[field] = url
+  }
+
+  function handleRemove(field: keyof ArchiveVehicleImages) {
+    images.value[field] = ''
+    const ocrKey = VEHICLE_OCR_KEY[field]
+    if (ocrKey) {
+      delete ocrDone[ocrKey]
+      delete ocrLoading[ocrKey]
+    }
+  }
+
+  async function runDrivingOcr(side: 'front' | 'back' | 'both') {
+    const fieldMap = { front: 'xszzp', back: 'xszzpfy', both: 'xszbmzp' } as const
+    const labelMap = { front: '正页', back: '副页', both: '正副背面' } as const
+    const keyMap = { front: 'driving_front', back: 'driving_back', both: 'driving_both' } as const
+    const field = fieldMap[side]
+    const url = images.value[field]
+    if (!url) {
+      ElMessage.warning(`请先上传行驶证${labelMap[side]}照片`)
+      return
+    }
+    const key = keyMap[side]
+    ocrLoading[key] = true
+    try {
+      const data = await fetchAcceptRecognizeDrivingLicense(url)
+      applyDrivingOcrResult(data as unknown as Record<string, unknown>, form.value, props.ownerForm)
+      if (data.vehicle_type) cllxPath.value = str(data.vehicle_type)
+      ocrDone[key] = true
+      ElMessage.success('OCR识别成功')
+    } finally {
+      ocrLoading[key] = false
+    }
+  }
+
+  async function runRegCertOcr() {
+    if (!images.value.czzp) {
+      ElMessage.warning('请先上传产证一二页照片')
+      return
+    }
+    ocrLoading.cert = true
+    try {
+      const data = await fetchAcceptRecognizeRegCert(images.value.czzp)
+      applyRegCertOcrResult(data as Record<string, unknown>, form.value)
+      if (data.vehicle_type) cllxPath.value = str(data.vehicle_type)
+      ocrDone.cert = true
+      ElMessage.success('OCR识别成功')
+    } finally {
+      ocrLoading.cert = false
+    }
+  }
+
+  async function save() {
+    await fetchAcceptSaveVehicle({
+      vehicle_id: props.vehicleId,
+      hplx: props.hplx,
+      ...form.value,
+      xszzp: images.value.xszzp || '',
+      xszzpfy: images.value.xszzpfy || '',
+      xszbmzp: images.value.xszbmzp || '',
+      czzp: images.value.czzp || ''
+    } as never)
+  }
+
+  defineExpose({ save, clearOcrState, loadOptions, handleUpload, handleRemove })
 </script>

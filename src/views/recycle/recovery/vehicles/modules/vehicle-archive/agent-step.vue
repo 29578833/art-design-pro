@@ -1,6 +1,6 @@
 <template>
   <div class="ae-section">
-    <ElCheckbox v-model="hasAgent" :disabled="readonly" @change="emit('toggle', !!$event)">
+    <ElCheckbox v-model="hasAgent" :disabled="readonly" @change="onAgentToggle(!!$event)">
       代办场景（有代理人代为办理）
     </ElCheckbox>
   </div>
@@ -21,9 +21,9 @@
           :ocr-loading="!!ocrLoading.agent_front"
           :ocr-done="!!ocrDone.agent_front"
           :readonly="readonly"
-          @upload="(file) => emit('upload', 'jbrsfz1zp', file)"
-          @remove="emit('remove', 'jbrsfz1zp')"
-          @ocr="emit('ocr-id-card', 'front')"
+          @upload="(file) => handleUpload('jbrsfz1zp', file)"
+          @remove="handleRemove('jbrsfz1zp')"
+          @ocr="runAgentIdOcr('front')"
         />
         <UploadSlot
           label="代理人身份证反面"
@@ -35,17 +35,17 @@
           :ocr-loading="!!ocrLoading.agent_back"
           :ocr-done="!!ocrDone.agent_back"
           :readonly="readonly"
-          @upload="(file) => emit('upload', 'jbrsfz2zp', file)"
-          @remove="emit('remove', 'jbrsfz2zp')"
-          @ocr="emit('ocr-id-card', 'back')"
+          @upload="(file) => handleUpload('jbrsfz2zp', file)"
+          @remove="handleRemove('jbrsfz2zp')"
+          @ocr="runAgentIdOcr('back')"
         />
         <UploadSlot
           label="委托说明"
           required
           :url="images.jbrzp"
           :readonly="readonly"
-          @upload="(file) => emit('upload', 'jbrzp', file)"
-          @remove="emit('remove', 'jbrzp')"
+          @upload="(file) => handleUpload('jbrzp', file)"
+          @remove="handleRemove('jbrzp')"
         />
       </div>
       <div v-if="ocrFilled" class="ae-ocr-ok">
@@ -78,40 +78,108 @@
 </template>
 
 <script setup lang="ts">
+  import {
+    fetchAcceptRecognizeIdCard,
+    fetchAcceptSaveAgent,
+    fetchAcceptUploadImage
+  } from '@/api/recycle/accept'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import { ElMessage } from 'element-plus'
+  import { AGENT_OCR_KEY } from './archive-constants'
+  import { applyIdCardFrontResult } from './ocr'
   import UploadSlot from './upload-slot.vue'
   import type { ArchiveAgentForm, ArchiveAgentImages, ArchiveOcrState } from './types'
 
   defineOptions({ name: 'VehicleArchiveAgentStep' })
 
-  interface Props {
-    /** 代理人证件图片。 */
-    images: ArchiveAgentImages
-    /** OCR 加载状态。 */
-    ocrLoading: ArchiveOcrState
-    /** OCR 完成状态。 */
-    ocrDone: ArchiveOcrState
-    /** 是否已有 OCR 字段回填。 */
-    ocrFilled: boolean
+  const props = defineProps<{
+    /** 车辆 ID。 */
+    vehicleId: number
     /** 是否只读。 */
     readonly: boolean
+  }>()
+
+  const hasAgent = defineModel<boolean>('hasAgent', { required: true })
+  const form = defineModel<ArchiveAgentForm>('form', { required: true })
+  const images = defineModel<ArchiveAgentImages>('images', { required: true })
+
+  const ocrLoading = reactive<ArchiveOcrState>({})
+  const ocrDone = reactive<ArchiveOcrState>({})
+  const ocrFilled = computed(() => !!(ocrDone.agent_front || ocrDone.agent_back))
+
+  function clearOcrState() {
+    Object.keys(ocrLoading).forEach((k) => delete ocrLoading[k])
+    Object.keys(ocrDone).forEach((k) => delete ocrDone[k])
   }
 
-  defineProps<Props>()
+  function onAgentToggle(val: boolean) {
+    if (!val) {
+      form.value.jbr = ''
+      form.value.jbrsfzmhm = ''
+      form.value.jbrdh = ''
+      form.value.jbrsmrz = ''
+      images.value.jbrsfz1zp = ''
+      images.value.jbrsfz2zp = ''
+      images.value.jbrzp = ''
+    }
+  }
 
-  /** 是否由代理人代办。 */
-  const hasAgent = defineModel<boolean>('hasAgent', { required: true })
-  /** 代理人表单模型。 */
-  const form = defineModel<ArchiveAgentForm>('form', { required: true })
+  async function handleUpload(field: keyof ArchiveAgentImages, file: File) {
+    const url = await fetchAcceptUploadImage({
+      file,
+      vehicle_id: props.vehicleId,
+      field
+    })
+    if (url) images.value[field] = url
+  }
 
-  const emit = defineEmits<{
-    /** 切换是否代办。 */
-    toggle: [enabled: boolean]
-    /** 上传代理人材料。 */
-    upload: [field: keyof ArchiveAgentImages, file: File]
-    /** 删除代理人材料。 */
-    remove: [field: keyof ArchiveAgentImages]
-    /** 识别代理人身份证。 */
-    'ocr-id-card': [side: 'front' | 'back']
-  }>()
+  function handleRemove(field: keyof ArchiveAgentImages) {
+    images.value[field] = ''
+    const ocrKey = AGENT_OCR_KEY[field]
+    if (ocrKey) {
+      delete ocrDone[ocrKey]
+      delete ocrLoading[ocrKey]
+    }
+  }
+
+  async function runAgentIdOcr(side: 'front' | 'back') {
+    const url = side === 'front' ? images.value.jbrsfz1zp : images.value.jbrsfz2zp
+    if (!url) {
+      ElMessage.warning(`请先上传代理人身份证${side === 'front' ? '正面' : '反面'}`)
+      return
+    }
+    const key = side === 'front' ? 'agent_front' : 'agent_back'
+    ocrLoading[key] = true
+    try {
+      const data = await fetchAcceptRecognizeIdCard(url, side)
+      if (side === 'front') {
+        applyIdCardFrontResult(data as Record<string, unknown>, form.value, false)
+        ocrDone[key] = true
+        ElMessage.success('OCR识别成功')
+      } else if (data.id_number && data.id_number !== form.value.jbrsfzmhm) {
+        ElMessage.warning('身份证号码不一致，请核实')
+      } else {
+        ocrDone[key] = true
+        ElMessage.success('身份证反面识别成功')
+      }
+    } finally {
+      ocrLoading[key] = false
+    }
+  }
+
+  async function save() {
+    await fetchAcceptSaveAgent({
+      vehicle_id: props.vehicleId,
+      has_agent: hasAgent.value ? 1 : 0,
+      jbr: form.value.jbr || '',
+      jbrsfzmhm: form.value.jbrsfzmhm || '',
+      jbrdh: form.value.jbrdh || '',
+      jbrsmrz: form.value.jbrsmrz || '',
+      jbrzp: images.value.jbrzp || '',
+      jbrsfz1zp: images.value.jbrsfz1zp || '',
+      jbrsfz2zp: images.value.jbrsfz2zp || ''
+    } as never)
+  }
+
+  defineExpose({ save, clearOcrState, handleUpload, handleRemove })
 </script>

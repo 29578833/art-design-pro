@@ -5,7 +5,7 @@
         报废机动车回收证明
         <span class="ae-readonly-badge">商务部同步 · 只读</span>
       </span>
-      <ElButton size="small" type="primary" @click="emit('download-certificate')">下载</ElButton>
+      <ElButton size="small" type="primary" @click="handleCertificateAction">下载</ElButton>
     </div>
     <div class="ae-cert-preview">
       <div v-if="scrapFilesLoading" class="ae-cert-empty">加载回收证明数据...</div>
@@ -33,15 +33,15 @@
         required
         :url="ownerImages.syrzp"
         :readonly="readonly"
-        @upload="(file) => emit('upload-owner', 'syrzp', file)"
-        @remove="emit('remove-owner', 'syrzp')"
+        @upload="(file) => handleOwnerUpload('syrzp', file)"
+        @remove="handleOwnerRemove('syrzp')"
       />
       <UploadSlot
         label="缺失情况说明"
         :url="ownerImages.qksmzp"
         :readonly="readonly"
-        @upload="(file) => emit('upload-owner', 'qksmzp', file)"
-        @remove="emit('remove-owner', 'qksmzp')"
+        @upload="(file) => handleOwnerUpload('qksmzp', file)"
+        @remove="handleOwnerRemove('qksmzp')"
       />
     </template>
     <template v-else>
@@ -50,23 +50,23 @@
         required
         :url="ownerImages.sfz1zp || ownerImages.syrzp"
         :readonly="readonly"
-        @upload="(file) => emit('upload-owner', 'sfz1zp', file)"
-        @remove="emit('remove-owner', 'sfz1zp')"
+        @upload="(file) => handleOwnerUpload('sfz1zp', file)"
+        @remove="handleOwnerRemove('sfz1zp')"
       />
       <UploadSlot
         label="身份证反面"
         required
         :url="ownerImages.sfz2zp"
         :readonly="readonly"
-        @upload="(file) => emit('upload-owner', 'sfz2zp', file)"
-        @remove="emit('remove-owner', 'sfz2zp')"
+        @upload="(file) => handleOwnerUpload('sfz2zp', file)"
+        @remove="handleOwnerRemove('sfz2zp')"
       />
       <UploadSlot
         label="缺失情况说明"
         :url="ownerImages.qksmzp"
         :readonly="readonly"
-        @upload="(file) => emit('upload-owner', 'qksmzp', file)"
-        @remove="emit('remove-owner', 'qksmzp')"
+        @upload="(file) => handleOwnerUpload('qksmzp', file)"
+        @remove="handleOwnerRemove('qksmzp')"
       />
     </template>
   </div>
@@ -78,32 +78,32 @@
       required
       :url="vehicleImages.xszzp"
       :readonly="readonly"
-      @upload="(file) => emit('upload-vehicle', 'xszzp', file)"
-      @remove="emit('remove-vehicle', 'xszzp')"
+      @upload="(file) => handleVehicleUpload('xszzp', file)"
+      @remove="handleVehicleRemove('xszzp')"
     />
     <UploadSlot
       label="行驶证副页"
       required
       :url="vehicleImages.xszzpfy"
       :readonly="readonly"
-      @upload="(file) => emit('upload-vehicle', 'xszzpfy', file)"
-      @remove="emit('remove-vehicle', 'xszzpfy')"
+      @upload="(file) => handleVehicleUpload('xszzpfy', file)"
+      @remove="handleVehicleRemove('xszzpfy')"
     />
     <UploadSlot
       label="正副背面"
       required
       :url="vehicleImages.xszbmzp"
       :readonly="readonly"
-      @upload="(file) => emit('upload-vehicle', 'xszbmzp', file)"
-      @remove="emit('remove-vehicle', 'xszbmzp')"
+      @upload="(file) => handleVehicleUpload('xszbmzp', file)"
+      @remove="handleVehicleRemove('xszbmzp')"
     />
     <UploadSlot
       label="产证一二页"
       required
       :url="vehicleImages.czzp"
       :readonly="readonly"
-      @upload="(file) => emit('upload-vehicle', 'czzp', file)"
-      @remove="emit('remove-vehicle', 'czzp')"
+      @upload="(file) => handleVehicleUpload('czzp', file)"
+      @remove="handleVehicleRemove('czzp')"
     />
   </div>
   <div class="ae-ocr-grid cols-4" style="margin-top: 12px">
@@ -111,15 +111,15 @@
       label="产权变更页（如有）"
       :url="ownerImages.blpzzp"
       :readonly="readonly"
-      @upload="(file) => emit('upload-owner', 'blpzzp', file)"
-      @remove="emit('remove-owner', 'blpzzp')"
+      @upload="(file) => handleOwnerUpload('blpzzp', file)"
+      @remove="handleOwnerRemove('blpzzp')"
     />
   </div>
 
   <div class="ae-section-title">拖车进场照片</div>
   <div v-if="readonly" class="ae-ocr-grid cols-4">
     <ReadonlyPhoto
-      v-for="item in towReadonlyItems"
+      v-for="item in TOW_READONLY_ITEMS"
       :key="item.field"
       :item="item"
       :url="getScrapFileUrl(item.field)"
@@ -130,27 +130,27 @@
       label="拖车单"
       required
       :url="materialImages.photo_front"
-      @upload="(file) => emit('upload-material', 'photo_front', file)"
-      @remove="emit('remove-material', 'photo_front')"
+      @upload="(file) => handleMaterialUpload('photo_front', file)"
+      @remove="handleMaterialRemove('photo_front')"
     />
     <UploadSlot
       label="整车照"
       required
       :url="materialImages.photo_side"
-      @upload="(file) => emit('upload-material', 'photo_side', file)"
-      @remove="emit('remove-material', 'photo_side')"
+      @upload="(file) => handleMaterialUpload('photo_side', file)"
+      @remove="handleMaterialRemove('photo_side')"
     />
     <UploadSlot
       label="车架拓印照"
       :url="materialImages.photo_back"
-      @upload="(file) => emit('upload-material', 'photo_back', file)"
-      @remove="emit('remove-material', 'photo_back')"
+      @upload="(file) => handleMaterialUpload('photo_back', file)"
+      @remove="handleMaterialRemove('photo_back')"
     />
     <UploadSlot
       label="车架号照"
       :url="materialImages.photo_interior"
-      @upload="(file) => emit('upload-material', 'photo_interior', file)"
-      @remove="emit('remove-material', 'photo_interior')"
+      @upload="(file) => handleMaterialUpload('photo_interior', file)"
+      @remove="handleMaterialRemove('photo_interior')"
     />
   </div>
 
@@ -161,24 +161,24 @@
       required
       :url="agentImages.jbrsfz1zp"
       :readonly="readonly"
-      @upload="(file) => emit('upload-agent', 'jbrsfz1zp', file)"
-      @remove="emit('remove-agent', 'jbrsfz1zp')"
+      @upload="(file) => handleAgentUpload('jbrsfz1zp', file)"
+      @remove="handleAgentRemove('jbrsfz1zp')"
     />
     <UploadSlot
       label="代理人身份证反面"
       required
       :url="agentImages.jbrsfz2zp"
       :readonly="readonly"
-      @upload="(file) => emit('upload-agent', 'jbrsfz2zp', file)"
-      @remove="emit('remove-agent', 'jbrsfz2zp')"
+      @upload="(file) => handleAgentUpload('jbrsfz2zp', file)"
+      @remove="handleAgentRemove('jbrsfz2zp')"
     />
     <UploadSlot
       label="委托说明"
       required
       :url="agentImages.jbrzp"
       :readonly="readonly"
-      @upload="(file) => emit('upload-agent', 'jbrzp', file)"
-      @remove="emit('remove-agent', 'jbrzp')"
+      @upload="(file) => handleAgentUpload('jbrzp', file)"
+      @remove="handleAgentRemove('jbrzp')"
     />
   </div>
 
@@ -193,7 +193,7 @@
     </div>
     <div class="ae-readonly-grid">
       <ReadonlyPhoto
-        v-for="item in dismantlePhotoItems"
+        v-for="item in DISMANTLE_PHOTO_ITEMS"
         :key="item.field"
         :item="item"
         :url="getScrapFileUrl(item.field)"
@@ -214,7 +214,7 @@
         </div>
       </div>
       <ReadonlyPhoto
-        v-for="item in cancelPhotoItems"
+        v-for="item in CANCEL_PHOTO_ITEMS"
         :key="item.field"
         :item="item"
         :url="getScrapFileUrl(item.field)"
@@ -224,66 +224,127 @@
 </template>
 
 <script setup lang="ts">
+  import { fetchAcceptFilesCache, fetchAcceptUploadImage } from '@/api/recycle/accept'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import { ElMessage } from 'element-plus'
+  import {
+    CANCEL_PHOTO_ITEMS,
+    DISMANTLE_PHOTO_ITEMS,
+    TOW_READONLY_ITEMS
+  } from './archive-constants'
+  import { str } from './archive-utils'
   import ReadonlyPhoto from './readonly-photo.vue'
   import UploadSlot from './upload-slot.vue'
   import type {
     ArchiveAgentImages,
+    ArchiveCacheFile,
     ArchiveMaterialImages,
     ArchiveOwnerImages,
-    ArchivePhotoItem,
     ArchiveVehicleImages
   } from './types'
 
   defineOptions({ name: 'VehicleArchiveMaterialsStep' })
 
-  interface Props {
+  const props = defineProps<{
+    /** 车辆 ID。 */
+    vehicleId: number
     /** 是否为企业或单位所有人。 */
     isCompany: boolean
     /** 是否只读。 */
     readonly: boolean
-    /** 回收登记单号。 */
-    scrapDjid: string
-    /** 回收证明文件是否加载中。 */
-    scrapFilesLoading: boolean
-    /** 所有人证件图片。 */
-    ownerImages: ArchiveOwnerImages
-    /** 车辆证件图片。 */
-    vehicleImages: ArchiveVehicleImages
-    /** 代理人证件图片。 */
-    agentImages: ArchiveAgentImages
-    /** 进场材料图片。 */
-    materialImages: ArchiveMaterialImages
-    /** 拖车只读照片配置。 */
-    towReadonlyItems: ArchivePhotoItem[]
-    /** 拆解只读照片配置。 */
-    dismantlePhotoItems: ArchivePhotoItem[]
-    /** 注销只读照片配置。 */
-    cancelPhotoItems: ArchivePhotoItem[]
-    /** 按后端字段名获取商务部缓存图片地址。 */
-    getScrapFileUrl: (field: string) => string
+  }>()
+
+  const ownerImages = defineModel<ArchiveOwnerImages>('ownerImages', { required: true })
+  const vehicleImages = defineModel<ArchiveVehicleImages>('vehicleImages', { required: true })
+  const agentImages = defineModel<ArchiveAgentImages>('agentImages', { required: true })
+  const materialImages = defineModel<ArchiveMaterialImages>('materialImages', { required: true })
+
+  const scrapDjid = ref('')
+  const scrapFilesLoading = ref(false)
+  const scrapCacheFiles = ref<Record<string, ArchiveCacheFile>>({})
+
+  function getScrapFileUrl(field: string) {
+    const fileData = scrapCacheFiles.value[field]
+    if (!fileData) return ''
+    if (typeof fileData === 'string') return fileData
+    return fileData.url || ''
   }
 
-  defineProps<Props>()
+  function clearScrapFiles() {
+    scrapCacheFiles.value = {}
+    scrapDjid.value = ''
+  }
 
-  const emit = defineEmits<{
-    /** 下载回收证明。 */
-    'download-certificate': []
-    /** 上传所有人材料。 */
-    'upload-owner': [field: keyof ArchiveOwnerImages, file: File]
-    /** 删除所有人材料。 */
-    'remove-owner': [field: keyof ArchiveOwnerImages]
-    /** 上传车辆材料。 */
-    'upload-vehicle': [field: keyof ArchiveVehicleImages, file: File]
-    /** 删除车辆材料。 */
-    'remove-vehicle': [field: keyof ArchiveVehicleImages]
-    /** 上传代理人材料。 */
-    'upload-agent': [field: keyof ArchiveAgentImages, file: File]
-    /** 删除代理人材料。 */
-    'remove-agent': [field: keyof ArchiveAgentImages]
-    /** 上传进场材料。 */
-    'upload-material': [field: keyof ArchiveMaterialImages, file: File]
-    /** 删除进场材料。 */
-    'remove-material': [field: keyof ArchiveMaterialImages]
-  }>()
+  async function loadScrapFiles() {
+    if (!props.vehicleId || scrapFilesLoading.value) return
+    scrapFilesLoading.value = true
+    try {
+      const res = await fetchAcceptFilesCache(props.vehicleId)
+      scrapCacheFiles.value = (res.bfcj || {}) as Record<string, ArchiveCacheFile>
+      scrapDjid.value = str(res.djid)
+    } catch {
+      scrapCacheFiles.value = {}
+      scrapDjid.value = ''
+    } finally {
+      scrapFilesLoading.value = false
+    }
+  }
+
+  async function uploadImage(field: string, file: File) {
+    return fetchAcceptUploadImage({
+      file,
+      vehicle_id: props.vehicleId,
+      field
+    })
+  }
+
+  async function handleOwnerUpload(field: keyof ArchiveOwnerImages, file: File) {
+    const url = await uploadImage(field, file)
+    if (url) {
+      ownerImages.value[field] = url
+      if (field === 'sfz1zp') ownerImages.value.syrzp = url
+    }
+  }
+
+  function handleOwnerRemove(field: keyof ArchiveOwnerImages) {
+    ownerImages.value[field] = ''
+    if (field === 'sfz1zp') ownerImages.value.syrzp = ''
+  }
+
+  async function handleVehicleUpload(field: keyof ArchiveVehicleImages, file: File) {
+    const url = await uploadImage(field, file)
+    if (url) vehicleImages.value[field] = url
+  }
+
+  function handleVehicleRemove(field: keyof ArchiveVehicleImages) {
+    vehicleImages.value[field] = ''
+  }
+
+  async function handleAgentUpload(field: keyof ArchiveAgentImages, file: File) {
+    const url = await uploadImage(field, file)
+    if (url) agentImages.value[field] = url
+  }
+
+  function handleAgentRemove(field: keyof ArchiveAgentImages) {
+    agentImages.value[field] = ''
+  }
+
+  async function handleMaterialUpload(field: keyof ArchiveMaterialImages, file: File) {
+    const url = await uploadImage(field, file)
+    if (url) materialImages.value[field] = url
+  }
+
+  function handleMaterialRemove(field: keyof ArchiveMaterialImages) {
+    materialImages.value[field] = ''
+  }
+
+  function handleCertificateAction() {
+    if (!scrapDjid.value) {
+      ElMessage.warning('暂无回收证明数据')
+      return
+    }
+    window.open(`https://bfc.chexinmeng.com/hszma4?id=${scrapDjid.value}`, '_blank')
+  }
+
+  defineExpose({ loadScrapFiles, clearScrapFiles })
 </script>
