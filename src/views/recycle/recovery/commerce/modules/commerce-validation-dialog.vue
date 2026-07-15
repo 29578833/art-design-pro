@@ -1,93 +1,89 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    width="600px"
+    width="820px"
+    align-center
     append-to-body
+    :show-close="false"
     :close-on-click-modal="false"
-    class="commerce-validation-dialog"
+    style="padding: 0 !important"
+    class="commerce-submit-fail-dialog"
   >
-    <template #header>
-      <div class="commerce-validation-title">
-        <ArtSvgIcon icon="ri:close-circle-fill" class="commerce-validation-title-icon" />
-        提交失败·资料不齐全
+    <div class="csf-header">
+      <div class="csf-header-main">
+        <div class="csf-header-icon">
+          <ArtSvgIcon icon="ri:error-warning-line" />
+        </div>
+        <div>
+          <h3 class="csf-header-title">提交失败 · 资料不齐全</h3>
+          <p v-if="row" class="csf-header-desc">
+            {{ row.clsbdh || '—' }} · {{ row.hphm || '—' }}
+            以下功能模块存在缺失，请补全后重新提交
+          </p>
+        </div>
       </div>
-    </template>
-
-    <div v-if="row" class="commerce-validation-subtitle">
-      无{{ row.hphm || row.clsbdh || '—' }} 以下功能模块存在缺失，请补充后重新提交
+      <button type="button" class="csf-header-close" @click="dialogVisible = false">
+        <ArtSvgIcon icon="ri:close-line" />
+      </button>
     </div>
 
-    <div class="commerce-validation-body">
-      <div
-        v-if="missing.owner.fields.length || missing.owner.images.length"
-        class="commerce-validation-section"
-      >
-        <div class="commerce-validation-section-header">
-          <span class="commerce-validation-section-title">所有人信息</span>
-          <span class="commerce-validation-section-count">
-            缺失 {{ missing.owner.fields.length + missing.owner.images.length }} 项
-          </span>
-        </div>
-        <div v-if="missing.owner.fields.length" class="commerce-validation-row">
-          <span class="commerce-validation-label">缺失字段：</span>
-          <span>{{ missing.owner.fields.join('、') }}</span>
-        </div>
-        <div v-if="missing.owner.images.length" class="commerce-validation-row">
-          <span class="commerce-validation-label">缺失照片：</span>
-          <span>{{ missing.owner.images.join('、') }}</span>
-        </div>
+    <div class="csf-body">
+      <div class="csf-alert">
+        <ArtSvgIcon icon="ri:error-warning-line" class="csf-alert-icon" />
+        <span>请补全以下功能模块中标注的缺失字段和照片信息，确保所有数据完整后再提交商务部。</span>
       </div>
 
-      <div
-        v-if="missing.vehicle.fields.length || missing.vehicle.images.length"
-        class="commerce-validation-section"
-      >
-        <div class="commerce-validation-section-header">
-          <span class="commerce-validation-section-title">车辆信息</span>
-          <span class="commerce-validation-section-count">
-            缺失 {{ missing.vehicle.fields.length + missing.vehicle.images.length }} 项
+      <div v-for="item in moduleList" :key="item.module" class="csf-module">
+        <div class="csf-module-head">
+          <span class="csf-module-title">{{ item.module }}</span>
+          <span class="csf-module-count">
+            缺失 {{ item.missingFields.length + item.missingPhotos.length }} 项
           </span>
         </div>
-        <div v-if="missing.vehicle.fields.length" class="commerce-validation-row">
-          <span class="commerce-validation-label">缺失字段：</span>
-          <span>{{ missing.vehicle.fields.join('、') }}</span>
-        </div>
-        <div v-if="missing.vehicle.images.length" class="commerce-validation-row">
-          <span class="commerce-validation-label">缺失照片：</span>
-          <span>{{ missing.vehicle.images.join('、') }}</span>
-        </div>
-      </div>
-
-      <div
-        v-if="missing.agent.fields.length || missing.agent.images.length"
-        class="commerce-validation-section"
-      >
-        <div class="commerce-validation-section-header">
-          <span class="commerce-validation-section-title">代理人信息</span>
-          <span class="commerce-validation-section-count">
-            缺失 {{ missing.agent.fields.length + missing.agent.images.length }} 项
-          </span>
-        </div>
-        <div v-if="missing.agent.fields.length" class="commerce-validation-row">
-          <span class="commerce-validation-label">缺失字段：</span>
-          <span>{{ missing.agent.fields.join('、') }}</span>
-        </div>
-        <div v-if="missing.agent.images.length" class="commerce-validation-row">
-          <span class="commerce-validation-label">缺失照片：</span>
-          <span>{{ missing.agent.images.join('、') }}</span>
+        <div class="csf-module-body">
+          <div v-if="item.missingFields.length" class="csf-missing-group">
+            <div class="csf-missing-label">缺失字段：</div>
+            <div class="csf-tag-list">
+              <span v-for="field in item.missingFields" :key="field" class="csf-tag csf-tag-field">
+                <ArtSvgIcon icon="ri:error-warning-line" />
+                {{ field }}
+              </span>
+            </div>
+          </div>
+          <div v-if="item.missingPhotos.length" class="csf-missing-group">
+            <div class="csf-missing-label">缺失照片：</div>
+            <div class="csf-tag-list">
+              <span v-for="photo in item.missingPhotos" :key="photo" class="csf-tag csf-tag-photo">
+                <ArtSvgIcon icon="ri:camera-line" />
+                {{ photo }}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <template #footer>
-      <div class="commerce-validation-footer">
-        <span class="commerce-validation-summary">共 {{ totalCount }} 项资料待补全</span>
-        <div class="commerce-validation-actions">
-          <ElButton @click="dialogVisible = false">关闭</ElButton>
-          <ElButton type="primary" plain @click="emit('edit')">编辑档案</ElButton>
-        </div>
+    <div class="csf-footer">
+      <div class="csf-footer-tip">共 {{ totalCount }} 项资料待补全</div>
+      <div class="csf-footer-actions">
+        <button type="button" class="csf-btn csf-btn-close" @click="dialogVisible = false"
+          >关闭</button
+        >
+        <button type="button" class="csf-btn csf-btn-edit" @click="handleEdit">
+          <ArtSvgIcon icon="ri:edit-line" />
+          编辑档案
+        </button>
+        <button
+          type="button"
+          class="csf-btn csf-btn-submit"
+          :disabled="submitting"
+          @click="handleSubmit"
+        >
+          <ArtSvgIcon :icon="submitting ? 'ri:loader-4-line' : 'ri:send-plane-line'" />
+          {{ submitting ? '提交中…' : '提交商务部' }}
+        </button>
       </div>
-    </template>
+    </div>
   </ElDialog>
 </template>
 
@@ -96,17 +92,50 @@
   import type { AcceptListItem } from '@/types/recycle/accept'
   import type { CommerceMissingData } from '../commerce-submit-validation'
   import { countCommerceMissing } from '../commerce-submit-validation'
+  import './commerce-validation-dialog.scss'
 
   defineOptions({ name: 'CommerceValidationDialog' })
 
   interface Props {
     row: AcceptListItem | null
     missing: CommerceMissingData
+    submitting?: boolean
   }
 
-  const props = defineProps<Props>()
+  const props = withDefaults(defineProps<Props>(), {
+    submitting: false
+  })
   const dialogVisible = defineModel<boolean>('visible', { required: true })
-  const emit = defineEmits<{ edit: [] }>()
+  const emit = defineEmits<{ edit: []; submit: [] }>()
 
   const totalCount = computed(() => countCommerceMissing(props.missing))
+
+  const moduleList = computed(() =>
+    [
+      {
+        module: '所有人信息',
+        missingFields: props.missing.owner.fields,
+        missingPhotos: props.missing.owner.images
+      },
+      {
+        module: '车辆信息',
+        missingFields: props.missing.vehicle.fields,
+        missingPhotos: props.missing.vehicle.images
+      },
+      {
+        module: '代理人信息',
+        missingFields: props.missing.agent.fields,
+        missingPhotos: props.missing.agent.images
+      }
+    ].filter((item) => item.missingFields.length + item.missingPhotos.length > 0)
+  )
+
+  function handleEdit() {
+    dialogVisible.value = false
+    emit('edit')
+  }
+
+  function handleSubmit() {
+    emit('submit')
+  }
 </script>

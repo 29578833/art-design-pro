@@ -1,0 +1,274 @@
+/* 提交失败弹窗 — 对齐原型 SubmitMinistryModal */
+
+.commerce-submit-fail-dialog {
+  :deep(.el-dialog__header) {
+    display: none;
+  }
+
+  :deep(.el-dialog__body) {
+    display: flex;
+    flex-direction: column;
+    max-height: 92vh;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  :deep(.el-dialog__footer) {
+    display: none;
+  }
+}
+
+.csf-header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.csf-header-main {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+
+.csf-header-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  font-size: 20px;
+  color: #ef4444;
+  background: #fff1f0;
+  border-radius: 999px;
+}
+
+.csf-header-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #111827;
+}
+
+.csf-header-desc {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #ff4d4f;
+}
+
+.csf-header-close {
+  display: inline-flex;
+  padding: 4px;
+  font-size: 20px;
+  color: #9ca3af;
+  cursor: pointer;
+  background: none;
+  border: none;
+  border-radius: 4px;
+
+  &:hover {
+    background: #f3f4f6;
+  }
+}
+
+.csf-body {
+  flex: 1;
+  padding: 20px 24px;
+  overflow-y: auto;
+}
+
+.csf-alert {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #dc2626;
+  background: #fff1f0;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+}
+
+.csf-alert-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-size: 14px;
+}
+
+.csf-module {
+  margin-bottom: 16px;
+  overflow: hidden;
+  border: 1px solid #fee2e2;
+  border-radius: 8px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.csf-module-head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 16px;
+  background: #fef2f2;
+  border-bottom: 1px solid #fee2e2;
+}
+
+.csf-module-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #b91c1c;
+}
+
+.csf-module-count {
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #ff4d4f;
+  background: #fff1f0;
+  border-radius: 12px;
+}
+
+.csf-module-body {
+  padding: 12px 16px;
+}
+
+.csf-missing-group + .csf-missing-group {
+  margin-top: 8px;
+}
+
+.csf-missing-label {
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.csf-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.csf-tag {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid;
+  border-radius: 4px;
+}
+
+.csf-tag-field {
+  color: #ff4d4f;
+  background: #fff1f0;
+  border-color: #ffccc7;
+}
+
+.csf-tag-photo {
+  color: #fa8c16;
+  background: #fff7e6;
+  border-color: #ffd591;
+}
+
+.csf-footer {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
+
+.csf-footer-tip {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.csf-footer-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.csf-btn {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  height: 36px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: all 0.2s;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.csf-btn-close {
+  color: #4b5563;
+  background: #fff;
+  border-color: #d1d5db;
+
+  &:hover:not(:disabled) {
+    background: #f3f4f6;
+  }
+}
+
+.csf-btn-edit {
+  color: #1890ff;
+  background: #fff;
+  border-color: #1890ff;
+
+  &:hover:not(:disabled) {
+    background: #e6f7ff;
+  }
+}
+
+.csf-btn-submit {
+  padding: 0 20px;
+  color: #fff;
+  background: #1890ff;
+  border-color: #1890ff;
+
+  &:hover:not(:disabled) {
+    background: #1677ff;
+    border-color: #1677ff;
+  }
+
+  .is-loading,
+  svg {
+    font-size: 14px;
+  }
+}
+
+.csf-btn-submit:disabled svg {
+  animation: csf-spin 1s linear infinite;
+}
+
+@keyframes csf-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
