@@ -1,6 +1,7 @@
 import request from '@/utils/http'
 import type {
   AcceptAuthSmsParams,
+  AcceptDictUsernameOption,
   AcceptIdCardOcrData,
   AcceptInitFormParams,
   AcceptInitFormResult,
@@ -51,6 +52,39 @@ export async function fetchAcceptLocalList(params: AcceptListParams): Promise<Ac
   const list = Array.isArray(res) ? res : res.list || []
   const total = Array.isArray(res) ? list.length : Number(res.total || 0)
   return { records: list, total, current: page, size: limit }
+}
+
+/** 受理人字典列表 */
+export function fetchAcceptDictUsernameList() {
+  return request.get<AcceptDictUsernameOption[]>({
+    url: '/scrap/accept/dict_username_list'
+  })
+}
+
+/** 车信盟登录验证码 */
+export function fetchAcceptSendSms(data: { mobile: string }) {
+  return request.post({
+    url: '/scrap/accept/send_sms',
+    params: data,
+    showSuccessMessage: true
+  })
+}
+
+/** 车信盟验证码登录（mobile/captcha 需 SM2 加密） */
+export function fetchAcceptPhoneLogin(data: { mobile: string; captcha: string }) {
+  return request.post({
+    url: '/scrap/accept/phone_login',
+    params: data,
+    showSuccessMessage: true
+  })
+}
+
+/** 获取受理编辑数据（本地 accept_local，列表提交校验用） */
+export function fetchAcceptLocalScrapFiles(params: { vehicle_id?: number; cjid?: string }) {
+  return request.get<AcceptSyncFiles>({
+    url: '/scrap/accept_local/get_scrap_files',
+    params
+  })
 }
 
 /** 初始化受理表单（创建/绑定 owner_sync） */

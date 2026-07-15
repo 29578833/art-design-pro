@@ -5,60 +5,76 @@
         <h1 class="commerce-page-title">商务部对接</h1>
         <p class="commerce-page-desc">车辆受理登记、资料核验及商务部报废机动车平台提交</p>
       </div>
-      <ElButton type="primary" @click="pickerVisible = true">
-        <ArtSvgIcon icon="ri:add-line" />
-        新增车辆受理
-      </ElButton>
-    </div>
-
-    <div class="commerce-summary">
-      <div v-for="item in summaryCards" :key="item.label" class="commerce-summary-item">
-        <div class="commerce-summary-icon" :style="{ color: item.color, background: item.bg }">
-          <ArtSvgIcon :icon="item.icon" />
-        </div>
-        <div>
-          <div class="commerce-summary-value">{{ item.value }}</div>
-          <div class="commerce-summary-label">{{ item.label }}</div>
-        </div>
-      </div>
     </div>
 
     <ElCard class="commerce-filter-card" shadow="never">
       <ElForm :model="searchForm" label-position="top" @submit.prevent>
         <div class="commerce-filter-grid">
-          <ElFormItem label="车辆分类">
-            <ElSelect v-model="searchForm.is_vehicle_mgmt" clearable placeholder="全部分类">
-              <ElOption label="车管车辆" :value="1" />
-              <ElOption label="非车管（场内）" :value="0" />
+          <ElFormItem label="非车/车管">
+            <ElSelect v-model="searchForm.is_vehicle_mgmt" clearable placeholder="车管/非车管">
+              <ElOption label="车管" :value="1" />
+              <ElOption label="非车管" :value="0" />
             </ElSelect>
           </ElFormItem>
-          <ElFormItem label="车架号 VIN">
-            <ElInput v-model="searchForm.clsbdh" clearable placeholder="请输入车架号" />
+          <ElFormItem label="车架/号牌">
+            <ElInput
+              v-model="searchForm.clsbdh"
+              clearable
+              placeholder="输入车架号或号牌"
+              @keyup.enter="handleSearch"
+            />
           </ElFormItem>
           <ElFormItem label="受理人">
-            <ElInput v-model="searchForm.yhsjhm" clearable placeholder="请输入受理人" />
+            <ElSelect v-model="searchForm.yhsjhm" clearable filterable placeholder="受理人">
+              <ElOption
+                v-for="item in dictUsernameOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </ElSelect>
           </ElFormItem>
-          <ElFormItem label="所有人">
-            <ElInput v-model="searchForm.syr" clearable placeholder="姓名或单位名称" />
-          </ElFormItem>
-          <ElFormItem label="代理人">
-            <ElInput v-model="searchForm.jbr" clearable placeholder="请输入代理人" />
-          </ElFormItem>
-          <ElFormItem label="实名认证">
-            <ElSelect v-model="searchForm.syrsmrz" clearable placeholder="全部状态">
-              <ElOption label="已认证" value="1" />
-              <ElOption label="未认证" value="0" />
+          <ElFormItem label="平台">
+            <ElSelect v-model="searchForm.platform" clearable placeholder="平台系统">
+              <ElOption label="平台系统" value="" />
             </ElSelect>
           </ElFormItem>
           <ElFormItem label="受理时间">
             <ElDatePicker
               v-model="dateRange"
               type="daterange"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
               value-format="YYYY-MM-DD"
               unlink-panels
             />
+          </ElFormItem>
+          <ElFormItem label="所有人">
+            <div class="commerce-inline-filters">
+              <ElInput v-model="searchForm.syr" clearable placeholder="所有人" />
+              <ElSelect v-model="searchForm.syrsmrz" clearable placeholder="实名">
+                <ElOption label="实名" value="1" />
+                <ElOption label="非实名" value="0" />
+              </ElSelect>
+            </div>
+          </ElFormItem>
+          <ElFormItem label="代理人">
+            <div class="commerce-inline-filters">
+              <ElInput v-model="searchForm.jbr" clearable placeholder="代理人" />
+              <ElSelect v-model="searchForm.jbrsmrz" clearable placeholder="所有">
+                <ElOption label="所有" value="" />
+                <ElOption label="实名" value="1" />
+                <ElOption label="非实名" value="0" />
+              </ElSelect>
+            </div>
+          </ElFormItem>
+          <ElFormItem label="受理状态">
+            <ElSelect v-model="searchForm.zt" clearable placeholder="待登记" @change="handleSearch">
+              <ElOption label="待登记" value="4" />
+              <ElOption label="已登记" value="5" />
+              <ElOption label="已完成" value="6" />
+              <ElOption label="全部" value="" />
+            </ElSelect>
           </ElFormItem>
           <div class="commerce-filter-actions">
             <ElButton type="primary" @click="handleSearch">
@@ -72,6 +88,27 @@
           </div>
         </div>
       </ElForm>
+    </ElCard>
+
+    <ElCard class="commerce-toolbar-card" shadow="never">
+      <ElButton type="success" @click="loginVisible = true">
+        <ArtSvgIcon icon="ri:user-line" />
+        登录
+      </ElButton>
+    </ElCard>
+
+    <ElCard class="commerce-tab-card" shadow="never">
+      <ElTabs v-model="currentTab" @tab-change="handleTabChange">
+        <ElTabPane label="商务部对接列表" name="pending" />
+      </ElTabs>
+      <div class="commerce-check-notice">
+        <span class="commerce-check-label">检查1（上海车管）：</span>
+        通过车架号与上海车管所比对校验机动车状态是否异常、行驶证编号、产证编号、号牌号码、所有人、使用性质是否相符，提示会在车管预检列显示；
+      </div>
+      <div class="commerce-check-notice">
+        <span class="commerce-check-label">检查2（全国商委）：</span>
+        通过车架号与全国报废平台比对核该辆机动车是否重复，若重复可能此车已在其他企业或者异地受理过。提示会在去登记的时候反馈；
+      </div>
     </ElCard>
 
     <ElCard
@@ -101,66 +138,98 @@
       />
     </ElCard>
 
-    <VehiclePickerDialog v-model:visible="pickerVisible" @confirm="openArchiveEditor" />
+    <CxmLoginDialog v-model:visible="loginVisible" @success="getData" />
+    <CommerceValidationDialog
+      v-model:visible="validationVisible"
+      :row="submitRow"
+      :missing="missingData"
+      @edit="handleValidationEdit"
+    />
     <VehicleArchiveEditDialog
+      ref="archiveRef"
       v-model:visible="editorVisible"
       :vehicle-id="selectedVehicleId"
       :vehicle-row="selectedVehicleRow"
       @success="handleEditorSuccess"
     />
+    <SubmitResultDialog
+      v-model:visible="submitResultVisible"
+      :result="submitResult"
+      @fetch-archive="handleFetchArchive"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-  import { fetchAcceptLocalList } from '@/api/recycle/accept'
+  import {
+    fetchAcceptArchive,
+    fetchAcceptDictUsernameList,
+    fetchAcceptLocalList,
+    fetchAcceptLocalScrapFiles,
+    fetchAcceptSubmit,
+    fetchAcceptSubmitResult
+  } from '@/api/recycle/accept'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import type { ColumnOption } from '@/types/component'
-  import type { AcceptListItem, AcceptListParams } from '@/types/recycle/accept'
+  import type {
+    AcceptDictUsernameOption,
+    AcceptListItem,
+    AcceptListParams,
+    AcceptSubmitResult
+  } from '@/types/recycle/accept'
   import type { ScrapVehicle } from '@/types/recycle/vehicle'
   import { ElMessage, ElTag } from 'element-plus'
   import VehicleArchiveEditDialog from '../vehicles/modules/vehicle-archive-edit-dialog.vue'
-  import VehiclePickerDialog from './modules/vehicle-picker-dialog.vue'
+  import SubmitResultDialog from '../vehicles/modules/vehicle-archive/submit-result-dialog.vue'
+  import {
+    countCommerceMissing,
+    validateCommerceSubmitFields,
+    type CommerceMissingData
+  } from './commerce-submit-validation'
+  import CommerceValidationDialog from './modules/commerce-validation-dialog.vue'
+  import CxmLoginDialog from './modules/cxm-login-dialog.vue'
   import './commerce.scss'
 
   defineOptions({ name: 'RecycleCommerce' })
 
+  const currentTab = ref('pending')
+  const dictUsernameOptions = ref<AcceptDictUsernameOption[]>([])
   const searchForm = ref<AcceptListParams>({
     is_vehicle_mgmt: '',
     clsbdh: '',
     yhsjhm: '',
+    platform: '',
     syr: '',
-    jbr: '',
     syrsmrz: '',
+    jbr: '',
     jbrsmrz: '',
-    zt: ''
+    zt: '4'
   })
   const dateRange = ref<[string, string] | null>(null)
-  const pickerVisible = ref(false)
+  const loginVisible = ref(false)
   const editorVisible = ref(false)
+  const validationVisible = ref(false)
+  const submitResultVisible = ref(false)
+  const submitLoading = ref(false)
   const selectedVehicleId = ref(0)
   const selectedVehicleRow = ref<ScrapVehicle | null>(null)
+  const submitRow = ref<AcceptListItem | null>(null)
+  const submitResult = ref<AcceptSubmitResult | null>(null)
+  const missingData = ref<CommerceMissingData>({
+    owner: { fields: [], images: [] },
+    vehicle: { fields: [], images: [] },
+    agent: { fields: [], images: [] }
+  })
 
-  function statusMeta(row: AcceptListItem) {
-    if (Number(row.is_submitted_commerce) === 1) {
-      return { label: '已提交商务部', type: 'success' as const, icon: 'ri:checkbox-circle-line' }
-    }
-    if (row.zt_text) {
-      return { label: row.zt_text, type: 'primary' as const, icon: 'ri:time-line' }
-    }
-    if (!row.clsbdh || !row.syr) {
-      return { label: '资料待补全', type: 'warning' as const, icon: 'ri:error-warning-line' }
-    }
-    return { label: '待登记提交', type: 'primary' as const, icon: 'ri:file-edit-line' }
+  const archiveRef = ref<InstanceType<typeof VehicleArchiveEditDialog> | null>(null)
+
+  function getZtText(zt?: string) {
+    return String(zt) === '5' ? '已登记' : '待登记'
   }
 
-  function openRowEditor(row: AcceptListItem) {
-    if (!row.vehicle_id) {
-      ElMessage.warning('该记录尚未关联本地车辆档案')
-      return
-    }
-    selectedVehicleId.value = Number(row.vehicle_id)
-    selectedVehicleRow.value = {
+  function buildVehicleRow(row: AcceptListItem): ScrapVehicle {
+    return {
       id: Number(row.vehicle_id),
       status: Number(row.order_status || 0),
       order_no: row.order_no,
@@ -171,37 +240,53 @@
       owner_sync_id: Number(row.owner_sync_id || 0),
       is_submitted_commerce: Number(row.is_submitted_commerce || 0)
     }
-    editorVisible.value = true
   }
 
-  function renderStatus(row: AcceptListItem) {
-    const meta = statusMeta(row)
+  function openRowEditor(row: AcceptListItem, targetStep = 0) {
+    if (!row.vehicle_id) {
+      ElMessage.warning('该记录尚未关联本地车辆档案')
+      return
+    }
+    selectedVehicleId.value = Number(row.vehicle_id)
+    selectedVehicleRow.value = buildVehicleRow(row)
+    editorVisible.value = true
+    if (targetStep >= 1 && targetStep <= 5) {
+      nextTick(() => archiveRef.value?.goToStep(targetStep))
+    }
+  }
+
+  function renderEditIcon(onClick: () => void) {
     return h(
-      ElTag,
-      { type: meta.type, effect: 'light', round: false },
+      'button',
       {
-        default: () => [h(ArtSvgIcon, { icon: meta.icon, class: 'commerce-tag-icon' }), meta.label]
-      }
+        type: 'button',
+        class: 'commerce-cell-edit',
+        onClick
+      },
+      [h(ArtSvgIcon, { icon: 'ri:edit-line' })]
     )
   }
 
   function renderActions(row: AcceptListItem) {
-    const submitted = Number(row.is_submitted_commerce) === 1
     return h('div', { class: 'order-actions' }, [
       h(
         'button',
         {
           type: 'button',
-          class: `order-action-btn ${submitted ? 'default' : 'primary'}`,
+          class: 'order-action-btn default',
           onClick: () => openRowEditor(row)
         },
-        [
-          h(ArtSvgIcon, {
-            icon: submitted ? 'ri:eye-line' : 'ri:edit-line',
-            class: 'order-action-icon'
-          }),
-          submitted ? '查看资料' : '登记资料'
-        ]
+        [h(ArtSvgIcon, { icon: 'ri:file-edit-line', class: 'order-action-icon' }), '编辑档案']
+      ),
+      h(
+        'button',
+        {
+          type: 'button',
+          class: 'order-action-btn primary',
+          disabled: submitLoading.value,
+          onClick: () => handleSubmitToBusiness(row)
+        },
+        [h(ArtSvgIcon, { icon: 'ri:send-plane-line', class: 'order-action-icon' }), '提交商务部']
       )
     ])
   }
@@ -210,98 +295,109 @@
     return [
       {
         prop: 'clsbdh',
-        label: '车辆信息',
-        minWidth: 190,
-        formatter: (row: AcceptListItem) =>
-          h('div', { class: 'commerce-vehicle-cell' }, [
-            h('div', { class: 'commerce-vin' }, row.clsbdh || 'VIN 待补录'),
-            h('div', { class: 'commerce-cell-secondary' }, [
-              row.hphm || '无号牌',
-              row.order_no ? ` · ${row.order_no}` : ''
-            ])
-          ])
+        label: '车架号',
+        minWidth: 180,
+        formatter: (row: AcceptListItem) => row.clsbdh || '—'
       },
       {
-        prop: 'cllx_name',
-        label: '车辆分类',
-        minWidth: 130,
+        prop: 'hphm',
+        label: '车辆信息',
+        minWidth: 140,
+        formatter: (row: AcceptListItem) => {
+          if (!row.hphm) return '—'
+          return h('div', { class: 'commerce-person-line' }, [
+            h('span', null, row.hphm),
+            renderEditIcon(() => openRowEditor(row, 2))
+          ])
+        }
+      },
+      {
+        prop: 'is_vehicle_mgmt',
+        label: '车管/非车管',
+        minWidth: 140,
         formatter: (row: AcceptListItem) =>
           h('div', null, [
-            h('div', null, row.is_vehicle_mgmt ? '车管车辆' : '非车管（场内）'),
+            h('div', null, row.is_vehicle_mgmt ? '车管' : '非车管'),
             row.cllx_name ? h('div', { class: 'commerce-cell-secondary' }, row.cllx_name) : null
           ])
       },
       {
         prop: 'syr',
         label: '所有人',
-        minWidth: 150,
-        formatter: (row: AcceptListItem) =>
-          h('div', null, [
+        minWidth: 180,
+        formatter: (row: AcceptListItem) => {
+          if (!row.syr) return '—'
+          return h('div', null, [
             h('div', { class: 'commerce-person-line' }, [
-              h('span', null, row.syr || '—'),
+              h('span', null, row.syr),
               row.syr_verified
                 ? h(ArtSvgIcon, { icon: 'ri:verified-badge-fill', class: 'commerce-verified' })
-                : null
+                : null,
+              renderEditIcon(() => openRowEditor(row, 1))
             ]),
             row.dh ? h('div', { class: 'commerce-cell-secondary' }, row.dh) : null
           ])
+        }
       },
       {
         prop: 'jbr',
         label: '代理人',
-        minWidth: 130,
+        minWidth: 140,
         formatter: (row: AcceptListItem) =>
           h('div', null, [
             h('div', { class: 'commerce-person-line' }, [
-              h('span', null, row.jbr || '无代理人'),
+              h('span', null, row.jbr || '无'),
               row.jbr_verified
                 ? h(ArtSvgIcon, { icon: 'ri:verified-badge-fill', class: 'commerce-verified' })
-                : null
+                : null,
+              renderEditIcon(() => openRowEditor(row, 3))
             ]),
             row.jbrdh ? h('div', { class: 'commerce-cell-secondary' }, row.jbrdh) : null
           ])
       },
       {
-        prop: 'bidui_text',
-        label: '平台预查',
-        minWidth: 115,
-        formatter: (row: AcceptListItem) => {
-          if (!row.bidui_text) return h('span', { class: 'commerce-cell-muted' }, '未预查')
-          const isError = row.bidui_type === 'error'
-          return h(
-            'span',
-            { class: isError ? 'commerce-precheck error' : 'commerce-precheck success' },
-            row.bidui_text
-          )
-        }
-      },
-      {
-        prop: 'accept_time',
-        label: '受理信息',
-        minWidth: 145,
+        prop: 'yhsjhm_dictText',
+        label: '受理时间',
+        minWidth: 160,
         formatter: (row: AcceptListItem) =>
           h('div', null, [
-            h('div', null, row.accept_time || '—'),
-            row.yhsjhm_dictText
-              ? h('div', { class: 'commerce-cell-secondary' }, `受理人：${row.yhsjhm_dictText}`)
-              : null
+            h('div', null, row.yhsjhm_dictText || '—'),
+            row.accept_time ? h('div', { class: 'commerce-cell-secondary' }, row.accept_time) : null
           ])
       },
       {
-        prop: 'status',
-        label: '状态',
-        minWidth: 135,
-        formatter: (row: AcceptListItem) => renderStatus(row)
+        prop: 'zt',
+        label: '受理状态',
+        minWidth: 100,
+        formatter: (row: AcceptListItem) =>
+          h(ElTag, { type: 'warning', effect: 'light' }, () => getZtText(row.zt))
       },
       {
         prop: 'operation',
         label: '操作',
-        width: 130,
+        width: 200,
         align: 'center',
         fixed: 'right',
         formatter: (row: AcceptListItem) => renderActions(row)
       }
     ]
+  }
+
+  function queryParams() {
+    const params = {
+      ...searchForm.value,
+      startsj: dateRange.value?.[0] || '',
+      endsj: dateRange.value?.[1] || ''
+    }
+    if (!params.startsj) delete params.startsj
+    if (!params.endsj) delete params.endsj
+    return params
+  }
+
+  function handleListError(message: string) {
+    if (message.includes('外部平台响应异常') || message.includes('Token未配置')) {
+      loginVisible.value = true
+    }
   }
 
   const {
@@ -318,53 +414,20 @@
   } = useTable({
     core: {
       apiFn: fetchAcceptLocalList,
-      apiParams: { ...searchForm.value, current: 1, size: 20 },
+      apiParams: { ...queryParams(), current: 1, size: 20 },
       paginationKey: { current: 'page', size: 'limit' },
       columnsFactory: () => buildColumns()
+    },
+    hooks: {
+      onError: (error) => handleListError(error.message)
     }
   })
 
-  const summaryCards = computed(() => {
-    const rows = data.value as AcceptListItem[]
-    const submitted = rows.filter((row) => Number(row.is_submitted_commerce) === 1).length
-    const verified = rows.filter((row) => row.syr_verified).length
-    return [
-      {
-        label: '当前筛选记录',
-        value: pagination.total,
-        icon: 'ri:file-list-3-line',
-        color: '#1677ff',
-        bg: '#e6f4ff'
-      },
-      {
-        label: '本页待登记',
-        value: rows.length - submitted,
-        icon: 'ri:time-line',
-        color: '#d97706',
-        bg: '#fff7e6'
-      },
-      {
-        label: '本页已实名',
-        value: verified,
-        icon: 'ri:verified-badge-line',
-        color: '#08979c',
-        bg: '#e6fffb'
-      },
-      {
-        label: '本页已提交',
-        value: submitted,
-        icon: 'ri:send-plane-line',
-        color: '#389e0d',
-        bg: '#f6ffed'
-      }
-    ]
-  })
-
-  function queryParams() {
-    return {
-      ...searchForm.value,
-      startsj: dateRange.value?.[0] || '',
-      endsj: dateRange.value?.[1] || ''
+  async function loadDictUsernameOptions() {
+    try {
+      dictUsernameOptions.value = (await fetchAcceptDictUsernameList()) || []
+    } catch {
+      dictUsernameOptions.value = []
     }
   }
 
@@ -378,11 +441,12 @@
       is_vehicle_mgmt: '',
       clsbdh: '',
       yhsjhm: '',
+      platform: '',
       syr: '',
-      jbr: '',
       syrsmrz: '',
+      jbr: '',
       jbrsmrz: '',
-      zt: ''
+      zt: '4'
     }
     dateRange.value = null
     resetSearchParams()
@@ -390,13 +454,70 @@
     getData()
   }
 
-  function openArchiveEditor(vehicle: ScrapVehicle) {
-    selectedVehicleId.value = vehicle.id
-    selectedVehicleRow.value = vehicle
-    editorVisible.value = true
+  function handleTabChange(tab: string | number) {
+    if (tab === 'pending') {
+      searchForm.value.zt = '4'
+      searchForm.value.jbrsmrz = ''
+      handleSearch()
+    }
+  }
+
+  async function handleSubmitToBusiness(row: AcceptListItem) {
+    if (submitLoading.value) return
+    submitRow.value = row
+    const vehicleId = Number(row.vehicle_id || 0)
+    if (!vehicleId) {
+      ElMessage.warning('缺少车辆ID')
+      return
+    }
+
+    if (Number(row.is_submitted_commerce) === 1) {
+      submitLoading.value = true
+      try {
+        submitResult.value = await fetchAcceptSubmitResult(vehicleId)
+        submitResultVisible.value = true
+      } finally {
+        submitLoading.value = false
+      }
+      return
+    }
+
+    submitLoading.value = true
+    try {
+      const sync = await fetchAcceptLocalScrapFiles({ vehicle_id: vehicleId })
+      const missing = validateCommerceSubmitFields(sync)
+      if (countCommerceMissing(missing) > 0) {
+        missingData.value = missing
+        validationVisible.value = true
+        return
+      }
+      submitResult.value = await fetchAcceptSubmit(vehicleId)
+      submitResultVisible.value = true
+      getData()
+    } finally {
+      submitLoading.value = false
+    }
+  }
+
+  function handleValidationEdit() {
+    validationVisible.value = false
+    if (submitRow.value) openRowEditor(submitRow.value)
+  }
+
+  async function handleFetchArchive() {
+    const vehicleId = Number(submitRow.value?.vehicle_id || 0)
+    if (!vehicleId) {
+      ElMessage.warning('缺少车辆ID')
+      return
+    }
+    await fetchAcceptArchive(vehicleId)
   }
 
   function handleEditorSuccess() {
     getData()
   }
+
+  onMounted(() => {
+    loadDictUsernameOptions()
+  })
 </script>

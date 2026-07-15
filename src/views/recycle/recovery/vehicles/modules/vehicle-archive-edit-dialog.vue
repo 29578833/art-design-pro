@@ -264,4 +264,6 @@
       }
     }
   )
+
+  defineExpose({ goToStep })
 </script>

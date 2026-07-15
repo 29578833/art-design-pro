@@ -4,6 +4,12 @@ export type AcceptHplx = 1 | 2 | 3
 /** 所有权：1=单位/企业 2=个人（以 Service 注释与 submit 逻辑为准） */
 export type AcceptSyq = 1 | 2
 
+/** 受理人字典选项 */
+export interface AcceptDictUsernameOption {
+  label: string
+  value: string
+}
+
 /** 商务部受理列表筛选 */
 export interface AcceptListParams {
   current?: number

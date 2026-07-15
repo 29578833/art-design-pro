@@ -64,6 +64,9 @@ importers:
       qrcode.vue:
         specifier: ^3.6.0
         version: 3.6.0(vue@3.5.22(typescript@5.6.3))
+      sm-crypto:
+        specifier: ^0.4.0
+        version: 0.4.0
       tailwindcss:
         specifier: ^4.1.14
         version: 4.1.14
@@ -4154,6 +4157,12 @@ packages:
       }
     hasBin: true
 
+  jsbn@1.1.0:
+    resolution:
+      {
+        integrity: sha512-4bYVV3aAMtDTTu4+xsDYa6sy9GyJ69/amsu9sYF2zqjiEoZA5xJi3BrfX3uY+/IekIu7MwdObdbDWpoZdBv3/A==
+      }
+
   jsesc@3.1.0:
     resolution:
       {
@@ -5508,6 +5517,12 @@ packages:
         integrity: sha512-iOBWFgUX7caIZiuutICxVgX1SdxwAVFFKwt1EvMYYec/NWO5meOJ6K5uQxhrYBdQJne4KxiqZc+KptFOWFSI9w==
       }
     engines: { node: '>=18' }
+
+  sm-crypto@0.4.0:
+    resolution:
+      {
+        integrity: sha512-OexH2V1EqmhXuOIPGoCl55OjMF0wwPUM/zhUjT0Q6vHBeopSRvTNRy76/1eRoFs3VBKt39hdFnxwpFmooHYa2A==
+      }
 
   snabbdom@3.6.2:
     resolution:
@@ -8830,6 +8845,8 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
+  jsbn@1.1.0: {}
+
   jsesc@3.1.0: {}
 
   json-buffer@3.0.1: {}
@@ -9504,6 +9521,10 @@ snapshots:
     dependencies:
       ansi-styles: 6.2.3
       is-fullwidth-code-point: 5.1.0
+
+  sm-crypto@0.4.0:
+    dependencies:
+      jsbn: 1.1.0
 
   snabbdom@3.6.2: {}
 

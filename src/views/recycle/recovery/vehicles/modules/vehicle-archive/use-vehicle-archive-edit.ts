@@ -59,6 +59,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   const syq = ref<AcceptSyq>(2)
   const cjid = ref('')
   const step = ref(1)
+  const pendingTargetStep = ref(0)
   const acceptTime = ref('')
   const submitResult = ref<AcceptSubmitResult | null>(null)
   const submitResultVisible = ref(false)
@@ -199,6 +200,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     syq.value = 2
     cjid.value = ''
     step.value = 1
+    pendingTargetStep.value = 0
     draftSaved.value = false
     isSubmitted.value = false
     existingOwnerSyncId.value = 0
@@ -452,10 +454,12 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
         await loadOptions()
         await loadAcceptDataByVehicleId()
         await stepRefs.materials.value?.loadScrapFiles()
+        await applyPendingStep()
         return
       }
 
       phase.value = 'scene'
+      await applyPendingStep()
     } finally {
       loading.value = false
     }
@@ -489,6 +493,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
       syq.value = Number(syq.value) as AcceptSyq
       ownerForm.syq = String(syq.value)
       ownerForm.sfzmmc = isPersonal.value ? 'A' : 'N'
+      await applyPendingStep()
       onSuccess?.()
     } finally {
       initLoading.value = false
@@ -517,8 +522,20 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     }
   }
 
+  async function applyPendingStep() {
+    const target = pendingTargetStep.value
+    if (target < 1 || target > 5 || phase.value !== 'form') return
+    pendingTargetStep.value = 0
+    step.value = target
+    if (target === 5) await stepRefs.materials.value?.loadScrapFiles()
+  }
+
   async function goToStep(target: number) {
     if (target < 1 || target > 5) return
+    if (phase.value !== 'form') {
+      pendingTargetStep.value = target
+      return
+    }
     step.value = target
     if (target === 5) await stepRefs.materials.value?.loadScrapFiles()
   }

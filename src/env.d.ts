@@ -10,6 +10,12 @@ declare module 'nprogress'
 
 declare module 'crypto-js'
 
+declare module 'sm-crypto' {
+  export const sm2: {
+    doEncrypt: (msg: string, publicKey: string, cipherMode?: number) => string
+  }
+}
+
 declare module 'vue-img-cutter'
 
 declare module 'file-saver'
