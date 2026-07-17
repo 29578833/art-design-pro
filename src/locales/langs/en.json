@@ -48,11 +48,11 @@
   "setting": {
     "menuType": {
       "title": "Menu Layout",
-      "list": ["Vertical", "Horizontal", "Mixed", "Dual"]
+      "list": ["Vertical", "Horizontal", "Mixed"]
     },
     "theme": {
       "title": "Theme Style",
-      "list": ["Light", "Dark", "System"]
+      "list": ["Light"]
     },
     "menu": {
       "title": "Menu Style"
@@ -75,7 +75,6 @@
         "accordion": "Sidebar opens accordion",
         "collapseSidebar": "Show sidebar button",
         "reloadPage": "Show reload page button",
-        "fastEnter": "Show fast enter",
         "breadcrumb": "Show crumb navigation",
         "language": "Show multilingual selection",
         "progressBar": "Show top progress bar",
