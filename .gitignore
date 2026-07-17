@@ -3,6 +3,7 @@ node_modules
 dist
 dist-ssr
 *.local
+deploy.config.cjs
 .cursorrules
 
 # Auto-generated files
