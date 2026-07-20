@@ -345,7 +345,7 @@
     position: absolute;
     top: 16px;
     right: 4%;
-    left: 4%;
+    left: 5%;
     height: 2px;
     background: #e0e0e0;
   }
@@ -354,7 +354,7 @@
   .fop-track-fill {
     position: absolute;
     top: 16px;
-    left: 4%;
+    left: 5%;
     height: 2px;
     background: #1677ff;
     transition: width 0.4s ease;

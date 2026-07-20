@@ -68,6 +68,251 @@
     &:hover {
       background: #fafafa;
     }
+
+    &--icon {
+      padding: 4px;
+      border: none;
+    }
+  }
+
+  /* Step0 — 对齐 CreateOrderWizard Step0 */
+  .step0-wrap {
+    gap: 20px;
+  }
+
+  .step0-section {
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 8px;
+  }
+
+  .step0-section-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .step0-section-icon {
+    font-size: 16px;
+    color: #1890ff;
+  }
+
+  .step0-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .step0-section-hint {
+    font-size: 12px;
+    font-weight: 400;
+    color: #9ca3af;
+  }
+
+  .step0-required {
+    font-size: 12px;
+    color: #ff4d4f;
+  }
+
+  .selected-customer-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+  }
+
+  .selected-customer-main {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .selected-customer-avatar {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: #1890ff;
+    border-radius: 50%;
+  }
+
+  .selected-customer-name-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .selected-customer-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .selected-customer-grade {
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 12px;
+  }
+
+  .selected-customer-phone {
+    margin-top: 2px;
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .btn-change-customer {
+    padding: 6px 12px;
+    font-size: 12px;
+    color: #1890ff;
+    cursor: pointer;
+    background: #fff;
+    border: 1px solid #1890ff;
+    border-radius: 4px;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #e6f7ff;
+    }
+  }
+
+  .customer-selector-row {
+    position: relative;
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .customer-autofill-trap {
+    position: absolute;
+    width: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+    pointer-events: none;
+    border: 0;
+    opacity: 0;
+  }
+
+  .customer-autocomplete--flex {
+    flex: 1;
+    min-width: 0;
+
+    :deep(.el-input) {
+      width: 100%;
+    }
+
+    /* 隐藏 WebKit 联系人/密码自动填充按钮与相关 UI */
+    :deep(.el-input__inner) {
+      &::-webkit-contacts-auto-fill-button,
+      &::-webkit-credentials-auto-fill-button {
+        pointer-events: none;
+        visibility: hidden;
+      }
+    }
+
+    :deep(input) {
+      &::-webkit-contacts-auto-fill-button,
+      &::-webkit-credentials-auto-fill-button {
+        display: none !important;
+        pointer-events: none;
+        visibility: hidden;
+      }
+    }
+  }
+
+  .btn-add-customer {
+    display: inline-flex;
+    flex-shrink: 0;
+    gap: 4px;
+    align-items: center;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #1890ff;
+    cursor: pointer;
+    background: #fff;
+    border: 1px solid #1890ff;
+    border-radius: 4px;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #e6f7ff;
+    }
+  }
+
+  .customer-phone-hint {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 12px;
+    margin-top: 12px;
+    font-size: 12px;
+    background: #fff;
+    border: 1px solid #f3f4f6;
+    border-radius: 4px;
+  }
+
+  .customer-phone-hint-label {
+    color: #9ca3af;
+  }
+
+  .customer-phone-hint-value {
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .deal-option-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .deal-option-card {
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid #e8e8e8;
+    border-radius: 8px;
+    transition:
+      border-color 0.2s,
+      background 0.2s;
+  }
+
+  .deal-option-label {
+    margin-bottom: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #262626;
+  }
+
+  .deal-option-card.active .deal-option-label {
+    color: inherit;
+  }
+
+  .deal-option-desc {
+    font-size: 12px;
+    line-height: 1.4;
+    color: #9ca3af;
+  }
+
+  .deal-empty-hint {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #9ca3af;
+    text-align: center;
   }
 
   .template-dropdown {
@@ -215,6 +460,24 @@
     letter-spacing: 0.02em;
   }
 
+  .section-hint {
+    font-size: 12px;
+    font-weight: 400;
+    color: #8c8c8c;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  .deal-hint {
+    padding: 12px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: #fa8c16;
+    background: #fff7e6;
+    border: 1px solid #ffd591;
+    border-radius: 8px;
+  }
+
   .section-header-right {
     margin-left: auto;
   }
@@ -285,6 +548,12 @@
       background: #fff;
       border-color: #1890ff;
     }
+  }
+
+  .batch-count-block {
+    padding-top: 12px;
+    margin-top: 12px;
+    border-top: 1px solid rgb(145 213 255 / 60%);
   }
 
   .order-type-card-head {
@@ -604,6 +873,28 @@
     border-radius: 8px;
   }
 
+  .vehicle-pickup-hint {
+    padding: 0;
+    margin: 0 0 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #595959;
+  }
+
+  .delivery-tow-hint {
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #1890ff;
+    background: #e6f7ff;
+    border: 1px solid #91d5ff;
+    border-radius: 8px;
+  }
+
+  .delivery-option-cards {
+    margin-bottom: 16px;
+  }
+
   .owner-block-title {
     margin-bottom: 12px;
     font-size: 12px;
@@ -616,6 +907,35 @@
     padding: 16px;
     background: #fafafa;
     border-radius: 8px;
+  }
+
+  /* 第三步 — 结算（对齐 CreateOrderWizard Step2） */
+  .step-settlement {
+    gap: 20px;
+  }
+
+  .settlement-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .deduct-cell {
+    display: flex;
+    align-items: center;
+  }
+
+  .remark-textarea {
+    :deep(.el-textarea__inner) {
+      padding: 8px 12px;
+      font-size: 14px;
+      border-radius: 4px;
+    }
+  }
+
+  .template-save-icon {
+    font-size: 16px;
+    color: #bfbfbf;
   }
 
   /* 残值 */
@@ -764,8 +1084,20 @@
   }
 
   .footer-step-hint {
+    display: flex;
+    gap: 12px;
+    align-items: center;
     font-size: 12px;
     color: #8c8c8c;
+  }
+
+  .intent-order-tag {
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #fa8c16;
+    background: #fff7e6;
+    border-radius: 12px;
   }
 
   .footer-actions {
@@ -835,6 +1167,26 @@
     color: #fff;
     cursor: pointer;
     background: #52c41a;
+    border: none;
+    border-radius: 4px;
+    transition: opacity 0.2s;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  .btn-save-intent {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    padding: 8px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    cursor: pointer;
+    background: #fa8c16;
     border: none;
     border-radius: 4px;
     transition: opacity 0.2s;

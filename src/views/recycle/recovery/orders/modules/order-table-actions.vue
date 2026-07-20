@@ -21,6 +21,7 @@
     isLeadOrder,
     isLeadPending,
     isLeadViewed,
+    isPendingFormalReview,
     isTowOrder
   } from '@/types/recycle/order'
 
@@ -51,27 +52,30 @@
 
   const visibleActions = computed<ActionItem[]>(() => {
     const row = props.row
-    const actions: ActionItem[] = [
-      {
+    const actions: ActionItem[] = []
+
+    const pendingReview = isPendingFormalReview(row)
+
+    if (!pendingReview) {
+      actions.push({
         key: 'view',
         label: '查看',
         icon: 'ri:eye-line',
         variant: 'default',
         onClick: () => emit('view', row)
-      }
-    ]
+      })
+    }
 
-    // 客户订单待审核 status=1
-    // row.order_type === 'customer_order' &&
-    if (['customer_order', 'staff_order'].includes(row.order_type) && row.status === 1) {
+    // 客户/员工订单待审核 status=1
+    if (pendingReview) {
+      actions.push({
+        key: 'audit',
+        label: '审核详情',
+        icon: 'ri:file-list-3-line',
+        variant: 'ghost',
+        onClick: () => emit('audit', row)
+      })
       actions.push(
-        // {
-        //   key: 'audit',
-        //   label: '审核详情',
-        //   icon: 'ri:file-list-3-line',
-        //   variant: 'ghost',
-        //   onClick: () => emit('audit', row)
-        // },
         {
           key: 'approve',
           label: '通过',
@@ -129,17 +133,19 @@
       return actions
     }
 
-    // 正式回收订单
-    // if (row.order_type === 'customer_order' || row.order_type === 'staff_order') {
-    //   actions.push({
-    //     key: 'edit',
-    //     label: '编辑',
-    //     icon: 'ri:edit-line',
-    //     variant: 'ghost',
-    //     onClick: () => emit('edit', row)
-    //   })
-    //   return actions
-    // }
+    // 正式回收订单：仅审核通过（status=2）可编辑
+    if (
+      (row.order_type === 'customer_order' || row.order_type === 'staff_order') &&
+      row.status === 2
+    ) {
+      actions.push({
+        key: 'edit',
+        label: '编辑订单',
+        icon: 'ri:edit-line',
+        variant: 'ghost',
+        onClick: () => emit('edit', row)
+      })
+    }
 
     // 拖车订单 status: 1待派单 2待拖车 3拖车中 4已完成
     if (isTowOrder(row)) {

@@ -119,12 +119,14 @@
 <script setup lang="ts">
   import {
     fetchCreatePartner,
+    fetchPartnerList,
     fetchUpdatePartner,
     fetchUserGroupList,
     fetchUserLevelList,
     fetchUserSaveInfo
   } from '@/api/recycle/customer'
   import type {
+    CustomerGrade,
     PartnerFormData,
     RecyclePartner,
     UserGroupOption,
@@ -140,9 +142,16 @@
     partnerData?: Partial<RecyclePartner>
   }
 
+  interface PartnerCreatedPayload {
+    uid: number
+    name: string
+    phone: string
+    grade: CustomerGrade
+  }
+
   interface Emits {
     (e: 'update:visible', value: boolean): void
-    (e: 'submit'): void
+    (e: 'submit', created?: PartnerCreatedPayload): void
   }
 
   const props = defineProps<Props>()
@@ -328,11 +337,26 @@
 
       if (props.type === 'edit' && props.partnerData?.id) {
         await fetchUpdatePartner(props.partnerData.id, payload, selectedGroupName.value)
+        dialogVisible.value = false
+        emit('submit')
       } else {
+        const savePhone = payload.phone
         await fetchCreatePartner(payload, selectedGroupName.value)
+        const list = await fetchPartnerList({ keyword: savePhone, page: 1, limit: 20 })
+        const created = list.records.find((item) => item.phone === savePhone) || list.records[0]
+        dialogVisible.value = false
+        if (created) {
+          emit('submit', {
+            uid: Number(created.id),
+            name: created.name,
+            phone: created.phone,
+            address: created.address,
+            grade: created.grade
+          })
+        } else {
+          emit('submit')
+        }
       }
-      dialogVisible.value = false
-      emit('submit')
     } finally {
       submitting.value = false
     }

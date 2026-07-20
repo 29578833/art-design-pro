@@ -67,13 +67,29 @@
     <div
       v-loading="loading"
       class="fo-body"
-      :class="activeTab === 'attachments' ? 'bg-white!' : ''"
+      :class="activeTab === 'attachments' && !isEditing ? 'bg-white!' : ''"
     >
-      <FormalOrderBasicTab
-        v-if="activeTab === 'basic'"
-        :detail="detail"
-        :selected-vehicle-idx="selectedVehicleIdx"
-      />
+      <template v-if="activeTab === 'basic'">
+        <div class="fo-basic-stack">
+          <FormalOrderDetailOrderSummary :detail="detail" />
+          <div v-if="isEditing" class="fo-edit-banner">
+            <span class="fo-edit-banner-dot" />
+            <span>编辑模式 — 修改下方字段后点击「保存修改」生效</span>
+          </div>
+          <FormalOrderDetailEditPanel
+            v-if="isEditing"
+            ref="editPanelRef"
+            :detail="detail"
+            :selected-vehicle-idx="selectedVehicleIdx"
+          />
+          <FormalOrderDetailViewPanel
+            v-else
+            :detail="detail"
+            :selected-vehicle-idx="selectedVehicleIdx"
+            hide-summary
+          />
+        </div>
+      </template>
       <FormalOrderProgressTab
         v-else-if="activeTab === 'progress'"
         :detail="detail"
@@ -95,24 +111,21 @@
             <ArtSvgIcon icon="ri:file-list-3-line" class="fo-footer-no-icon" />
             {{ detail.order_no }}
           </span> -->
-          <!-- 客户申请 + 待审核：审核操作 -->
-          <template v-if="isPendingReview">
-            <ElButton class="fo-btn-reject" :loading="submitting" @click="handleReject">
-              审核驳回
-            </ElButton>
-            <ElButton type="primary" :loading="submitting" @click="handleApprove">
-              审核通过
-            </ElButton>
-          </template>
-
-          <!-- 已完成：查看结算详情 -->
-          <ElButton v-else-if="detail.status === 3" @click="activeTab = 'basic'">
+          <!-- 待审核请在列表「审核详情」中操作，此处仅保留关闭 -->
+          <ElButton v-if="detail.status === 3" @click="activeTab = 'basic'">
             <ArtSvgIcon icon="ri:money-cny-circle-line" class="mr-1" />
             查看结算详情
           </ElButton>
         </div>
         <div class="fo-footer-right">
-          <ElButton @click="dialogVisible = false">关闭</ElButton>
+          <template v-if="isEditing">
+            <ElButton :disabled="editSubmitting" @click="cancelEdit">取消</ElButton>
+            <ElButton type="success" :loading="editSubmitting" @click="saveEdit">保存修改</ElButton>
+          </template>
+          <template v-else>
+            <ElButton @click="dialogVisible = false">关闭</ElButton>
+            <ElButton v-if="canEditOrder" type="primary" @click="startEdit">编辑订单</ElButton>
+          </template>
         </div>
       </div>
     </template>
@@ -143,7 +156,9 @@
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchAuditOrder, fetchOrderDetail } from '@/api/recycle/order'
   import type { OrderDetail, OrderVehicle } from '@/types/recycle/order'
-  import FormalOrderBasicTab from './formal-order-basic-tab.vue'
+  import FormalOrderDetailOrderSummary from './formal-order-detail-order-summary.vue'
+  import FormalOrderDetailViewPanel from './formal-order-detail-view-panel.vue'
+  import FormalOrderDetailEditPanel from './formal-order-detail-edit-panel.vue'
   import FormalOrderProgressTab from './formal-order-progress-tab.vue'
   import FormalOrderAttachmentsTab from './formal-order-attachments-tab.vue'
 
@@ -152,6 +167,8 @@
   interface Props {
     visible: boolean
     orderId: number | null
+    /** 打开时直接进入编辑模式（对齐原型 initialEditing） */
+    initialEditing?: boolean
   }
 
   const TABS: { key: TabKey; label: string; icon: string }[] = [
@@ -160,7 +177,9 @@
     { key: 'attachments', label: '附件与签署', icon: 'ri:attachment-2' }
   ]
 
-  const props = defineProps<Props>()
+  const props = withDefaults(defineProps<Props>(), {
+    initialEditing: false
+  })
   const emit = defineEmits<{
     (e: 'update:visible', v: boolean): void
     (e: 'refresh'): void
@@ -176,7 +195,12 @@
   const detail = ref<Partial<OrderDetail>>({})
   const activeTab = ref<TabKey>('basic')
   const selectedVehicleIdx = ref(0)
+  const isEditing = ref(false)
+  const editPanelRef = ref<InstanceType<typeof FormalOrderDetailEditPanel> | null>(null)
+  const editSubmitting = ref(false)
   const isBatch = computed(() => Number(detail.value.is_batch) === 1)
+  /** 仅审核通过（status=2）允许编辑 */
+  const canEditOrder = computed(() => detail.value.status === 2)
 
   async function loadDetail() {
     if (!props.orderId) return
@@ -192,16 +216,54 @@
 
   watch(
     () => props.visible,
-    (v) => {
-      if (v && props.orderId) loadDetail()
+    async (v) => {
+      if (!v || !props.orderId) return
+      isEditing.value = false
+      activeTab.value = 'basic'
+      await loadDetail()
+      if (props.initialEditing) {
+        if (canEditOrder.value) {
+          isEditing.value = true
+        } else {
+          ElMessage.warning('仅审核通过的订单可编辑')
+        }
+      }
     },
     { immediate: true }
   )
+
+  function startEdit() {
+    if (!canEditOrder.value) {
+      ElMessage.warning('仅审核通过的订单可编辑')
+      return
+    }
+    activeTab.value = 'basic'
+    isEditing.value = true
+  }
+
+  function cancelEdit() {
+    isEditing.value = false
+  }
+
+  async function saveEdit() {
+    editSubmitting.value = true
+    try {
+      const ok = await editPanelRef.value?.submit()
+      if (ok) {
+        isEditing.value = false
+        await loadDetail()
+        emit('refresh')
+      }
+    } finally {
+      editSubmitting.value = false
+    }
+  }
 
   function handleClosed() {
     detail.value = {}
     activeTab.value = 'basic'
     selectedVehicleIdx.value = 0
+    isEditing.value = false
     rejectReason.value = ''
     rejectDialogVisible.value = false
   }
@@ -256,37 +318,37 @@
   }
 
   // ========== Footer 动作 ==========
-  const isPendingReview = computed(() => {
-    // const src = detail.value.source || ''
-    // return detail.value.status === 1 && ['miniapp', 'mini_program'].includes(src)
-    return detail.value.status === 1
-  })
+  // const isPendingReview = computed(() => {
+  //   // const src = detail.value.source || ''
+  //   // return detail.value.status === 1 && ['miniapp', 'mini_program'].includes(src)
+  //   return detail.value.status === 1
+  // })
 
   const submitting = ref(false)
   const rejectDialogVisible = ref(false)
   const rejectReason = ref('')
 
-  async function handleApprove() {
-    if (!props.orderId) return
-    await ElMessageBox.confirm('确认审核通过该订单？', '审核通过', {
-      type: 'warning',
-      confirmButtonText: '确认通过',
-      cancelButtonText: '取消'
-    })
-    submitting.value = true
-    try {
-      await fetchAuditOrder({ id: props.orderId, approved: true })
-      dialogVisible.value = false
-      emit('refresh')
-    } finally {
-      submitting.value = false
-    }
-  }
+  // async function handleApprove() {
+  //   if (!props.orderId) return
+  //   await ElMessageBox.confirm('确认审核通过该订单？', '审核通过', {
+  //     type: 'warning',
+  //     confirmButtonText: '确认通过',
+  //     cancelButtonText: '取消'
+  //   })
+  //   submitting.value = true
+  //   try {
+  //     await fetchAuditOrder({ id: props.orderId, approved: true })
+  //     dialogVisible.value = false
+  //     emit('refresh')
+  //   } finally {
+  //     submitting.value = false
+  //   }
+  // }
 
-  function handleReject() {
-    rejectReason.value = ''
-    rejectDialogVisible.value = true
-  }
+  // function handleReject() {
+  //   rejectReason.value = ''
+  //   rejectDialogVisible.value = true
+  // }
 
   async function confirmReject() {
     if (!rejectReason.value.trim()) {
@@ -405,6 +467,11 @@
     border-bottom: 2px solid transparent;
     transition: all 0.2s;
 
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+
     &:hover {
       color: #1677ff;
     }
@@ -502,6 +569,34 @@
     max-height: calc(90vh - 220px);
     padding: 16px 20px;
     overflow-y: auto;
+  }
+
+  .fo-basic-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .fo-edit-banner {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 16px;
+    margin-bottom: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #1890ff;
+    background: #e6f7ff;
+    border: 1px solid #91d5ff;
+    border-radius: 8px;
+  }
+
+  .fo-edit-banner-dot {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    background: #1890ff;
+    border-radius: 50%;
   }
 
   /* ===== Footer ===== */

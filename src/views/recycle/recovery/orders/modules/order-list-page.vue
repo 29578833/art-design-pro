@@ -81,10 +81,11 @@
       :prefill-order="createPrefillOrder"
       @submit="refreshAll"
     />
-    <OrderEditDialog
-      v-model:visible="editDialogVisible"
-      :order-data="editingOrder"
-      @submit="refreshAll"
+    <FormalOrderDetailDialog
+      v-model:visible="formalDetailVisible"
+      :order-id="formalDetailOrderId"
+      :initial-editing="formalDetailInitialEditing"
+      @refresh="refreshAll"
     />
     <LeadDetailDialog
       v-model:visible="leadDetailVisible"
@@ -97,9 +98,9 @@
       :order-id="assignOrderId"
       @success="refreshAll"
     />
-    <FormalOrderDetailDialog
-      v-model:visible="formalDetailVisible"
-      :order-id="formalDetailOrderId"
+    <OrderAuditDialog
+      v-model:visible="auditDialogVisible"
+      :order-id="auditOrderId"
       @refresh="refreshAll"
     />
     <TowOrderDetailDialog
@@ -139,6 +140,7 @@
     getOrderDisplayNo,
     getOrderStatusText,
     isLeadOrder,
+    isPendingFormalReview,
     isTowOrder,
     resolveOrderTypeStyle
   } from '@/types/recycle/order'
@@ -147,10 +149,10 @@
   import OrderSearch from './order-search.vue'
   import OrderTableActions from './order-table-actions.vue'
   import OrderCreateDialog from './order-create-dialog.vue'
-  import OrderEditDialog from './order-edit-dialog.vue'
   import LeadDetailDialog from './lead-detail-dialog.vue'
   import LeadAssignDialog from './lead-assign-dialog.vue'
   import FormalOrderDetailDialog from './formal-order-detail-dialog.vue'
+  import OrderAuditDialog from './order-audit-dialog.vue'
   import TowOrderDetailDialog from './tow-order-detail-dialog.vue'
   import TowDriverAssignDialog from './tow-driver-assign-dialog.vue'
 
@@ -207,15 +209,16 @@
   } | null>(null)
 
   const createDialogVisible = ref(false)
-  const editDialogVisible = ref(false)
   const createPrefillOrder = ref<RecycleOrder | null>(null)
-  const editingOrder = ref<RecycleOrder | null>(null)
   const leadDetailVisible = ref(false)
   const leadDetailOrderId = ref<number | null>(null)
   const assignDialogVisible = ref(false)
   const assignOrderId = ref<number | null>(null)
   const formalDetailVisible = ref(false)
   const formalDetailOrderId = ref<number | null>(null)
+  const formalDetailInitialEditing = ref(false)
+  const auditDialogVisible = ref(false)
+  const auditOrderId = ref<number | null>(null)
   const towDetailVisible = ref(false)
   const towDetailOrderId = ref<number | null>(null)
   const towAssignVisible = ref(false)
@@ -395,7 +398,7 @@
       formatter: (row: RecycleOrder) =>
         h(
           'a',
-          { href: 'javascript:void(0)', class: 'order-no', onClick: () => handleView(row) },
+          { href: 'javascript:void(0)', class: 'order-no', onClick: () => handleOrderNoClick(row) },
           getOrderDisplayNo(row)
         )
     })
@@ -580,6 +583,14 @@
     }
   }
 
+  function handleOrderNoClick(row: RecycleOrder) {
+    if (isPendingFormalReview(row)) {
+      handleAudit(row)
+      return
+    }
+    handleView(row)
+  }
+
   function handleView(row: RecycleOrder) {
     if (isLeadOrder(row)) {
       leadDetailOrderId.value = row.id
@@ -589,6 +600,7 @@
       towDetailVisible.value = true
     } else {
       formalDetailOrderId.value = row.id
+      formalDetailInitialEditing.value = false
       formalDetailVisible.value = true
     }
   }
@@ -598,10 +610,10 @@
     openCreateDialog(row ?? undefined)
   }
 
-  /** 审核详情：打开正式订单详情 */
+  /** 审核详情：专用审核弹窗 */
   function handleAudit(row: RecycleOrder) {
-    formalDetailOrderId.value = row.id
-    formalDetailVisible.value = true
+    auditOrderId.value = row.id
+    auditDialogVisible.value = true
   }
 
   function openCreateDialog(row?: RecycleOrder) {
@@ -614,8 +626,18 @@
   }
 
   function handleEdit(row: RecycleOrder) {
-    editingOrder.value = row
-    editDialogVisible.value = true
+    if (isLeadOrder(row) || isTowOrder(row)) {
+      handleView(row)
+      return
+    }
+    if (row.status !== 2) {
+      ElMessage.warning('仅审核通过的订单可编辑')
+      handleView(row)
+      return
+    }
+    formalDetailOrderId.value = row.id
+    formalDetailInitialEditing.value = true
+    formalDetailVisible.value = true
   }
 
   function openTowAssignDialog(row: RecycleOrder) {

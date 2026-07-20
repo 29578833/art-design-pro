@@ -4,11 +4,7 @@ export type OrderTab = 'all' | 'lead' | 'formal_order' | 'towing' | 'pending_rev
 /** 正式回收订单筛选 */
 export type FormalOrderSource = 'all' | 'customer' | 'staff'
 export type FormalOrderStatusFilter =
-  | 'all'
-  | 'pending_review'
-  | 'approved'
-  | 'rejected'
-  | 'completed'
+  'all' | 'pending_review' | 'approved' | 'rejected' | 'completed'
 export type SignFilter = 'all' | 'pending_sign' | 'signed'
 export type BatchTypeFilter = 'all' | 'single' | 'batch'
 
@@ -18,11 +14,7 @@ export type LeadTypeFilter = 'all' | 'vehicle' | 'customer'
 
 /** 拖车订单筛选 */
 export type TowingStatusFilter =
-  | 'all'
-  | 'pending_dispatch'
-  | 'pending_towing'
-  | 'towing'
-  | 'completed'
+  'all' | 'pending_dispatch' | 'pending_towing' | 'towing' | 'completed'
 
 /** 全部订单进度筛选 */
 export type ProgressFilter = 'all' | 'ongoing' | 'finished'
@@ -197,6 +189,11 @@ export function isLeadAssigned(row: RecycleOrder) {
 
 export function isLeadViewed(row: RecycleOrder) {
   return row.status === 0 && Number(row.is_follow) === 1
+}
+
+/** 正式回收单待审核（status=1） */
+export function isPendingFormalReview(row: RecycleOrder) {
+  return ['customer_order', 'staff_order'].includes(row.order_type) && Number(row.status) === 1
 }
 
 /** 订单车辆项（接口原字段） */
@@ -399,8 +396,12 @@ export interface OrderSavePayload {
   id?: number
   /** 是否批次：0 否 / 1 是 */
   is_batch?: number
+  /** 是否已成交：0 意向 / 1 已成交（Service 支持，Controller create 需同步 postMore） */
+  is_deal?: number
   /** 订单状态：0 线索 / 1 待审核 */
   status?: number
+  /** 残值金额（与 unit_price 二选一传入，Service 会合并） */
+  residual_value?: number
   /** 批次车辆数 */
   batch_vehicle_count?: number
   /** 客户姓名 */
@@ -459,6 +460,108 @@ export interface OrderSaveResult {
   id?: number
   /** 订单编号 */
   order_no?: string
+}
+
+/** 编辑订单 — 车辆块（/scrap/order/update vehicle） */
+export interface OrderUpdateVehiclePayload {
+  /** 车牌号 */
+  plate_no?: string
+  /** 车架号 */
+  vin?: string
+  /** 品牌 */
+  brand?: string
+  /** 型号 */
+  model?: string
+  /** 出厂年份 */
+  vehicle_year?: string | number
+  /** 车身颜色 */
+  color?: string
+  /** 车辆类型/燃料 */
+  vehicle_type?: string
+  /** 里程 */
+  mileage?: string | number
+  /** 初次登记日期 */
+  first_reg_date?: string
+  /** 交付方式 self / tow */
+  delivery_type?: 'self' | 'tow'
+  /** 送车人姓名（self） */
+  pickup_name?: string
+  /** 送车人电话（self） */
+  pickup_phone?: string
+}
+
+/** 编辑订单 — 客户块 */
+export interface OrderUpdateCustomerPayload {
+  /** 姓名 */
+  real_name?: string
+  /** 电话 */
+  phone?: string
+  /** 地址 */
+  address?: string
+  /** 身份证号 */
+  id_card?: string
+}
+
+/** 编辑订单 — 结算块 */
+export interface OrderUpdateSettlementPayload {
+  /** personal / company（对应 owner_type） */
+  settlement_type?: 'personal' | 'company'
+  /** 结算方式 */
+  settlement_method?: string
+  /** 单价/残值 */
+  unit_price?: number | string
+  /** 自送补贴 */
+  self_delivery_subsidy?: number | string
+  /** 是否缺件免扣款 */
+  deduct_missing?: boolean | number
+  /** 发票金额 */
+  invoice_amount?: number | string
+  /** 发票号码 */
+  invoice_no?: string
+}
+
+/** 编辑订单 — 代理人块 */
+export interface OrderUpdateAgentPayload {
+  /** 代理人姓名 */
+  agent_name?: string
+  /** 代理人电话 */
+  agent_phone?: string
+  /** 服务费 */
+  agent_fee?: number | string
+  /** 服务费发票号 */
+  agent_invoice_no?: string
+}
+
+/** 编辑订单 — 银行卡块 */
+export interface OrderUpdateBankPayload {
+  /** 开户名 */
+  bank_account_name?: string
+  /** 开户行 */
+  bank_name?: string
+  /** 卡号 */
+  bank_card_number?: string
+}
+
+/** 编辑订单提交（/scrap/order/update） */
+export interface OrderUpdatePayload {
+  /** 订单 ID */
+  id: number
+  /** 当前编辑的车辆 ID */
+  vehicle_id?: number
+  /** 车辆字段 */
+  vehicle?: OrderUpdateVehiclePayload
+  /** 客户字段 */
+  customer?: OrderUpdateCustomerPayload
+  /** 结算字段 */
+  settlement?: OrderUpdateSettlementPayload
+  /** 代理人字段 */
+  agent?: OrderUpdateAgentPayload
+  /** 银行卡字段 */
+  bank?: OrderUpdateBankPayload
+  /** 是否有代理人（变化时传 0/1） */
+  has_agent?: number | boolean
+  /** 备注 */
+  remark?: string
 }
 
 /** 线索跟进人（/scrap/lead/follow_persons 返回） */

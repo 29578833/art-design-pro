@@ -4,6 +4,7 @@ import type {
   OrderList,
   OrderSavePayload,
   OrderSaveResult,
+  OrderUpdatePayload,
   OrderSearchParams,
   OrderTab,
   OrderTabCount,
@@ -174,15 +175,24 @@ export function fetchAuditOrder(data: { id: number; approved: boolean; remark?: 
   })
 }
 
-/** 批量审核订单 */
+/** 批量审核订单（后端 audit 支持 id 逗号分隔） */
 export function fetchBatchAudit(data: { ids: number[]; approved: boolean; remark?: string }) {
   return request.post({
-    url: '/scrap/order/batch_audit',
+    url: '/scrap/order/audit',
     params: {
-      ids: data.ids.join(','),
+      id: data.ids.join(','),
       approved: data.approved ? 1 : 0,
       remark: data.remark || ''
     },
+    showSuccessMessage: true
+  })
+}
+
+/** 编辑订单详情 */
+export function fetchUpdateOrder(data: OrderUpdatePayload) {
+  return request.post({
+    url: '/scrap/order/update',
+    params: data,
     showSuccessMessage: true
   })
 }

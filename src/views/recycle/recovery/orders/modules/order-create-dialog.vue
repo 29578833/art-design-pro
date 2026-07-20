@@ -75,7 +75,9 @@
           <!-- <button type="button" class="header-btn" @click="dialogVisible = false">
             <ArtSvgIcon icon="ri:close-line" />
           </button> -->
-          <span><ArtSvgIcon icon="ri:close-line" /></span>
+          <button type="button" class="header-btn header-btn--icon" @click="dialogVisible = false">
+            <ArtSvgIcon icon="ri:close-line" />
+          </button>
         </div>
       </div>
     </template>
@@ -111,8 +113,152 @@
 
       <!-- 步骤内容 -->
       <div class="dialog-body">
-        <!-- Step 1: 基础信息 -->
-        <div v-show="currentStep === 0" class="step-content">
+        <!-- Step0: 客户 & 成交 -->
+        <div v-show="currentStep === 0" class="step-content step0-wrap">
+          <div class="step0-section">
+            <div class="step0-section-head">
+              <ArtSvgIcon icon="ri:user-line" class="step0-section-icon" />
+              <span class="step0-section-title">客户信息</span>
+              <span class="step0-section-hint">先选客户，联系确认意向后再操作下方步骤</span>
+            </div>
+
+            <div v-if="hasSelectedCustomer" class="selected-customer-card">
+              <div class="selected-customer-main">
+                <div class="selected-customer-avatar">{{ customerAvatarText }}</div>
+                <div>
+                  <div class="selected-customer-name-row">
+                    <span class="selected-customer-name">{{ form.real_name }}</span>
+                    <span
+                      v-if="selectedCustomerGrade"
+                      class="selected-customer-grade"
+                      :style="{
+                        color: gradeColor[selectedCustomerGrade],
+                        background: `${gradeColor[selectedCustomerGrade]}20`
+                      }"
+                    >
+                      {{ gradeLabel[selectedCustomerGrade] }}
+                    </span>
+                  </div>
+                  <div class="selected-customer-phone">{{ form.phone }}</div>
+                </div>
+              </div>
+              <button type="button" class="btn-change-customer" @click="handleClearCustomer">
+                更换客户
+              </button>
+            </div>
+
+            <template v-else>
+              <form
+                class="customer-selector-row"
+                autocomplete="off"
+                @submit.prevent
+                @mousedown="handleCustomerSearchFocus"
+              >
+                <!-- 诱饵字段，吸收浏览器 autofill，避免污染客户搜索框 -->
+                <input
+                  type="text"
+                  name="fake_username"
+                  autocomplete="username"
+                  tabindex="-1"
+                  aria-hidden="true"
+                  class="customer-autofill-trap"
+                />
+                <input
+                  type="password"
+                  name="fake_password"
+                  autocomplete="current-password"
+                  tabindex="-1"
+                  aria-hidden="true"
+                  class="customer-autofill-trap"
+                />
+                <ElAutocomplete
+                  v-model="customerQuery"
+                  class="customer-autocomplete customer-autocomplete--flex"
+                  popper-class="order-customer-autocomplete-popper"
+                  fit-input-width
+                  :input-attrs="customerInputAttrs"
+                  :debounce="200"
+                  :fetch-suggestions="queryCustomers"
+                  value-key="real_name"
+                  placeholder="搜索客户姓名 / 手机号 / 编号"
+                  :trigger-on-focus="true"
+                  @focus="handleCustomerSearchFocus"
+                  @select="handleCustomerSelect"
+                  @input="handleCustomerQueryInput"
+                >
+                  <template #prefix>
+                    <ArtSvgIcon icon="ri:search-line" class="customer-search-icon" />
+                  </template>
+                  <template #default="{ item }">
+                    <div class="customer-option">
+                      <div class="customer-avatar">{{ item.real_name.slice(0, 1) }}</div>
+                      <div class="customer-info">
+                        <div class="customer-name">{{ item.real_name }}</div>
+                        <div class="customer-phone">{{ item.phone }}</div>
+                      </div>
+                      <span
+                        class="customer-grade"
+                        :style="{
+                          color: gradeColor[item.grade],
+                          background: `${gradeColor[item.grade]}20`
+                        }"
+                      >
+                        {{ gradeLabel[item.grade] || item.grade }}
+                      </span>
+                    </div>
+                  </template>
+                </ElAutocomplete>
+                <button type="button" class="btn-add-customer" @click="openAddCustomerDialog">
+                  <ArtSvgIcon icon="ri:add-line" />
+                  新增客户
+                </button>
+              </form>
+              <div
+                v-if="form.phone && customerQuery && !hasSelectedCustomer"
+                class="customer-phone-hint"
+              >
+                <span class="customer-phone-hint-label">手机号：</span>
+                <span class="customer-phone-hint-value">{{ form.phone }}</span>
+              </div>
+            </template>
+          </div>
+
+          <div class="step0-section">
+            <div class="step0-section-head">
+              <ArtSvgIcon icon="ri:money-cny-circle-line" class="step0-section-icon" />
+              <span class="step0-section-title">是否成交</span>
+              <span class="step0-required">*</span>
+            </div>
+            <div class="deal-option-cards">
+              <button
+                v-for="opt in dealOptions"
+                :key="String(opt.value)"
+                type="button"
+                class="deal-option-card"
+                :class="{ active: form.is_deal === opt.value }"
+                :style="dealOptionStyle(opt)"
+                @click="form.is_deal = opt.value"
+              >
+                <div
+                  class="deal-option-label"
+                  :style="{ color: form.is_deal === opt.value ? opt.color : '#262626' }"
+                >
+                  {{ opt.label }}
+                </div>
+                <div class="deal-option-desc">{{ opt.desc }}</div>
+              </button>
+            </div>
+            <div v-if="form.is_deal === false" class="deal-hint">
+              选择「否」后，所有信息字段均为非必填项，可直接保存为意向订单
+            </div>
+            <div v-else-if="form.is_deal === null" class="deal-empty-hint"
+              >请选择成交状态后继续下一步</div
+            >
+          </div>
+        </div>
+
+        <!-- Step1: 基础信息 -->
+        <div v-show="currentStep === 1" class="step-content">
           <!-- 订单类型 -->
           <div class="order-type-block">
             <div class="order-type-title">订单类型</div>
@@ -136,6 +282,15 @@
                 </div>
                 <div class="order-type-card-desc">{{ opt.desc }}</div>
               </button>
+            </div>
+            <div v-if="form.is_batch" class="batch-count-block">
+              <label class="field-label"> 批量订单车辆数<span class="required">*</span> </label>
+              <ElInput
+                v-model="form.batch_vehicle_count"
+                type="number"
+                :min="2"
+                placeholder="至少两辆，请填写车辆总数"
+              />
             </div>
           </div>
 
@@ -172,58 +327,6 @@
                 <ArtSvgIcon v-if="!ocrLoading" icon="ri:camera-line" />
                 {{ ocrLoading ? '识别中…' : '上传行驶证识别' }}
               </button>
-            </div>
-          </div>
-
-          <!-- 客户信息 -->
-          <div>
-            <div class="section-header">
-              <ArtSvgIcon icon="ri:user-line" style="color: #bfbfbf" />
-              <span class="section-title">客户信息</span>
-            </div>
-            <div class="form-grid-2">
-              <div class="col-span-2">
-                <label class="field-label">选择客户<span class="required">*</span></label>
-                <ElAutocomplete
-                  v-model="form.real_name"
-                  class="customer-autocomplete"
-                  popper-class="order-customer-autocomplete-popper"
-                  :fetch-suggestions="queryCustomers"
-                  value-key="name"
-                  placeholder="搜索客户姓名 / 手机号 / 编号"
-                  :trigger-on-focus="true"
-                  @select="handleCustomerSelect"
-                >
-                  <template #prefix>
-                    <ArtSvgIcon icon="ri:search-line" class="customer-search-icon" />
-                  </template>
-                  <template #default="{ item }">
-                    <div class="customer-option">
-                      <div class="customer-avatar">{{ item.real_name.slice(0, 1) }}</div>
-                      <div class="customer-info">
-                        <div class="customer-name">{{ item.real_name }}</div>
-                        <div class="customer-phone">{{ item.phone }}</div>
-                      </div>
-                      <span
-                        class="customer-grade"
-                        :style="{
-                          color: gradeColor[item.grade],
-                          background: `${gradeColor[item.grade]}20`
-                        }"
-                      >
-                        {{ gradeLabel[item.grade] }}
-                      </span>
-                    </div>
-                  </template>
-                  <template #footer>
-                    <button type="button" class="customer-add-btn">+ 新增客户</button>
-                  </template>
-                </ElAutocomplete>
-              </div>
-              <div>
-                <label class="field-label">联系电话<span class="required">*</span></label>
-                <ElInput v-model="form.phone" placeholder="手机号" />
-              </div>
             </div>
           </div>
 
@@ -324,9 +427,7 @@
               </div>
               <div>
                 <label class="field-label">车辆品牌</label>
-                <ElSelect v-model="form.brand" placeholder="请选择">
-                  <ElOption v-for="b in vehicleBrands" :key="b" :label="b" :value="b" />
-                </ElSelect>
+                <ElInput v-model="form.brand" placeholder="如：大众" />
               </div>
               <div>
                 <label class="field-label">车系/型号</label>
@@ -368,31 +469,12 @@
             </div>
           </div>
 
-          <!-- 回收用户信息 -->
-          <div class="owner-block">
-            <div class="owner-block-title">回收用户信息</div>
-            <div class="form-grid-3">
-              <div>
-                <label class="field-label">姓名</label>
-                <ElInput v-model="form.owner_name" placeholder="车主/送车人姓名" />
-              </div>
-              <div>
-                <label class="field-label">联系电话</label>
-                <ElInput v-model="form.owner_phone" placeholder="手机号" />
-              </div>
-              <div>
-                <label class="field-label">居住地址</label>
-                <ElInput v-model="form.owner_address" placeholder="省市区+详细地址" />
-              </div>
-            </div>
-          </div>
-
           <!-- 交付方式 -->
           <div>
             <div class="section-header">
               <span class="section-title">交付方式</span>
             </div>
-            <div class="option-cards">
+            <div class="option-cards delivery-option-cards">
               <button
                 v-for="opt in deliveryOptions"
                 :key="opt.value"
@@ -410,25 +492,15 @@
                 <div class="option-card-desc">{{ opt.desc }}</div>
               </button>
             </div>
-            <div v-if="form.delivery_type === 'tow'" class="pickup-block form-grid-2">
-              <div class="col-span-2">
-                <label class="field-label">取车地址<span class="required">*</span></label>
-                <ElInput v-model="form.pickup_address" placeholder="详细取车地址" />
-              </div>
-              <div>
-                <label class="field-label">取车联系人<span class="required">*</span></label>
-                <ElInput v-model="form.pickup_contact" placeholder="联系人姓名" />
-              </div>
-              <div>
-                <label class="field-label">联系电话<span class="required">*</span></label>
-                <ElInput v-model="form.pickup_phone" placeholder="联系手机号" />
-              </div>
+            <div v-if="form.delivery_type === 'tow'" class="delivery-tow-hint">
+              取车地址和联系方式按车辆档案信息走，请在车辆档案中补充具体取车信息。
             </div>
           </div>
         </div>
 
-        <!-- Step 2: 结算信息 -->
-        <div v-show="currentStep === 1" class="step-content">
+        <!-- Step2: 结算信息（对齐 CreateOrderWizard Step2） -->
+        <div v-show="currentStep === 2" class="step-content step-settlement">
+          <!-- 结算方式 -->
           <div>
             <div class="section-header">
               <span class="section-title">结算方式</span>
@@ -467,13 +539,14 @@
             </div>
           </div>
 
+          <!-- 结算信息 -->
           <div>
             <div class="section-header">
               <span class="section-title">结算信息</span>
             </div>
-            <div class="form-grid-2">
+            <div class="settlement-info-grid">
               <div>
-                <label class="field-label">自送费补贴（元）</label>
+                <label class="field-label">自送费补贴（元/辆）</label>
                 <ElInput
                   v-model="form.self_delivery_subsidy"
                   type="number"
@@ -481,16 +554,19 @@
                   :min="0"
                 />
               </div>
-              <div class="deduct-block">
-                <ElCheckbox v-model="form.no_deduct_missing" />
-                <label class="deduct-label">
-                  质检缺件免扣款
-                  <span class="deduct-hint">勾选后缺件不计入扣款</span>
-                </label>
+              <div class="deduct-cell">
+                <div class="deduct-block">
+                  <ElCheckbox v-model="form.no_deduct_missing" />
+                  <label class="deduct-label">
+                    质检缺件免扣款
+                    <span class="deduct-hint">勾选后缺件不计入扣款</span>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
 
+          <!-- 代理人信息 -->
           <div>
             <div class="section-header">
               <span class="section-title">代理人信息</span>
@@ -511,7 +587,9 @@
                 <ElInput v-model="form.agent_phone" placeholder="手机号" />
               </div>
               <div>
-                <label class="field-label">代理服务费（元）<span class="required">*</span></label>
+                <label class="field-label"
+                  >代理服务费（元/吨）<span class="required">*</span></label
+                >
                 <ElInput v-model="form.agent_fee" type="number" placeholder="0" :min="0" />
               </div>
               <div>
@@ -520,122 +598,30 @@
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Step 3: 收款发票 -->
-        <div v-show="currentStep === 2" class="step-content">
+          <!-- 备注说明 -->
           <div>
             <div class="section-header">
-              <span class="section-title">客户性质</span>
+              <span class="section-title">备注说明</span>
             </div>
-            <div class="option-cards">
-              <button
-                v-for="opt in enterpriseOptions"
-                :key="String(opt.value)"
-                type="button"
-                class="option-card"
-                :class="{ active: form.is_enterprise === opt.value }"
-                @click="form.is_enterprise = opt.value"
-              >
-                <div
-                  class="option-card-label"
-                  :class="{ active: form.is_enterprise === opt.value }"
-                >
-                  {{ opt.label }}
-                </div>
-              </button>
-            </div>
-            <div v-if="form.is_enterprise" class="pickup-block form-grid-2">
-              <div class="col-span-2">
-                <label class="field-label">企业名称<span class="required">*</span></label>
-                <ElInput v-model="form.enterprise_name" placeholder="营业执照上的企业全称" />
-              </div>
-              <div>
-                <label class="field-label">发票金额（元）</label>
-                <ElInput v-model="form.invoice_amount" type="number" placeholder="开票金额" />
-              </div>
-              <div>
-                <label class="field-label">发票号码</label>
-                <ElInput v-model="form.invoice_no" placeholder="发票编号" />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <div class="section-header">
-              <span class="section-title">收款账户</span>
-            </div>
-            <div class="form-grid-2">
-              <div>
-                <label class="field-label">开户姓名/名称<span class="required">*</span></label>
-                <ElInput v-model="form.account_name" placeholder="与银行卡一致" />
-              </div>
-              <div>
-                <label class="field-label">开户银行<span class="required">*</span></label>
-                <ElInput v-model="form.bank_name" placeholder="如：中国工商银行上海分行" />
-              </div>
-              <div class="col-span-2">
-                <label class="field-label">银行卡号<span class="required">*</span></label>
-                <ElInput
-                  v-model="form.bank_card"
-                  placeholder="银行卡号（16-19位）"
-                  maxlength="19"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label class="field-label">备注说明</label>
             <ElInput
               v-model="form.remark"
               type="textarea"
               :rows="3"
+              class="remark-textarea"
               placeholder="订单备注信息（内部使用，不对外显示）"
               resize="none"
             />
           </div>
 
+          <!-- 保存为订单模板 -->
           <div class="template-save-block">
             <div class="template-save-head">
-              <ArtSvgIcon icon="ri:save-line" style="color: #bfbfbf" />
+              <ArtSvgIcon icon="ri:save-line" class="template-save-icon" />
               <span class="template-save-title">保存为订单模板</span>
               <span class="template-save-hint">（下次可快速复用）</span>
             </div>
             <ElInput v-model="form.template_name" placeholder="模板名称（如留空则不保存）" />
-          </div>
-
-          <div class="confirm-summary">
-            <div class="confirm-summary-title">
-              <ArtSvgIcon icon="ri:error-warning-line" />
-              订单信息确认
-            </div>
-            <div class="confirm-summary-grid">
-              <div>
-                客户：<span class="value">{{ form.real_name || '—' }}</span>
-              </div>
-              <div>
-                <template v-if="form.is_batch">
-                  批次车辆：<span class="value">{{
-                    form.vehicles.length ? `已录入 ${form.vehicles.length} 辆` : '待录入'
-                  }}</span>
-                </template>
-                <template v-else>
-                  车牌：<span class="value">{{ form.plate_no || '—' }}</span>
-                </template>
-              </div>
-              <div>
-                交付方式：<span class="value">{{
-                  form.delivery_type === 'tow' ? '预约拖车' : '自行送厂'
-                }}</span>
-              </div>
-              <div>
-                结算方式：<span class="value">{{ settlementMethodLabel }}</span>
-              </div>
-              <div>
-                免缺件扣款：<span class="value">{{ form.no_deduct_missing ? '是' : '否' }}</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -643,7 +629,10 @@
 
     <template v-if="!submitted" #footer>
       <div class="dialog-footer">
-        <div class="footer-step-hint">步骤 {{ currentStep + 1 }} / {{ stepLabels.length }}</div>
+        <div class="footer-step-hint">
+          <span>步骤 {{ currentStep + 1 }} / {{ stepLabels.length }}</span>
+          <span v-if="isIntentOrder" class="intent-order-tag">意向订单（非必填）</span>
+        </div>
         <div class="footer-actions">
           <button type="button" class="btn-cancel" @click="dialogVisible = false">取消</button>
           <button v-if="currentStep > 0" type="button" class="btn-prev" @click="currentStep--">
@@ -651,7 +640,17 @@
             上一步
           </button>
           <button
-            v-if="currentStep < stepLabels.length - 1"
+            v-if="isIntentOrder && currentStep > 0"
+            type="button"
+            class="btn-save-intent"
+            :disabled="saving"
+            @click="handleSubmit"
+          >
+            <ArtSvgIcon icon="ri:save-line" />
+            {{ saving ? '保存中…' : '保存订单' }}
+          </button>
+          <button
+            v-else-if="currentStep < stepLabels.length - 1"
             type="button"
             class="btn-next"
             :disabled="!canNext"
@@ -674,6 +673,12 @@
       </div>
     </template>
   </ElDialog>
+
+  <CustomerDialog
+    v-model:visible="customerDialogVisible"
+    type="add"
+    @submit="handleCustomerCreated"
+  />
 </template>
 
 <script setup lang="ts">
@@ -685,8 +690,10 @@
   } from '@/api/recycle/ocr'
   import { fetchPartnerList } from '@/api/recycle/customer'
   import { fetchSaveOrder } from '@/api/recycle/order'
+  import type { CustomerGrade } from '@/types/recycle/customer'
   import type { DrivingLicenseOcrData } from '@/types/recycle/ocr'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import CustomerDialog from '@/views/recycle/customers/modules/customer-dialog.vue'
   import type { OrderSavePayload, RecycleOrder } from '@/types/recycle/order'
 
   interface VehicleFormItem {
@@ -700,7 +707,11 @@
   }
 
   interface OrderCreateForm {
+    /** 是否已成交：null 未选 */
+    is_deal: boolean | null
     is_batch: boolean
+    /** 批次计划车辆总数（原型 batchVehicleCount） */
+    batch_vehicle_count: string
     plate_no: string
     vin: string
     brand: string
@@ -718,10 +729,9 @@
     uid: number
     real_name: string
     phone: string
+    /** 当前选中客户地址（接口 addres → address） */
+    contact_address: string
     delivery_type: 'self' | 'tow'
-    pickup_address: string
-    pickup_contact: string
-    pickup_phone: string
     settlement_method: 'weight' | 'gross_weight' | 'whole_vehicle'
     residual_value: string
     self_delivery_subsidy: string
@@ -746,7 +756,16 @@
     uid: number
     real_name: string
     phone: string
-    grade: string
+    address: string
+    grade: CustomerGrade
+  }
+
+  interface PartnerCreatedPayload {
+    uid: number
+    name: string
+    phone: string
+    address?: string
+    grade: CustomerGrade
   }
 
   interface Props {
@@ -763,7 +782,7 @@
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
 
-  const stepLabels = ['基础信息', '结算信息', '收款发票']
+  const stepLabels = ['客户 & 成交', '基础信息', '结算信息']
   const currentStep = ref(0)
   const submitted = ref(false)
   const saving = ref(false)
@@ -772,21 +791,29 @@
   const ocrFileInputRef = ref<HTMLInputElement>()
   let ocrDoneTimer: ReturnType<typeof setTimeout> | null = null
   const mockOrderNo = ref('')
+  const customerQuery = ref('')
+  const selectedCustomerGrade = ref<CustomerGrade | ''>('')
+  const customerDialogVisible = ref(false)
+  /** 初始 readonly，聚焦后再输入，避免浏览器地址/联系人自动填充层 */
+  const customerSearchReadonly = ref(true)
 
-  const vehicleBrands = [
-    '大众',
-    '丰田',
-    '本田',
-    '宝马',
-    '奔驰',
-    '奥迪',
-    '现代',
-    '别克',
-    '雪佛兰',
-    '福特',
-    '比亚迪',
-    '特斯拉'
-  ]
+  const customerInputAttrs = computed(() => ({
+    autocomplete: 'off',
+    autocapitalize: 'off',
+    autocorrect: 'off',
+    spellcheck: 'false',
+    name: 'scrap_order_customer_lookup',
+    'data-lpignore': 'true',
+    'data-form-type': 'other',
+    readonly: customerSearchReadonly.value || undefined
+  }))
+
+  const hasSelectedCustomer = computed(() => Number(form.value.uid) > 0)
+
+  const customerAvatarText = computed(() =>
+    form.value.real_name ? form.value.real_name.slice(0, 1) : '客'
+  )
+
   const fuelTypes = ['汽油', '柴油', '纯电动', '插电混动', '油电混动']
   const emissionStandards = ['国一', '国二', '国三', '国四', '国五', '国六', '新能源']
 
@@ -812,19 +839,43 @@
     { value: 'self' as const, label: '自行送厂', desc: '客户自行送达' }
   ]
 
+  const dealOptions = [
+    {
+      value: true,
+      label: '是，已成交',
+      desc: '继续填写完整订单信息',
+      color: '#1890FF',
+      bg: '#E6F7FF'
+    },
+    {
+      value: false,
+      label: '否，未成交',
+      desc: '保存为意向订单，字段非必填',
+      color: '#FA8C16',
+      bg: '#FFF7E6'
+    }
+  ]
+
+  function dealOptionStyle(opt: (typeof dealOptions)[number]) {
+    const active = form.value.is_deal === opt.value
+    return {
+      borderColor: active ? opt.color : '#E8E8E8',
+      background: active ? opt.bg : '#fff'
+    }
+  }
+
   const settlementMethodOptions = [
     { value: 'weight' as const, label: '重量结算', desc: '按净重（吨）计算' },
     { value: 'gross_weight' as const, label: '整备质量结算', desc: '按整备质量（辆）计算' },
     { value: 'whole_vehicle' as const, label: '整车结算', desc: '按整车固定价格计算' }
   ]
 
-  const enterpriseOptions = [
-    { value: false, label: '个人车主' },
-    { value: true, label: '企业客户' }
-  ]
+  const isIntentOrder = computed(() => form.value.is_deal === false)
 
   const defaultForm = (): OrderCreateForm => ({
+    is_deal: null,
     is_batch: false,
+    batch_vehicle_count: '',
     plate_no: '',
     vin: '',
     brand: '',
@@ -842,15 +893,13 @@
     uid: 0,
     real_name: '',
     phone: '',
+    contact_address: '',
     delivery_type: 'tow',
-    pickup_address: '',
-    pickup_contact: '',
-    pickup_phone: '',
     settlement_method: 'weight',
     residual_value: '',
     self_delivery_subsidy: '',
     no_deduct_missing: false,
-    has_agent: false,
+    has_agent: true,
     agent_name: '',
     agent_phone: '',
     agent_fee: '',
@@ -883,7 +932,8 @@
       uid: Number(item.id),
       real_name: item.name,
       phone: item.phone,
-      grade: item.grade
+      address: item.address || '',
+      grade: item.grade as CustomerGrade
     }))
   }
 
@@ -901,6 +951,11 @@
     return Number.isFinite(num) ? num : 0
   }
 
+  function vehicleManufactureYear(regDate: string, year: string) {
+    if (year.trim()) return year.trim()
+    return extractYearFromRegDate(regDate) || ''
+  }
+
   function buildVehicles() {
     if (form.value.is_batch) {
       return form.value.vehicles
@@ -911,7 +966,8 @@
           model: item.model,
           fuel_type: item.vehicle_type,
           emission_standard: item.emission_standard,
-          reg_date: item.registration_date
+          reg_date: item.registration_date,
+          manufacture_year: vehicleManufactureYear(item.registration_date, '')
         }))
     }
 
@@ -927,66 +983,97 @@
         emission_standard: form.value.emission_standard,
         reg_date: form.value.registration_date,
         color: form.value.color,
-        mileage: form.value.mileage
+        mileage: form.value.mileage,
+        manufacture_year: vehicleManufactureYear(form.value.registration_date, form.value.year)
       }
     ]
   }
 
+  function resolveBatchVehicleCount(vehiclesLen: number) {
+    if (!form.value.is_batch) return 0
+    const planned = toNumber(form.value.batch_vehicle_count)
+    if (planned >= 2) return planned
+    return vehiclesLen
+  }
+
+  function resolvePickupFromContact() {
+    return {
+      name: form.value.real_name.trim(),
+      phone: form.value.phone.trim(),
+      address: form.value.contact_address.trim()
+    }
+  }
+
   function buildSavePayload(status = 1): OrderSavePayload {
     const vehicles = buildVehicles()
+    const intent = form.value.is_deal === false
+    const isDeal = intent ? 0 : 1
+    const realName =
+      form.value.real_name.trim() || form.value.owner_name.trim() || (intent ? '意向客户' : '')
+    const phone = form.value.phone.trim() || form.value.owner_phone.trim()
 
-    return {
+    const residual = intent ? 0 : toNumber(form.value.residual_value)
+    const pickup = resolvePickupFromContact()
+    const isTow = form.value.delivery_type === 'tow'
+
+    const payload: OrderSavePayload = {
       is_batch: form.value.is_batch ? 1 : 0,
+      is_deal: isDeal,
       status,
-      batch_vehicle_count: form.value.is_batch ? vehicles.length : 0,
-      real_name: form.value.real_name.trim(),
-      phone: form.value.phone.trim(),
-      address: form.value.owner_address || '',
+      batch_vehicle_count: resolveBatchVehicleCount(vehicles.length),
+      real_name: realName,
+      phone,
+      address: form.value.owner_address.trim() || pickup.address,
       delivery_type: form.value.delivery_type,
-      pickup_contact_name: form.value.delivery_type === 'tow' ? form.value.pickup_contact : '',
-      pickup_contact_phone: form.value.delivery_type === 'tow' ? form.value.pickup_phone : '',
-      pickup_address: form.value.delivery_type === 'tow' ? form.value.pickup_address : '',
-      settlement_method: form.value.settlement_method,
-      deduct_missing: form.value.no_deduct_missing ? 0 : 1,
-      self_delivery_subsidy: toNumber(form.value.self_delivery_subsidy),
-      unit_price: toNumber(form.value.residual_value),
-      settlement_amount: toNumber(form.value.residual_value),
+      pickup_contact_name: isTow ? pickup.name : '',
+      pickup_contact_phone: isTow ? pickup.phone : '',
+      pickup_address: isTow ? pickup.address : '',
       owner_type: form.value.is_enterprise ? 'non_personal' : 'personal',
-      has_agent: form.value.has_agent ? 1 : 0,
-      agent_name: form.value.agent_name,
-      agent_phone: form.value.agent_phone,
-      agent_fee: toNumber(form.value.agent_fee),
-      agent_invoice_no: form.value.agent_invoice_no,
-      bank_account_name: form.value.account_name,
-      bank_name: form.value.bank_name,
-      bank_card_number: form.value.bank_card,
       vehicles,
       remark: form.value.remark,
       uid: form.value.uid || 0
     }
+
+    if (!intent) {
+      payload.settlement_method = form.value.settlement_method
+      payload.deduct_missing = form.value.no_deduct_missing ? 0 : 1
+      payload.self_delivery_subsidy = toNumber(form.value.self_delivery_subsidy)
+      payload.unit_price = residual
+      payload.residual_value = residual
+      payload.settlement_amount = residual
+      payload.has_agent = form.value.has_agent ? 1 : 0
+      payload.agent_name = form.value.agent_name
+      payload.agent_phone = form.value.agent_phone
+      payload.agent_fee = toNumber(form.value.agent_fee)
+      payload.agent_invoice_no = form.value.agent_invoice_no
+      payload.bank_account_name = form.value.account_name
+      payload.bank_name = form.value.bank_name
+      payload.bank_card_number = form.value.bank_card
+    } else {
+      payload.settlement_method = form.value.settlement_method || 'weight'
+      payload.deduct_missing = 0
+      payload.has_agent = 0
+    }
+
+    return payload
   }
 
   const residualUnit = computed(() =>
     form.value.settlement_method === 'weight' ? '元/吨' : '元/辆'
   )
 
-  const settlementMethodLabel = computed(() => {
-    const map: Record<string, string> = {
-      weight: '重量结算',
-      gross_weight: '整备质量结算',
-      whole_vehicle: '整车结算'
-    }
-    return map[form.value.settlement_method] || '—'
-  })
-
   const canNext = computed(() => {
     if (currentStep.value === 0) {
-      return !!(form.value.real_name && (form.value.is_batch || form.value.plate_no))
+      return form.value.is_deal !== null
     }
     if (currentStep.value === 1) {
+      if (form.value.is_deal === false) return true
+      return !!(form.value.is_batch || form.value.plate_no.trim())
+    }
+    if (currentStep.value === 2) {
       return !!form.value.settlement_method
     }
-    return !!(form.value.account_name && form.value.bank_name && form.value.bank_card)
+    return true
   })
 
   function resetState() {
@@ -995,13 +1082,22 @@
     saving.value = false
     ocrLoading.value = false
     ocrDone.value = false
+    customerQuery.value = ''
+    selectedCustomerGrade.value = ''
+    customerSearchReadonly.value = true
     form.value = defaultForm()
+  }
+
+  function handleCustomerSearchFocus() {
+    customerSearchReadonly.value = false
   }
 
   function prefillFromOrder(order: RecycleOrder) {
     form.value.real_name = order.real_name || ''
     form.value.phone = order.phone || ''
     form.value.uid = Number(order.uid) || 0
+    customerQuery.value = order.real_name || ''
+    selectedCustomerGrade.value = ''
     form.value.plate_no = order.plate_no || ''
     form.value.vin = order.vin || ''
     form.value.brand = order.brand || ''
@@ -1030,11 +1126,56 @@
     form.value.vehicles.splice(index, 1)
   }
 
+  function syncOwnerFromContact(name: string, phone: string, address: string) {
+    form.value.owner_name = name
+    form.value.owner_phone = phone
+    form.value.owner_address = address
+  }
+
   function handleCustomerSelect(item: Record<string, any>) {
     const customer = item as CustomerOption
+    const address = customer.address || ''
     form.value.uid = customer.uid
     form.value.real_name = customer.real_name
     form.value.phone = customer.phone
+    form.value.contact_address = address
+    syncOwnerFromContact(customer.real_name, customer.phone, address)
+    selectedCustomerGrade.value = customer.grade
+    customerQuery.value = customer.real_name
+  }
+
+  function handleCustomerQueryInput() {
+    if (Number(form.value.uid) > 0) return
+    form.value.real_name = customerQuery.value
+    if (!customerQuery.value) {
+      form.value.phone = ''
+    }
+  }
+
+  function handleClearCustomer() {
+    form.value.uid = 0
+    form.value.real_name = ''
+    form.value.phone = ''
+    form.value.contact_address = ''
+    syncOwnerFromContact('', '', '')
+    customerQuery.value = ''
+    selectedCustomerGrade.value = ''
+  }
+
+  function openAddCustomerDialog() {
+    customerDialogVisible.value = true
+  }
+
+  function handleCustomerCreated(created?: PartnerCreatedPayload) {
+    if (!created?.uid) return
+    const address = created.address || ''
+    form.value.uid = created.uid
+    form.value.real_name = created.name
+    form.value.phone = created.phone
+    form.value.contact_address = address
+    syncOwnerFromContact(created.name, created.phone, address)
+    selectedCustomerGrade.value = created.grade
+    customerQuery.value = created.name
   }
 
   function selectSettlementMethod(value: OrderCreateForm['settlement_method']) {
@@ -1073,8 +1214,10 @@
       }
     }
 
-    if (data.owner_name) form.value.owner_name = data.owner_name
-    if (data.address) form.value.owner_address = data.address
+    if (!Number(form.value.uid)) {
+      if (data.owner_name) form.value.owner_name = data.owner_name
+      if (data.address) form.value.owner_address = data.address
+    }
   }
 
   function handleOcr() {
@@ -1109,9 +1252,28 @@
   }
 
   async function handleSubmit() {
-    if (!form.value.real_name || !form.value.phone) {
-      ElMessage.warning('请填写客户姓名和联系电话')
+    const phone = form.value.phone.trim() || form.value.owner_phone.trim()
+    if (!phone) {
+      ElMessage.warning('请填写联系电话')
       return
+    }
+    if (form.value.is_deal !== false) {
+      const name = form.value.real_name.trim() || form.value.owner_name.trim()
+      if (!name) {
+        ElMessage.warning('请填写或选择客户')
+        return
+      }
+    }
+    if (form.value.delivery_type === 'tow') {
+      const pickup = resolvePickupFromContact()
+      if (!pickup.phone) {
+        ElMessage.warning('预约拖车请先在第一步选择客户并确认联系电话')
+        return
+      }
+      if (!pickup.address) {
+        ElMessage.warning('当前客户未维护地址，请在客户档案中补充地址后再提交')
+        return
+      }
     }
 
     saving.value = true
@@ -1156,9 +1318,19 @@
       0 4px 6px -4px rgb(0 0 0 / 10%);
   }
 
+  .order-customer-autocomplete-popper.el-popper {
+    /* fit-input-width 由 Element Plus 设置宽度，禁止覆盖为视口百分比 */
+    max-width: none;
+  }
+
   .order-customer-autocomplete-popper {
     .el-autocomplete-suggestion {
+      width: 100%;
       border-radius: 8px;
+    }
+
+    .el-popper__arrow {
+      display: none;
     }
 
     .el-autocomplete-suggestion__wrap {

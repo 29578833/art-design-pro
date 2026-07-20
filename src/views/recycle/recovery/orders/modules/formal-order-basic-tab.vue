@@ -1,7 +1,7 @@
 <template>
   <div class="fob-root">
-    <!-- 订单概要 -->
-    <div class="fob-card">
+    <!-- 订单概要（详情弹窗内单独展示时可隐藏，避免重复） -->
+    <div v-if="!hideSummary" class="fob-card">
       <div class="fob-card-title">订单概要</div>
       <ElRow :gutter="24">
         <ElCol :span="8">
@@ -338,9 +338,13 @@
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import type { OrderDetail, OrderStatusLog } from '@/types/recycle/order'
 
+  defineOptions({ name: 'FormalOrderBasicTab' })
+
   const props = defineProps<{
     detail: Partial<OrderDetail>
     selectedVehicleIdx: number
+    /** 为 true 时不渲染订单概要（由外层单独展示） */
+    hideSummary?: boolean
   }>()
 
   const isBatch = computed(() => Number(props.detail.is_batch) === 1)
