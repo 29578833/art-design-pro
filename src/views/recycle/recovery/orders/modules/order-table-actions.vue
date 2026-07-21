@@ -198,4 +198,4 @@
   })
 </script>
 
-<!-- 操作按钮样式见 ../orders.scss -->
+<!-- 操作按钮样式见 @/assets/styles/custom/order-table-actions.scss（全局引入） -->

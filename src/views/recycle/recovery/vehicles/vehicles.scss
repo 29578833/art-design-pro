@@ -144,56 +144,6 @@
     }
   }
 
-  .order-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .order-action-btn {
-    display: inline-flex;
-    gap: 4px;
-    align-items: center;
-    height: 28px;
-    padding: 0 10px;
-    font-size: 12px;
-    line-height: 1;
-    white-space: nowrap;
-    cursor: pointer;
-    border: 1px solid var(--art-card-border);
-    border-radius: 6px;
-    transition: all 0.2s;
-
-    &.default {
-      color: var(--art-gray-700);
-      background: #fff;
-
-      &:hover {
-        color: #1677ff;
-        background: #f0f7ff;
-        border-color: #91caff;
-      }
-    }
-
-    &.primary {
-      color: #4169ff;
-      background: #fff;
-      border-color: #4169ff;
-
-      &:hover {
-        color: #3558dd;
-        background: #eef2ff;
-        border-color: #3558dd;
-      }
-    }
-  }
-
-  .order-action-icon {
-    font-size: 14px;
-  }
-
   .vehicle-owner-cell {
     line-height: 1.4;
   }

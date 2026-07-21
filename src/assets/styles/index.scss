@@ -21,3 +21,6 @@
 
 // 主题切换圆形扩散动画
 @use './core/theme-animation.scss';
+
+// 列表操作列按钮（多模块表格共用）
+@use './custom/order-table-actions.scss';

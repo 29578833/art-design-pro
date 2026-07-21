@@ -204,48 +204,4 @@
       }
     }
   }
-
-  .order-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .order-action-btn {
-    display: inline-flex;
-    gap: 4px;
-    align-items: center;
-    height: 28px;
-    padding: 0 10px;
-    font-size: 12px;
-    line-height: 1;
-    white-space: nowrap;
-    cursor: pointer;
-    border: 1px solid transparent;
-    border-radius: 6px;
-    transition: all 0.2s;
-
-    &.ghost {
-      color: #1677ff;
-      background: #f0f7ff;
-      border-color: #91caff;
-    }
-
-    &.danger {
-      color: #ff4d4f;
-      background: #fff;
-      border-color: #ffccc7;
-
-      &:hover {
-        color: #fff;
-        background: #ff4d4f;
-      }
-    }
-  }
-
-  .order-action-icon {
-    font-size: 14px;
-  }
 }
