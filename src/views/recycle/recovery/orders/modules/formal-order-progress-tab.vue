@@ -403,7 +403,7 @@
     &--pending {
       color: #bfbfbf;
       background: #fff;
-      border: 2px solid #e0e0e0;
+      border: 2px solid #d9d9d9;
     }
   }
 
@@ -417,21 +417,21 @@
   }
 
   .fop-step-label {
-    font-size: 11px;
-    line-height: 1.3;
-    color: #bfbfbf;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #737373;
     text-align: center;
 
     &--active {
-      font-weight: 500;
-      color: #262626;
+      font-weight: 600;
+      color: #1f1f1f;
     }
   }
 
   .fop-step-time {
     margin-top: -2px;
-    font-size: 10px;
-    color: #8c8c8c;
+    font-size: 11px;
+    color: #737373;
     text-align: center;
   }
 
@@ -452,8 +452,8 @@
   }
 
   .fop-timeline-count {
-    font-size: 12px;
-    color: #bfbfbf;
+    font-size: 13px;
+    color: #737373;
   }
 
   .fop-timeline-body {
@@ -555,12 +555,12 @@
   }
 
   .fop-tl-label {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
-    color: #bfbfbf;
+    color: #737373;
 
     &--active {
-      color: #262626;
+      color: #1f1f1f;
     }
   }
 
@@ -582,21 +582,21 @@
   }
 
   .fop-tl-time {
-    font-size: 12px;
-    color: #bfbfbf;
+    font-size: 13px;
+    color: #737373;
     white-space: nowrap;
   }
 
   .fop-tl-desc {
-    font-size: 12px;
-    line-height: 1.5;
+    font-size: 13px;
+    line-height: 1.55;
 
     &--active {
-      color: #8c8c8c;
+      color: #595959;
     }
 
     &--pending {
-      color: #d9d9d9;
+      color: #8c8c8c;
     }
   }
 

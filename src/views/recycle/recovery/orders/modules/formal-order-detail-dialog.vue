@@ -113,19 +113,23 @@
             {{ detail.order_no }}
           </span> -->
           <!-- 待审核请在列表「审核详情」中操作，此处仅保留关闭 -->
-          <ElButton v-if="detail.status === 3" @click="activeTab = 'basic'">
+          <ElButton v-if="detail.status === 3" size="large" @click="activeTab = 'basic'">
             <ArtSvgIcon icon="ri:money-cny-circle-line" class="mr-1" />
             查看结算详情
           </ElButton>
         </div>
         <div class="fo-footer-right">
           <template v-if="isEditing">
-            <ElButton :disabled="editSubmitting" @click="cancelEdit">取消</ElButton>
-            <ElButton type="success" :loading="editSubmitting" @click="saveEdit">保存修改</ElButton>
+            <ElButton size="large" :disabled="editSubmitting" @click="cancelEdit">取消</ElButton>
+            <ElButton size="large" type="success" :loading="editSubmitting" @click="saveEdit"
+              >保存修改</ElButton
+            >
           </template>
           <template v-else>
-            <ElButton @click="dialogVisible = false">关闭</ElButton>
-            <ElButton v-if="canEditOrder" type="primary" @click="startEdit">编辑订单</ElButton>
+            <ElButton size="large" @click="dialogVisible = false">关闭</ElButton>
+            <ElButton v-if="canEditOrder" size="large" type="primary" @click="startEdit"
+              >编辑订单</ElButton
+            >
           </template>
         </div>
       </div>
@@ -371,7 +375,7 @@
 
 <style lang="scss">
   .fo-detail-dialog {
-    padding: 0 0 16px !important;
+    padding: 0 !important;
 
     .el-dialog__header {
       padding: 0;
@@ -386,6 +390,148 @@
     .el-dialog__footer {
       padding: 0;
       border-top: 1px solid #f0f0f0;
+    }
+
+    /* 内容区通用：字段卡片、进度、附件 */
+    .fob-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #434343;
+      text-transform: none;
+      letter-spacing: 0.02em;
+    }
+
+    .fob-label {
+      font-size: 13px;
+      color: #595959;
+    }
+
+    .fob-value {
+      font-size: 15px;
+      color: #1f1f1f;
+
+      &--mono {
+        font-size: 14px;
+        color: #434343;
+      }
+
+      &--plate {
+        font-size: 16px;
+      }
+
+      &--amount {
+        font-size: 18px;
+      }
+    }
+
+    .fob-tag,
+    .fob-bool-tag {
+      padding: 3px 11px;
+      font-size: 13px;
+    }
+
+    .fob-card-subtitle {
+      font-size: 13px;
+    }
+
+    .fob-remark {
+      font-size: 14px;
+      color: #434343;
+    }
+
+    .fob-delivery-tag {
+      padding: 3px 10px;
+      font-size: 13px;
+    }
+
+    .fop-section-title {
+      font-size: 15px;
+    }
+
+    .fop-step-label {
+      font-size: 12px;
+      color: #737373;
+
+      &--active {
+        color: #1f1f1f;
+      }
+    }
+
+    .fop-step-time {
+      font-size: 11px;
+      color: #737373;
+    }
+
+    .fop-timeline-count,
+    .fop-tl-time {
+      font-size: 13px;
+      color: #737373;
+    }
+
+    .fop-tl-label {
+      font-size: 14px;
+
+      &--active {
+        color: #1f1f1f;
+      }
+    }
+
+    .fop-tl-desc {
+      font-size: 13px;
+
+      &--active {
+        color: #595959;
+      }
+
+      &--pending {
+        color: #8c8c8c;
+      }
+    }
+
+    .fop-log-text {
+      font-size: 13px;
+    }
+
+    .fop-log-operator {
+      font-size: 13px;
+      color: #595959;
+    }
+
+    .foa-progress-title {
+      font-size: 14px;
+    }
+
+    .foa-progress-count,
+    .foa-list-title {
+      font-size: 14px;
+    }
+
+    .foa-row-name {
+      font-size: 14px;
+    }
+
+    .foa-sign-required,
+    .foa-sign-time,
+    .foa-badge {
+      font-size: 12px;
+    }
+
+    .foa-badge--unsigned {
+      color: #595959;
+    }
+
+    .foa-btn {
+      padding: 5px 12px;
+      font-size: 13px;
+    }
+
+    .foa-empty {
+      font-size: 14px;
+      color: #8c8c8c;
+    }
+
+    .el-button {
+      font-size: 14px;
     }
   }
 
@@ -412,15 +558,15 @@
   }
 
   .fo-title {
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 600;
-    color: #262626;
+    color: #1f1f1f;
   }
 
   .fo-order-type-tag,
   .fo-status-badge {
-    padding: 2px 10px;
-    font-size: 12px;
+    padding: 4px 12px;
+    font-size: 13px;
     font-weight: 600;
     border-radius: 20px;
   }
@@ -458,10 +604,10 @@
     display: flex;
     gap: 6px;
     align-items: center;
-    padding: 12px 16px;
-    font-size: 13px;
+    padding: 14px 18px;
+    font-size: 14px;
     font-weight: 500;
-    color: #595959;
+    color: #434343;
     cursor: pointer;
     background: transparent;
     border: none;
@@ -484,7 +630,7 @@
   }
 
   .fo-tab-icon {
-    font-size: 14px;
+    font-size: 17px;
   }
 
   /* ===== 批次车辆条 ===== */
@@ -499,9 +645,9 @@
 
   .fo-batch-label {
     flex-shrink: 0;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
-    color: #595959;
+    color: #434343;
   }
 
   .fo-batch-list {
@@ -535,12 +681,12 @@
   }
 
   .fo-batch-idx {
-    font-size: 11px;
-    color: #8c8c8c;
+    font-size: 12px;
+    color: #595959;
   }
 
   .fo-batch-plate {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     color: #262626;
     letter-spacing: 0.03em;
@@ -551,16 +697,16 @@
   }
 
   .fo-batch-vstatus {
-    padding: 1px 6px;
-    font-size: 11px;
+    padding: 2px 8px;
+    font-size: 12px;
     font-weight: 600;
     border-radius: 4px;
   }
 
   .fo-batch-count {
     flex-shrink: 0;
-    font-size: 12px;
-    color: #8c8c8c;
+    font-size: 13px;
+    color: #595959;
     white-space: nowrap;
   }
 
@@ -582,11 +728,11 @@
     display: flex;
     gap: 8px;
     align-items: center;
-    padding: 10px 16px;
+    padding: 12px 16px;
     margin-bottom: 12px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
-    color: #1890ff;
+    color: #1677ff;
     background: #e6f7ff;
     border: 1px solid #91d5ff;
     border-radius: 8px;
@@ -605,7 +751,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 20px;
+    padding: 14px 20px;
   }
 
   .fo-footer-left {

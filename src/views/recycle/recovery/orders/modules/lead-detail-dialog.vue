@@ -204,12 +204,12 @@
           </span>
         </div>
         <div class="ldg-footer-right">
-          <ElButton @click="dialogVisible = false">关闭</ElButton>
-          <ElButton v-if="isPending" @click="assignDialogVisible = true">
+          <ElButton size="large" @click="dialogVisible = false">关闭</ElButton>
+          <ElButton v-if="isPending" size="large" @click="assignDialogVisible = true">
             <ArtSvgIcon icon="ri:user-shared-line" class="mr-1" />
             指派跟进人
           </ElButton>
-          <ElButton type="primary" @click="handleCreateOrder">
+          <ElButton size="large" type="primary" @click="handleCreateOrder">
             <ArtSvgIcon icon="ri:add-line" class="mr-1" />
             创建订单
           </ElButton>
@@ -367,6 +367,10 @@
       padding: 0;
       border-top: 1px solid #f0f0f0;
     }
+
+    .el-button {
+      font-size: 14px;
+    }
   }
 </style>
 
@@ -386,15 +390,15 @@
   }
 
   .ldg-title {
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 600;
-    color: #262626;
+    color: #1f1f1f;
   }
 
   .ldg-type-tag,
   .ldg-status-tag {
-    padding: 2px 10px;
-    font-size: 12px;
+    padding: 4px 12px;
+    font-size: 13px;
     font-weight: 600;
     border-radius: 20px;
   }
@@ -455,14 +459,14 @@
   }
 
   .ldg-assigned-title {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: #1677ff;
   }
 
   .ldg-assigned-sub {
     margin-top: 2px;
-    font-size: 12px;
+    font-size: 13px;
     color: #4096ff;
   }
 
@@ -477,11 +481,10 @@
   .ldg-card-title {
     padding-bottom: 10px;
     margin-bottom: 12px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #8c8c8c;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    font-size: 14px;
+    font-weight: 600;
+    color: #434343;
+    letter-spacing: 0.02em;
     border-bottom: 1px solid #f0f0f0;
   }
 
@@ -491,25 +494,25 @@
 
   .ldg-label {
     margin-bottom: 4px;
-    font-size: 12px;
-    color: #8c8c8c;
+    font-size: 13px;
+    color: #595959;
   }
 
   .ldg-value {
-    font-size: 14px;
-    color: #262626;
+    font-size: 15px;
+    color: #1f1f1f;
 
     &--bold {
       font-weight: 600;
     }
 
     &--mono {
-      font-size: 13px;
+      font-size: 14px;
       color: #434343;
     }
 
     &--plate {
-      font-size: 15px;
+      font-size: 16px;
       color: #1677ff;
     }
 
@@ -523,9 +526,9 @@
 
     &--remark {
       padding: 8px 10px;
-      font-size: 13px;
+      font-size: 14px;
       line-height: 1.6;
-      color: #595959;
+      color: #434343;
       background: #f8f9fb;
       border-radius: 6px;
     }
@@ -538,7 +541,7 @@
     align-items: flex-start;
     padding: 10px 12px;
     margin-top: 8px;
-    font-size: 12px;
+    font-size: 13px;
     color: #3d7eff;
     background: #e6f4ff;
     border: 1px solid #bae0ff;
@@ -548,14 +551,14 @@
   .ldg-tip-icon {
     flex-shrink: 0;
     margin-top: 1px;
-    font-size: 13px;
+    font-size: 14px;
   }
 
   /* ===== 内联状态徽章 ===== */
   .ldg-inline-badge {
     display: inline-block;
-    padding: 2px 10px;
-    font-size: 12px;
+    padding: 3px 11px;
+    font-size: 13px;
     font-weight: 600;
     border-radius: 20px;
   }
@@ -565,8 +568,8 @@
     display: inline-flex;
     gap: 4px;
     align-items: center;
-    padding: 2px 8px;
-    font-size: 12px;
+    padding: 3px 10px;
+    font-size: 13px;
     color: #595959;
     background: #f5f5f5;
     border-radius: 4px;
@@ -582,7 +585,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 20px;
+    padding: 14px 20px;
   }
 
   .ldg-footer-left {
@@ -590,8 +593,8 @@
   }
 
   .ldg-footer-assign {
-    font-size: 12px;
-    color: #8c8c8c;
+    font-size: 13px;
+    color: #595959;
   }
 
   .ldg-footer-assign-name {

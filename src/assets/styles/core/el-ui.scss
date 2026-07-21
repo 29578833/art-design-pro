@@ -468,6 +468,9 @@ html.dark .el-card {
 //     }
 //   }
 // }
+.el-button {
+  min-width: 100px;
+}
 
 // 实现水波纹在文字下面效果
 .el-button > span {

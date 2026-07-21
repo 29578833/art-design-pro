@@ -126,11 +126,10 @@
   .fob-card-title {
     padding-bottom: 10px;
     margin-bottom: 12px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #8c8c8c;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    font-size: 14px;
+    font-weight: 600;
+    color: #434343;
+    letter-spacing: 0.02em;
     border-bottom: 1px solid #f0f0f0;
   }
 
@@ -140,17 +139,17 @@
 
   .fob-label {
     margin-bottom: 4px;
-    font-size: 12px;
-    color: #8c8c8c;
+    font-size: 13px;
+    color: #595959;
   }
 
   .fob-value {
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1.5;
-    color: #262626;
+    color: #1f1f1f;
 
     &--mono {
-      font-size: 13px;
+      font-size: 14px;
       color: #434343;
     }
 
@@ -161,8 +160,8 @@
 
   .fob-tag {
     display: inline-block;
-    padding: 2px 10px;
-    font-size: 12px;
+    padding: 3px 11px;
+    font-size: 13px;
     font-weight: 600;
     border-radius: 20px;
   }

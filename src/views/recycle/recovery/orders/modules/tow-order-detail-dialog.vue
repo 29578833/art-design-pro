@@ -397,9 +397,10 @@
           </span>
         </div>
         <div class="td-footer-right">
-          <ElButton @click="dialogVisible = false">关闭</ElButton>
+          <ElButton size="large" @click="dialogVisible = false">关闭</ElButton>
           <ElButton
             v-if="statusCode === 2 || statusCode === 3"
+            size="large"
             :loading="submitting"
             @click="handleReassign"
           >
@@ -407,6 +408,7 @@
           </ElButton>
           <ElButton
             v-if="statusCode === 1"
+            size="large"
             type="primary"
             :loading="submitting"
             @click="dispatchDialogVisible = true"
@@ -416,6 +418,7 @@
           </ElButton>
           <ElButton
             v-if="statusCode === 3"
+            size="large"
             type="success"
             :loading="submitting"
             @click="handleComplete"
@@ -1094,6 +1097,10 @@
       padding: 0;
       border-top: 1px solid #f0f0f0;
     }
+
+    .el-button {
+      font-size: 14px;
+    }
   }
 </style>
 
@@ -1113,14 +1120,14 @@
   }
 
   .td-title {
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 600;
-    color: #262626;
+    color: #1f1f1f;
   }
 
   .td-type-tag {
-    padding: 2px 10px;
-    font-size: 12px;
+    padding: 4px 12px;
+    font-size: 13px;
     font-weight: 600;
     color: #0e7490;
     background: #e6fffb;
@@ -1129,17 +1136,17 @@
   }
 
   .td-status-badge {
-    padding: 2px 10px;
-    font-size: 12px;
+    padding: 4px 12px;
+    font-size: 13px;
     font-weight: 600;
     border-radius: 20px;
   }
 
   .td-order-no {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
     // font-family: ui-monospace, 'Courier New', monospace;
-    color: #8c8c8c;
+    color: #595959;
   }
 
   .td-close-btn {
@@ -1174,10 +1181,10 @@
     display: flex;
     gap: 6px;
     align-items: center;
-    padding: 12px 16px;
-    font-size: 13px;
+    padding: 14px 18px;
+    font-size: 14px;
     font-weight: 500;
-    color: #595959;
+    color: #434343;
     cursor: pointer;
     background: transparent;
     border: none;
@@ -1195,7 +1202,7 @@
   }
 
   .td-tab-icon {
-    font-size: 14px;
+    font-size: 17px;
   }
 
   /* ===== 内容区（滚动容器） ===== */
@@ -1204,7 +1211,6 @@
     max-height: calc(90vh - 200px);
     padding: 16px 20px;
     overflow-y: auto;
-    background: #fff;
   }
 
   /* ===== 信息卡片公共 ===== */
@@ -1223,11 +1229,10 @@
 
   .td-card-title {
     margin-bottom: 14px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
-    color: #8c8c8c;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+    color: #434343;
+    letter-spacing: 0.02em;
   }
 
   .td-item {
@@ -1236,20 +1241,20 @@
 
   .td-label {
     margin-bottom: 4px;
-    font-size: 12px;
-    color: #8c8c8c;
+    font-size: 13px;
+    color: #595959;
   }
 
   .td-value {
-    font-size: 14px;
-    color: #262626;
+    font-size: 15px;
+    color: #1f1f1f;
 
     &--bold {
       font-weight: 600;
     }
 
     &--mono {
-      font-size: 13px;
+      font-size: 14px;
     }
 
     &--plate {
@@ -1283,9 +1288,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
-    font-size: 13px;
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
     color: #52c41a;
     cursor: pointer;
     background: #f6ffed;
@@ -1425,8 +1430,8 @@
   }
 
   .td-step-label {
-    font-size: 12px;
-    color: #bfbfbf;
+    font-size: 13px;
+    color: #737373;
     text-align: center;
 
     &--done {
@@ -1441,8 +1446,8 @@
   }
 
   .td-step-sub {
-    font-size: 11px;
-    color: #bfbfbf;
+    font-size: 12px;
+    color: #737373;
     text-align: center;
   }
 
@@ -1468,14 +1473,14 @@
   }
 
   .td-timeline-htitle {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
-    color: #262626;
+    color: #1f1f1f;
   }
 
   .td-timeline-hsub {
-    font-size: 12px;
-    color: #bfbfbf;
+    font-size: 13px;
+    color: #737373;
   }
 
   .td-timeline-body {
@@ -1535,7 +1540,7 @@
     padding-bottom: 20px;
 
     &--pending {
-      opacity: 0.45;
+      opacity: 0.72;
     }
   }
 
@@ -1547,12 +1552,12 @@
   }
 
   .td-tl-stage {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
-    color: #bfbfbf;
+    color: #737373;
 
     &--done {
-      color: #262626;
+      color: #1f1f1f;
     }
 
     &--active {
@@ -1561,8 +1566,8 @@
   }
 
   .td-tl-role {
-    padding: 1px 6px;
-    font-size: 11px;
+    padding: 2px 8px;
+    font-size: 12px;
     font-weight: 500;
     color: #1677ff;
     background: #e6f4ff;
@@ -1577,8 +1582,8 @@
   }
 
   .td-tl-ing {
-    padding: 1px 6px;
-    font-size: 11px;
+    padding: 2px 8px;
+    font-size: 12px;
     font-weight: 600;
     color: #faad14;
     background: #fffbe6;
@@ -1591,20 +1596,20 @@
     gap: 4px;
     align-items: center;
     margin-bottom: 4px;
-    font-size: 12px;
-    color: #595959;
+    font-size: 13px;
+    color: #434343;
   }
 
   .td-tl-person-icon {
-    font-size: 12px;
-    color: #bfbfbf;
+    font-size: 13px;
+    color: #737373;
   }
 
   .td-tl-extra {
     padding: 6px 10px;
     margin-bottom: 4px;
-    font-size: 12px;
-    color: #595959;
+    font-size: 13px;
+    color: #434343;
     background: #f8f9fb;
     border: 1px solid #f0f0f0;
     border-radius: 6px;
@@ -1614,8 +1619,8 @@
     display: flex;
     gap: 4px;
     align-items: center;
-    font-size: 12px;
-    color: #bfbfbf;
+    font-size: 13px;
+    color: #737373;
   }
 
   .td-tl-time-icon {
@@ -1642,15 +1647,15 @@
   }
 
   .td-media-htitle {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
-    color: #262626;
+    color: #1f1f1f;
   }
 
   .td-media-tip {
     margin-top: 8px;
-    font-size: 12px;
-    color: #bfbfbf;
+    font-size: 13px;
+    color: #737373;
   }
 
   .td-photos-grid {
@@ -1699,8 +1704,8 @@
   }
 
   .td-photo-empty-text {
-    font-size: 12px;
-    color: #d9d9d9;
+    font-size: 13px;
+    color: #8c8c8c;
   }
 
   .td-signature-box {
@@ -1735,8 +1740,8 @@
   }
 
   .td-signature-empty-text {
-    font-size: 13px;
-    color: #bfbfbf;
+    font-size: 14px;
+    color: #737373;
   }
 
   /* ===== 底栏 ===== */
@@ -1744,7 +1749,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 20px;
+    padding: 14px 20px;
   }
 
   .td-footer-left {
@@ -1755,8 +1760,8 @@
     display: flex;
     gap: 4px;
     align-items: center;
-    font-size: 12px;
-    color: #8c8c8c;
+    font-size: 13px;
+    color: #595959;
   }
 
   .td-footer-no-icon {

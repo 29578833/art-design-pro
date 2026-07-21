@@ -27,17 +27,12 @@
       <span class="foa-list-title"> 订单附件（{{ totalCount }} 种类型） </span>
       <div class="foa-list-actions">
         <!-- 管理模板 -->
-        <ElButton size="small" @click="templateManagerVisible = true">
+        <ElButton @click="templateManagerVisible = true">
           <ArtSvgIcon icon="ri:star-line" class="mr-1" />
           管理模板（{{ templateCount }}）
         </ElButton>
         <!-- 一键签名 -->
-        <ElButton
-          size="small"
-          type="primary"
-          :disabled="!pendingList.length"
-          @click="handleBatchSign"
-        >
+        <ElButton type="primary" :disabled="!pendingList.length" @click="handleBatchSign">
           <ArtSvgIcon icon="ri:edit-line" class="mr-1" />
           一键签名
         </ElButton>
@@ -327,7 +322,7 @@
     gap: 4px;
     align-items: center;
     margin-top: 8px;
-    font-size: 12px;
+    font-size: 13px;
 
     &--warn {
       color: #fa8c16;
@@ -501,7 +496,7 @@
     transition: all 0.15s;
 
     &--view {
-      color: #595959;
+      color: #434343;
       background: #fff;
       border: 1px solid #d9d9d9;
 

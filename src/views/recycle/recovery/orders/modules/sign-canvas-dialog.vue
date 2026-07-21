@@ -6,7 +6,7 @@
     destroy-on-close
     :show-close="false"
     class="sc-dialog"
-    style="padding: 0 0 16px !important"
+    style="padding: 0 !important"
     @opened="onOpened"
     @closed="onClosed"
   >
@@ -456,6 +456,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    padding: 16px 20px;
   }
 
   /* 批量提示条 */
@@ -522,7 +523,7 @@
     gap: 4px;
     align-items: center;
     padding: 0;
-    font-size: 12px;
+    font-size: 14px;
     color: #1890ff;
     cursor: pointer;
     background: transparent;

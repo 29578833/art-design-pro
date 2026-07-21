@@ -460,11 +460,10 @@
   .fob-card-title {
     padding-bottom: 10px;
     margin-bottom: 12px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #8c8c8c;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    font-size: 14px;
+    font-weight: 600;
+    color: #434343;
+    letter-spacing: 0.02em;
     border-bottom: 1px solid #f0f0f0;
   }
 
@@ -489,21 +488,21 @@
 
   .fob-label {
     margin-bottom: 4px;
-    font-size: 12px;
-    color: #8c8c8c;
+    font-size: 13px;
+    color: #595959;
   }
 
   .fob-value {
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1.5;
-    color: #262626;
+    color: #1f1f1f;
 
     &--bold {
       font-weight: 600;
     }
 
     &--mono {
-      font-size: 13px;
+      font-size: 14px;
       color: #434343;
     }
 
@@ -512,14 +511,14 @@
     }
 
     &--plate {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 700;
       color: #1677ff;
       letter-spacing: 0.05em;
     }
 
     &--amount {
-      font-size: 16px;
+      font-size: 18px;
       color: #1677ff;
     }
   }
@@ -527,16 +526,16 @@
   /* ===== 标签 ===== */
   .fob-tag {
     display: inline-block;
-    padding: 2px 10px;
-    font-size: 12px;
+    padding: 3px 11px;
+    font-size: 13px;
     font-weight: 600;
     border-radius: 20px;
   }
 
   .fob-bool-tag {
     display: inline-block;
-    padding: 2px 8px;
-    font-size: 12px;
+    padding: 3px 10px;
+    font-size: 13px;
     font-weight: 600;
     border-radius: 4px;
   }
@@ -546,9 +545,9 @@
     display: inline-flex;
     gap: 4px;
     align-items: center;
-    padding: 2px 8px;
-    font-size: 12px;
-    color: #595959;
+    padding: 3px 10px;
+    font-size: 13px;
+    color: #434343;
     background: #f5f5f5;
     border-radius: 4px;
 
@@ -562,9 +561,9 @@
   .fob-remark {
     padding: 10px 12px;
     margin-bottom: 6px;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.7;
-    color: #595959;
+    color: #434343;
     background: #f8f9fb;
     border-radius: 6px;
   }
