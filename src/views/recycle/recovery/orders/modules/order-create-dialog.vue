@@ -640,17 +640,7 @@
             上一步
           </button>
           <button
-            v-if="isIntentOrder && currentStep > 0"
-            type="button"
-            class="btn-save-intent"
-            :disabled="saving"
-            @click="handleSubmit"
-          >
-            <ArtSvgIcon icon="ri:save-line" />
-            {{ saving ? '保存中…' : '保存订单' }}
-          </button>
-          <button
-            v-else-if="currentStep < stepLabels.length - 1"
+            v-if="currentStep < stepLabels.length - 1"
             type="button"
             class="btn-next"
             :disabled="!canNext"
@@ -662,12 +652,12 @@
           <button
             v-else
             type="button"
-            class="btn-submit"
+            :class="isIntentOrder ? 'btn-save-intent' : 'btn-submit'"
             :disabled="!canNext || saving"
             @click="handleSubmit"
           >
-            <ArtSvgIcon icon="ri:check-line" />
-            {{ saving ? '提交中…' : '提交订单' }}
+            <ArtSvgIcon :icon="isIntentOrder ? 'ri:save-line' : 'ri:check-line'" />
+            {{ saving ? '提交中…' : isIntentOrder ? '保存订单' : '提交订单' }}
           </button>
         </div>
       </div>

@@ -139,6 +139,7 @@
   import {
     getOrderDisplayNo,
     getOrderStatusText,
+    getOrderTypeDisplayLabel,
     isLeadOrder,
     isPendingFormalReview,
     isTowOrder,
@@ -723,7 +724,7 @@
 
       const rows = list.map((item) => ({
         订单编号: getOrderDisplayNo(item),
-        订单类型: item.order_type_text || item.order_type,
+        订单类型: getOrderTypeDisplayLabel(item),
         客户姓名: item.real_name || '',
         联系电话: item.phone || '',
         车牌号: item.plate_no || '',

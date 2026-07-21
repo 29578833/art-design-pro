@@ -89,6 +89,8 @@ export interface RecycleOrder {
   pending_sign_count?: number
   /** 未签附件数量（列表扩展字段别名） */
   unsigned_attach_count?: number
+  /** 是否成交：1 已成交 / 0 意向单 */
+  is_deal?: number
   [key: string]: unknown
 }
 
@@ -163,8 +165,21 @@ export function getOrderDisplayNo(row: RecycleOrder) {
   return row.order_no || row.tow_no || String(row.id)
 }
 
+/** 获取订单类型展示文案（is_deal=0 为意向单） */
+export function getOrderTypeDisplayLabel(row: RecycleOrder): string {
+  if (Number(row.is_deal) === 0) return '意向单'
+  return row.order_type_text || row.order_type
+}
+
 /** 获取订单类型标签样式 */
 export function resolveOrderTypeStyle(row: RecycleOrder) {
+  if (Number(row.is_deal) === 0) {
+    return {
+      label: '意向单',
+      color: '#FA8C16',
+      bgColor: '#FFF7E6'
+    }
+  }
   const style = ORDER_TYPE_STYLE[row.order_type]
   return {
     label: row.order_type_text || row.order_type,
