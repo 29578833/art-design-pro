@@ -117,19 +117,6 @@
     }
   }
 
-  .order-no {
-    display: inline-block;
-    padding: 0;
-    font-size: 14px;
-    font-weight: 500;
-    color: #1677ff;
-    cursor: pointer;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
   .inv-item-name {
     font-size: 14px;
     font-weight: 500;
@@ -175,13 +162,13 @@
   }
 }
 
-@media (width <= 1400px) {
+@media (width <=1400px) {
   .inv-page .inv-stats {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (width <= 768px) {
+@media (width <=768px) {
   .inv-page .inv-stats {
     grid-template-columns: 1fr;
   }
