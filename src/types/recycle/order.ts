@@ -239,7 +239,36 @@ export interface OrderVehicle {
   status?: number
   /** 车辆物流状态文案 */
   status_text?: string
+  /** 该车辆订单附件（详情接口挂在 vehicles[] 每项） */
+  attachments?: OrderAttachment[]
   [key: string]: unknown
+}
+
+/** 当前选中车辆的 attachments（详情数据在 vehicles[].attachments） */
+export function resolveVehicleAttachments(
+  detail: Partial<OrderDetail>,
+  vehicleIdx = 0
+): OrderAttachment[] {
+  const vehicles = detail.vehicles
+  if (vehicles?.length) {
+    const v = vehicles[vehicleIdx] ?? vehicles[0]
+    const list = v?.attachments
+    return Array.isArray(list) ? list : []
+  }
+  const list = detail.vehicle?.attachments
+  return Array.isArray(list) ? list : []
+}
+
+/** 订单下全部车辆附件（按 id 去重，签名页用） */
+export function resolveOrderAttachmentsAll(detail: Partial<OrderDetail>): OrderAttachment[] {
+  const map = new Map<number, OrderAttachment>()
+  for (const v of detail.vehicles ?? []) {
+    for (const a of v.attachments ?? []) {
+      if (a.id != null) map.set(a.id, a)
+    }
+  }
+  if (map.size) return [...map.values()]
+  return resolveVehicleAttachments(detail, 0)
 }
 
 /** 订单操作日志（status_logs[] 每项） */

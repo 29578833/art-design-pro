@@ -101,7 +101,7 @@
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchOrderDetail } from '@/api/recycle/order'
-  import type { OrderAttachment } from '@/types/recycle/order'
+  import { resolveOrderAttachmentsAll, type OrderAttachment } from '@/types/recycle/order'
   import SignCanvasDialog from './sign-canvas-dialog.vue'
 
   interface Props {
@@ -158,7 +158,7 @@
     try {
       // 附件列表从订单详情接口取，与详情页附件 Tab 同源
       const detail = await fetchOrderDetail(props.orderId)
-      const list = detail.attachments || []
+      const list = resolveOrderAttachmentsAll(detail)
       attachments.value = list
       selectedIds.value = list
         .filter(isPending)

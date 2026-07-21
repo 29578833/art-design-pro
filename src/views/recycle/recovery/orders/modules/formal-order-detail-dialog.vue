@@ -98,6 +98,7 @@
       <FormalOrderAttachmentsTab
         v-else-if="activeTab === 'attachments'"
         :detail="detail"
+        :selected-vehicle-idx="selectedVehicleIdx"
         :order-id="props.orderId ?? undefined"
         @signed="loadDetail"
       />

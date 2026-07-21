@@ -50,7 +50,7 @@
     <!-- 附件列表 -->
     <div v-else class="foa-list">
       <div
-        v-for="att in props.detail.attachments"
+        v-for="att in attachmentList"
         :key="att.id"
         class="foa-row"
         :class="{ 'foa-row--signed': isSigned(att) }"
@@ -152,17 +152,24 @@
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchSignTemplates } from '@/api/recycle/sign'
   import type { OrderAttachment, OrderDetail } from '@/types/recycle/order'
+  import { resolveVehicleAttachments } from '@/types/recycle/order'
   import SignCanvasDialog from './sign-canvas-dialog.vue'
   import SignTemplateManagerDialog from './sign-template-manager-dialog.vue'
 
   const props = defineProps<{
     detail: Partial<OrderDetail>
+    /** 与详情弹窗批次车辆切换条联动 */
+    selectedVehicleIdx?: number
     orderId?: number
   }>()
 
   const emit = defineEmits<{
     (e: 'signed'): void
   }>()
+
+  const attachmentList = computed(() =>
+    resolveVehicleAttachments(props.detail, props.selectedVehicleIdx ?? 0)
+  )
 
   // ===== 附件状态判断 =====
   // 'unsigned'：未生成文件
@@ -189,13 +196,11 @@
   }
 
   // ===== 统计 =====
-  const totalCount = computed(() => props.detail.attachments?.length ?? 0)
+  const totalCount = computed(() => attachmentList.value.length)
   const needSignCount = computed(() => totalCount.value)
-  const signedCount = computed(
-    () => props.detail.attachments?.filter((a) => isSigned(a)).length ?? 0
-  )
+  const signedCount = computed(() => attachmentList.value.filter((a) => isSigned(a)).length)
   const pendingList = computed(
-    () => props.detail.attachments?.filter((a) => getStatus(a) === 'uploaded_unsigned') ?? []
+    () => attachmentList.value.filter((a) => getStatus(a) === 'uploaded_unsigned') ?? []
   )
   const progressPct = computed(() =>
     needSignCount.value ? Math.round((signedCount.value / needSignCount.value) * 100) : 0
