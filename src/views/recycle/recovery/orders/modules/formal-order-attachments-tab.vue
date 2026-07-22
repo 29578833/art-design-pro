@@ -82,35 +82,58 @@
             <span class="foa-badge foa-badge--unsigned">未生成</span>
           </template>
 
-          <!-- uploaded_unsigned：待签名，可查看可签名 -->
+          <!-- uploaded_unsigned：待签名 -->
           <template v-else-if="getStatus(att) === 'uploaded_unsigned'">
             <span class="foa-badge foa-badge--pending">待签名</span>
-            <button
-              type="button"
-              class="foa-btn foa-btn--view"
-              @click="handlePreview(att.download_url!)"
+            <ElButton
+              size="small"
+              plain
+              class="foa-act-btn foa-act-btn--view"
+              @click="openAttachPreview(att)"
             >
-              <ArtSvgIcon icon="ri:download-line" class="foa-btn-icon" />查看
-            </button>
-            <button type="button" class="foa-btn foa-btn--sign" @click="handleSingleSign(att)">
-              <ArtSvgIcon icon="ri:pen-nib-line" class="foa-btn-icon" />签名
-            </button>
+              <ArtSvgIcon icon="ri:eye-line" class="foa-act-icon" />查看
+            </ElButton>
+            <ElButton
+              v-if="isTemplateAtt(att)"
+              size="small"
+              plain
+              class="foa-act-btn foa-act-btn--neutral"
+              :loading="downloadingAttachId === att.id"
+              @click="handleDownloadTemplate(att)"
+            >
+              <ArtSvgIcon icon="ri:download-line" class="foa-act-icon" />下载模板
+            </ElButton>
+            <ElButton
+              size="small"
+              plain
+              type="primary"
+              class="foa-act-btn"
+              :loading="uploadingAttachId === att.id"
+              @click="triggerUploadAttach(att)"
+            >
+              <ArtSvgIcon icon="ri:upload-2-line" class="foa-act-icon" />上传签名附件
+            </ElButton>
+            <ElButton
+              size="small"
+              type="warning"
+              class="foa-act-btn foa-act-btn--esign"
+              @click="handleSingleSign(att)"
+            >
+              <ArtSvgIcon icon="ri:edit-line" class="foa-act-icon" />电子签名
+            </ElButton>
           </template>
 
           <!-- signed：已签名 -->
           <template v-else>
             <span class="foa-badge foa-badge--signed">已签名</span>
-            <button
-              v-if="att.download_url"
-              type="button"
-              class="foa-btn foa-btn--view"
-              @click="handlePreview(att.download_url!)"
+            <ElButton
+              size="small"
+              plain
+              class="foa-act-btn foa-act-btn--view"
+              @click="openAttachPreview(att)"
             >
-              <ArtSvgIcon icon="ri:download-line" class="foa-btn-icon" />查看
-            </button>
-            <!-- <span class="foa-signed-check">
-              <ArtSvgIcon icon="ri:checkbox-circle-line" />已签名
-            </span> -->
+              <ArtSvgIcon icon="ri:eye-line" class="foa-act-icon" />查看
+            </ElButton>
           </template>
         </div>
       </div>
@@ -134,22 +157,29 @@
       v-model:visible="templateManagerVisible"
     />
 
-    <!-- 文件预览 -->
-    <ElDialog v-model="previewVisible" width="80vw" align-center destroy-on-close title="文件预览">
-      <div class="foa-preview-wrap">
-        <iframe v-if="previewUrl" :src="previewUrl" class="foa-preview-frame" />
-      </div>
-    </ElDialog>
+    <OrderAttachmentPreviewDialog
+      v-model="attachPreviewVisible"
+      :attachments="attachmentList"
+      :initial-index="attachPreviewInitialIndex"
+      :order-id="props.orderId"
+      ref="attachPreviewRef"
+      @signed="handlePreviewSigned"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import MD5 from 'crypto-js/md5'
+  import { useUserStore } from '@/store/modules/user'
+  import { uploadFileGetUrl } from '@/api/upload'
+  import { fetchUploadSignedAttachment, buildOrderAttachmentPdfUrl } from '@/api/recycle/order'
   import { fetchSignTemplates } from '@/api/recycle/sign'
   import type { OrderAttachment, OrderDetail } from '@/types/recycle/order'
   import { resolveVehicleAttachments } from '@/types/recycle/order'
   import SignCanvasDialog from './sign-canvas-dialog.vue'
   import SignTemplateManagerDialog from './sign-template-manager-dialog.vue'
+  import OrderAttachmentPreviewDialog from './order-attachment-preview-dialog.vue'
 
   const props = defineProps<{
     detail: Partial<OrderDetail>
@@ -180,6 +210,10 @@
 
   function isSigned(att: OrderAttachment): boolean {
     return getStatus(att) === 'signed'
+  }
+
+  function isTemplateAtt(att: OrderAttachment) {
+    return att.attachment_type === 'template'
   }
 
   // "需电子签名"标签颜色：已签=绿色，待签=橙色，未生成=灰色
@@ -243,6 +277,7 @@
   function handleSigned() {
     emit('signed')
     refreshTemplateCount()
+    attachPreviewRef.value?.refreshCurrentPreview()
   }
 
   // ===== 模板管理弹窗 =====
@@ -252,13 +287,90 @@
     if (!v) refreshTemplateCount()
   })
 
-  // ===== 文件预览 =====
-  const previewVisible = ref(false)
-  const previewUrl = ref('')
+  // ===== 附件列表预览弹窗 =====
+  const attachPreviewVisible = ref(false)
+  const attachPreviewInitialIndex = ref(0)
+  const attachPreviewRef = ref<InstanceType<typeof OrderAttachmentPreviewDialog> | null>(null)
 
-  function handlePreview(url: string) {
-    previewUrl.value = url
-    previewVisible.value = true
+  function openAttachPreview(att: OrderAttachment) {
+    const idx = attachmentList.value.findIndex((a) => a.id === att.id)
+    attachPreviewInitialIndex.value = idx >= 0 ? idx : 0
+    attachPreviewVisible.value = true
+  }
+
+  function handlePreviewSigned() {
+    emit('signed')
+    attachPreviewRef.value?.refreshCurrentPreview()
+  }
+
+  // ===== 下载模板 / 上传签名附件 =====
+  const userStore = useUserStore()
+  const downloadingAttachId = ref<number | null>(null)
+  const uploadingAttachId = ref<number | null>(null)
+
+  async function handleDownloadTemplate(att: OrderAttachment) {
+    const attachId = att.id
+    if (!attachId) {
+      ElMessage.warning('该附件缺少ID')
+      return
+    }
+    downloadingAttachId.value = attachId
+    try {
+      const rawToken = (userStore.accessToken || '').replace(/^Bearer\s+/i, '')
+      const debugToken = rawToken ? MD5(rawToken).toString() : ''
+      const url = buildOrderAttachmentPdfUrl(attachId, {
+        mergeSign: false,
+        debugToken
+      })
+      const res = await fetch(url, {
+        headers: {
+          'Authori-zation': `Bearer ${userStore.accessToken}`
+        }
+      })
+      if (!res.ok) throw new Error('下载失败')
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = blobUrl
+      a.download = `${att.name || '模板'}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(blobUrl)
+    } catch {
+      ElMessage.error('下载失败，请稍后重试')
+    } finally {
+      downloadingAttachId.value = null
+    }
+  }
+
+  function triggerUploadAttach(att: OrderAttachment) {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.pdf,.jpg,.jpeg,.png,.doc,.docx'
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (file) void doUploadSignedAttach(att, file)
+    }
+    input.click()
+  }
+
+  async function doUploadSignedAttach(att: OrderAttachment, file: File) {
+    if (!att.id) {
+      ElMessage.warning('该附件缺少ID')
+      return
+    }
+    uploadingAttachId.value = att.id
+    try {
+      const fileUrl = await uploadFileGetUrl(file, { showSuccessMessage: false })
+      await fetchUploadSignedAttachment({ attach_id: att.id, upload_url: fileUrl })
+      emit('signed')
+      attachPreviewRef.value?.refreshCurrentPreview()
+    } catch {
+      // 错误提示由 http / upload 层处理
+    } finally {
+      uploadingAttachId.value = null
+    }
   }
 </script>
 
@@ -484,59 +596,54 @@
     }
   }
 
-  /* ===== 操作按钮 ===== */
-  .foa-btn {
-    display: inline-flex;
-    gap: 3px;
-    align-items: center;
-    padding: 3px 10px;
+  /* ===== 行内操作按钮（Element Plus + 设计稿色） ===== */
+  .foa-row-right :deep(.foa-act-btn) {
+    height: 28px;
+    padding: 0 10px;
+    margin-left: 0;
     font-size: 12px;
-    cursor: pointer;
     border-radius: 4px;
-    transition: all 0.15s;
+  }
 
-    &--view {
-      color: #434343;
-      background: #fff;
-      border: 1px solid #d9d9d9;
+  .foa-row-right :deep(.foa-act-btn--view) {
+    color: #1890ff;
+    border-color: #91d5ff;
 
-      &:hover {
-        background: #f5f5f5;
-      }
+    &:hover,
+    &:focus {
+      color: #1890ff;
+      background: #e6f7ff;
+      border-color: #69c0ff;
     }
+  }
 
-    &--sign {
+  .foa-row-right :deep(.foa-act-btn--neutral) {
+    color: #434343;
+    border-color: #d9d9d9;
+
+    &:hover,
+    &:focus {
+      color: #262626;
+      background: #fafafa;
+      border-color: #bfbfbf;
+    }
+  }
+
+  .foa-row-right :deep(.foa-act-btn--esign) {
+    color: #fff;
+    background: #fa8c16;
+    border-color: #fa8c16;
+
+    &:hover,
+    &:focus {
       color: #fff;
-      background: #fa8c16;
-      border: 1px solid transparent;
-
-      &:hover {
-        background: #d46b08;
-      }
+      background: #d46b08;
+      border-color: #d46b08;
     }
   }
 
-  .foa-btn-icon {
-    font-size: 12px;
-  }
-
-  .foa-signed-check {
-    display: inline-flex;
-    gap: 3px;
-    align-items: center;
-    font-size: 12px;
-    color: #52c41a;
-  }
-
-  /* ===== 预览 ===== */
-  .foa-preview-wrap {
-    height: 70vh;
-  }
-
-  .foa-preview-frame {
-    width: 100%;
-    height: 100%;
-    border: none;
-    border-radius: 4px;
+  .foa-act-icon {
+    margin-right: 4px;
+    font-size: 14px;
   }
 </style>

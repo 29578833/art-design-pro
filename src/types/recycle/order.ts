@@ -304,6 +304,8 @@ export interface OrderAttachment {
   filename?: string
   /** 附件下载/查看地址（download_url，PDF 生成后有值） */
   download_url?: string
+  /** 上传的签名附件地址（upload_url） */
+  upload_url?: string
   /** 签名图片地址 */
   sign_url?: string
   /** 签名操作人 */
@@ -316,6 +318,8 @@ export interface OrderAttachment {
   push_time?: string
   /** 是否已签（后端计算字段 sign_status==1） */
   signed?: boolean
+  /** 附件类型：template=可下载模板，other=其他 */
+  attachment_type?: string
   [key: string]: unknown
 }
 

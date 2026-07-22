@@ -286,6 +286,47 @@ export function fetchDispatchTowDriver(data: {
   })
 }
 
+/** 预览附件（同步生成后返回 download_url） */
+export function fetchPreviewOrderAttachment(
+  attachId: number,
+  options?: { merge_sign?: '0' | '1' }
+) {
+  return request.get<{ download_url: string }>({
+    url: `/scrap/order/preview_attachment/${attachId}`,
+    params: {
+      merge_sign: options?.merge_sign ?? '1'
+    }
+  })
+}
+
+/**
+ * 构建附件 PDF 直链（type=pdf）
+ * 下载空白模板时必须 merge_sign=0，不合成签名
+ */
+export function buildOrderAttachmentPdfUrl(
+  attachId: number,
+  options: { mergeSign?: boolean; debugToken?: string } = {}
+) {
+  const baseUrl = import.meta.env.VITE_API_URL || ''
+  const params = new URLSearchParams({
+    type: 'pdf',
+    merge_sign: options.mergeSign === false ? '0' : '1'
+  })
+  if (options.debugToken) {
+    params.set('debug_token', options.debugToken)
+  }
+  return `${baseUrl}/scrap/order/preview_attachment/${attachId}?${params.toString()}`
+}
+
+/** 上传签名附件（保存文件链接到 attachment 记录） */
+export function fetchUploadSignedAttachment(data: { attach_id: number; upload_url: string }) {
+  return request.post({
+    url: '/scrap/order/upload_signed_attachment',
+    data,
+    showSuccessMessage: true
+  })
+}
+
 /** 创建/编辑订单（传 id 则更新） */
 export function fetchSaveOrder(data: OrderSavePayload) {
   const isEdit = Boolean(data.id)
