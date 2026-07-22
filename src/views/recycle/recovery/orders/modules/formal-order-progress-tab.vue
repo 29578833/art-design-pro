@@ -4,7 +4,24 @@
     <div class="fop-overview-card">
       <div class="fop-overview-header">
         <h3 class="fop-section-title">流程总览</h3>
-        <span v-if="isRejected" class="fop-rejected-badge">已驳回</span>
+        <div class="fop-overview-header-right">
+          <span class="fop-overview-count"
+            >已完成 {{ completedStepCount }} / {{ STEPS.length }} 步</span
+          >
+          <span v-if="isRejected" class="fop-rejected-badge">已驳回</span>
+        </div>
+      </div>
+
+      <div class="fop-legend">
+        <span class="fop-legend-item">
+          <span class="fop-legend-dot fop-legend-dot--done" />已完成
+        </span>
+        <span class="fop-legend-item">
+          <span class="fop-legend-dot fop-legend-dot--current" />进行中
+        </span>
+        <span class="fop-legend-item">
+          <span class="fop-legend-dot fop-legend-dot--future" />待执行
+        </span>
       </div>
 
       <!-- 步骤轨道 -->
@@ -182,17 +199,16 @@
   })
 
   // ========== 从 status_logs 中提取各步骤日志 ==========
-  // 按 to_status 匹配到对应步骤
   const STATUS_TO_STEP: Record<number, number> = {
-    1: 0, // 订单提交/待审核
-    2: 1, // 审核通过
-    3: 2, // 待入厂
-    4: 3, // 入厂查验
-    5: 4, // 拆解中
-    6: 5, // 注销中
-    7: 6, // 已注销
-    8: 7, // 结算完成
-    [-1]: 0 // 驳回（归到步骤0）
+    1: 0,
+    2: 1,
+    3: 2,
+    4: 3,
+    5: 4,
+    6: 5,
+    7: 6,
+    8: 7,
+    [-1]: 0
   }
 
   const logsPerStep = computed<OrderStatusLog[][]>(() => {
@@ -204,14 +220,12 @@
       if (stepIdx !== undefined) {
         result[stepIdx].push(log)
       } else {
-        // 无法匹配的日志挂到最后一个已进行的步骤
         result[Math.min(currentIdx.value, 7)].push(log)
       }
     }
     return result
   })
 
-  // ========== 步骤时间文本（从对应日志取） ==========
   function getStepTime(stepIdx: number): number | undefined {
     const logs = logsPerStep.value[stepIdx]
     return logs[0]?.change_time
@@ -245,7 +259,6 @@
     return `${MM}-${DD} ${HH}:${mm}`
   }
 
-  // ========== 步骤定义 ==========
   interface StepDef {
     key: string
     label: string
@@ -278,7 +291,6 @@
     })
   )
 
-  // ========== 步骤状态 ==========
   function getStepState(i: number): 'done' | 'current' | 'pending' {
     if (isRejected.value && i === 0) return 'current'
     if (isRejected.value) return 'pending'
@@ -287,7 +299,10 @@
     return 'pending'
   }
 
-  // ========== 蓝色进度线宽度 ==========
+  const completedStepCount = computed(
+    () => STEPS.value.filter((_, i) => getStepState(i) === 'done').length
+  )
+
   const trackFillStyle = computed(() => {
     const total = STEPS.value.length - 1
     const pct = currentIdx.value > 0 ? (currentIdx.value / total) * 92 : 0
@@ -302,14 +317,12 @@
     gap: 12px;
   }
 
-  /* ===== 通用标题 ===== */
   .fop-section-title {
     font-size: 13px;
     font-weight: 600;
     color: #262626;
   }
 
-  /* ===== ① 横向进度总览 ===== */
   .fop-overview-card {
     padding: 18px 20px;
     background: #f5f5f5;
@@ -320,7 +333,18 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
+  }
+
+  .fop-overview-header-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .fop-overview-count {
+    font-size: 13px;
+    color: #909399;
   }
 
   .fop-rejected-badge {
@@ -332,7 +356,40 @@
     border-radius: 4px;
   }
 
-  /* 步骤轨道 */
+  .fop-legend {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #606266;
+  }
+
+  .fop-legend-item {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .fop-legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+
+    &--done {
+      background: #67c23a;
+    }
+
+    &--current {
+      background: #409eff;
+    }
+
+    &--future {
+      background: #fff;
+      border: 2px solid #dcdfe6;
+    }
+  }
+
   .fop-steps-track {
     position: relative;
     display: flex;
@@ -340,7 +397,6 @@
     justify-content: space-between;
   }
 
-  /* 底层灰色线：left=4%  right=4% 覆盖首尾圆圈中心 */
   .fop-track-bg {
     position: absolute;
     top: 16px;
@@ -350,7 +406,6 @@
     background: #e0e0e0;
   }
 
-  /* 蓝色填充线（通过 JS 动态宽度） */
   .fop-track-fill {
     position: absolute;
     top: 16px;
@@ -360,7 +415,6 @@
     transition: width 0.4s ease;
   }
 
-  /* 每一列步骤 */
   .fop-step-col {
     position: relative;
     z-index: 1;
@@ -371,7 +425,6 @@
     align-items: center;
   }
 
-  /* 圆圈 */
   .fop-step-circle {
     display: flex;
     align-items: center;
@@ -435,7 +488,6 @@
     text-align: center;
   }
 
-  /* ===== ② 纵向时间线 ===== */
   .fop-timeline-card {
     overflow: hidden;
     background: #fff;
@@ -465,7 +517,6 @@
     gap: 16px;
   }
 
-  /* 节点轴 */
   .fop-tl-axis {
     display: flex;
     flex-direction: column;
@@ -531,7 +582,6 @@
     }
   }
 
-  /* 右侧内容 */
   .fop-tl-content {
     flex: 1;
     padding-bottom: 20px;
@@ -600,7 +650,6 @@
     }
   }
 
-  /* ===== 操作日志条目 ===== */
   .fop-log-list {
     display: flex;
     flex-direction: column;

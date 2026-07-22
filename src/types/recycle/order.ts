@@ -239,6 +239,10 @@ export interface OrderVehicle {
   status?: number
   /** 车辆物流状态文案 */
   status_text?: string
+  /** 车辆已到达的最高流程状态码（详情扩展） */
+  max_status?: number
+  /** 该车辆流程操作日志（详情扩展） */
+  status_logs?: OrderStatusLog[]
   /** 该车辆订单附件（详情接口挂在 vehicles[] 每项） */
   attachments?: OrderAttachment[]
   [key: string]: unknown
