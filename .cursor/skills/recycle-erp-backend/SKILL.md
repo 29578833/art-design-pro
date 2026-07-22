@@ -8,7 +8,7 @@ description: >-
 
 ## 路径配置
 
-- **原型代码**：`C:\Users\29758\Desktop\figma_prototype`（React + shadcn，仅作 UI/交互/字段参考，不直接复制）
+- **原型代码**：`C:\Users\29758\Downloads\汽拆+回收小程序设计20260716`（Figma Make 导出，React + shadcn，仅作 UI/交互/字段参考，不直接复制）
 - **后端代码**：`D:\ROOT\QXB\xinguang-api\xinguang_api`（ThinkPHP / CRMEB，scrap 模块）
 - **目标项目**：`art-design-pro`（Vue 3 + Element Plus + Pinia + Vue Router）
 
@@ -25,7 +25,7 @@ description: >-
 2. 读原型对应 admin 组件，理解页面结构、Tab、弹窗、筛选字段
 3. 读 `回收拆车项目/src/app/types/order.ts` 获取订单/车辆状态枚举（**仅作业务参考，列表类型字段以 xinguang_api 接口为准**）
 4. 订单/车辆优先读最新 PC 文档：`回收拆车项目/src/imports/_v3-PC_-_________-______.md`，再对照 `回收拆车项目/src/imports/_v2-PC_-____-____.md`
-5. 读 PRD 第四章：`回收拆车项目/src/imports/___KZ__-___________PRD_______1_.md`（管理后台功能设计）
+5. 读管理后台 PRD：优先 `回收拆车项目/docs/鑫广智能回收系统_全端完整PRD_v4.2.md` 第四章；再对照 `回收拆车项目/src/imports/___KZ__-___________PRD_______1_.md`
 6. 对照 art-design-pro 现有页面惯例（如 `src/views/system/user/index.vue`、`src/views/recycle/recovery/orders/`）
 
 详细模块映射、分期计划、目录结构见 [reference.md](reference.md)。

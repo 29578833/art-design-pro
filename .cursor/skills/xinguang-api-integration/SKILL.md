@@ -6,11 +6,15 @@ description: >-
 
 # xinguang_api 前后端接口对接
 
-## 范围
+## 路径配置
 
 - **前端**：`art-design-pro`（Vue 3 + Element Plus，当前工作区）
 - **后端**：`D:\ROOT\QXB\xinguang-api\xinguang_api`（ThinkPHP / CRMEB，报废回收业务在 `scrap` 模块；下文简称 `xinguang_api/`）
-- **只做 ERP 管理后台**：对接 `app/adminapi/route/scrap.php`，忽略 `app/api/route/scrap.php` 小程序接口
+- **原型参考**（字段/交互，不对接小程序 API）：`C:\Users\29758\Downloads\汽拆+回收小程序设计20260716`（详见 [recycle-erp-backend](../recycle-erp-backend/SKILL.md)）
+
+## 范围
+
+- **只做 ERP 管理后台**：对接 `xinguang_api/app/adminapi/route/scrap.php`，忽略 `app/api/route/scrap.php` 小程序接口
 
 页面开发规范见 [recycle-erp-backend](../recycle-erp-backend/SKILL.md)，本 skill 只覆盖 API 层对接。
 
