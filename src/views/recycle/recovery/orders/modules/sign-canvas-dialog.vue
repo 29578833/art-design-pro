@@ -44,7 +44,7 @@
         </span>
       </div>
 
-      <!-- 单附件 -->
+      <!-- 仅返回 URL / 单附件 -->
       <div v-else class="sc-single-tip">
         <ArtSvgIcon icon="ri:file-text-line" class="sc-single-tip-icon" />
         <div class="sc-single-tip-text">
@@ -86,7 +86,27 @@
         @touchmove.prevent="continueDrawTouch"
         @touchend="stopDraw"
       />
-      <p class="sc-canvas-hint">在上方区域手写您的签名，或使用已保存的签名模板</p>
+      <p class="sc-canvas-hint">
+        {{
+          resolvedMode === 'url'
+            ? '手写签名，或点击下方上传签名图片 / 使用签名模板'
+            : '在上方区域手写您的签名，或使用已保存的签名模板'
+        }}
+      </p>
+
+      <div v-if="resolvedMode === 'url'" class="sc-url-upload-row">
+        <input
+          ref="urlUploadInputRef"
+          type="file"
+          accept="image/*"
+          class="sc-url-upload-input"
+          @change="handleUrlModeUpload"
+        />
+        <ElButton size="small" :loading="urlUploading" @click="triggerUrlModeUpload">
+          <ArtSvgIcon icon="ri:upload-2-line" class="mr-1" />
+          上传签名图片
+        </ElButton>
+      </div>
 
       <!-- 保存为模板 -->
       <div class="sc-save-tpl-wrap">
@@ -138,8 +158,8 @@
   import { uploadFileGetUrl } from '@/api/upload'
   import type { SignatureTemplate } from '@/types/recycle/order'
 
-  /** single=单附件 / attachments=多附件 / orders=多订单；batch 兼容旧调用→attachments */
-  export type SignCanvasMode = 'single' | 'attachments' | 'orders' | 'batch'
+  /** single=单附件 / attachments=多附件 / orders=多订单 / url=仅返回签名URL；batch 兼容旧调用→attachments */
+  export type SignCanvasMode = 'single' | 'attachments' | 'orders' | 'batch' | 'url'
 
   interface Props {
     visible: boolean
@@ -148,7 +168,7 @@
     attachmentId?: number
     /** attachments / 旧 batch：多个附件 ID */
     attachmentIds?: number[]
-    /** 附件名称（single 提示用） */
+    /** 附件名称（single / url 提示用） */
     attachmentName?: string
     /** 兼容旧调用：单订单备用 */
     orderId?: number
@@ -159,7 +179,7 @@
   const props = defineProps<Props>()
   const emit = defineEmits<{
     (e: 'update:visible', v: boolean): void
-    (e: 'signed'): void
+    (e: 'signed', payload?: { signUrl: string }): void
   }>()
 
   const dialogVisible = computed({
@@ -167,8 +187,9 @@
     set: (v) => emit('update:visible', v)
   })
 
-  /** 归一化模式：batch → attachments */
-  const resolvedMode = computed<'single' | 'attachments' | 'orders'>(() => {
+  /** 归一化模式：batch → attachments；url 独立 */
+  const resolvedMode = computed<'single' | 'attachments' | 'orders' | 'url'>(() => {
+    if (props.mode === 'url') return 'url'
     if (props.mode === 'batch' || props.mode === 'attachments') return 'attachments'
     if (props.mode === 'orders') return 'orders'
     return 'single'
@@ -183,6 +204,7 @@
   const headerTitle = computed(() => {
     if (resolvedMode.value === 'orders') return '批量一键签名'
     if (resolvedMode.value === 'attachments') return '批量签名'
+    if (resolvedMode.value === 'url') return props.attachmentName || '电子签名'
     return '电子签名'
   })
 
@@ -192,7 +214,9 @@
     return '确认签名'
   })
 
-  const isBatch = computed(() => resolvedMode.value !== 'single')
+  const isBatch = computed(
+    () => resolvedMode.value === 'attachments' || resolvedMode.value === 'orders'
+  )
 
   // ===== 模板 =====
   const templates = ref<SignatureTemplate[]>([])
@@ -303,6 +327,32 @@
   const saveAsTemplate = ref(false)
   const templateName = ref('')
 
+  const urlUploadInputRef = ref<HTMLInputElement>()
+  const urlUploading = ref(false)
+
+  function triggerUrlModeUpload() {
+    if (urlUploading.value) return
+    urlUploadInputRef.value?.click()
+  }
+
+  async function handleUrlModeUpload(event: Event) {
+    const input = event.target as HTMLInputElement
+    const file = input.files?.[0]
+    input.value = ''
+    if (!file) return
+
+    urlUploading.value = true
+    try {
+      const signUrl = await uploadFileGetUrl(file, { showSuccessMessage: true })
+      emit('signed', { signUrl })
+      dialogVisible.value = false
+    } catch {
+      // 错误已由 http 拦截器处理
+    } finally {
+      urlUploading.value = false
+    }
+  }
+
   // ===== 提交签名 =====
   const submitting = ref(false)
 
@@ -323,7 +373,9 @@
       const signUrl = await uploadFileGetUrl(blob, { fieldName: 'file' })
 
       // 2. 按模式提交签名
-      if (resolvedMode.value === 'orders') {
+      if (resolvedMode.value === 'url') {
+        // 仅返回签名 URL，由调用方自行保存
+      } else if (resolvedMode.value === 'orders') {
         const ids = props.orderIds?.length ? props.orderIds : props.orderId ? [props.orderId] : []
         if (!ids.length) {
           ElMessage.warning('请选择要签名的订单')
@@ -359,7 +411,7 @@
       }
 
       ElMessage.success(isBatch.value ? '批量签名完成' : '签名完成')
-      emit('signed')
+      emit('signed', { signUrl })
       dialogVisible.value = false
     } catch (e: unknown) {
       ElMessage.error(e instanceof Error ? e.message : '签名失败，请重试')
@@ -604,6 +656,16 @@
     font-size: 11px;
     color: #bfbfbf;
     text-align: center;
+  }
+
+  .sc-url-upload-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .sc-url-upload-input {
+    display: none;
   }
 
   /* 保存模板 */

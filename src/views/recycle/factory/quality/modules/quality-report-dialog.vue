@@ -63,6 +63,40 @@
                 <div class="qr-stat-value" :style="{ color: stat.color }">{{ stat.value }}</div>
               </div>
             </div>
+            <div v-if="deductionPhotoList.length" class="qr-deduct-photos">
+              <div class="qr-deduct-photos-title">
+                扣杂照片（{{ deductionPhotoList.length }}张）
+              </div>
+              <div class="qr-photo-row">
+                <ElImage
+                  v-for="(url, idx) in deductionPhotoList"
+                  :key="`${url}-${idx}`"
+                  :src="url"
+                  :preview-src-list="deductionPhotoList"
+                  :initial-index="idx"
+                  fit="cover"
+                  class="qr-photo-thumb"
+                  preview-teleported
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- 入场照片 -->
+          <div v-if="entryPhotoList.length" class="qr-card">
+            <div class="qr-card-title">入场照片</div>
+            <div class="qr-photo-row">
+              <div v-for="photo in entryPhotoList" :key="photo.field" class="qr-photo-item">
+                <ElImage
+                  :src="photo.url"
+                  :preview-src-list="entryPhotoList.map((p) => p.url)"
+                  fit="cover"
+                  class="qr-photo-thumb"
+                  preview-teleported
+                />
+                <div class="qr-photo-caption">{{ photo.label }}</div>
+              </div>
+            </div>
           </div>
 
           <!-- ④ 质检汇总 -->
@@ -127,7 +161,21 @@
                     class="qr-item-cell"
                     :style="getItemCellStyle(item.status)"
                   >
-                    <span class="qr-item-name">{{ item.item_name }}</span>
+                    <div class="qr-item-main">
+                      <span class="qr-item-name">{{ item.item_name }}</span>
+                      <div
+                        v-if="isBatteryItem(item.item_name) && item.battery_count"
+                        class="qr-item-extra"
+                      >
+                        电池数量：{{ item.battery_count }}节
+                      </div>
+                      <div
+                        v-if="item.item_category === '轮胎轮毂' && item.tire_material"
+                        class="qr-item-extra"
+                      >
+                        轮毂：{{ item.tire_material }}
+                      </div>
+                    </div>
                     <div class="qr-item-right">
                       <span v-if="item.status !== 1" class="qr-item-deduct">
                         -¥{{ Number(item.deduction_amount || 0).toFixed(0) }}
@@ -179,12 +227,19 @@
           <div class="qr-card">
             <div class="qr-card-title">确认签章</div>
             <div class="qr-sign-grid">
-              <div v-for="role in SIGN_ROLES" :key="role" class="qr-sign-item">
-                <div class="qr-sign-role">{{ role }}</div>
-                <div class="qr-sign-box">
-                  <span class="qr-sign-placeholder">签名 / 盖章</span>
+              <div v-for="role in QC_SIGNATURE_CONFIG" :key="role.field" class="qr-sign-item">
+                <div class="qr-sign-role">{{ role.label }}</div>
+                <div class="qr-sign-box" :class="{ 'has-sign': !!detail[role.field] }">
+                  <ElImage
+                    v-if="detail[role.field]"
+                    :src="String(detail[role.field])"
+                    fit="contain"
+                    class="qr-sign-img"
+                    :preview-src-list="[String(detail[role.field])]"
+                    preview-teleported
+                  />
+                  <span v-else class="qr-sign-placeholder">签名 / 盖章</span>
                 </div>
-                <div class="qr-sign-date">日期：________________</div>
               </div>
             </div>
           </div>
@@ -208,7 +263,10 @@
     QC_CATEGORY_COLORS,
     QC_CATEGORY_BG,
     QC_CATEGORY_ICONS,
-    QC_ITEM_STATUS_CFG
+    QC_ITEM_STATUS_CFG,
+    QC_ENTRY_PHOTO_CONFIG,
+    QC_SIGNATURE_CONFIG,
+    isBatteryItem
   } from '@/types/recycle/quality'
 
   interface Props {
@@ -218,8 +276,6 @@
 
   const props = defineProps<Props>()
   const emit = defineEmits<{ (e: 'update:visible', v: boolean): void }>()
-
-  const SIGN_ROLES = ['质检员', '质检主管', '客户确认']
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -244,6 +300,22 @@
       Number(detail.value.tare_weight || 0) -
       Number(detail.value.deduction_weight || 0)
     return Math.max(0, Number(w.toFixed(2)))
+  })
+
+  const deductionPhotoList = computed(() =>
+    (detail.value?.deduction_images || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+  )
+
+  const entryPhotoList = computed(() => {
+    if (!detail.value) return [] as Array<{ field: string; label: string; url: string }>
+    return QC_ENTRY_PHOTO_CONFIG.map((cfg) => ({
+      field: cfg.field,
+      label: cfg.label,
+      url: String(detail.value?.[cfg.field] || '')
+    })).filter((p) => !!p.url)
   })
 
   const allItems = computed<QualityCheckItem[]>(() => detail.value?.items || [])
@@ -283,12 +355,12 @@
         value: detail.value?.tare_weight ? `${detail.value.tare_weight} kg` : '—',
         color: '#595959'
       },
-      { label: '净重', value: nw !== null ? `${nw} kg` : '—', color: '#1677ff' },
       {
-        label: '过磅结论',
-        value: nw !== null && nw > 0 ? '称重完成' : '未称重',
-        color: nw !== null && nw > 0 ? '#52C41A' : '#FA8C16'
-      }
+        label: '扣杂',
+        value: detail.value?.deduction_weight ? `${detail.value.deduction_weight} kg` : '0 kg',
+        color: '#FA8C16'
+      },
+      { label: '净重', value: nw !== null ? `${nw} kg` : '—', color: '#1677ff' }
     ]
   })
 
@@ -673,9 +745,22 @@
     border-radius: 4px;
   }
 
+  .qr-item-main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
   .qr-item-name {
     font-size: 12px;
     color: #374151;
+  }
+
+  .qr-item-extra {
+    font-size: 10px;
+    color: #9ca3af;
   }
 
   .qr-item-right {
@@ -760,9 +845,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 64px;
+    height: 80px;
+    overflow: hidden;
     border: 1px dashed #e5e7eb;
     border-radius: 8px;
+
+    &.has-sign {
+      border-color: #1677ff;
+      border-style: solid;
+    }
+  }
+
+  .qr-sign-img {
+    width: 100%;
+    height: 100%;
+    padding: 6px;
   }
 
   .qr-sign-placeholder {
@@ -770,10 +867,39 @@
     color: #d1d5db;
   }
 
-  .qr-sign-date {
-    margin-top: 8px;
+  .qr-deduct-photos {
+    margin-top: 16px;
+  }
+
+  .qr-deduct-photos-title {
+    margin-bottom: 8px;
     font-size: 12px;
+    color: #6b7280;
+  }
+
+  .qr-photo-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .qr-photo-item {
+    width: 120px;
+  }
+
+  .qr-photo-thumb {
+    width: 120px;
+    height: 80px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+  }
+
+  .qr-photo-caption {
+    margin-top: 4px;
+    font-size: 11px;
     color: #9ca3af;
+    text-align: center;
   }
 
   .qr-disclaimer {

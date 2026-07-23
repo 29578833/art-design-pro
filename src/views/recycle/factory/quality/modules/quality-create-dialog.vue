@@ -93,47 +93,17 @@
               </div>
 
               <div class="qc-form-field">
-                <label class="qc-field-label">是否注销<span class="required">*</span></label>
-                <div class="qc-toggle-row">
-                  <button
-                    v-for="opt in CANCELLED_OPTIONS"
-                    :key="opt.value"
-                    type="button"
-                    class="qc-toggle-btn"
-                    :class="{ 'is-active': step1Form.is_cancelled === opt.value }"
-                    @click="step1Form.is_cancelled = opt.value"
-                    >{{ opt.label }}</button
-                  >
-                </div>
-              </div>
-
-              <div class="qc-form-field">
-                <label class="qc-field-label">轮毂材质<span class="required">*</span></label>
-                <div class="qc-toggle-row">
-                  <button
-                    v-for="opt in WHEEL_MATERIAL_OPTIONS"
-                    :key="opt"
-                    type="button"
-                    class="qc-toggle-btn"
-                    :class="{ 'is-active': step1Form.wheel_material === opt }"
-                    @click="step1Form.wheel_material = opt"
-                    >{{ opt }}</button
-                  >
-                </div>
-              </div>
-
-              <div class="qc-form-field">
                 <label class="qc-field-label">车辆类型<span class="required">*</span></label>
                 <ElSelect
                   v-model="step1Form.factory_type"
                   placeholder="请选择车辆类型"
                   filterable
                   clearable
-                  :loading="loadingCllx"
+                  :loading="loadingFactoryType"
                   class="qc-full-width"
                 >
                   <ElOption
-                    v-for="opt in cllxOptions"
+                    v-for="opt in factoryTypeOptions"
                     :key="opt.value"
                     :label="opt.label"
                     :value="opt.value"
@@ -202,10 +172,54 @@
                 />
               </ElSelect>
             </div>
+            <div class="qc-form-field mt-[25px]">
+              <label class="qc-field-label">扣杂照片（杂物对应照片，可多张）</label>
+              <input
+                ref="deductPhotoInputRef"
+                type="file"
+                accept="image/*"
+                multiple
+                class="qc-photo-input"
+                @change="handleDeductPhotoFileChange"
+              />
+              <div class="qc-photo-grid qc-deduct-photo-grid">
+                <div
+                  v-for="(url, idx) in deductionImages"
+                  :key="`${url}-${idx}`"
+                  class="qc-photo-slot has-photo"
+                >
+                  <button
+                    type="button"
+                    class="qc-photo-delete"
+                    title="删除照片"
+                    @click.stop="removeDeductionImage(idx)"
+                  >
+                    <ArtSvgIcon icon="ri:close-line" />
+                  </button>
+                  <ElImage
+                    :src="url"
+                    :preview-src-list="deductionImages"
+                    :initial-index="idx"
+                    fit="cover"
+                    class="qc-photo-preview-image"
+                    preview-teleported
+                  />
+                  <span class="qc-photo-label">扣杂照{{ idx + 1 }}</span>
+                </div>
+                <div
+                  class="qc-photo-slot"
+                  :class="{ 'is-uploading': uploadingDeductPhoto }"
+                  @click="triggerDeductPhotoUpload"
+                >
+                  <ArtSvgIcon icon="ri:camera-line" class="qc-photo-icon" />
+                  <span class="qc-photo-label">添加照片</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="qc-section">
-            <div class="qc-section-title">入场照片（8张）</div>
+            <div class="qc-section-title">入场照片（5张）</div>
             <input
               ref="photoInputRef"
               type="file"
@@ -293,31 +307,58 @@
                 <span v-if="getCatMissing(cat) > 0" class="qc-category-badge miss">
                   缺失{{ getCatMissing(cat) }}
                 </span>
-                <span v-if="getCatDamaged(cat) > 0" class="qc-category-badge damage">
-                  损坏{{ getCatDamaged(cat) }}
-                </span>
               </div>
               <div class="qc-category-body">
-                <div v-for="item in cat.items" :key="item.id" class="qc-item-row">
-                  <span class="qc-item-name">{{ item.item_name }}</span>
-                  <button type="button" class="qc-item-camera" title="上传照片">
-                    <ArtSvgIcon icon="ri:camera-line" />
-                  </button>
-                  <div class="qc-item-btns">
-                    <button
-                      type="button"
-                      class="qc-result-btn present"
-                      :class="{ active: getItemPresent(item, cat.category_name) }"
-                      @click="setItemPresent(item, cat.category_name)"
-                      >有</button
-                    >
-                    <button
-                      type="button"
-                      class="qc-result-btn missing"
-                      :class="{ active: getItemMissing(item, cat.category_name) }"
-                      @click="setItemMissing(item, cat.category_name)"
-                      >缺</button
-                    >
+                <div v-for="item in cat.items" :key="item.id" class="qc-item-row-wrap">
+                  <div class="qc-item-row">
+                    <span class="qc-item-name">{{ item.item_name }}</span>
+                    <div class="qc-item-btns">
+                      <button
+                        type="button"
+                        class="qc-result-btn present"
+                        :class="{ active: getItemPresent(item, cat.category_name) }"
+                        @click="setItemPresent(item, cat.category_name)"
+                        >有</button
+                      >
+                      <button
+                        type="button"
+                        class="qc-result-btn missing"
+                        :class="{ active: getItemMissing(item, cat.category_name) }"
+                        @click="setItemMissing(item, cat.category_name)"
+                        >缺</button
+                      >
+                    </div>
+                  </div>
+                  <div v-if="isBatteryItem(item.item_name)" class="qc-item-extra">
+                    <span class="qc-item-extra-label">电池数量：</span>
+                    <ElInputNumber
+                      :model-value="getBatteryCount(item, cat.category_name)"
+                      :min="0"
+                      :max="99"
+                      :precision="0"
+                      controls-position="right"
+                      class="qc-item-extra-input"
+                      @update:model-value="
+                        (v) => setBatteryCount(item, cat.category_name, Number(v || 0))
+                      "
+                    />
+                    <span class="qc-item-extra-unit">节</span>
+                  </div>
+                  <div v-if="isTireHubCategory(cat.category_name)" class="qc-item-extra">
+                    <span class="qc-item-extra-label">轮毂材质：</span>
+                    <div class="qc-toggle-row">
+                      <button
+                        v-for="opt in WHEEL_MATERIAL_OPTIONS"
+                        :key="opt"
+                        type="button"
+                        class="qc-toggle-btn qc-tire-material-btn"
+                        :class="{
+                          'is-active': getTireMaterial(item, cat.category_name) === opt
+                        }"
+                        @click="setTireMaterial(item, cat.category_name, opt)"
+                        >{{ opt }}</button
+                      >
+                    </div>
                   </div>
                 </div>
               </div>
@@ -329,10 +370,6 @@
               <div class="qc-deduct-stat">
                 <span class="qc-deduct-label">缺失件</span>
                 <span class="qc-deduct-value miss">{{ missingCount }}项</span>
-              </div>
-              <div class="qc-deduct-stat">
-                <span class="qc-deduct-label">损坏件</span>
-                <span class="qc-deduct-value damage">{{ damagedCount }}项</span>
               </div>
               <div class="qc-deduct-stat">
                 <span class="qc-deduct-label">缺件扣款合计</span>
@@ -406,14 +443,64 @@
             />
           </div>
 
-          <div class="qc-sign-bar">
-            <div>
+          <div class="qc-sign-section">
+            <div class="qc-section-title">确认签章</div>
+            <input
+              ref="signUploadInputRef"
+              type="file"
+              accept="image/*"
+              class="qc-photo-input"
+              @change="handleSignUploadChange"
+            />
+            <div class="qc-sign-grid">
+              <div v-for="role in QC_SIGNATURE_CONFIG" :key="role.field" class="qc-sign-card">
+                <div class="qc-sign-role">{{ role.label }}</div>
+                <div class="qc-sign-box" :class="{ 'has-sign': !!signatures[role.field] }">
+                  <ElImage
+                    v-if="signatures[role.field]"
+                    :src="signatures[role.field]"
+                    fit="contain"
+                    class="qc-sign-preview"
+                    :preview-src-list="[signatures[role.field]]"
+                    preview-teleported
+                  />
+                  <span v-else class="qc-sign-empty-text">待签名</span>
+                </div>
+                <div v-if="!signatures[role.field]" class="qc-sign-actions">
+                  <button
+                    type="button"
+                    class="qc-sign-action-btn"
+                    @click="openSignDialog(role.field, role.label)"
+                  >
+                    <ArtSvgIcon icon="ri:pen-nib-line" />
+                    手写签名
+                  </button>
+                  <button
+                    type="button"
+                    class="qc-sign-action-btn"
+                    :disabled="signUploading"
+                    @click="triggerSignUpload(role.field)"
+                  >
+                    <ArtSvgIcon icon="ri:upload-2-line" />
+                    上传照片
+                  </button>
+                </div>
+                <button
+                  v-else
+                  type="button"
+                  class="qc-sign-clear"
+                  @click="signatures[role.field] = ''"
+                >
+                  重新签名
+                </button>
+              </div>
+            </div>
+            <div class="qc-sign-meta">
               <span class="qc-sign-muted">质检员：</span>
               <span class="qc-sign-value">{{
                 inspectorName || queueItem?.inspector_name || '—'
               }}</span>
-            </div>
-            <div>
+              <span class="qc-sign-meta-gap" />
               <span class="qc-sign-muted">质检时间：</span>
               <span class="qc-sign-value">{{ checkTimeText }}</span>
             </div>
@@ -454,21 +541,29 @@
       </div>
     </template>
   </ElDialog>
+
+  <SignCanvasDialog
+    v-model:visible="signDialogVisible"
+    mode="url"
+    :attachment-name="signDialogLabel"
+    @signed="handleSigned"
+  />
 </template>
 
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import SignCanvasDialog from '@/views/recycle/recovery/orders/modules/sign-canvas-dialog.vue'
   import { uploadFileGetUrl } from '@/api/upload'
-  import { fetchCllxCascade } from '@/api/recycle/data-dict'
+  import { fetchDataDictList } from '@/api/recycle/data-dict'
   import { fetchUserRoleList } from '@/api/recycle/role'
   import {
     createQuality,
     updateQuality,
     fetchInspectionItems,
-    fetchQualityByOrder
+    fetchQualityByOrder,
+    fetchQualityDetail
   } from '@/api/recycle/quality'
   import { ElMessage } from 'element-plus'
-  import { flattenCllxCascade, type CllxFlatOption } from '@/types/recycle/data-dict'
   import { QC_INSPECTOR_ROLE_ID, type ScrapUserRoleItem } from '@/types/recycle/role'
   import type {
     QualityQueueItem,
@@ -480,20 +575,23 @@
     ConclusionType,
     QualityUpdateItemParams,
     QualityCreateParams,
-    QcEntryPhotoField
+    QcEntryPhotoField,
+    QcSignatureRole
   } from '@/types/recycle/quality'
   import {
     QC_STEP_LABELS,
     PLATE_STATUS_OPTIONS,
-    CANCELLED_OPTIONS,
     WHEEL_MATERIAL_OPTIONS,
     SUPERVISION_OPTIONS,
     QC_CATEGORY_COLORS,
     QC_CATEGORY_BG,
     QC_CATEGORY_ICONS,
     QC_ENTRY_PHOTO_CONFIG,
+    QC_SIGNATURE_CONFIG,
     createEmptyEntryPhotos,
-    QC_CONCLUSION_OPTIONS
+    QC_CONCLUSION_OPTIONS,
+    isBatteryItem,
+    isTireHubCategory
   } from '@/types/recycle/quality'
 
   interface Props {
@@ -509,14 +607,29 @@
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
 
-  const cllxOptions = ref<CllxFlatOption[]>([])
-  const loadingCllx = ref(false)
+  const factoryTypeOptions = ref<Array<{ label: string; value: string }>>([])
+  const loadingFactoryType = ref(false)
   const inspectorOptions = ref<ScrapUserRoleItem[]>([])
   const loadingInspectors = ref(false)
   const photoInputRef = ref<HTMLInputElement>()
+  const deductPhotoInputRef = ref<HTMLInputElement>()
   const pendingPhotoField = ref<QcEntryPhotoField | ''>('')
   const uploadingPhotoField = ref<QcEntryPhotoField | ''>('')
+  const uploadingDeductPhoto = ref(false)
   const entryPhotos = reactive(createEmptyEntryPhotos())
+  const deductionImages = ref<string[]>([])
+
+  const signatures = reactive<Record<QcSignatureRole, string>>({
+    inspector_signature: '',
+    driver_signature: '',
+    owner_signature: ''
+  })
+  const signDialogVisible = ref(false)
+  const signDialogField = ref<QcSignatureRole>('inspector_signature')
+  const signDialogLabel = ref('质检员签字')
+  const signUploadInputRef = ref<HTMLInputElement>()
+  const pendingSignUploadField = ref<QcSignatureRole | ''>('')
+  const signUploading = ref(false)
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -531,8 +644,6 @@
 
   const step1Form = reactive({
     plate_status_arr: [] as string[],
-    is_cancelled: 0,
-    wheel_material: '铁轮毂',
     factory_type: '',
     is_supervision: 0,
     weight: undefined as number | undefined,
@@ -563,6 +674,8 @@
   const inspectionCategories = ref<InspectionCategory[]>([])
   const noDeductMissing = ref(false)
   const itemResults = reactive<Record<string, ItemStatus | null>>({})
+  const itemBatteryCount = reactive<Record<string, number>>({})
+  const itemTireMaterial = reactive<Record<string, string>>({})
 
   const checkTimeText = computed(() => {
     const d = new Date()
@@ -597,6 +710,22 @@
     itemResults[key] = itemResults[key] === 2 ? null : 2
   }
 
+  function getBatteryCount(item: InspectionItem, cat: string) {
+    return itemBatteryCount[makeItemKey(item.id, item.item_name, cat)] ?? 0
+  }
+
+  function setBatteryCount(item: InspectionItem, cat: string, count: number) {
+    itemBatteryCount[makeItemKey(item.id, item.item_name, cat)] = count
+  }
+
+  function getTireMaterial(item: InspectionItem, cat: string) {
+    return itemTireMaterial[makeItemKey(item.id, item.item_name, cat)] || '铁'
+  }
+
+  function setTireMaterial(item: InspectionItem, cat: string, material: string) {
+    itemTireMaterial[makeItemKey(item.id, item.item_name, cat)] = material
+  }
+
   function togglePlateStatus(opt: string) {
     const idx = step1Form.plate_status_arr.indexOf(opt)
     if (idx >= 0) step1Form.plate_status_arr.splice(idx, 1)
@@ -618,12 +747,6 @@
   function getCatMissing(cat: InspectionCategory) {
     return (cat.items || []).filter(
       (it) => getItemStatus(it.id, it.item_name, cat.category_name) === 2
-    ).length
-  }
-
-  function getCatDamaged(cat: InspectionCategory) {
-    return (cat.items || []).filter(
-      (it) => getItemStatus(it.id, it.item_name, cat.category_name) === 3
     ).length
   }
 
@@ -715,6 +838,70 @@
     }
   }
 
+  function triggerDeductPhotoUpload() {
+    if (uploadingDeductPhoto.value) return
+    deductPhotoInputRef.value?.click()
+  }
+
+  function removeDeductionImage(idx: number) {
+    deductionImages.value.splice(idx, 1)
+  }
+
+  async function handleDeductPhotoFileChange(event: Event) {
+    const input = event.target as HTMLInputElement
+    const files = Array.from(input.files || [])
+    input.value = ''
+    if (!files.length) return
+
+    uploadingDeductPhoto.value = true
+    try {
+      for (const file of files) {
+        const url = await uploadFileGetUrl(file, { showSuccessMessage: false })
+        if (url) deductionImages.value.push(url)
+      }
+      if (files.length) ElMessage.success('扣杂照片上传成功')
+    } catch {
+      // 错误已由 http 拦截器处理
+    } finally {
+      uploadingDeductPhoto.value = false
+    }
+  }
+
+  function openSignDialog(field: QcSignatureRole, label: string) {
+    signDialogField.value = field
+    signDialogLabel.value = label
+    signDialogVisible.value = true
+  }
+
+  function handleSigned(payload?: { signUrl: string }) {
+    if (!payload?.signUrl) return
+    signatures[signDialogField.value] = payload.signUrl
+  }
+
+  function triggerSignUpload(field: QcSignatureRole) {
+    if (signUploading.value) return
+    pendingSignUploadField.value = field
+    signUploadInputRef.value?.click()
+  }
+
+  async function handleSignUploadChange(event: Event) {
+    const input = event.target as HTMLInputElement
+    const file = input.files?.[0]
+    input.value = ''
+    const field = pendingSignUploadField.value
+    pendingSignUploadField.value = ''
+    if (!file || !field) return
+
+    signUploading.value = true
+    try {
+      signatures[field] = await uploadFileGetUrl(file, { showSuccessMessage: true })
+    } catch {
+      // 错误已由 http 拦截器处理
+    } finally {
+      signUploading.value = false
+    }
+  }
+
   async function loadItems() {
     loadingItems.value = true
     try {
@@ -731,12 +918,14 @@
       weight: step1Form.weight || 0,
       tare_weight: step1Form.tare_weight || 0,
       deduction_weight: step1Form.deduction_weight || 0,
+      deduction_images: deductionImages.value.filter(Boolean).join(','),
       plate_status: step1Form.plate_status_arr.join(','),
-      is_cancelled: step1Form.is_cancelled,
-      wheel_material: step1Form.wheel_material,
       factory_type: step1Form.factory_type,
       is_supervision: step1Form.is_supervision,
       inspector_name: inspectorName.value || undefined,
+      inspector_signature: signatures.inspector_signature || undefined,
+      driver_signature: signatures.driver_signature || undefined,
+      owner_signature: signatures.owner_signature || undefined,
       ...entryPhotos
     }
   }
@@ -746,14 +935,22 @@
     const items: QualityUpdateItemParams[] = []
     for (const cat of inspectionCategories.value) {
       for (const item of cat.items || []) {
+        const key = makeItemKey(item.id, item.item_name, cat.category_name)
         const status = getItemStatus(item.id, item.item_name, cat.category_name) || 1
-        items.push({
+        const row: QualityUpdateItemParams = {
           item_name: item.item_name,
           item_category: cat.category_name,
           status,
           deduction_amount: item.deduction_amount ?? 0,
           damage_coefficient: 1
-        })
+        }
+        if (isBatteryItem(item.item_name)) {
+          row.battery_count = itemBatteryCount[key] ?? 0
+        }
+        if (isTireHubCategory(cat.category_name)) {
+          row.tire_material = itemTireMaterial[key] || '铁'
+        }
+        items.push(row)
       }
     }
     return items
@@ -769,20 +966,22 @@
     step1Form.plate_status_arr = check.plate_status
       ? check.plate_status.split(',').filter(Boolean)
       : []
-    step1Form.is_cancelled = check.is_cancelled ?? 0
-    step1Form.wheel_material = check.wheel_material || '铁轮毂'
     step1Form.factory_type = check.factory_type || ''
     step1Form.is_supervision = check.is_supervision ?? 0
     Object.assign(entryPhotos, createEmptyEntryPhotos(), {
-      weight_image: check.weight_image || '',
+      full_image: check.full_image || '',
       vin_rub_image: check.vin_rub_image || '',
-      front_image: check.front_image || '',
-      rear_image: check.rear_image || '',
-      left_image: check.left_image || '',
-      right_image: check.right_image || '',
+      vin_image: check.vin_image || '',
       engine_image: check.engine_image || '',
-      dashboard_image: check.dashboard_image || ''
+      other_image: check.other_image || ''
     })
+    deductionImages.value = (check.deduction_images || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+    signatures.inspector_signature = check.inspector_signature || ''
+    signatures.driver_signature = check.driver_signature || ''
+    signatures.owner_signature = check.owner_signature || ''
     inspectorRemark.value = check.remark || ''
     conclusionType.value = (check.conclusion_type || 0) as ConclusionType
   }
@@ -793,8 +992,14 @@
         if (cat.category_name !== saved.item_category) continue
         const catalogItem = cat.items?.find((i) => i.item_name === saved.item_name)
         if (catalogItem) {
-          itemResults[makeItemKey(catalogItem.id, catalogItem.item_name, cat.category_name)] =
-            saved.status
+          const key = makeItemKey(catalogItem.id, catalogItem.item_name, cat.category_name)
+          itemResults[key] = saved.status
+          if (isBatteryItem(saved.item_name)) {
+            itemBatteryCount[key] = Number(saved.battery_count || 0)
+          }
+          if (isTireHubCategory(cat.category_name)) {
+            itemTireMaterial[key] = saved.tire_material || '铁'
+          }
           break
         }
       }
@@ -824,16 +1029,26 @@
     }
   }
 
-  async function loadCllxCascade() {
-    if (cllxOptions.value.length) return
-    loadingCllx.value = true
+  async function loadFactoryTypeOptions() {
+    if (factoryTypeOptions.value.length) return
+    loadingFactoryType.value = true
     try {
-      const tree = (await fetchCllxCascade()) || []
-      cllxOptions.value = flattenCllxCascade(tree)
+      const res = await fetchDataDictList({
+        dict_type: 'car_hpzl',
+        status: 1,
+        page: 1,
+        limit: 1000
+      })
+      factoryTypeOptions.value = (res.list || [])
+        .map((item) => {
+          const label = item.dict_label || String(item.dict_value ?? '')
+          return { label, value: label }
+        })
+        .filter((item) => item.value)
     } catch {
-      cllxOptions.value = []
+      factoryTypeOptions.value = []
     } finally {
-      loadingCllx.value = false
+      loadingFactoryType.value = false
     }
   }
 
@@ -841,9 +1056,14 @@
     initializing.value = true
     try {
       resetForm()
-      await Promise.all([loadCllxCascade(), loadInspectors()])
+      await Promise.all([loadFactoryTypeOptions(), loadInspectors()])
       try {
-        const existing = await fetchQualityByOrder(item.order_id, item.vehicle_id)
+        let existing: QualityDetail | null = null
+        if (item.check_id) {
+          existing = await fetchQualityDetail(Number(item.check_id))
+        } else {
+          existing = await fetchQualityByOrder(item.order_id, item.vehicle_id)
+        }
         if (!existing?.id) return
 
         populateStep1FromCheck(existing)
@@ -861,7 +1081,13 @@
   }
 
   watch(
-    () => [props.visible, props.queueItem?.vehicle_id, props.queueItem?.order_id] as const,
+    () =>
+      [
+        props.visible,
+        props.queueItem?.vehicle_id,
+        props.queueItem?.order_id,
+        props.queueItem?.check_id
+      ] as const,
     ([visible]) => {
       if (visible && props.queueItem) {
         initWorkbench(props.queueItem)
@@ -951,19 +1177,24 @@
     checkId.value = 0
     inspectorName.value = ''
     step1Form.plate_status_arr = []
-    step1Form.is_cancelled = 0
-    step1Form.wheel_material = '铁轮毂'
     step1Form.factory_type = ''
     step1Form.is_supervision = 0
     step1Form.weight = undefined
     step1Form.tare_weight = undefined
     step1Form.deduction_weight = undefined
     Object.assign(entryPhotos, createEmptyEntryPhotos())
+    deductionImages.value = []
+    signatures.inspector_signature = ''
+    signatures.driver_signature = ''
+    signatures.owner_signature = ''
     uploadingPhotoField.value = ''
     pendingPhotoField.value = ''
+    uploadingDeductPhoto.value = false
     inspectionCategories.value = []
     noDeductMissing.value = false
     Object.keys(itemResults).forEach((k) => delete itemResults[k])
+    Object.keys(itemBatteryCount).forEach((k) => delete itemBatteryCount[k])
+    Object.keys(itemTireMaterial).forEach((k) => delete itemTireMaterial[k])
     conclusionType.value = 0
     inspectorRemark.value = ''
   }
@@ -1333,7 +1564,7 @@
     position: relative;
     z-index: 1;
     padding: 2px 4px;
-    font-size: 10px;
+    font-size: 12px;
     line-height: 1.2;
     color: #9ca3af;
     text-align: center;
@@ -1538,6 +1769,7 @@
   .qc-deduct-stats {
     display: flex;
     gap: 24px;
+    align-items: center;
   }
 
   .qc-deduct-label {
@@ -1711,5 +1943,158 @@
     margin-left: 2px;
     font-size: 16px;
     vertical-align: -2px;
+  }
+
+  .qc-deduct-photo-grid {
+    margin-top: 8px;
+  }
+
+  .qc-item-row-wrap {
+    border-bottom: 1px solid #f9fafb;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .qc-item-row-wrap .qc-item-row {
+    border-bottom: none;
+  }
+
+  .qc-item-extra {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 0 16px 12px;
+  }
+
+  .qc-item-extra-label {
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .qc-item-extra-input {
+    width: 120px;
+  }
+
+  .qc-item-extra-unit {
+    font-size: 12px;
+    color: #9ca3af;
+  }
+
+  .qc-tire-material-btn {
+    flex: 0 0 56px;
+    padding: 4px 0;
+  }
+
+  .qc-sign-section {
+    margin-top: 8px;
+  }
+
+  .qc-sign-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .qc-sign-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .qc-sign-role {
+    font-size: 12px;
+    font-weight: 500;
+    color: #4b5563;
+  }
+
+  .qc-sign-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80px;
+    background: #fafafa;
+    border: 1px dashed #d1d5db;
+    border-radius: 8px;
+
+    &.has-sign {
+      background: #f6ffed;
+      border-color: #52c41a;
+      border-style: solid;
+    }
+  }
+
+  .qc-sign-preview {
+    width: 100%;
+    height: 100%;
+    padding: 8px;
+  }
+
+  .qc-sign-empty-text {
+    font-size: 12px;
+    color: #d1d5db;
+  }
+
+  .qc-sign-actions {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  .qc-sign-action-btn {
+    display: inline-flex;
+    flex: 1;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 0;
+    font-size: 12px;
+    color: #595959;
+    cursor: pointer;
+    background: #fff;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      color: #1677ff;
+      border-color: #1677ff;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  .qc-sign-clear {
+    padding: 0;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #9ca3af;
+    text-align: center;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+
+    &:hover {
+      color: #595959;
+    }
+  }
+
+  .qc-sign-meta {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-size: 14px;
+    background: #f9fafb;
+    border-radius: 8px;
+  }
+
+  .qc-sign-meta-gap {
+    width: 24px;
   }
 </style>

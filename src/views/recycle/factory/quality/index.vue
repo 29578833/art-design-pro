@@ -5,6 +5,10 @@
         <div class="quality-page-title">质检管理</div>
         <div class="quality-page-desc">车辆入厂质检查验，记录缺件扣款，生成质检报告</div>
       </div>
+      <ElButton type="primary" @click="byPlateVisible = true">
+        <ArtSvgIcon icon="ri:add-line" class="quality-create-icon" />
+        新建质检单
+      </ElButton>
     </div>
 
     <div class="quality-stats">
@@ -42,11 +46,14 @@
       @success="handleCreateSuccess"
     />
 
+    <QualityCreateByPlateDialog v-model:visible="byPlateVisible" @created="handleByPlateCreated" />
+
     <QualityReportDialog v-model:visible="reportVisible" :check-id="reportCheckId" />
   </div>
 </template>
 
 <script setup lang="ts">
+  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchQualityStats } from '@/api/recycle/quality'
   import type {
     QualityStats,
@@ -59,6 +66,7 @@
   import QualityQueuePage from './modules/quality-queue-page.vue'
   import QualityReportPage from './modules/quality-report-page.vue'
   import QualityCreateDialog from './modules/quality-create-dialog.vue'
+  import QualityCreateByPlateDialog from './modules/quality-create-by-plate-dialog.vue'
   import QualityReportDialog from './modules/quality-report-dialog.vue'
 
   defineOptions({ name: 'RecycleFactoryQuality' })
@@ -92,6 +100,7 @@
   ])
 
   const createVisible = ref(false)
+  const byPlateVisible = ref(false)
   const selectedQueueItem = ref<QualityQueueItem | null>(null)
   const queuePageRef = ref<{
     refreshData?: () => void
@@ -144,6 +153,13 @@
   function handleStartInspection(item: QualityQueueItem) {
     selectedQueueItem.value = item
     createVisible.value = true
+  }
+
+  function handleByPlateCreated(item: QualityQueueItem) {
+    selectedQueueItem.value = item
+    createVisible.value = true
+    loadStats()
+    queuePageRef.value?.refreshData?.()
   }
 
   function handleViewReport(id: number) {

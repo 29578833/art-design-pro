@@ -109,6 +109,10 @@ export interface QualityCheckItem {
   remark?: string
   /** 照片JSON */
   images?: string
+  /** 蓄电池数量（节） */
+  battery_count?: number
+  /** 轮胎轮毂材质：铁 / 铝 */
+  tire_material?: string
   /** 创建时间 */
   add_time?: number
 }
@@ -137,22 +141,18 @@ export interface QualityDetail {
   tare_weight: number
   /** 扣杂(kg) */
   deduction_weight: number
-  /** 过磅照片 */
-  weight_image: string
-  /** 车架拓号照片 */
-  vin_rub_image: string
-  /** 发动机舱照片 */
-  engine_image: string
-  /** 车内仪表台照片 */
-  dashboard_image: string
-  /** 车辆正前照片 */
-  front_image: string
-  /** 车辆正后照片 */
-  rear_image: string
-  /** 车辆左侧照片 */
-  left_image: string
-  /** 车辆右侧照片 */
-  right_image: string
+  /** 扣杂照片（逗号分隔 URL） */
+  deduction_images?: string
+  /** 整车照 */
+  full_image?: string
+  /** 车架号拓印照 */
+  vin_rub_image?: string
+  /** 车架号照 */
+  vin_image?: string
+  /** 发动机照 */
+  engine_image?: string
+  /** 其他照 */
+  other_image?: string
   /** 监销标记: 0否 1是 */
   is_supervision: number
   /** 车辆整体照JSON */
@@ -167,14 +167,16 @@ export interface QualityDetail {
   conclusion_type: ConclusionType
   /** 车牌状态(多选逗号) */
   plate_status: string
-  /** 是否注销: 0不注销 1注销 */
-  is_cancelled: number
-  /** 轮毂材质 */
-  wheel_material: string
   /** 厂区车辆类型（dict_value，来自 cllx_cascade 叶子节点） */
   factory_type: string
   /** 备注 */
   remark: string
+  /** 质检员签字 URL */
+  inspector_signature?: string
+  /** 拖车司机签字 URL */
+  driver_signature?: string
+  /** 车主/代理人签字 URL */
+  owner_signature?: string
   /** 质检报告PDF链接 */
   pdf_url?: string
   /** 创建时间 */
@@ -320,28 +322,20 @@ export interface QualityCreateParams {
   tare_weight?: number | string
   /** 扣杂 */
   deduction_weight?: number | string
-  /** 过磅照片 */
-  weight_image?: string
-  /** 车架拓号照片 */
+  /** 扣杂照片（逗号分隔 URL） */
+  deduction_images?: string
+  /** 整车照 */
+  full_image?: string
+  /** 车架号拓印照 */
   vin_rub_image?: string
-  /** 车辆正前照片 */
-  front_image?: string
-  /** 车辆正后照片 */
-  rear_image?: string
-  /** 车辆左侧照片 */
-  left_image?: string
-  /** 车辆右侧照片 */
-  right_image?: string
-  /** 发动机舱照片 */
+  /** 车架号照 */
+  vin_image?: string
+  /** 发动机照 */
   engine_image?: string
-  /** 车内仪表台照片 */
-  dashboard_image?: string
+  /** 其他照 */
+  other_image?: string
   /** 车牌状态 */
   plate_status?: string
-  /** 是否注销 */
-  is_cancelled?: number
-  /** 轮毂材质 */
-  wheel_material?: string
   /** 厂区类型 */
   factory_type?: string
   /** 监销标记 */
@@ -352,6 +346,12 @@ export interface QualityCreateParams {
   inspector_name?: string
   /** 备注 */
   remark?: string
+  /** 质检员签字 URL */
+  inspector_signature?: string
+  /** 拖车司机签字 URL */
+  driver_signature?: string
+  /** 车主/代理人签字 URL */
+  owner_signature?: string
 }
 
 /** 更新质检项目参数 */
@@ -372,6 +372,10 @@ export interface QualityUpdateItemParams {
   remark?: string
   /** 照片JSON */
   images?: string
+  /** 蓄电池数量（节） */
+  battery_count?: number
+  /** 轮胎轮毂材质：铁 / 铝 */
+  tire_material?: string
 }
 
 /** 创建质检记录响应 */
@@ -380,6 +384,23 @@ export interface QualityCreateResult {
   id: number
   /** 报告编号 */
   check_no?: string
+}
+
+/** 按车牌创建质检单响应 */
+export interface QualityCreateByPlateResult {
+  /** 质检记录ID */
+  check_id?: number
+  /** 质检记录ID（兼容） */
+  id?: number
+  /** 订单ID */
+  order_id?: number
+  /** 车辆ID */
+  vehicle_id?: number
+  /** 车牌号 */
+  plate_no?: string
+  /** 报告编号 */
+  check_no?: string
+  [key: string]: unknown
 }
 
 /** 更新质检记录参数 */
@@ -401,13 +422,20 @@ export interface QualityUpdateParams {
   weight?: number | string
   tare_weight?: number | string
   deduction_weight?: number | string
+  deduction_images?: string
+  full_image?: string
+  vin_rub_image?: string
+  vin_image?: string
+  engine_image?: string
+  other_image?: string
   plate_status?: string
-  is_cancelled?: number
-  wheel_material?: string
   factory_type?: string
   is_supervision?: number
   inspector_id?: number
   inspector_name?: string
+  inspector_signature?: string
+  driver_signature?: string
+  owner_signature?: string
   [key: string]: unknown
 }
 
@@ -509,8 +537,8 @@ export const QUALITY_TAB_CONFIG: QualityTabConfig[] = [
 export type QcStep = 0 | 1 | 2
 export const QC_STEP_LABELS = ['入场信息', '质检查验', '质检报告']
 
-/** 轮毂材质选项 */
-export const WHEEL_MATERIAL_OPTIONS = ['铁', '铝']
+/** 轮胎轮毂材质选项（铁 / 铝） */
+export const WHEEL_MATERIAL_OPTIONS = ['铁', '铝'] as const
 
 /** 监销类型选项 */
 export const SUPERVISION_OPTIONS = [
@@ -518,14 +546,33 @@ export const SUPERVISION_OPTIONS = [
   { label: '监销车辆', value: 1 }
 ]
 
-/** 注销选项 */
-export const CANCELLED_OPTIONS = [
-  { label: '不注销', value: 0 },
-  { label: '注销', value: 1 }
-]
-
 /** 车牌状态选项 */
 export const PLATE_STATUS_OPTIONS = ['无前牌', '无后牌']
+
+/** 三方签名角色 */
+export type QcSignatureRole = 'inspector_signature' | 'driver_signature' | 'owner_signature'
+
+/** 三方签名配置 */
+export const QC_SIGNATURE_CONFIG: Array<{ field: QcSignatureRole; label: string }> = [
+  { field: 'inspector_signature', label: '质检员签字' },
+  { field: 'driver_signature', label: '拖车司机签字' },
+  { field: 'owner_signature', label: '车主/代理人签字' }
+]
+
+/** 是否为轮胎轮毂分类（该分类下各项才展示铁/铝） */
+export function isTireHubCategory(categoryName: string): boolean {
+  return categoryName === '轮胎轮毂'
+}
+
+/** @deprecated 使用 isTireHubCategory(category_name) */
+export function isTireItem(itemName: string): boolean {
+  return /左前|右前|左后|右后/.test(itemName)
+}
+
+/** 是否为蓄电池项 */
+export function isBatteryItem(itemName: string): boolean {
+  return itemName.includes('蓄电池')
+}
 
 /** 质检分类颜色映射（对齐原型） */
 export const QC_CATEGORY_COLORS: Record<string, string> = {
@@ -567,27 +614,17 @@ export const QC_ITEM_STATUS_CFG: Record<
   3: { label: '损坏', short: '损', color: '#FA8C16', bg: '#FFF7E6' }
 }
 
-/** 入场照片字段 */
+/** 入场照片字段（对齐后端 5 类） */
 export type QcEntryPhotoField =
-  | 'weight_image'
-  | 'vin_rub_image'
-  | 'front_image'
-  | 'rear_image'
-  | 'left_image'
-  | 'right_image'
-  | 'engine_image'
-  | 'dashboard_image'
+  'full_image' | 'vin_rub_image' | 'vin_image' | 'engine_image' | 'other_image'
 
 /** 入场照片配置（对齐后端字段） */
 export const QC_ENTRY_PHOTO_CONFIG: Array<{ label: string; field: QcEntryPhotoField }> = [
-  { label: '过磅照片', field: 'weight_image' },
-  { label: '车架拓号照', field: 'vin_rub_image' },
-  { label: '车辆正前', field: 'front_image' },
-  { label: '车辆正后', field: 'rear_image' },
-  { label: '车辆左侧', field: 'left_image' },
-  { label: '车辆右侧', field: 'right_image' },
-  { label: '发动机舱', field: 'engine_image' },
-  { label: '车内仪表台', field: 'dashboard_image' }
+  { label: '整车照', field: 'full_image' },
+  { label: '车架号拓印照', field: 'vin_rub_image' },
+  { label: '车架号照', field: 'vin_image' },
+  { label: '发动机照', field: 'engine_image' },
+  { label: '其他照', field: 'other_image' }
 ]
 
 /** @deprecated 使用 QC_ENTRY_PHOTO_CONFIG */
@@ -596,14 +633,11 @@ export const QC_ENTRY_PHOTO_TYPES = QC_ENTRY_PHOTO_CONFIG.map((item) => item.lab
 /** 创建空入场照片对象 */
 export function createEmptyEntryPhotos(): Record<QcEntryPhotoField, string> {
   return {
-    weight_image: '',
+    full_image: '',
     vin_rub_image: '',
-    front_image: '',
-    rear_image: '',
-    left_image: '',
-    right_image: '',
+    vin_image: '',
     engine_image: '',
-    dashboard_image: ''
+    other_image: ''
   }
 }
 

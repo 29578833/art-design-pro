@@ -44,6 +44,10 @@
     color: var(--art-gray-500);
   }
 
+  .quality-create-icon {
+    margin-right: 4px;
+  }
+
   .quality-stats {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));

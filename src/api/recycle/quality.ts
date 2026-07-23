@@ -10,6 +10,7 @@ import type {
   QualityStats,
   QualityCreateParams,
   QualityCreateResult,
+  QualityCreateByPlateResult,
   QualityUpdateParams,
   QualityBatchAuditParams,
   InspectionCategory
@@ -138,6 +139,15 @@ export async function createQuality(
     url: '/scrap/quality/create',
     params: data,
     showSuccessMessage: options?.showSuccessMessage ?? true
+  })
+}
+
+/** 按车牌号创建质检单（同步建订单/车辆档案） */
+export async function fetchCreateQualityByPlate(plateNo: string) {
+  return request.post<QualityCreateByPlateResult>({
+    url: '/scrap/quality/create_by_plate',
+    params: { plate_no: plateNo },
+    showSuccessMessage: true
   })
 }
 
