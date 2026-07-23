@@ -10,7 +10,7 @@ description: >-
 
 - **前端**：`art-design-pro`（Vue 3 + Element Plus，当前工作区）
 - **后端**：`D:\ROOT\QXB\xinguang-api\xinguang_api`（ThinkPHP / CRMEB，报废回收业务在 `scrap` 模块；下文简称 `xinguang_api/`）
-- **原型参考**（字段/交互，不对接小程序 API）：`C:\Users\29758\Desktop\【正式C+演示】汽拆+回收小程序设计20260723(1)`（详见 [recycle-erp-backend](../recycle-erp-backend/SKILL.md)）
+- **原型参考**（字段/交互，不对接小程序 API）：`C:\Users\29758\Desktop\figma_car_yuanxing`（详见 [recycle-erp-backend](../recycle-erp-backend/SKILL.md)）
 
 ## 范围
 
