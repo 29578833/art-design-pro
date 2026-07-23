@@ -250,9 +250,8 @@
       "warehouseInventory": "Inventory Management",
       "warehouseOutbound": "Sales Outbound",
       "warehouseLocation": "Location Management",
-      "financeSettlement": "Settlement List",
-      "financePayment": "Payment Records",
-      "financeSalesman": "Salesman Stats"
+      "financeSettlement": "Settlement Bills",
+      "financeExport": "Settlement Vehicle Export"
     },
     "result": {
       "title": "Result Page",

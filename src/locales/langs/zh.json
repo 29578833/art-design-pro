@@ -250,9 +250,8 @@
       "warehouseInventory": "库存管理",
       "warehouseOutbound": "销售出库",
       "warehouseLocation": "库位管理",
-      "financeSettlement": "结算列表",
-      "financePayment": "付款流水",
-      "financeSalesman": "业务员统计"
+      "financeSettlement": "结算单管理",
+      "financeExport": "结算车辆导出"
     },
     "result": {
       "title": "结果页面",

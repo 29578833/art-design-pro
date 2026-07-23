@@ -216,7 +216,28 @@ export const recycleFinanceRoutes: AppRouteRecord = {
     icon: 'ri:money-cny-circle-line',
     menuId: 3485
   },
-  children: []
+  children: [
+    {
+      path: 'settlement',
+      name: 'RecycleFinanceSettlement',
+      component: '/recycle/finance/settlement',
+      meta: {
+        title: 'menus.recycle.financeSettlement',
+        keepAlive: true,
+        menuId: 3528
+      }
+    },
+    {
+      path: 'export',
+      name: 'RecycleFinanceExport',
+      component: '/recycle/finance/export',
+      meta: {
+        title: 'menus.recycle.financeExport',
+        keepAlive: true,
+        menuId: 3550
+      }
+    }
+  ]
 }
 
 /** 数据决策域 */
