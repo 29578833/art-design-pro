@@ -3,8 +3,8 @@
 ## 项目背景
 
 - **产品**：鑫广智能回收 / 汽拆回收拆解管理系统
-- **Figma 原型**：[正式C+演示 汽拆+回收小程序设计202606](https://www.figma.com/design/gTO569hs06qVOGzJzY9DeI)（本地导出包：`汽拆+回收小程序设计20260716`）
-- **原型代码目录**：`C:\Users\29758\Downloads\汽拆+回收小程序设计20260716`（Figma Make 导出，React 可交互原型；下文简称 `回收拆车项目/`）
+- **Figma 原型**：[正式C+演示 汽拆+回收小程序设计202606](https://www.figma.com/design/gTO569hs06qVOGzJzY9DeI)（本地导出包：`【正式C+演示】汽拆+回收小程序设计20260723(1)`）
+- **原型代码目录**：`C:\Users\29758\Desktop\【正式C+演示】汽拆+回收小程序设计20260723(1)`（Figma Make 导出，React 可交互原型；下文简称 `回收拆车项目/`）
 - **最新 PC UI 规范**：`回收拆车项目/鑫广管理后台_UI设计规范文档_v1.md`
 - **实现目标**：`art-design-pro` ERP 后台（Vue 3 + Element Plus，当前工作区）
 - **后端接口**：`D:\ROOT\QXB\xinguang-api\xinguang_api` / `scrap` 管理后台接口（下文简称 `xinguang_api/`；对接详见 `xinguang-api-integration` skill）
@@ -263,7 +263,7 @@ src/types/recycle/
 ## 原型运行方式
 
 ```bash
-cd "C:/Users/29758/Downloads/汽拆+回收小程序设计20260716"    # 原型代码目录（上文简称 `回收拆车项目/`）
+cd "C:/Users/29758/Desktop/【正式C+演示】汽拆+回收小程序设计20260723(1)"    # 原型代码目录（上文简称 `回收拆车项目/`）
 pnpm i
 pnpm dev
 ```

@@ -1,7 +1,7 @@
 # xinguang_api 管理后台接口参考
 
 > **后端**：`D:\ROOT\QXB\xinguang-api\xinguang_api`（下文简称 `xinguang_api/`）。路由文件：`xinguang_api/app/adminapi/route/scrap.php`，前缀 `/adminapi/scrap/`，鉴权 `AdminAuthTokenMiddleware` + `Authorization`。前端封装通常写 `/scrap/...`，由代理/baseURL 处理 adminapi 前缀。  
-> **原型**（页面字段参考）：`C:\Users\29758\Downloads\汽拆+回收小程序设计20260716`（见 recycle-erp-backend skill）。
+> **原型**（页面字段参考）：`C:\Users\29758\Desktop\【正式C+演示】汽拆+回收小程序设计20260723(1)`（见 recycle-erp-backend skill）。
 
 ## 通用约定
 
