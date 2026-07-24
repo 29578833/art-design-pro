@@ -2,15 +2,15 @@
   <ElDialog
     v-model="dialogVisible"
     :show-close="true"
-    width="92vw"
-    top="4vh"
+    width="1100px"
+    align-center
     destroy-on-close
     class="fs-detail-dialog"
     @opened="loadDetail"
   >
     <template #header>
       <div v-if="detail" class="fs-detail-header">
-        <span class="fs-detail-title">{{ detail.settlement_type }}详情</span>
+        <span class="fs-detail-title">{{ detail.settlement_type_text }}详情</span>
         <span
           class="fs-type-tag"
           :style="{
@@ -18,16 +18,16 @@
             background: SETTLEMENT_BILL_TYPE_CONFIG[detail.settlement_type].bg
           }"
         >
-          {{ detail.settlement_type }}
+          {{ detail.settlement_type_text }}
         </span>
         <span
           class="fs-status-tag"
           :style="{
-            color: SETTLEMENT_BILL_STATUS_CONFIG[detail.status].color,
-            background: SETTLEMENT_BILL_STATUS_CONFIG[detail.status].bg
+            color: SETTLEMENT_BILL_STATUS_CONFIG[detail.settlement_status].color,
+            background: SETTLEMENT_BILL_STATUS_CONFIG[detail.settlement_status].bg
           }"
         >
-          {{ detail.status }}
+          {{ detail.settlement_status_text }}
         </span>
       </div>
     </template>
@@ -40,11 +40,26 @@
           >
           <span>申请人：{{ detail.applicant }}</span>
           <span>申请时间：{{ detail.apply_time }}</span>
-          <span>收费类型：{{ detail.charge_type }}</span>
+          <span>收费类型：{{ detail.charge_type_text }}</span>
           <span
-            >结算总额：<b class="fs-amount">¥ {{ detail.amount.toLocaleString() }}</b></span
+            >结算总额：<b class="fs-amount"
+              >¥ {{ Number(detail.final_price || 0).toLocaleString() }}</b
+            ></span
           >
-          <span v-if="detail.payment_voucher">支付凭证：{{ detail.payment_voucher }}</span>
+          <span v-if="proofUrl" class="fs-proof-row">
+            支付凭证：
+            <ElImage
+              v-if="proofIsImage"
+              :src="proofUrl"
+              fit="cover"
+              class="fs-proof-thumb"
+              :preview-src-list="[proofUrl]"
+              preview-teleported
+            />
+            <a v-else :href="proofUrl" target="_blank" rel="noopener" class="fs-proof-link">
+              查看文件
+            </a>
+          </span>
         </div>
 
         <div class="fs-detail-toolbar">
@@ -62,68 +77,77 @@
         </div>
 
         <div class="fs-detail-table-wrap">
-          <table class="fs-detail-table">
-            <thead>
-              <tr>
-                <th>入库日期</th>
-                <th>自编号</th>
-                <th>车牌号</th>
-                <th>入库单号</th>
-                <th v-if="!isService">车辆类型</th>
-                <th>结算类型</th>
-                <th>整备质量(吨)</th>
-                <th>实际重量(吨)</th>
-                <th>自送费补贴</th>
-                <th>缺补件吨位</th>
-                <th>残值单价</th>
-                <th>实际支付残值</th>
-                <th v-if="isService">服务费(元/吨)</th>
-                <th v-if="isService">服务费合计</th>
-                <th>单车总金额</th>
-                <th>审核状态</th>
-                <th>质检查验</th>
-                <th>车辆附件</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="!filteredItems.length">
-                <td :colspan="isService ? 17 : 16" class="fs-empty">暂无数据</td>
-              </tr>
-              <tr v-for="item in filteredItems" :key="item.seq">
-                <td>{{ item.entry_date }}</td>
-                <td>{{ item.self_no }}</td>
-                <td class="fs-plate">{{ item.plate }}</td>
-                <td>{{ item.inbound_no || '—' }}</td>
-                <td v-if="!isService">{{ item.vehicle_type }}</td>
-                <td>{{ item.settle_type }}</td>
-                <td>{{ item.std_weight.toFixed(3) }}</td>
-                <td>{{ item.actual_weight.toFixed(3) }}</td>
-                <td>{{ item.self_delivery_subsidy || '—' }}</td>
-                <td>{{ item.missing_part_tonnage || '—' }}</td>
-                <td>{{ item.residual_unit_price }}</td>
-                <td>{{ item.expected_residual.toFixed(2) }}</td>
-                <td v-if="isService">{{ item.service_fee_per_ton ?? '—' }}</td>
-                <td v-if="isService">{{ item.service_fee_total?.toFixed(2) ?? '—' }}</td>
-                <td class="fs-amount">{{ item.total_per_vehicle.toFixed(2) }}</td>
-                <td>{{ item.review_status || '—' }}</td>
-                <td>
-                  <ElButton link type="primary" @click="showQcDemo">查看</ElButton>
-                </td>
-                <td>
-                  <ElButton link type="warning" @click="showAttachDemo">查看</ElButton>
-                </td>
-              </tr>
-              <tr v-if="filteredItems.length" class="fs-total-row">
-                <td :colspan="isService ? 14 : 13" class="fs-total-label">
-                  合计（{{ filteredItems.length }} 辆）
-                </td>
-                <td class="fs-amount">{{
-                  filteredItems.reduce((s, r) => s + r.total_per_vehicle, 0).toFixed(2)
-                }}</td>
-                <td colspan="3"></td>
-              </tr>
-            </tbody>
-          </table>
+          <vxe-grid
+            class="fs-detail-vxe"
+            v-bind="detailGridOptions"
+            :data="filteredItems"
+            :columns="detailColumns"
+            :footer-method="detailFooterMethod"
+            :footer-span-method="detailFooterSpanMethod"
+          >
+            <template #plate_no="{ row }">
+              <span class="fs-plate">{{ row.plate_no }}</span>
+            </template>
+            <template #warehouse_no="{ row }">{{ row.warehouse_no || '—' }}</template>
+            <template #prepared_weight_ton="{ row }">{{ row.prepared_weight_ton }}</template>
+            <template #actual_weight_ton="{ row }">{{ row.actual_weight_ton }}</template>
+            <template #self_delivery_subsidy="{ row }">{{
+              row.self_delivery_subsidy || '—'
+            }}</template>
+            <template #missing_compensation_pos_ton="{ row }">{{
+              row.missing_compensation_pos_ton || '—'
+            }}</template>
+            <template #missing_parts="{ row }">{{ row.missing_parts || '—' }}</template>
+            <template #missing_deduction="{ row }">
+              <span
+                class="fs-exempt-badge"
+                :class="Number(row.missing_deduction) > 0 ? 'is-yes' : 'is-no'"
+              >
+                {{ row.missing_deduction || '—' }}
+              </span>
+            </template>
+            <template #actual_pay_amount="{ row }">{{
+              Number(row.actual_pay_amount || 0).toFixed(2)
+            }}</template>
+            <template #service_fee_unit_price="{ row }">{{
+              row.service_fee_unit_price ?? '—'
+            }}</template>
+            <template #service_fee_total="{ row }">{{
+              row.service_fee_total?.toFixed(2) ?? '—'
+            }}</template>
+            <template #modify_remark="{ row }">{{ row.modify_remark || '—' }}</template>
+            <template #total_amount="{ row }">
+              <span class="fs-amount">{{ Number(row.total_amount || 0).toFixed(2) }}</span>
+            </template>
+            <template #remark="{ row }">{{ row.remark || '—' }}</template>
+            <template #audit_status_text="{ row }">
+              <span class="fs-review-badge" :class="reviewBadgeClass(row.audit_status)">
+                {{ row.audit_status_text || '—' }}
+              </span>
+            </template>
+            <template #reject_reason="{ row }">{{ row.reject_reason || '—' }}</template>
+            <template #audit_user_name="{ row }">{{ row.audit_user_name || '—' }}</template>
+            <template #audit_time="{ row }">{{ row.audit_time || '—' }}</template>
+            <template #apply_remark="{ row }">{{ row.apply_remark || '—' }}</template>
+            <template #qc_btn="{ row }">
+              <button type="button" class="fs-action-btn is-qc" @click="openQcReport(row)">
+                <ArtSvgIcon icon="ri:clipboard-line" />
+                查看
+              </button>
+            </template>
+            <template #attach_btn="{ row }">
+              <button type="button" class="fs-action-btn is-attach" @click="openVehicleAttach(row)">
+                <ArtSvgIcon icon="ri:attachment-line" />
+                查看
+              </button>
+            </template>
+            <template #auto_total_header>
+              <span class="fs-vxe-blue-header">单车总金额(元)</span>
+            </template>
+            <template #empty>
+              <span class="text-gray-400">暂无数据</span>
+            </template>
+          </vxe-grid>
         </div>
       </template>
     </div>
@@ -132,72 +156,227 @@
       <ElButton @click="dialogVisible = false">关闭</ElButton>
     </template>
   </ElDialog>
+
+  <!-- 质检查验报告 -->
+  <QualityReportDialog v-model:visible="qcVisible" :check-id="qcCheckId" />
+
+  <!-- 车辆附件预览 -->
+  <OrderAttachmentPreviewDialog
+    v-model="attachVisible"
+    :attachments="attachList"
+    :order-id="attachOrderId"
+  />
 </template>
 
 <script setup lang="ts">
+  import * as XLSX from 'xlsx'
   import { ElMessage } from 'element-plus'
-  import { fetchSettlementBillDetail } from '@/api/recycle/finance-settlement.mock'
-  import type { SettlementBillItem } from '@/types/recycle/finance-settlement'
+  import { fetchSettlementBillDetail } from '@/api/recycle/finance-settlement'
+  import { fetchOrderDetail } from '@/api/recycle/order'
+  import { fetchQualityByOrder } from '@/api/recycle/quality'
+  import type {
+    SettlementBillItem,
+    SettlementBillVehicle
+  } from '@/types/recycle/finance-settlement'
   import {
     SETTLEMENT_BILL_STATUS_CONFIG,
     SETTLEMENT_BILL_TYPE_CONFIG
   } from '@/types/recycle/finance-settlement'
+  import { resolveVehicleAttachments, type OrderAttachment } from '@/types/recycle/order'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import QualityReportDialog from '@/views/recycle/factory/quality/modules/quality-report-dialog.vue'
+  import OrderAttachmentPreviewDialog from '@/views/recycle/recovery/orders/modules/order-attachment-preview-dialog.vue'
+  import { buildDetailColumns, getDetailTotalColIndex } from './settlement-grid-columns'
 
   const props = defineProps<{
     visible: boolean
-    billId: string | null
+    billId: number | null
   }>()
 
   const emit = defineEmits<{
     'update:visible': [boolean]
   }>()
 
+  /** 弹窗显隐 */
   const dialogVisible = computed({
     get: () => props.visible,
     set: (v) => emit('update:visible', v)
   })
 
+  /** 明细表内搜索关键词 */
+  const itemKeyword = ref('')
+  watch(
+    () => props.visible,
+    (visible) => {
+      if (visible) itemKeyword.value = ''
+    }
+  )
+
+  /** 详情数据加载 */
   const loading = ref(false)
   const detail = ref<SettlementBillItem | null>(null)
-  const itemKeyword = ref('')
+  const detailItems = ref<SettlementBillVehicle[]>([])
 
-  const isService = computed(() => detail.value?.settlement_type === '服务费结算单')
-
-  const filteredItems = computed(() => {
-    const items = detail.value?.items || []
-    const q = itemKeyword.value.trim()
-    if (!q) return items
-    return items.filter(
-      (i) => i.plate.includes(q) || i.self_no.includes(q) || i.vehicle_model.includes(q)
-    )
+  /** 支付凭证地址（图片可预览，非图片则外链打开） */
+  const proofUrl = computed(() =>
+    String(detail.value?.proof_image || detail.value?.settlement_proof || '').trim()
+  )
+  const proofIsImage = computed(() => {
+    if (!proofUrl.value) return false
+    return !/\.pdf(\?|$)/i.test(proofUrl.value)
   })
 
   async function loadDetail() {
     if (!props.billId) return
     loading.value = true
-    itemKeyword.value = ''
     try {
-      detail.value = await fetchSettlementBillDetail(props.billId)
+      const res = await fetchSettlementBillDetail(props.billId, {
+        keyword: itemKeyword.value.trim()
+      })
+      detail.value = res.settlement
+      detailItems.value = res.list || []
     } finally {
       loading.value = false
     }
   }
 
-  function showQcDemo() {
-    ElMessage.info('质检查验演示数据')
+  /** 关键词变更防抖后重新拉详情 */
+  let keywordTimer: ReturnType<typeof setTimeout> | undefined
+  watch(itemKeyword, () => {
+    if (!props.visible) return
+    clearTimeout(keywordTimer)
+    keywordTimer = setTimeout(() => loadDetail(), 300)
+  })
+
+  /** 表格列：服务费 / 残值列差异 */
+  const isService = computed(() => detail.value?.settlement_type === 'service_fee')
+  const detailColumns = computed(() => buildDetailColumns(isService.value))
+  const detailTotalColIndex = computed(() => getDetailTotalColIndex(isService.value))
+  const detailGridOptions = {
+    border: true,
+    size: 'mini',
+    align: 'center',
+    headerAlign: 'center',
+    showOverflow: 'tooltip',
+    autoResize: true,
+    height: '500px',
+    scrollX: { enabled: true, gt: 0 },
+    columnConfig: { resizable: false },
+    showFooter: true,
+    footerRowClassName: 'fs-detail-total-footer',
+    emptyText: '暂无数据'
   }
 
-  function showAttachDemo() {
-    ElMessage.info('附件演示数据')
+  /** 前端再过滤一层（接口已带 keyword，兜底） */
+  const filteredItems = computed(() => {
+    const items = detailItems.value
+    const q = itemKeyword.value.trim()
+    if (!q) return items
+    return items.filter(
+      (i) => i.plate_no.includes(q) || i.vehicle_no.includes(q) || i.model.includes(q)
+    )
+  })
+  const itemsTotal = computed(() =>
+    filteredItems.value.reduce((s, r) => s + Number(r.total_amount || 0), 0).toFixed(2)
+  )
+
+  /** 审核状态徽标样式 */
+  function reviewBadgeClass(status?: string) {
+    if (status === 'pass') return 'is-pass'
+    if (status === 'reject') return 'is-reject'
+    if (status === 'pending') return 'is-pending'
+    return 'is-none'
   }
 
+  /** 表尾合计行 */
+  function detailFooterMethod({ columns }: { columns: { field?: string }[] }) {
+    if (!filteredItems.value.length) return []
+    const totalIdx = detailTotalColIndex.value
+    return [
+      columns.map((col, idx) => {
+        if (idx === 0) return `合计（${filteredItems.value.length} 辆）`
+        if (col.field === 'total_amount') return itemsTotal.value
+        if (idx > 0 && idx < totalIdx) return ''
+        return ''
+      })
+    ]
+  }
+  function detailFooterSpanMethod({
+    columnIndex,
+    rowIndex
+  }: {
+    columnIndex: number
+    rowIndex: number
+  }) {
+    if (rowIndex !== 0 || !filteredItems.value.length) return { rowspan: 1, colspan: 1 }
+    const totalIdx = detailTotalColIndex.value
+    const colCount = detailColumns.value.length
+    const tailCols = colCount - totalIdx - 1
+    if (columnIndex === 0) return { rowspan: 1, colspan: totalIdx }
+    if (columnIndex > 0 && columnIndex < totalIdx) return { rowspan: 0, colspan: 0 }
+    if (columnIndex === totalIdx + 1 && tailCols > 0) {
+      return { rowspan: 1, colspan: tailCols }
+    }
+    if (columnIndex > totalIdx + 1) return { rowspan: 0, colspan: 0 }
+    return { rowspan: 1, colspan: 1 }
+  }
+
+  /** 质检查验报告弹窗 */
+  const qcVisible = ref(false)
+  const qcCheckId = ref(0)
+  async function openQcReport(row: SettlementBillVehicle) {
+    const orderId = Number(row.order_id || 0)
+    if (!orderId) {
+      ElMessage.warning('缺少订单信息，无法查看质检报告')
+      return
+    }
+    const qc = await fetchQualityByOrder(orderId, row.vehicle_id)
+    if (!qc?.id) {
+      ElMessage.warning('暂无质检报告')
+      return
+    }
+    qcCheckId.value = qc.id
+    qcVisible.value = true
+  }
+
+  /** 车辆附件预览弹窗 */
+  const attachVisible = ref(false)
+  const attachList = ref<OrderAttachment[]>([])
+  const attachOrderId = ref<number>()
+  async function openVehicleAttach(row: SettlementBillVehicle) {
+    const orderId = Number(row.order_id || 0)
+    if (!orderId) {
+      ElMessage.warning('缺少订单信息，无法查看附件')
+      return
+    }
+    const detail = await fetchOrderDetail(orderId)
+    const vehicles = detail.vehicles || []
+    const idx = vehicles.findIndex((v) => v.id === row.vehicle_id)
+    attachList.value = resolveVehicleAttachments(detail, idx >= 0 ? idx : 0)
+    if (!attachList.value.length) {
+      ElMessage.warning('暂无车辆附件')
+      return
+    }
+    attachOrderId.value = orderId
+    attachVisible.value = true
+  }
+
+  /** 导出当前明细车辆 */
   function showExportDemo() {
-    ElMessage.info('演示数据')
+    if (!filteredItems.value.length) {
+      ElMessage.warning('暂无数据可导出')
+      return
+    }
+    const sheet = XLSX.utils.json_to_sheet(filteredItems.value)
+    const book = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(book, sheet, '结算车辆')
+    XLSX.writeFile(book, `结算车辆_${detail.value?.settlement_no || props.billId}.xlsx`)
   }
 </script>
 
 <style scoped lang="scss">
+  @use './settlement-dialog';
+
   .fs-detail-header {
     display: flex;
     gap: 10px;
@@ -221,6 +400,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px 24px;
+    align-items: center;
     padding: 10px 16px;
     font-size: 13px;
     color: #6b7280;
@@ -233,6 +413,30 @@
     }
   }
 
+  .fs-proof-row {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .fs-proof-thumb {
+    width: 48px;
+    height: 48px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+  }
+
+  .fs-proof-link {
+    color: #4169ff;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
   .fs-amount {
     font-weight: 700;
     color: #4169ff !important;
@@ -242,57 +446,15 @@
     display: flex;
     gap: 8px;
     align-items: center;
-    padding: 12px 16px;
+    padding: 12px 0;
     border-bottom: 1px solid #f3f4f6;
   }
 
   .fs-detail-table-wrap {
-    max-height: 52vh;
-    padding: 0 16px 16px;
-    overflow: auto;
-  }
-
-  .fs-detail-table {
     width: 100%;
-    min-width: 1200px;
-    font-size: 12px;
-    border-collapse: collapse;
-
-    th,
-    td {
-      padding: 8px 6px;
-      text-align: center;
-      white-space: nowrap;
-      border: 1px solid #e5e7eb;
-    }
-
-    th {
-      position: sticky;
-      top: 0;
-      z-index: 1;
-      font-weight: 500;
-      color: #4b5563;
-      background: #f9fafb;
-    }
-
-    .fs-plate {
-      font-weight: 600;
-      color: #4169ff;
-    }
-
-    .fs-empty {
-      padding: 40px;
-      color: #9ca3af;
-    }
-
-    .fs-total-row {
-      background: #fafafa;
-    }
-
-    .fs-total-label {
-      font-weight: 700;
-      text-align: right;
-    }
+    // min-width: 0;
+    // padding: 0 16px 16px;
+    overflow: hidden;
   }
 </style>
 
@@ -302,6 +464,7 @@
   }
 
   .fs-detail-dialog .el-dialog__body {
+    height: 600px;
     padding: 0;
   }
 </style>
