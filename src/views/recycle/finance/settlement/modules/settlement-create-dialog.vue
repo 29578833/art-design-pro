@@ -1,8 +1,8 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    width="95vw"
-    top="4vh"
+    width="1300px"
+    align-center
     destroy-on-close
     class="fs-create-dialog"
     :show-close="false"
@@ -11,10 +11,11 @@
     <div
       v-if="billType"
       class="fs-create-header"
-      :class="{ 'is-residual': billType === '残值结算单' }"
+      :class="{ 'is-residual': billType === 'residual' }"
     >
-      <span class="fs-create-header-title">提交{{ billType }}申请</span>
-
+      <span class="fs-create-header-title"
+        >提交{{ SETTLEMENT_BILL_TYPE_CONFIG[billType].label }}申请</span
+      >
       <button type="button" class="fs-create-close" @click="dialogVisible = false">
         <ArtSvgIcon icon="ri:close-line" />
       </button>
@@ -23,16 +24,12 @@
     <div v-if="billType" class="fs-create-steps">
       <div class="fs-create-step" :class="stepClass(1)">
         <span class="fs-create-step-num">{{ step > 1 ? '✓' : '1' }}</span>
-
         <span>请选结算车辆</span>
       </div>
-
       <div class="fs-create-step-line" :class="{ 'is-done': step > 1 }" />
-
       <div class="fs-create-step" :class="stepClass(2)">
         <span class="fs-create-step-num">2</span>
-
-        <span>{{ billType }}</span>
+        <span>{{ SETTLEMENT_BILL_TYPE_CONFIG[billType].label }}</span>
       </div>
     </div>
 
@@ -44,74 +41,47 @@
           clearable
           style="width: 220px"
         />
-
-        <ElButton @click="search = ''">重置</ElButton>
-
+        <ElButton @click="resetSearch">重置</ElButton>
         <span class="fs-create-selected-hint"
           >已选 <b>{{ selectedIds.size }}</b> 辆</span
         >
       </div>
 
       <div class="fs-create-body">
-        <table class="fs-create-table">
-          <thead>
-            <tr>
-              <th>
-                <ElCheckbox
-                  :model-value="allChecked"
-                  :indeterminate="someChecked && !allChecked"
-                  @change="toggleAll"
-                />
-              </th>
-
-              <th>序号</th>
-
-              <th>入库日期</th>
-
-              <th>自编号</th>
-
-              <th>车牌号</th>
-
-              <th>车型</th>
-
-              <th>实际重量(吨)</th>
-
-              <th v-if="isService">服务费合计</th>
-
-              <th>单车总金额(元)</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr
-              v-for="(v, i) in filteredCandidates"
-              :key="v.id"
-              class="fs-create-row"
-              :class="{ 'is-selected': selectedIds.has(v.id) }"
-              @click="toggleVehicle(v.id)"
-            >
-              <td @click.stop>
-                <ElCheckbox :model-value="selectedIds.has(v.id)" @change="toggleVehicle(v.id)" />
-              </td>
-
-              <td>{{ i + 1 }}</td>
-
-              <td>{{ v.inbound_date }}</td>
-
-              <td>{{ v.self_no }}</td>
-
-              <td class="fs-plate">{{ v.plate }}</td>
-
-              <td>{{ v.vehicle_model }}</td>
-
-              <td>{{ v.actual_weight.toFixed(2) }}</td>
-
-              <td v-if="isService">{{ computeTotals(v).svcTotal.toFixed(2) }}</td>
-
-              <td class="fs-amount">{{ computeTotals(v).autoTotal.toFixed(2) }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <vxe-grid
+          ref="step1GridRef"
+          class="fs-create-vxe"
+          v-bind="step1GridOptions"
+          :data="candidates"
+          :columns="step1Columns"
+          :row-config="{ isHover: true, keyField: 'id' }"
+          :checkbox-config="step1CheckboxConfig"
+          :row-class-name="step1RowClassName"
+          @checkbox-change="onStep1CheckboxChange"
+          @checkbox-all="onStep1CheckboxAll"
+        >
+          <template #plate_no="{ row }">
+            <span class="fs-plate">{{ row.plate_no }}</span>
+          </template>
+          <template #entry_time="{ row }">{{ formatEntryTime(row.entry_time) }}</template>
+          <template #weight="{ row }">{{ kgToTon(row.weight) }}</template>
+          <template #qc_weight="{ row }">{{ kgToTon(row.qc_weight) }}</template>
+          <template #missing_deduction="{ row }">{{
+            computeTotals(row).missingDeduction
+          }}</template>
+          <template #actual_pay_amount="{ row }">{{
+            computeTotals(row).actualPayAmount.toFixed(2)
+          }}</template>
+          <template #service_fee_total="{ row }">{{
+            computeTotals(row).serviceFeeTotal.toFixed(2)
+          }}</template>
+          <template #single_total="{ row }">
+            <span class="fs-amount">{{ computeTotals(row).autoTotal.toFixed(2) }}</span>
+          </template>
+          <template #auto_total_header>
+            <span class="fs-vxe-blue-header">单车总金额(元)</span>
+          </template>
+        </vxe-grid>
       </div>
     </template>
 
@@ -119,149 +89,161 @@
       <div class="fs-create-meta">
         <span>
           申请类型：
-
           <span
             class="fs-tag"
             :style="{
               color: SETTLEMENT_BILL_TYPE_CONFIG[billType].color,
-
               background: SETTLEMENT_BILL_TYPE_CONFIG[billType].bg
             }"
-            >{{ billType }}</span
+            >{{ SETTLEMENT_BILL_TYPE_CONFIG[billType].label }}</span
           >
         </span>
-
         <span
           >车辆数量：<b>{{ selectedVehicles.length }} 辆</b></span
         >
-
         <span
           >预计合计：<b class="fs-amount">¥ {{ grandTotal.toFixed(2) }}</b></span
         >
       </div>
 
       <div class="fs-create-body">
-        <table class="fs-create-table">
-          <thead>
-            <tr>
-              <th>序号</th>
-
-              <th>车牌号</th>
-
-              <th>整备质量(吨)</th>
-
-              <th>实际重量(吨)</th>
-
-              <th>残值单价</th>
-
-              <th>预计支付残值</th>
-
-              <th v-if="isService">服务费合计</th>
-
-              <th>单车总金额(元)</th>
-
-              <th>修改说明</th>
-
-              <th>操作</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr v-for="(v, i) in selectedVehicles" :key="v.id">
-              <td>{{ i + 1 }}</td>
-
-              <td class="fs-plate">{{ v.plate }}</td>
-
-              <td>{{ v.std_weight.toFixed(3) }}</td>
-
-              <td class="fs-edit-cell">
-                <ElInputNumber
-                  :model-value="getNum(v, 'actual_weight')"
-                  :controls="false"
-                  size="small"
-                  @update:model-value="(val) => setNum(v.id, 'actual_weight', Number(val))"
-                />
-              </td>
-
-              <td class="fs-edit-cell">
-                <ElInputNumber
-                  :model-value="getNum(v, 'residual_price')"
-                  :controls="false"
-                  size="small"
-                  @update:model-value="(val) => setNum(v.id, 'residual_price', Number(val))"
-                />
-              </td>
-
-              <td class="fs-edit-cell">
-                <ElInputNumber
-                  :model-value="getExpectedResidual(v)"
-                  :controls="false"
-                  size="small"
-                  @update:model-value="
-                    (val) => setOverride(v.id, 'expected_residual_override', Number(val))
-                  "
-                />
-              </td>
-
-              <td v-if="isService">{{ computeTotals(v).svcTotal.toFixed(2) }}</td>
-
-              <td class="fs-edit-cell fs-amount">
-                <ElInputNumber
-                  :model-value="getVehicleTotal(v)"
-                  :controls="false"
-                  size="small"
-                  @update:model-value="(val) => setOverride(v.id, 'total_override', Number(val))"
-                />
-              </td>
-
-              <td class="fs-edit-cell">
-                <ElInput
-                  :model-value="getStr(v, 'modify_note')"
-                  size="small"
-                  @update:model-value="(val) => setStr(v.id, 'modify_note', val)"
-                />
-              </td>
-
-              <td>
-                <ElButton link type="danger" @click="removeVehicle(v.id)">移除</ElButton>
-              </td>
-            </tr>
-
-            <tr>
-              <td :colspan="isService ? 7 : 6" style="font-weight: 700; text-align: right"
-                >合计总金额</td
-              >
-
-              <td class="fs-amount">{{ grandTotal.toFixed(2) }}</td>
-
-              <td colspan="2" />
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="fs-create-tip-row">★ 黄色字段可手动填写，其他字段只读或自动计算</div>
+        <vxe-grid
+          class="fs-create-vxe"
+          v-bind="step2GridOptions"
+          :data="selectedVehicles"
+          :columns="step2Columns"
+          :footer-method="step2FooterMethod"
+          :footer-span-method="step2FooterSpanMethod"
+        >
+          <template #plate_no="{ row }">
+            <span class="fs-plate">{{ row.plate_no }}</span>
+          </template>
+          <template #entry_time="{ row }">{{ formatEntryTime(row.entry_time) }}</template>
+          <template #weight="{ row }">{{ kgToTon(row.weight) }}</template>
+          <template #self_delivery_subsidy="{ row }">{{
+            row.self_delivery_subsidy || '—'
+          }}</template>
+          <template #edit_actual_weight="{ row }">
+            <div class="fs-edit-cell">
+              <ElInputNumber
+                :model-value="
+                  getEditNum(row, 'actual_weight', Number(row.qc_weight || row.weight || 0) / 1000)
+                "
+                :controls="false"
+                size="small"
+                @update:model-value="(val) => setNum(row.id, 'actual_weight', Number(val))"
+              />
+            </div>
+          </template>
+          <template #edit_missing_compensation_pos="{ row }">
+            <div class="fs-edit-cell">
+              <ElInputNumber
+                :model-value="getEditNum(row, 'missing_compensation_pos', 0)"
+                :controls="false"
+                size="small"
+                @update:model-value="
+                  (val) => setNum(row.id, 'missing_compensation_pos', Number(val))
+                "
+              />
+            </div>
+          </template>
+          <template #edit_residual_value="{ row }">
+            <div class="fs-edit-cell">
+              <ElInputNumber
+                :model-value="getEditNum(row, 'residual_unit_price', row.residual_value)"
+                :controls="false"
+                size="small"
+                @update:model-value="(val) => setNum(row.id, 'residual_unit_price', Number(val))"
+              />
+            </div>
+          </template>
+          <template #edit_missing_parts="{ row }">
+            <div class="fs-edit-cell">
+              <ElInputNumber
+                :model-value="getEditNum(row, 'missing_parts', 0)"
+                :controls="false"
+                size="small"
+                @update:model-value="(val) => setNum(row.id, 'missing_parts', Number(val))"
+              />
+            </div>
+          </template>
+          <template #edit_deduction="{ row }">
+            <div class="fs-edit-cell">
+              <ElInputNumber
+                :model-value="getEditNum(row, 'deduction', 0)"
+                :controls="false"
+                size="small"
+                @update:model-value="(val) => setNum(row.id, 'deduction', Number(val))"
+              />
+            </div>
+          </template>
+          <template #missing_deduction="{ row }">
+            <span
+              class="fs-exempt-badge"
+              :class="computeTotals(row).missingDeduction > 0 ? 'is-yes' : 'is-no'"
+            >
+              {{ computeTotals(row).missingDeduction.toFixed(2) }}
+            </span>
+          </template>
+          <template #edit_actual_pay_amount="{ row }">
+            <div class="fs-edit-cell">
+              <ElInputNumber
+                :model-value="getActualPayAmount(row)"
+                :controls="false"
+                size="small"
+                @update:model-value="(val) => setNum(row.id, 'actual_pay_amount', Number(val))"
+              />
+            </div>
+          </template>
+          <template #service_fee_total="{ row }">{{
+            computeTotals(row).serviceFeeTotal.toFixed(2)
+          }}</template>
+          <template #edit_total="{ row }">
+            <div class="fs-edit-cell fs-amount">
+              <ElInputNumber
+                :model-value="getVehicleTotal(row)"
+                :controls="false"
+                size="small"
+                @update:model-value="(val) => setNum(row.id, 'single_total', Number(val))"
+              />
+            </div>
+          </template>
+          <template #edit_modify_remark="{ row }">
+            <div class="fs-edit-cell">
+              <ElInput
+                :model-value="getStr(row)"
+                size="small"
+                @update:model-value="(val) => setStr(row.id, val)"
+              />
+            </div>
+          </template>
+          <template #remark>—</template>
+          <template #action="{ row }">
+            <button type="button" class="fs-action-btn is-remove" @click="removeVehicle(row.id)">
+              移除
+            </button>
+          </template>
+          <template #auto_total_header>
+            <span class="fs-vxe-blue-header">单车总金额(元)</span>
+          </template>
+        </vxe-grid>
       </div>
     </template>
 
     <template #footer>
       <div v-if="step === 1 && billType" class="fs-create-footer-inner">
         <span />
-
         <div>
           <ElButton @click="dialogVisible = false">关闭</ElButton>
-
           <ElButton type="primary" @click="goStep2"
             >下一步（已选 {{ selectedIds.size }} 辆）</ElButton
           >
         </div>
       </div>
-
       <div v-else-if="step === 2 && billType" class="fs-create-footer-inner">
         <ElButton @click="step = 1">← 返回选车</ElButton>
-
         <div>
           <ElButton @click="dialogVisible = false">关闭</ElButton>
-
           <ElButton type="primary" :loading="submitting" @click="handleSubmit"
             >确认提交申请</ElButton
           >
@@ -273,295 +255,311 @@
 
 <script setup lang="ts">
   import { ElMessage } from 'element-plus'
-
+  import type { VxeGridInstance } from 'vxe-table'
   import {
     fetchSettlementBillCreate,
     fetchSettlementVehicleCandidates
-  } from '@/api/recycle/finance-settlement.mock'
-
-  import type {
-    SettlementBillLineItem,
-    SettlementBillType
-  } from '@/types/recycle/finance-settlement'
-
+  } from '@/api/recycle/finance-settlement'
+  import type { SettlementBillType } from '@/types/recycle/finance-settlement'
   import { SETTLEMENT_BILL_TYPE_CONFIG } from '@/types/recycle/finance-settlement'
-
   import type {
     SettlementVehicleCandidate,
+    SettlementCreateVehiclePayload,
     SettlementVehicleEdit
   } from '@/types/recycle/finance-settlement-candidate'
-
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import {
+    buildCreateStep1Columns,
+    buildCreateStep2Columns,
+    getCreateStep2TotalColIndex
+  } from './settlement-grid-columns'
 
   const props = defineProps<{
     visible: boolean
-
     billType: SettlementBillType | null
   }>()
 
   const emit = defineEmits<{
     'update:visible': [boolean]
-
     success: []
   }>()
 
   const dialogVisible = computed({
     get: () => props.visible,
-
     set: (v) => emit('update:visible', v)
   })
 
+  /** 步骤：1 选车 → 2 确认金额 */
   const step = ref<1 | 2>(1)
+  function stepClass(s: number) {
+    if (step.value === s) return 'is-active'
+    if (step.value > s) return 'is-done'
+    return ''
+  }
 
+  /** 是否服务费结算（影响列与金额计算） */
+  const isService = computed(() => props.billType === 'service_fee')
+
+  /** 候选车辆搜索与列表 */
   const search = ref('')
-
   const candidates = ref<SettlementVehicleCandidate[]>([])
-
-  const selectedIds = ref(new Set<string>())
-
-  const edits = ref<Record<string, SettlementVehicleEdit>>({})
-
-  const submitting = ref(false)
-
-  const isService = computed(() => props.billType === '服务费结算单')
-
-  const filteredCandidates = computed(() => {
-    const q = search.value.trim()
-
-    return candidates.value.filter(
-      (v) => !q || v.plate.includes(q) || v.self_no.includes(q) || v.vehicle_model.includes(q)
-    )
+  async function loadCandidates() {
+    const res = await fetchSettlementVehicleCandidates({
+      keyword: search.value.trim(),
+      page: 1,
+      limit: 200
+    })
+    candidates.value = res.list || []
+  }
+  function resetSearch() {
+    search.value = ''
+    loadCandidates()
+  }
+  let searchTimer: ReturnType<typeof setTimeout> | undefined
+  watch(search, () => {
+    clearTimeout(searchTimer)
+    searchTimer = setTimeout(() => loadCandidates(), 300)
   })
 
+  /** 勾选车辆 + Step1 表格勾选同步 */
+  const selectedIds = ref(new Set<number>())
+  const step1GridRef = ref<VxeGridInstance>()
   const selectedVehicles = computed(() =>
     candidates.value.filter((v) => selectedIds.value.has(v.id))
   )
+  function goStep2() {
+    if (!selectedIds.value.size) {
+      ElMessage.warning('请至少选择一辆车')
+      return
+    }
+    step.value = 2
+  }
+  function step1RowClassName({ row }: { row: SettlementVehicleCandidate }) {
+    return selectedIds.value.has(row.id) ? 'row--selected' : ''
+  }
+  function onStep1CheckboxChange({
+    row,
+    checked
+  }: {
+    row: SettlementVehicleCandidate
+    checked: boolean
+  }) {
+    const next = new Set(selectedIds.value)
+    if (checked) next.add(row.id)
+    else next.delete(row.id)
+    selectedIds.value = next
+  }
+  function onStep1CheckboxAll({ checked }: { checked: boolean }) {
+    toggleAll(checked)
+  }
+  function toggleAll(val: boolean | string | number) {
+    selectedIds.value = val ? new Set(candidates.value.map((v) => v.id)) : new Set()
+    nextTick(() => syncStep1Checkbox())
+  }
+  function syncStep1Checkbox() {
+    const grid = step1GridRef.value
+    if (!grid) return
+    grid.setAllCheckboxRow(false)
+    candidates.value.forEach((row) => {
+      if (selectedIds.value.has(row.id)) {
+        grid.setCheckboxRow(row, true)
+      }
+    })
+  }
+  function removeVehicle(id: number) {
+    const next = new Set(selectedIds.value)
+    next.delete(id)
+    selectedIds.value = next
+    if (!next.size) step.value = 1
+  }
 
-  const allChecked = computed(
-    () =>
-      filteredCandidates.value.length > 0 &&
-      filteredCandidates.value.every((v) => selectedIds.value.has(v.id))
-  )
+  /** Step2 可编辑字段（按车辆 id 存草稿） */
+  const edits = ref<Record<number, SettlementVehicleEdit>>({})
+  function getEditNum(
+    v: SettlementVehicleCandidate,
+    key: keyof SettlementVehicleEdit,
+    fallback: number
+  ) {
+    const value = edits.value[v.id]?.[key]
+    return typeof value === 'number' ? value : fallback
+  }
+  function getStr(v: SettlementVehicleCandidate) {
+    return edits.value[v.id]?.modify_remark || ''
+  }
+  function setNum(vid: number, key: keyof SettlementVehicleEdit, val: number) {
+    edits.value = { ...edits.value, [vid]: { ...edits.value[vid], [key]: val } }
+  }
+  function setStr(vid: number, val: string) {
+    edits.value = { ...edits.value, [vid]: { ...edits.value[vid], modify_remark: val } }
+  }
 
-  const someChecked = computed(() =>
-    filteredCandidates.value.some((v) => selectedIds.value.has(v.id))
-  )
-
+  /** 单车金额推算（缺件免赔、残值实付、服务费等） */
+  function computeTotals(v: SettlementVehicleCandidate) {
+    const actualWeightTon = getEditNum(
+      v,
+      'actual_weight',
+      Number(v.qc_weight || v.weight || 0) / 1000
+    )
+    const residualUnitPrice = getEditNum(v, 'residual_unit_price', Number(v.residual_value || 0))
+    const missingParts = getEditNum(v, 'missing_parts', 0)
+    const deduction = getEditNum(v, 'deduction', 0)
+    const missingDeduction = missingParts * 40
+    const residualAmount = actualWeightTon * residualUnitPrice
+    const actualPayAmount = Math.max(0, residualAmount - missingDeduction - deduction)
+    const serviceFeeTotal = actualWeightTon * Number(v.service_fee_unit_price || 0)
+    const autoTotal =
+      Number(v.self_delivery_subsidy || 0) + (isService.value ? serviceFeeTotal : actualPayAmount)
+    return {
+      missingDeduction,
+      residualAmount,
+      actualPayAmount,
+      serviceFeeTotal,
+      autoTotal
+    }
+  }
+  function getActualPayAmount(v: SettlementVehicleCandidate) {
+    return getEditNum(v, 'actual_pay_amount', computeTotals(v).actualPayAmount)
+  }
+  function getVehicleTotal(v: SettlementVehicleCandidate) {
+    return getEditNum(v, 'single_total', computeTotals(v).autoTotal)
+  }
   const grandTotal = computed(() =>
     selectedVehicles.value.reduce((s, v) => s + getVehicleTotal(v), 0)
   )
 
-  function stepClass(s: number) {
-    if (step.value === s) return 'is-active'
-
-    if (step.value > s) return 'is-done'
-
-    return ''
+  /** 表格列与配置 */
+  const step1Columns = computed(() => buildCreateStep1Columns(isService.value))
+  const step2Columns = computed(() => buildCreateStep2Columns(isService.value))
+  const step2TotalColIndex = computed(() => getCreateStep2TotalColIndex(isService.value))
+  const step1CheckboxConfig = computed(() => ({
+    highlight: true,
+    trigger: 'row' as const,
+    checkRowKeys: [...selectedIds.value]
+  }))
+  const step1GridOptions = {
+    border: true,
+    size: 'mini',
+    align: 'center',
+    headerAlign: 'center',
+    showOverflow: 'tooltip',
+    autoResize: true,
+    height: '500px',
+    scrollX: { enabled: true, gt: 0 },
+    columnConfig: { resizable: false }
   }
-
-  function getNum(v: SettlementVehicleCandidate, key: keyof SettlementVehicleCandidate) {
-    const e = edits.value[v.id]
-
-    const ek = key as keyof SettlementVehicleEdit
-
-    if (e && e[ek] !== undefined && typeof e[ek] === 'number') return e[ek] as number
-
-    return v[key] as number
+  const step2GridOptions = {
+    border: true,
+    size: 'mini',
+    align: 'center',
+    headerAlign: 'center',
+    showOverflow: 'tooltip',
+    autoResize: true,
+    height: '500px',
+    scrollX: { enabled: true, gt: 0 },
+    columnConfig: { resizable: false },
+    showFooter: true,
+    footerRowClassName: ({ rowIndex }: { rowIndex: number }) =>
+      rowIndex === 0 ? 'fs-total-footer' : 'fs-tip-footer'
   }
-
-  function getStr(v: SettlementVehicleCandidate, key: 'modify_note') {
-    return edits.value[v.id]?.[key] ?? v[key]
+  function step2FooterMethod({ columns }: { columns: { field?: string }[] }) {
+    const totalIdx = step2TotalColIndex.value
+    const totalRow = columns.map((col, idx) => {
+      if (idx === 0) return '合计总金额'
+      if (col.field === 'single_total') return grandTotal.value.toFixed(2)
+      if (idx > 0 && idx < totalIdx) return ''
+      return ''
+    })
+    const tipRow = columns.map((_, idx) =>
+      idx === 0 ? '★ 黄色字段可手动填写，其他字段只读或自动计算' : ''
+    )
+    return [totalRow, tipRow]
   }
-
-  function setNum(vid: string, key: keyof SettlementVehicleEdit, val: number) {
-    edits.value = { ...edits.value, [vid]: { ...edits.value[vid], [key]: val } }
-  }
-
-  function setStr(vid: string, key: 'modify_note', val: string) {
-    edits.value = { ...edits.value, [vid]: { ...edits.value[vid], [key]: val } }
-  }
-
-  function setOverride(
-    vid: string,
-
-    key: 'expected_residual_override' | 'total_override',
-
-    val: number
-  ) {
-    edits.value = { ...edits.value, [vid]: { ...edits.value[vid], [key]: val } }
-  }
-
-  function computeTotals(v: SettlementVehicleCandidate) {
-    const actualW = getNum(v, 'actual_weight')
-
-    const rp = getNum(v, 'residual_price')
-
-    const sp = getNum(v, 'shortfall_parts')
-
-    const svc = getNum(v, 'svc_per_ton')
-
-    const strans = v.self_transport
-
-    const finalWaiver = sp * 40
-
-    const actualRes = actualW * rp - finalWaiver
-
-    const svcTotal = actualW * svc
-
-    const autoTotal = isService.value ? strans + svcTotal : strans + actualRes
-
-    return { finalWaiver, actualRes, svcTotal, autoTotal }
-  }
-
-  function getExpectedResidual(v: SettlementVehicleCandidate) {
-    const ov = edits.value[v.id]?.expected_residual_override
-
-    return ov !== undefined ? ov : computeTotals(v).actualRes
-  }
-
-  function getVehicleTotal(v: SettlementVehicleCandidate) {
-    const ov = edits.value[v.id]?.total_override
-
-    return ov !== undefined ? ov : computeTotals(v).autoTotal
-  }
-
-  function toggleVehicle(id: string) {
-    const next = new Set(selectedIds.value)
-
-    if (next.has(id)) next.delete(id)
-    else next.add(id)
-
-    selectedIds.value = next
-  }
-
-  function toggleAll(val: boolean | string | number) {
-    selectedIds.value = val ? new Set(filteredCandidates.value.map((v) => v.id)) : new Set()
-  }
-
-  function removeVehicle(id: string) {
-    const next = new Set(selectedIds.value)
-
-    next.delete(id)
-
-    selectedIds.value = next
-
-    if (!next.size) step.value = 1
-  }
-
-  function goStep2() {
-    if (!selectedIds.value.size) {
-      ElMessage.warning('请至少选择一辆车')
-
-      return
+  function step2FooterSpanMethod({
+    columnIndex,
+    rowIndex
+  }: {
+    columnIndex: number
+    rowIndex: number
+  }) {
+    const totalIdx = step2TotalColIndex.value
+    const colCount = step2Columns.value.length
+    if (rowIndex === 0) {
+      if (columnIndex === 0) return { rowspan: 1, colspan: totalIdx }
+      if (columnIndex > 0 && columnIndex < totalIdx) return { rowspan: 0, colspan: 0 }
+      if (columnIndex === totalIdx + 1) return { rowspan: 1, colspan: colCount - totalIdx - 1 }
+      if (columnIndex > totalIdx + 1) return { rowspan: 0, colspan: 0 }
     }
-
-    step.value = 2
+    if (rowIndex === 1) {
+      if (columnIndex === 0) return { rowspan: 1, colspan: colCount }
+      return { rowspan: 0, colspan: 0 }
+    }
+    return { rowspan: 1, colspan: 1 }
   }
 
-  async function onOpened() {
-    step.value = 1
-
-    search.value = ''
-
-    selectedIds.value = new Set()
-
-    edits.value = {}
-
-    candidates.value = await fetchSettlementVehicleCandidates()
+  function formatEntryTime(value: number | string) {
+    if (!value) return '—'
+    const date = new Date(typeof value === 'number' ? value * 1000 : value)
+    return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleDateString('zh-CN')
+  }
+  function kgToTon(value: number) {
+    return (Number(value || 0) / 1000).toFixed(3)
   }
 
-  function buildLineItems(): SettlementBillLineItem[] {
-    return selectedVehicles.value.map((v, i) => {
+  /** 组装创建接口车辆 payload */
+  function buildVehicles(): SettlementCreateVehiclePayload[] {
+    return selectedVehicles.value.map((v) => {
       const c = computeTotals(v)
-
       return {
-        seq: i + 1,
-
-        entry_date: v.inbound_date,
-
-        self_no: v.self_no,
-
-        plate: v.plate,
-
-        vehicle_model: v.vehicle_model,
-
+        vehicle_id: v.id,
+        plate_no: v.plate_no,
+        model: v.model,
         vehicle_type: v.vehicle_type,
-
-        settle_type: v.settle_type,
-
-        std_weight: v.std_weight,
-
-        actual_weight: getNum(v, 'actual_weight'),
-
-        self_delivery_subsidy: v.self_transport,
-
-        missing_part_tonnage: getNum(v, 'shortfall_weight'),
-
-        residual_unit_price: getNum(v, 'residual_price'),
-
-        missing_part_amt: getNum(v, 'shortfall_parts'),
-
-        hub_material: v.hub_material,
-
-        deduction: getNum(v, 'deduction'),
-
-        missing_part_exempt: c.finalWaiver > 0 ? '是' : '否',
-
-        expected_residual: Math.round(getExpectedResidual(v)),
-
-        ...(isService.value
-          ? {
-              service_fee_per_ton: getNum(v, 'svc_per_ton'),
-
-              service_fee_total: Math.round(c.svcTotal)
-            }
-          : {}),
-
-        total_per_vehicle: Math.round(getVehicleTotal(v)),
-
-        modify_note: getStr(v, 'modify_note'),
-
-        qc_missing_note: v.qc_missing_note,
-
-        review_status: '待审核'
+        vehicle_no: v.vehicle_no,
+        settlement_method: v.settlement_method,
+        entry_time: v.entry_time,
+        prepared_weight: Number(v.weight || 0) / 1000,
+        actual_weight: getEditNum(v, 'actual_weight', Number(v.qc_weight || v.weight || 0) / 1000),
+        tare_weight: Number(v.tare_weight || 0) / 1000,
+        deduction_weight: Number(v.deduction_weight || 0) / 1000,
+        self_delivery_subsidy: Number(v.self_delivery_subsidy || 0),
+        missing_compensation_pos: getEditNum(v, 'missing_compensation_pos', 0),
+        residual_unit_price: getEditNum(v, 'residual_unit_price', Number(v.residual_value || 0)),
+        missing_parts: getEditNum(v, 'missing_parts', 0),
+        deduction: getEditNum(v, 'deduction', 0),
+        missing_deduction: c.missingDeduction,
+        residual_amount: c.residualAmount,
+        actual_pay_amount: getActualPayAmount(v),
+        service_fee_unit_price: Number(v.service_fee_unit_price || 0),
+        service_fee_total: c.serviceFeeTotal,
+        single_total: getVehicleTotal(v),
+        total_amount: getVehicleTotal(v)
       }
     })
   }
 
+  /** 打开弹窗时重置并拉候选车 */
+  async function onOpened() {
+    step.value = 1
+    search.value = ''
+    selectedIds.value = new Set()
+    edits.value = {}
+    await loadCandidates()
+    nextTick(() => syncStep1Checkbox())
+  }
+
+  /** 提交结算单申请 */
+  const submitting = ref(false)
   async function handleSubmit() {
     if (!props.billType || !selectedVehicles.value.length) return
-
     submitting.value = true
-
     try {
-      const isSvc = props.billType === '服务费结算单'
-
-      const newId = `NEW-${Date.now()}`
-
-      const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '')
-
       await fetchSettlementBillCreate({
         settlement_type: props.billType,
-
-        contract_no: `${isSvc ? 'HS' : 'JSD'}${dateStr}${String(Math.floor(Math.random() * 9000) + 1000)}`,
-
-        order_no: `DD${newId}`,
-
-        charge_type: isSvc ? '报废服务费' : '残值回收',
-
-        applicant: '当前用户',
-
-        apply_time: new Date().toLocaleString('zh-CN').replace(/\//g, '-'),
-
-        amount: Math.round(grandTotal.value),
-
-        items: buildLineItems()
+        vehicles: buildVehicles(),
+        contract_no: '',
+        remark: ''
       })
-
-      ElMessage.success('申请已提交')
-
       dialogVisible.value = false
-
       emit('success')
     } finally {
       submitting.value = false
@@ -571,37 +569,4 @@
 
 <style scoped lang="scss">
   @use './settlement-dialog';
-
-  .fs-create-header-title {
-    font-size: 15px;
-    font-weight: 700;
-  }
-
-  .fs-create-close {
-    display: flex;
-    padding: 4px;
-    font-size: 20px;
-    color: rgb(255 255 255 / 85%);
-    cursor: pointer;
-    background: none;
-    border: none;
-
-    &:hover {
-      color: #fff;
-    }
-  }
-
-  .fs-create-selected-hint {
-    margin-left: auto;
-    font-size: 12px;
-    color: #9ca3af;
-
-    b {
-      color: #4169ff;
-    }
-  }
-
-  .fs-create-row {
-    cursor: pointer;
-  }
 </style>

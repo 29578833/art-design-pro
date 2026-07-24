@@ -22,6 +22,9 @@ importers:
       '@vueuse/core':
         specifier: ^13.9.0
         version: 13.9.0(vue@3.5.40(typescript@5.6.3))
+      '@vxe-ui/core':
+        specifier: 4.4.16
+        version: 4.4.16(vue@3.5.40(typescript@5.6.3))
       '@wangeditor/editor':
         specifier: ^5.1.23
         version: 5.1.23
@@ -82,6 +85,9 @@ importers:
       vue-router:
         specifier: ^4.5.1
         version: 4.6.4(vue@3.5.40(typescript@5.6.3))
+      vxe-table:
+        specifier: 4.20.6
+        version: 4.20.6
       xgplayer:
         specifier: ^3.0.20
         version: 3.0.26(core-js@3.49.0)
@@ -2105,6 +2111,14 @@ packages:
     peerDependencies:
       vue: ^3.5.0
 
+  '@vxe-ui/core@4.4.16':
+    resolution:
+      {
+        integrity: sha512-4K5QfQfKlvfjhAw/yirduIH9cab6qUF9tcG92PdSB84Eo9ELy8lznzjgPC+wRMvfRlJUSMgZ5OogZQ3/hc5mOg==
+      }
+    peerDependencies:
+      vue: ^3.2.0
+
   '@wangeditor/basic-modules@1.1.7':
     resolution:
       {
@@ -3146,6 +3160,12 @@ packages:
     resolution:
       {
         integrity: sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg==
+      }
+
+  dom-zindex@1.0.7:
+    resolution:
+      {
+        integrity: sha512-cKU/h8v8IPBgdZOTPbPmq3Ib+Ac5C+kKoh9I4LbGR9BM3GwbmB16KYWKJcj5M2BavnA66EbgYzxYDLd1IytnlQ==
       }
 
   dom7@3.0.0:
@@ -7011,6 +7031,12 @@ packages:
       typescript:
         optional: true
 
+  vxe-table@4.20.6:
+    resolution:
+      {
+        integrity: sha512-gP1dhE80VDjpTg5mKLny+zHR1G+t5TcvM1qUgFghOHmKLbDcSq7tRrTP5elgXzu2qveq/YF2poGcenhwkgAekg==
+      }
+
   wcwidth@1.0.1:
     resolution:
       {
@@ -7105,6 +7131,12 @@ packages:
         integrity: sha512-h3Fbisa2nKGPxCpm89Hk33lBLsnaGBvctQopaBSOW/uIs6FTe1ATyAnKFJrzVs9vpGdsTe73WF3V4lIsk4Gacw==
       }
     engines: { node: '>=18' }
+
+  xe-utils@4.0.11:
+    resolution:
+      {
+        integrity: sha512-r3v1o10AnHXKRZ5ikuAOQ+Mxw/hy1XWjFr2/Q9L+LEZYq/PRxmiZ6/J53DEH53XqklEXddsmx1vYjOaOACq8IQ==
+      }
 
   xgplayer-subtitles@3.0.26:
     resolution:
@@ -8389,6 +8421,12 @@ snapshots:
     dependencies:
       vue: 3.5.40(typescript@5.6.3)
 
+  '@vxe-ui/core@4.4.16(vue@3.5.40(typescript@5.6.3))':
+    dependencies:
+      dom-zindex: 1.0.7
+      vue: 3.5.40(typescript@5.6.3)
+      xe-utils: 4.0.11
+
   '@wangeditor/basic-modules@1.1.7(@wangeditor/core@1.1.19(@uppy/core@2.3.4)(@uppy/xhr-upload@2.1.3(@uppy/core@2.3.4))(dom7@3.0.0)(is-hotkey@0.2.0)(lodash.camelcase@4.3.0)(lodash.clonedeep@4.5.0)(lodash.debounce@4.0.8)(lodash.foreach@4.5.0)(lodash.isequal@4.5.0)(lodash.throttle@4.1.1)(lodash.toarray@4.4.0)(nanoid@3.3.11)(slate@0.72.8)(snabbdom@3.6.2))(dom7@3.0.0)(lodash.throttle@4.1.1)(nanoid@3.3.11)(slate@0.72.8)(snabbdom@3.6.2)':
     dependencies:
       '@wangeditor/core': 1.1.19(@uppy/core@2.3.4)(@uppy/xhr-upload@2.1.3(@uppy/core@2.3.4))(dom7@3.0.0)(is-hotkey@0.2.0)(lodash.camelcase@4.3.0)(lodash.clonedeep@4.5.0)(lodash.debounce@4.0.8)(lodash.foreach@4.5.0)(lodash.isequal@4.5.0)(lodash.throttle@4.1.1)(lodash.toarray@4.4.0)(nanoid@3.3.11)(slate@0.72.8)(snabbdom@3.6.2)
@@ -8998,6 +9036,8 @@ snapshots:
       domelementtype: 2.3.0
       domhandler: 5.0.3
       entities: 4.5.0
+
+  dom-zindex@1.0.7: {}
 
   dom7@3.0.0:
     dependencies:
@@ -10392,16 +10432,16 @@ snapshots:
     dependencies:
       htmlparser2: 8.0.2
       js-tokens: 9.0.1
-      postcss: 8.5.6
-      postcss-safe-parser: 6.0.0(postcss@8.5.6)
+      postcss: 8.5.19
+      postcss-safe-parser: 6.0.0(postcss@8.5.19)
 
   postcss-media-query-parser@0.2.3: {}
 
   postcss-resolve-nested-selector@0.1.6: {}
 
-  postcss-safe-parser@6.0.0(postcss@8.5.6):
+  postcss-safe-parser@6.0.0(postcss@8.5.19):
     dependencies:
-      postcss: 8.5.6
+      postcss: 8.5.19
 
   postcss-safe-parser@7.0.1(postcss@8.5.6):
     dependencies:
@@ -11298,6 +11338,8 @@ snapshots:
     optionalDependencies:
       typescript: 5.6.3
 
+  vxe-table@4.20.6: {}
+
   wcwidth@1.0.1:
     dependencies:
       defaults: 1.0.4
@@ -11348,6 +11390,8 @@ snapshots:
   wsl-utils@0.1.0:
     dependencies:
       is-wsl: 3.1.0
+
+  xe-utils@4.0.11: {}
 
   xgplayer-subtitles@3.0.26(core-js@3.49.0):
     dependencies:

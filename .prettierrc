@@ -14,7 +14,7 @@
   "insertPragma": false,
   "requirePragma": false,
   "proseWrap": "never",
-  "htmlWhitespaceSensitivity": "strict",
+  // "htmlWhitespaceSensitivity": "strict",
   "endOfLine": "auto",
   "rangeStart": 0
 }

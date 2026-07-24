@@ -251,7 +251,7 @@
   /** 表格列：服务费 / 残值列差异 */
   const isService = computed(() => detail.value?.settlement_type === 'service_fee')
   const detailColumns = computed(() => buildDetailColumns(isService.value))
-  const detailTotalColIndex = computed(() => getDetailTotalColIndex(isService.value))
+  const detailTotalColIndex = computed(() => getDetailTotalColIndex())
   const detailGridOptions = {
     border: true,
     size: 'mini',

@@ -2,26 +2,20 @@
   <div class="fs-settlement-search">
     <ElSelect
       v-if="showStatusQuick"
-      v-model="localForm.status_quick"
+      v-model="localForm.settlement_status"
       class="fs-search-item"
       placeholder="全部结算单"
       style="width: 130px"
     >
-      <ElOption label="全部结算单" value="all" />
-      <ElOption label="待审核" value="待审核" />
-      <ElOption label="审核通过" value="审核通过" />
-      <ElOption label="审核不通过" value="审核不通过" />
-      <ElOption label="待付款" value="待付款" />
+      <ElOption label="全部结算单" value="" />
+      <ElOption label="待审核" :value="1" />
+      <ElOption label="审核通过" :value="2" />
+      <ElOption label="待付款" :value="3" />
+      <ElOption label="已付款" :value="4" />
+      <ElOption label="审核不通过" :value="5" />
     </ElSelect>
     <ElInput
-      v-model="localForm.salesman"
-      class="fs-search-item"
-      placeholder="业务员/签约人"
-      clearable
-      style="width: 140px"
-    />
-    <ElInput
-      v-model="localForm.order_keyword"
+      v-model="localForm.keyword"
       class="fs-search-item"
       placeholder="订单/合同编号"
       clearable
@@ -32,7 +26,7 @@
       class="fs-search-item"
       placeholder="申请人"
       clearable
-      style="width: 120px"
+      style="width: 140px"
     />
     <ElDatePicker
       v-model="dateRange"
@@ -50,8 +44,8 @@
       clearable
       style="width: 140px"
     >
-      <ElOption label="服务费结算单" value="服务费结算单" />
-      <ElOption label="残值结算单" value="残值结算单" />
+      <ElOption label="服务费结算单" value="service_fee" />
+      <ElOption label="残值结算单" value="residual" />
     </ElSelect>
     <ElButton type="primary" @click="emitSearch">查询</ElButton>
     <ElButton @click="emitReset">重置</ElButton>
@@ -80,44 +74,42 @@
     export: []
   }>()
 
+  /** 本地筛选表单（与父级 searchForm 双向同步） */
   const localForm = reactive({ ...props.searchForm })
   const dateRange = ref<[string, string] | null>(
-    props.searchForm.apply_start && props.searchForm.apply_end
-      ? [props.searchForm.apply_start, props.searchForm.apply_end]
+    props.searchForm.start_time && props.searchForm.end_time
+      ? [props.searchForm.start_time, props.searchForm.end_time]
       : null
   )
-
   watch(
     () => props.searchForm,
     (val) => {
       Object.assign(localForm, val)
-      dateRange.value = val.apply_start && val.apply_end ? [val.apply_start, val.apply_end] : null
+      dateRange.value = val.start_time && val.end_time ? [val.start_time, val.end_time] : null
     },
     { deep: true }
   )
 
+  /** 组装查询参数 */
   function buildPayload(): SettlementBillSearchParams {
     return {
       ...localForm,
-      apply_start: dateRange.value?.[0] || '',
-      apply_end: dateRange.value?.[1] || ''
+      start_time: dateRange.value?.[0] || '',
+      end_time: dateRange.value?.[1] || ''
     }
   }
-
   function emitSearch() {
     emit('search', buildPayload())
   }
-
   function emitReset() {
     dateRange.value = null
     Object.assign(localForm, {
-      status_quick: 'all',
-      salesman: '',
-      order_keyword: '',
+      settlement_status: '',
+      keyword: '',
       applicant: '',
       settlement_type: '',
-      apply_start: '',
-      apply_end: ''
+      start_time: '',
+      end_time: ''
     })
     emit('reset')
   }

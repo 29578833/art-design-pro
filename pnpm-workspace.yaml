@@ -7,3 +7,5 @@ allowBuilds:
   esbuild: false
   ssh2: true
   vue-demi: false
+minimumReleaseAgeExclude:
+  - vxe-table@4.20.6

@@ -226,21 +226,35 @@
 }
 
 .fs-create-dialog {
-  :deep(.el-dialog) {
-    max-width: 1200px;
+  padding: 0 !important;
+
+  .fs-create-header-title {
+    font-size: 15px;
+    font-weight: 700;
   }
 
-  :deep(.el-dialog__header) {
-    display: none;
+  .fs-create-close {
+    display: flex;
+    padding: 4px;
+    font-size: 20px;
+    color: rgb(255 255 255 / 85%);
+    cursor: pointer;
+    background: none;
+    border: none;
+
+    &:hover {
+      color: #fff;
+    }
   }
 
-  :deep(.el-dialog__body) {
-    padding: 0;
-  }
+  .fs-create-selected-hint {
+    margin-left: auto;
+    font-size: 12px;
+    color: #9ca3af;
 
-  :deep(.el-dialog__footer) {
-    padding: 12px 16px;
-    border-top: 1px solid #f3f4f6;
+    b {
+      color: #4169ff;
+    }
   }
 }
 
@@ -327,9 +341,10 @@
 }
 
 .fs-create-body {
-  max-height: 52vh;
+  width: 100%;
+  min-width: 0;
   padding: 12px 16px;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .fs-create-table {
@@ -361,6 +376,10 @@
     color: #4169ff;
   }
 
+  :deep(.el-input-number--small) {
+    width: 100% !important;
+  }
+
   .fs-edit-cell :deep(.el-input__wrapper) {
     background: #fffb8f;
     box-shadow: none;
@@ -390,4 +409,166 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+}
+
+.fs-create-vxe,
+.fs-detail-vxe {
+  width: 100%;
+  min-width: 0;
+
+  // 覆盖 reset.scss 中全局隐藏横向滚动条的规则
+  :deep(*::-webkit-scrollbar) {
+    width: 8px !important;
+    height: 8px !important;
+  }
+
+  :deep(*::-webkit-scrollbar-track) {
+    background: #f3f4f6;
+  }
+
+  :deep(*::-webkit-scrollbar-thumb) {
+    background: #c5c9d1 !important;
+    border-radius: 4px;
+  }
+
+  :deep(.vxe-table--body-wrapper),
+  :deep(.vxe-table--footer-wrapper) {
+    scrollbar-width: thin;
+  }
+
+  :deep(.vxe-table--header-wrapper) {
+    .vxe-header--column {
+      font-size: 12px;
+      font-weight: 500;
+      color: #4b5563;
+      background: #f9fafb;
+    }
+
+    .fs-vxe-edit-header {
+      background: #fffb8f !important;
+    }
+
+    .fs-vxe-blue-header {
+      color: #4169ff !important;
+    }
+  }
+
+  .fs-plate {
+    font-weight: 600;
+    color: #4169ff;
+  }
+
+  .fs-edit-cell :deep(.el-input__wrapper),
+  .fs-edit-cell :deep(.el-input-number .el-input__wrapper) {
+    background: #fffb8f;
+    box-shadow: none;
+  }
+
+  .fs-exempt-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 12px;
+    border-radius: 4px;
+
+    &.is-yes {
+      color: #52c41a;
+      background: #f6ffed;
+    }
+
+    &.is-no {
+      color: #999;
+      background: #f5f5f5;
+    }
+  }
+
+  .fs-review-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    border-radius: 4px;
+
+    &.is-pass {
+      color: #52c41a;
+      background: #f6ffed;
+    }
+
+    &.is-reject {
+      color: #ff4d4f;
+      background: #fff1f0;
+    }
+
+    &.is-pending {
+      color: #fa8c16;
+      background: #fff7e6;
+    }
+
+    &.is-none {
+      color: #999;
+      background: #f5f5f5;
+    }
+  }
+
+  .fs-action-btn {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    padding: 4px 8px;
+    font-size: 12px;
+    white-space: nowrap;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+
+    &.is-qc {
+      color: #2f54eb;
+      background: #f0f5ff;
+    }
+
+    &.is-attach {
+      color: #fa8c16;
+      background: #fff7e6;
+    }
+
+    &.is-remove {
+      color: #ff4d4f;
+      background: #fff1f0;
+    }
+  }
+
+  :deep(.vxe-body--row.row--selected) {
+    background: #f0f7ff;
+  }
+
+  :deep(.vxe-footer--row.fs-total-footer) {
+    background: #f0f7ff;
+
+    .vxe-footer--column {
+      font-weight: 700;
+    }
+
+    .vxe-footer--column:first-child {
+      text-align: right !important;
+    }
+  }
+
+  :deep(.vxe-footer--row.fs-tip-footer) {
+    .vxe-footer--column {
+      font-size: 12px;
+      color: #d48806;
+      text-align: left !important;
+    }
+  }
+
+  :deep(.vxe-footer--row.fs-detail-total-footer) {
+    background: #fafafa;
+
+    .vxe-footer--column {
+      font-weight: 700;
+    }
+
+    .vxe-footer--column:first-child {
+      text-align: right !important;
+    }
+  }
 }
