@@ -6,11 +6,7 @@ export type PartnerType = 'individual' | 'enterprise'
 
 /** 合作商类型 */
 export type CooperationType =
-  | 'vehicle_supplier'
-  | 'product_buyer'
-  | 'towing'
-  | 'equipment'
-  | 'individual'
+  'vehicle_supplier' | 'product_buyer' | 'towing' | 'equipment' | 'individual'
 
 /** 客户 / 供应商分类 */
 export type PartnerCategory = 'customer' | 'supplier'

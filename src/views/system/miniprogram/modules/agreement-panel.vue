@@ -64,7 +64,10 @@
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchAgreement, fetchAgreementSave } from '@/api/recycle/miniprogram-agreement'
-  import type { MiniAgreementItem, MiniAgreementType } from '@/types/recycle/miniprogram'
+  import type {
+    MiniAgreementItem,
+    MiniAgreementType
+  } from '@/types/recycle/recovery/commerce/miniprogram'
   import ArtWangEditor from '@/components/core/forms/art-wang-editor/index.vue'
 
   const AGREEMENT_DEFS: { type: MiniAgreementType; label: string }[] = [

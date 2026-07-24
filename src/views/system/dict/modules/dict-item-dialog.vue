@@ -31,7 +31,7 @@
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchDataDictUpdate } from '@/api/recycle/data-dict'
-  import type { DataDictItem } from '@/types/recycle/system'
+  import type { DataDictItem } from '@/types/recycle/system/system'
 
   interface Props {
     visible: boolean

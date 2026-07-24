@@ -157,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { ScrapVehicle } from '@/types/recycle/vehicle'
+  import type { ScrapVehicle } from '@/types/recycle/recovery/vehicles/vehicle'
   import AgentStep from './vehicle-archive/agent-step.vue'
   import AuthenticationStep from './vehicle-archive/authentication-step.vue'
   import MaterialsStep from './vehicle-archive/materials-step.vue'

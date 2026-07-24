@@ -69,7 +69,10 @@
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchCreateQualityByPlate } from '@/api/recycle/quality'
   import { useUserStore } from '@/store/modules/user'
-  import type { QualityCreateByPlateResult, QualityQueueItem } from '@/types/recycle/quality'
+  import type {
+    QualityCreateByPlateResult,
+    QualityQueueItem
+  } from '@/types/recycle/factory/quality/quality'
   import { ElMessage, type InputInstance } from 'element-plus'
 
   interface Props {

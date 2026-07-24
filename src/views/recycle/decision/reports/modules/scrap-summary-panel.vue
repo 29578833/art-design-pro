@@ -41,7 +41,10 @@
   import { ElMessage } from 'element-plus'
   import { fetchScrapSummary } from '@/api/recycle/report'
   import type { ColumnOption } from '@/types/component'
-  import type { ScrapSummaryMonthItem, ScrapSummaryResult } from '@/types/recycle/report'
+  import type {
+    ScrapSummaryMonthItem,
+    ScrapSummaryResult
+  } from '@/types/recycle/decision/reports/report'
   import ArtLineChart from '@/components/core/charts/art-line-chart/index.vue'
 
   const props = defineProps<{

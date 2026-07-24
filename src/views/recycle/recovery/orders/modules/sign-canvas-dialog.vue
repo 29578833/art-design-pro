@@ -156,7 +156,7 @@
     fetchSaveTemplate
   } from '@/api/recycle/sign'
   import { uploadFileGetUrl } from '@/api/upload'
-  import type { SignatureTemplate } from '@/types/recycle/order'
+  import type { SignatureTemplate } from '@/types/recycle/recovery/orders/order'
 
   /** single=单附件 / attachments=多附件 / orders=多订单 / url=仅返回签名URL；batch 兼容旧调用→attachments */
   export type SignCanvasMode = 'single' | 'attachments' | 'orders' | 'batch' | 'url'

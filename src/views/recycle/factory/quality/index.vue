@@ -61,7 +61,7 @@
     QualityTab,
     QualityQueueParams,
     QualitySearchParams
-  } from '@/types/recycle/quality'
+  } from '@/types/recycle/factory/quality/quality'
   import QualityReportSearch from './modules/quality-report-search.vue'
   import QualityQueuePage from './modules/quality-queue-page.vue'
   import QualityReportPage from './modules/quality-report-page.vue'

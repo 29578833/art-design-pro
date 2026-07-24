@@ -4,7 +4,7 @@ import type {
   SaleOutboundItem,
   SaleOutboundSearchParams,
   SaleOutboundStats
-} from '@/types/recycle/sale-outbound'
+} from '@/types/recycle/warehouse/outbound/sale-outbound'
 
 function resolvePagination(params: {
   current?: number

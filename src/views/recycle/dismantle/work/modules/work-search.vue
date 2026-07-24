@@ -33,8 +33,8 @@
 </template>
 
 <script setup lang="ts">
-  import type { PlateSearchParams, PlateStatusFilter } from '@/types/recycle/plate'
-  import { PLATE_STATUS_FILTER_TABS } from '@/types/recycle/plate'
+  import type { PlateSearchParams, PlateStatusFilter } from '@/types/recycle/dismantle/work/plate'
+  import { PLATE_STATUS_FILTER_TABS } from '@/types/recycle/dismantle/work/plate'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

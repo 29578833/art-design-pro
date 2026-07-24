@@ -21,10 +21,9 @@
                 {{ levelStyle.label }}
               </ElTag>
             </div>
-            <div class="detail-sub"
-              >{{ partner.code }} · {{ partner.groupName || '—' }} ·
-              {{ partner.levelName || '—' }}</div
-            >
+            <div class="detail-sub">
+              {{ partner.code }} · {{ partner.groupName || '—' }} · {{ partner.levelName || '—' }}
+            </div>
           </div>
         </div>
         <div class="detail-profile-tags">
@@ -66,7 +65,7 @@
 
         <div v-if="partner?.remark" class="detail-remark">
           <ArtSvgIcon icon="ri:sticky-note-line" class="detail-remark-icon" />
-          <div> <span class="font-medium">备注：</span>{{ partner.remark }} </div>
+          <div><span class="font-medium">备注：</span>{{ partner.remark }}</div>
         </div>
       </ElTabPane>
 
@@ -110,12 +109,12 @@
 
 <script setup lang="ts">
   import { fetchUserVehicles } from '@/api/recycle/customer'
-  import type { RecyclePartner, UserVehicleRecord } from '@/types/recycle/customer'
+  import type { RecyclePartner, UserVehicleRecord } from '@/types/recycle/customers/customer'
   import {
     COOPERATION_TYPE_CONFIG,
     PARTNER_CATEGORY_CONFIG,
     resolveLevelStyle
-  } from '@/types/recycle/customer'
+  } from '@/types/recycle/customers/customer'
 
   interface Props {
     visible: boolean

@@ -13,8 +13,8 @@
 </template>
 
 <script setup lang="ts">
-  import type { OrderTab, OrderTabCount } from '@/types/recycle/order'
-  import { ORDER_TAB_CONFIG } from '@/types/recycle/order'
+  import type { OrderTab, OrderTabCount } from '@/types/recycle/recovery/orders/order'
+  import { ORDER_TAB_CONFIG } from '@/types/recycle/recovery/orders/order'
 
   interface Props {
     modelValue: OrderTab

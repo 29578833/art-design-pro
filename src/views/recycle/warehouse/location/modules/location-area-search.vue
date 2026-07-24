@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { WarehouseAreaSearchParams } from '@/types/recycle/warehouse-location'
+  import type { WarehouseAreaSearchParams } from '@/types/recycle/warehouse/location/warehouse-location'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

@@ -8,7 +8,7 @@ import type {
   MaterialStaffOption,
   MaterialStats,
   MaterialStatusOption
-} from '@/types/recycle/material'
+} from '@/types/recycle/dismantle/product/material'
 
 function resolvePagination(params: {
   current?: number

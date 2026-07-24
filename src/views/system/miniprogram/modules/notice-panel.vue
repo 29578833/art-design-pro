@@ -38,7 +38,7 @@
     fetchNoticeUpdate
   } from '@/api/recycle/miniprogram-config'
   import type { ColumnOption } from '@/types/component'
-  import type { MiniNoticeItem } from '@/types/recycle/miniprogram'
+  import type { MiniNoticeItem } from '@/types/recycle/recovery/commerce/miniprogram'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import NoticeDialog from './notice-dialog.vue'
 

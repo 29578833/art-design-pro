@@ -130,7 +130,7 @@
     fetchDataDictList,
     fetchDataDictStatus
   } from '@/api/recycle/data-dict'
-  import type { DataDictCategory, DataDictItem } from '@/types/recycle/system'
+  import type { DataDictCategory, DataDictItem } from '@/types/recycle/system/system'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import DictCategoryDialog from './modules/dict-category-dialog.vue'
   import DictItemDialog from './modules/dict-item-dialog.vue'

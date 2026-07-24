@@ -8,8 +8,8 @@ import type {
   UserGroupOption,
   UserLevelOption,
   UserVehicleRecord
-} from '@/types/recycle/customer'
-import { resolveGradeKey, resolvePartnerTypeFromGroup } from '@/types/recycle/customer'
+} from '@/types/recycle/customers/customer'
+import { resolveGradeKey, resolvePartnerTypeFromGroup } from '@/types/recycle/customers/customer'
 
 /** 过滤无效筛选值 */
 function omitEmpty<T extends Record<string, unknown>>(params: T): Partial<T> {

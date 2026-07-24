@@ -260,13 +260,13 @@
     fetchSettlementBillCreate,
     fetchSettlementVehicleCandidates
   } from '@/api/recycle/finance-settlement'
-  import type { SettlementBillType } from '@/types/recycle/finance-settlement'
-  import { SETTLEMENT_BILL_TYPE_CONFIG } from '@/types/recycle/finance-settlement'
+  import type { SettlementBillType } from '@/types/recycle/finance/settlement/finance-settlement'
+  import { SETTLEMENT_BILL_TYPE_CONFIG } from '@/types/recycle/finance/settlement/finance-settlement'
   import type {
     SettlementVehicleCandidate,
     SettlementCreateVehiclePayload,
     SettlementVehicleEdit
-  } from '@/types/recycle/finance-settlement-candidate'
+  } from '@/types/recycle/finance/settlement/finance-settlement-candidate'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import {
     buildCreateStep1Columns,

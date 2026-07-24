@@ -5,9 +5,9 @@
       <ElCol :span="8">
         <div class="fob-item">
           <div class="fob-label">订单编号</div>
-          <div class="fob-value fob-value--mono fob-value--primary">{{
-            detail.order_no || '—'
-          }}</div>
+          <div class="fob-value fob-value--mono fob-value--primary">
+            {{ detail.order_no || '—' }}
+          </div>
         </div>
       </ElCol>
       <ElCol :span="8">
@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { OrderDetail, OrderStatusLog } from '@/types/recycle/order'
+  import type { OrderDetail, OrderStatusLog } from '@/types/recycle/recovery/orders/order'
 
   defineOptions({ name: 'FormalOrderDetailOrderSummary' })
 

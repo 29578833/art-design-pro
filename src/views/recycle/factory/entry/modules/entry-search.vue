@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { WarehouseEntrySearchParams } from '@/types/recycle/warehouse'
+  import type { WarehouseEntrySearchParams } from '@/types/recycle/warehouse/warehouse'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

@@ -3,7 +3,7 @@ import type {
   SystemRoleEditResult,
   SystemRoleItem,
   SystemRoleSaveParams
-} from '@/types/recycle/system'
+} from '@/types/recycle/system/system'
 
 /** 小程序角色选项 */
 export interface ScrapRoleOption {

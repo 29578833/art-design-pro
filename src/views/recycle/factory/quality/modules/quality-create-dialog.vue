@@ -87,8 +87,9 @@
                     class="qc-toggle-btn"
                     :class="{ 'is-active is-warn': step1Form.plate_status_arr.includes(opt) }"
                     @click="togglePlateStatus(opt)"
-                    >{{ opt }}</button
                   >
+                    {{ opt }}
+                  </button>
                 </div>
               </div>
 
@@ -271,8 +272,9 @@
                 class="qc-toggle-btn qc-monitor-btn"
                 :class="{ 'is-active': step1Form.is_supervision === opt.value }"
                 @click="step1Form.is_supervision = opt.value"
-                >{{ opt.label }}</button
               >
+                {{ opt.label }}
+              </button>
             </div>
           </div>
         </div>
@@ -318,15 +320,17 @@
                         class="qc-result-btn present"
                         :class="{ active: getItemPresent(item, cat.category_name) }"
                         @click="setItemPresent(item, cat.category_name)"
-                        >有</button
                       >
+                        有
+                      </button>
                       <button
                         type="button"
                         class="qc-result-btn missing"
                         :class="{ active: getItemMissing(item, cat.category_name) }"
                         @click="setItemMissing(item, cat.category_name)"
-                        >缺</button
                       >
+                        缺
+                      </button>
                     </div>
                   </div>
                   <div v-if="isBatteryItem(item.item_name)" class="qc-item-extra">
@@ -356,8 +360,9 @@
                           'is-active': getTireMaterial(item, cat.category_name) === opt
                         }"
                         @click="setTireMaterial(item, cat.category_name, opt)"
-                        >{{ opt }}</button
                       >
+                        {{ opt }}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -400,9 +405,9 @@
             </div>
             <div class="qc-summary-card" style="background: #fff1f0">
               <div class="qc-summary-label">缺件扣款</div>
-              <div class="qc-summary-value" style="color: #ff4d4f"
-                >¥{{ totalDeduction.toFixed(2) }}</div
-              >
+              <div class="qc-summary-value" style="color: #ff4d4f">
+                ¥{{ totalDeduction.toFixed(2) }}
+              </div>
             </div>
           </div>
 
@@ -431,8 +436,9 @@
                 class="qc-conclusion-btn"
                 :style="getConclusionBtnStyle(opt)"
                 @click="conclusionType = opt.value"
-                >{{ opt.label }}</button
               >
+                {{ opt.label }}
+              </button>
             </div>
             <ElInput
               v-model="inspectorRemark"
@@ -564,7 +570,7 @@
     fetchQualityDetail
   } from '@/api/recycle/quality'
   import { ElMessage } from 'element-plus'
-  import { QC_INSPECTOR_ROLE_ID, type ScrapUserRoleItem } from '@/types/recycle/role'
+  import { QC_INSPECTOR_ROLE_ID, type ScrapUserRoleItem } from '@/types/recycle/system/role'
   import type {
     QualityQueueItem,
     QualityDetail,
@@ -577,7 +583,7 @@
     QualityCreateParams,
     QcEntryPhotoField,
     QcSignatureRole
-  } from '@/types/recycle/quality'
+  } from '@/types/recycle/factory/quality/quality'
   import {
     QC_STEP_LABELS,
     PLATE_STATUS_OPTIONS,
@@ -592,7 +598,7 @@
     QC_CONCLUSION_OPTIONS,
     isBatteryItem,
     isTireHubCategory
-  } from '@/types/recycle/quality'
+  } from '@/types/recycle/factory/quality/quality'
 
   interface Props {
     visible: boolean

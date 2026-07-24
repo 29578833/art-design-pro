@@ -59,17 +59,17 @@
 </template>
 
 <script setup lang="ts">
-  import type { ProductStoreCategory } from '@/types/recycle/product-store'
-  import { PRODUCT_STORE_CATEGORY_CONFIG } from '@/types/recycle/product-store'
+  import type { ProductStoreCategory } from '@/types/recycle/dismantle/product/product-store'
+  import { PRODUCT_STORE_CATEGORY_CONFIG } from '@/types/recycle/dismantle/product/product-store'
   import type {
     InventoryCategoryCounts,
     InventoryItemSearchParams,
     InventoryItemStatus
-  } from '@/types/recycle/inventory-item'
+  } from '@/types/recycle/warehouse/inventory/inventory-item'
   import {
     INVENTORY_CATEGORY_FILTERS,
     INVENTORY_STATUS_FILTER_OPTIONS
-  } from '@/types/recycle/inventory-item'
+  } from '@/types/recycle/warehouse/inventory/inventory-item'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

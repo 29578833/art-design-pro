@@ -38,8 +38,11 @@
 </template>
 
 <script setup lang="ts">
-  import type { MaterialSearchParams, MaterialStatus } from '@/types/recycle/material'
-  import { MATERIAL_STATUS_FILTER_OPTIONS } from '@/types/recycle/material'
+  import type {
+    MaterialSearchParams,
+    MaterialStatus
+  } from '@/types/recycle/dismantle/product/material'
+  import { MATERIAL_STATUS_FILTER_OPTIONS } from '@/types/recycle/dismantle/product/material'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

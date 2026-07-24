@@ -115,8 +115,11 @@
   import { ElMessage } from 'element-plus'
   import { fetchMaterialList, fetchMaterialStaffList } from '@/api/recycle/material'
   import { fetchPlateCreate } from '@/api/recycle/plate'
-  import type { MaterialItem, MaterialStaffOption } from '@/types/recycle/material'
-  import type { PlateVehicleType } from '@/types/recycle/plate'
+  import type {
+    MaterialItem,
+    MaterialStaffOption
+  } from '@/types/recycle/dismantle/product/material'
+  import type { PlateVehicleType } from '@/types/recycle/dismantle/work/plate'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

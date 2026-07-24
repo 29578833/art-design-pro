@@ -81,7 +81,7 @@
     ScrapVehicleDetail,
     VehicleDimStatus,
     VehicleDimStatusItem
-  } from '@/types/recycle/vehicle'
+  } from '@/types/recycle/recovery/vehicles/vehicle'
   import VehicleDetailCancelTab from './vehicle-detail-cancel-tab.vue'
   import VehicleDetailEntryTab from './vehicle-detail-entry-tab.vue'
   import VehicleDetailInfoTab from './vehicle-detail-info-tab.vue'

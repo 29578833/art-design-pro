@@ -45,7 +45,10 @@
 
 <script setup lang="ts">
   import { fetchSystemLogAdmins } from '@/api/recycle/system-log'
-  import type { SystemLogAdminOption, SystemLogSearchParams } from '@/types/recycle/system-log'
+  import type {
+    SystemLogAdminOption,
+    SystemLogSearchParams
+  } from '@/types/recycle/system/system-log'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

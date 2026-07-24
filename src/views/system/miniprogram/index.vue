@@ -74,7 +74,7 @@
 <script setup lang="ts">
   import { fetchBannerList, fetchFaqList, fetchNoticeList } from '@/api/recycle/miniprogram-config'
   import { fetchReviewList } from '@/api/recycle/miniprogram-review'
-  import type { MiniSubPage } from '@/types/recycle/miniprogram'
+  import type { MiniSubPage } from '@/types/recycle/recovery/commerce/miniprogram'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import BannerPanel from './modules/banner-panel.vue'
   import NoticePanel from './modules/notice-panel.vue'

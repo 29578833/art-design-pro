@@ -135,7 +135,7 @@
     OrderTab,
     OrderTabCount,
     RecycleOrder
-  } from '@/types/recycle/order'
+  } from '@/types/recycle/recovery/orders/order'
   import {
     getOrderDisplayNo,
     getOrderStatusText,
@@ -144,7 +144,7 @@
     isPendingFormalReview,
     isTowOrder,
     resolveOrderTypeStyle
-  } from '@/types/recycle/order'
+  } from '@/types/recycle/recovery/orders/order'
   import * as XLSX from 'xlsx'
   import OrderTabBar from './order-tab-bar.vue'
   import OrderSearch from './order-search.vue'

@@ -139,8 +139,9 @@
               :class="
                 getStepState(i) !== 'pending' ? 'fop-tl-desc--active' : 'fop-tl-desc--pending'
               "
-              >{{ step.desc }}</p
             >
+              {{ step.desc }}
+            </p>
 
             <!-- 操作日志条目 -->
             <div v-if="getStepState(i) !== 'pending' && step.logs.length" class="fop-log-list">
@@ -160,7 +161,7 @@
 
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
-  import type { OrderDetail, OrderStatusLog } from '@/types/recycle/order'
+  import type { OrderDetail, OrderStatusLog } from '@/types/recycle/recovery/orders/order'
 
   const props = defineProps<{
     detail: Partial<OrderDetail>

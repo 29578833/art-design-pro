@@ -46,7 +46,7 @@
   import type { FormInstance, FormRules, UploadRequestOptions } from 'element-plus'
   import { fetchBannerSave, fetchBannerUpdate } from '@/api/recycle/miniprogram-config'
   import { uploadFileGetUrl } from '@/api/upload'
-  import type { MiniBannerItem } from '@/types/recycle/miniprogram'
+  import type { MiniBannerItem } from '@/types/recycle/recovery/commerce/miniprogram'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

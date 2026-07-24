@@ -1,4 +1,4 @@
-import type { SettlementBillType } from '@/types/recycle/finance-settlement'
+import type { SettlementBillType } from '@/types/recycle/finance/settlement/finance-settlement'
 
 /** 可结算车辆（vehicle_list 接口原字段） */
 export interface SettlementVehicleCandidate {

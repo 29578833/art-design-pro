@@ -2,7 +2,10 @@ import { uploadFile } from '@/api/upload'
 import request from '@/utils/http'
 import { HttpError } from '@/utils/http/error'
 import { ApiStatus } from '@/utils/http/status'
-import type { DrivingLicenseOcrData, DrivingLicenseOcrResult } from '@/types/recycle/ocr'
+import type {
+  DrivingLicenseOcrData,
+  DrivingLicenseOcrResult
+} from '@/types/recycle/recovery/vehicles/ocr'
 
 const OCR_TIMEOUT = 60000
 const FUEL_TYPES = ['汽油', '柴油', '纯电动', '插电混动', '油电混动']

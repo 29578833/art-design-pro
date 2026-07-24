@@ -451,7 +451,11 @@
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchTowOrderDetail, fetchUpdateTowStatus } from '@/api/recycle/order'
-  import type { OrderDetail, OrderStatusLog, OrderVehicle } from '@/types/recycle/order'
+  import type {
+    OrderDetail,
+    OrderStatusLog,
+    OrderVehicle
+  } from '@/types/recycle/recovery/orders/order'
   import TowDriverAssignDialog from './tow-driver-assign-dialog.vue'
 
   type TabKey = 'basic' | 'progress' | 'photos'

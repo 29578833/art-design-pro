@@ -121,7 +121,7 @@
     WarehouseAreaSearchParams,
     WarehouseInboundVehicle,
     WarehouseInboundVehicleSearchParams
-  } from '@/types/recycle/warehouse-location'
+  } from '@/types/recycle/warehouse/location/warehouse-location'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import LocationAreaSearch from './modules/location-area-search.vue'
   import LocationAreaDialog from './modules/location-area-dialog.vue'

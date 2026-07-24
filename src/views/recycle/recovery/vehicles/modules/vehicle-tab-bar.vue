@@ -13,8 +13,8 @@
 </template>
 
 <script setup lang="ts">
-  import type { VehicleTab, VehicleTabCount } from '@/types/recycle/vehicle'
-  import { VEHICLE_TAB_CONFIG } from '@/types/recycle/vehicle'
+  import type { VehicleTab, VehicleTabCount } from '@/types/recycle/recovery/vehicles/vehicle'
+  import { VEHICLE_TAB_CONFIG } from '@/types/recycle/recovery/vehicles/vehicle'
 
   interface Props {
     modelValue: VehicleTab

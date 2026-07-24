@@ -4,17 +4,17 @@ import type {
   SettlementBillItem,
   SettlementBillSearchParams,
   SettlementBillStats
-} from '@/types/recycle/finance-settlement'
+} from '@/types/recycle/finance/settlement/finance-settlement'
 import type {
   SettlementBillCreatePayload,
   SettlementVehicleCandidateList
-} from '@/types/recycle/finance-settlement-candidate'
+} from '@/types/recycle/finance/settlement/finance-settlement-candidate'
 import type {
   SettlementExportBusiness,
   SettlementVehicleExportResult,
   SettlementVehicleExportRow,
   SettlementVehicleExportSearchParams
-} from '@/types/recycle/finance-settlement-export'
+} from '@/types/recycle/finance/export/finance-settlement-export'
 
 function resolvePagination(params: {
   page?: number

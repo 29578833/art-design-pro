@@ -78,10 +78,10 @@
     InventoryItem,
     InventoryItemSearchParams,
     InventoryItemStats
-  } from '@/types/recycle/inventory-item'
-  import { INVENTORY_STATUS_CONFIG } from '@/types/recycle/inventory-item'
-  import type { ProductStoreCategory } from '@/types/recycle/product-store'
-  import { PRODUCT_STORE_CATEGORY_CONFIG } from '@/types/recycle/product-store'
+  } from '@/types/recycle/warehouse/inventory/inventory-item'
+  import { INVENTORY_STATUS_CONFIG } from '@/types/recycle/warehouse/inventory/inventory-item'
+  import type { ProductStoreCategory } from '@/types/recycle/dismantle/product/product-store'
+  import { PRODUCT_STORE_CATEGORY_CONFIG } from '@/types/recycle/dismantle/product/product-store'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import InventorySearch from './modules/inventory-search.vue'
   import InventoryDetailDialog from './modules/inventory-detail-dialog.vue'

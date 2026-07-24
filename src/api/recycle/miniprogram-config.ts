@@ -6,7 +6,7 @@ import type {
   MiniFaqSaveParams,
   MiniNoticeItem,
   MiniNoticeSaveParams
-} from '@/types/recycle/miniprogram'
+} from '@/types/recycle/recovery/commerce/miniprogram'
 
 function resolvePagination(params?: {
   current?: number

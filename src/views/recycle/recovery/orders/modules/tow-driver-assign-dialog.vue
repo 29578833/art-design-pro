@@ -64,7 +64,7 @@
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchDispatchTowDriver, fetchTowDriverList } from '@/api/recycle/order'
-  import type { TowDriverRecord } from '@/types/recycle/order'
+  import type { TowDriverRecord } from '@/types/recycle/recovery/orders/order'
 
   interface Props {
     visible: boolean

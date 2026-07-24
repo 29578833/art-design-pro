@@ -4,7 +4,7 @@ import type {
   CollectPriceSearchParams,
   InspectionItem,
   InspectionItemSearchParams
-} from '@/types/recycle/system'
+} from '@/types/recycle/system/system'
 
 function resolvePagination(params?: {
   current?: number

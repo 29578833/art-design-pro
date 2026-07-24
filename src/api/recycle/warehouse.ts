@@ -9,7 +9,7 @@ import type {
   WarehouseEntryStats,
   WarehouseLocationGridArea,
   WarehouseLocationOption
-} from '@/types/recycle/warehouse'
+} from '@/types/recycle/warehouse/warehouse'
 
 function resolvePagination(params: {
   current?: number

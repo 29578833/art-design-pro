@@ -73,7 +73,7 @@
     WarehouseEntryItem,
     WarehouseEntrySearchParams,
     WarehouseEntryStats
-  } from '@/types/recycle/warehouse'
+  } from '@/types/recycle/warehouse/warehouse'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import EntrySearch from './modules/entry-search.vue'
   import EntryConfirmDialog from './modules/entry-confirm-dialog.vue'

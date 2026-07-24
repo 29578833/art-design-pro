@@ -50,9 +50,9 @@
     <!-- 报表详情 -->
     <div v-else class="report-detail">
       <div class="report-detail-bar">
-        <button type="button" class="report-back" @click="activeReport = null"
-          >← 返回报表列表</button
-        >
+        <button type="button" class="report-back" @click="activeReport = null">
+          ← 返回报表列表
+        </button>
         <span class="report-detail-sep">/</span>
         <span class="report-detail-title">{{ activeReportMeta?.label }}</span>
         <ElDatePicker
@@ -93,7 +93,7 @@
   import { ElMessage } from 'element-plus'
   import { useRouter } from 'vue-router'
   import { fetchSalesPerformance, fetchScrapSummary } from '@/api/recycle/report'
-  import type { ReportKey } from '@/types/recycle/report'
+  import type { ReportKey } from '@/types/recycle/decision/reports/report'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import ScrapSummaryPanel from './modules/scrap-summary-panel.vue'
   import SalesPerfPanel from './modules/sales-perf-panel.vue'

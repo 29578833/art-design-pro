@@ -90,7 +90,7 @@
     fetchLeadFollowPersons,
     fetchMarkLeadFollow
   } from '@/api/recycle/order'
-  import type { LeadFollowPerson } from '@/types/recycle/order'
+  import type { LeadFollowPerson } from '@/types/recycle/recovery/orders/order'
 
   interface Props {
     visible: boolean

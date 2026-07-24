@@ -3,9 +3,9 @@
     <div class="vehicle-page-header">
       <div>
         <div class="vehicle-page-title">车辆档案管理</div>
-        <div class="vehicle-page-desc"
-          >三维并行管理：拖车 · 入厂拆解 · 注销办证，独立流转互不阻塞</div
-        >
+        <div class="vehicle-page-desc">
+          三维并行管理：拖车 · 入厂拆解 · 注销办证，独立流转互不阻塞
+        </div>
       </div>
       <div class="vehicle-page-actions" />
     </div>
@@ -74,7 +74,7 @@
     VehicleStatusCounts,
     VehicleTab,
     VehicleTabCount
-  } from '@/types/recycle/vehicle'
+  } from '@/types/recycle/recovery/vehicles/vehicle'
   import VehicleTabBar from './modules/vehicle-tab-bar.vue'
   import VehicleSearch from './modules/vehicle-search.vue'
   import VehicleDetailDialog from './modules/vehicle-detail/index.vue'

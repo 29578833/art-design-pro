@@ -177,12 +177,15 @@
   import type {
     SettlementBillItem,
     SettlementBillVehicle
-  } from '@/types/recycle/finance-settlement'
+  } from '@/types/recycle/finance/settlement/finance-settlement'
   import {
     SETTLEMENT_BILL_STATUS_CONFIG,
     SETTLEMENT_BILL_TYPE_CONFIG
-  } from '@/types/recycle/finance-settlement'
-  import { resolveVehicleAttachments, type OrderAttachment } from '@/types/recycle/order'
+  } from '@/types/recycle/finance/settlement/finance-settlement'
+  import {
+    resolveVehicleAttachments,
+    type OrderAttachment
+  } from '@/types/recycle/recovery/orders/order'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import QualityReportDialog from '@/views/recycle/factory/quality/modules/quality-report-dialog.vue'
   import OrderAttachmentPreviewDialog from '@/views/recycle/recovery/orders/modules/order-attachment-preview-dialog.vue'

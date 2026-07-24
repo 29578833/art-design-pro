@@ -24,8 +24,11 @@
   import { fetchQualityQueue } from '@/api/recycle/quality'
   import type { ColumnOption } from '@/types/component'
   import { useTable } from '@/hooks/core/useTable'
-  import type { QualityQueueItem, QualityQueueParams } from '@/types/recycle/quality'
-  import { QUEUE_STATUS_CONFIG } from '@/types/recycle/quality'
+  import type {
+    QualityQueueItem,
+    QualityQueueParams
+  } from '@/types/recycle/factory/quality/quality'
+  import { QUEUE_STATUS_CONFIG } from '@/types/recycle/factory/quality/quality'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

@@ -10,7 +10,7 @@ import type {
   PlateStatus,
   PreprocessSaveParams,
   PreprocessStepOption
-} from '@/types/recycle/plate'
+} from '@/types/recycle/dismantle/work/plate'
 
 function resolvePagination(params: {
   current?: number

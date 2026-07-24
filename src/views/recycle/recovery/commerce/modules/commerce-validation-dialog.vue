@@ -66,9 +66,9 @@
     <div class="csf-footer">
       <div class="csf-footer-tip">共 {{ totalCount }} 项资料待补全</div>
       <div class="csf-footer-actions">
-        <button type="button" class="csf-btn csf-btn-close" @click="dialogVisible = false"
-          >关闭</button
-        >
+        <button type="button" class="csf-btn csf-btn-close" @click="dialogVisible = false">
+          关闭
+        </button>
         <button type="button" class="csf-btn csf-btn-edit" @click="handleEdit">
           <ArtSvgIcon icon="ri:edit-line" />
           编辑档案
@@ -89,7 +89,7 @@
 
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
-  import type { AcceptListItem } from '@/types/recycle/accept'
+  import type { AcceptListItem } from '@/types/recycle/recovery/commerce/accept'
   import type { CommerceMissingData } from '../commerce-submit-validation'
   import { countCommerceMissing } from '../commerce-submit-validation'
   import './commerce-validation-dialog.scss'

@@ -88,8 +88,8 @@
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchMaterialReturn } from '@/api/recycle/material'
   import { fetchAllWarehouseLocations } from '@/api/recycle/warehouse'
-  import type { MaterialItem } from '@/types/recycle/material'
-  import type { WarehouseLocationOption } from '@/types/recycle/warehouse'
+  import type { MaterialItem } from '@/types/recycle/dismantle/product/material'
+  import type { WarehouseLocationOption } from '@/types/recycle/warehouse/warehouse'
 
   interface Props {
     visible: boolean

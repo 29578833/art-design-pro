@@ -14,9 +14,9 @@
           </tr>
           <tr>
             <td class="f-row1" style="width: 11%">回收企业名称：</td>
-            <td class="f-row1 scdw" style="width: 52%">{{
-              certData.hsqymc || '鑫广再生资源（上海）有限公司'
-            }}</td>
+            <td class="f-row1 scdw" style="width: 52%">
+              {{ certData.hsqymc || '鑫广再生资源（上海）有限公司' }}
+            </td>
             <td class="f-row1" style="width: 11%">回收证明编号：</td>
             <td class="f-row1 hszmbh" style="width: 28%">{{ certData.hszmbh || '—' }}</td>
           </tr>
@@ -151,7 +151,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { BfdjHszmData } from '@/types/recycle/bfdj'
+  import type { BfdjHszmData } from '@/types/recycle/recovery/vehicles/bfdj'
   import QrcodeVue from 'qrcode.vue'
 
   defineOptions({ name: 'VehicleArchiveCertificateTable' })

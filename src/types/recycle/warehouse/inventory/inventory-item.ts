@@ -1,5 +1,5 @@
-import type { ProductStoreCategory } from './product-store'
-import { PRODUCT_STORE_CATEGORY_CONFIG } from './product-store'
+import type { ProductStoreCategory } from '../../dismantle/product/product-store'
+import { PRODUCT_STORE_CATEGORY_CONFIG } from '../../dismantle/product/product-store'
 
 // ==================== 库存物品 ====================
 

@@ -57,7 +57,7 @@
   import { fetchAdminDelete, fetchAdminList, fetchAdminSetStatus } from '@/api/recycle/system-admin'
   import type { ColumnOption } from '@/types/component'
   import { useTable } from '@/hooks/core/useTable'
-  import type { SystemAdminItem, SystemAdminSearchParams } from '@/types/recycle/system'
+  import type { SystemAdminItem, SystemAdminSearchParams } from '@/types/recycle/system/system'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import UserSearch from './modules/user-search.vue'
   import UserDialog from './modules/user-dialog.vue'

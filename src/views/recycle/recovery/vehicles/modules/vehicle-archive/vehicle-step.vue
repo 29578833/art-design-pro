@@ -303,9 +303,9 @@
     fetchAcceptSaveVehicle,
     fetchAcceptUploadImage
   } from '@/api/recycle/accept'
-  import type { AcceptHplx } from '@/types/recycle/accept'
+  import type { AcceptHplx } from '@/types/recycle/recovery/commerce/accept'
   import { fetchCllxCascade, fetchDataDictList } from '@/api/recycle/data-dict'
-  import type { CllxCascadeNode } from '@/types/recycle/data-dict'
+  import type { CllxCascadeNode } from '@/types/recycle/system/data-dict'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import type { CascaderOption } from 'element-plus'
   import { ElMessage } from 'element-plus'

@@ -52,7 +52,7 @@
     PartnerSearchParams,
     UserGroupOption,
     UserLevelOption
-  } from '@/types/recycle/customer'
+  } from '@/types/recycle/customers/customer'
 
   interface Props {
     modelValue: PartnerSearchParams

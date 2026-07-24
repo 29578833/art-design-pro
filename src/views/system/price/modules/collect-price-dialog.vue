@@ -88,7 +88,7 @@
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchCollectPriceSave, fetchCollectPriceUpdate } from '@/api/recycle/price-config'
-  import type { CollectPriceItem } from '@/types/recycle/system'
+  import type { CollectPriceItem } from '@/types/recycle/system/system'
 
   /** 收车价格车辆类型：与后端 scrap_collect_price 注释一致 */
   const VEHICLE_TYPE_OPTIONS = [

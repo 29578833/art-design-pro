@@ -19,8 +19,8 @@
 </template>
 
 <script setup lang="ts">
-  import type { GradeStatItem } from '@/types/recycle/customer'
-  import { resolveLevelStyle } from '@/types/recycle/customer'
+  import type { GradeStatItem } from '@/types/recycle/customers/customer'
+  import { resolveLevelStyle } from '@/types/recycle/customers/customer'
 
   interface Props {
     stats: GradeStatItem[]

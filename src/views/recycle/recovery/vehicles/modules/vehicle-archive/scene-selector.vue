@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { AcceptHplx, AcceptSyq } from '@/types/recycle/accept'
+  import type { AcceptHplx, AcceptSyq } from '@/types/recycle/recovery/commerce/accept'
   import type { ArchiveSceneOption } from './types'
 
   defineOptions({ name: 'VehicleArchiveSceneSelector' })

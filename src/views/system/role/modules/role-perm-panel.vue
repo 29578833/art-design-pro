@@ -57,7 +57,7 @@
 
 <script setup lang="ts">
   import type { CheckboxValueType } from 'element-plus'
-  import type { SystemRoleMenuNode } from '@/types/recycle/system'
+  import type { SystemRoleMenuNode } from '@/types/recycle/system/system'
 
   const props = defineProps<{
     menus: SystemRoleMenuNode[]

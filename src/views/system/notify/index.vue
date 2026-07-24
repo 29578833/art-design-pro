@@ -62,7 +62,7 @@
   import type {
     NotificationChannelType,
     SystemNotificationItem
-  } from '@/types/recycle/system-notification'
+  } from '@/types/recycle/system/system-notification'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import NotifyEditDialog from './modules/notify-edit-dialog.vue'
 

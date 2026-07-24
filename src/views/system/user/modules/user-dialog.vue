@@ -89,7 +89,7 @@
     SystemAdminSaveParams,
     SystemAdminStatus,
     SystemRoleItem
-  } from '@/types/recycle/system'
+  } from '@/types/recycle/system/system'
 
   interface Props {
     visible: boolean

@@ -18,16 +18,5 @@ export interface DrivingLicenseOcrData {
   approved_load?: string
   overall_dimensions?: string
   towing_capacity?: string
-  remarks?: string
-  inspection_record?: string
-  register_no?: string
-  status?: number
-}
-
-export interface DrivingLicenseOcrResult {
-  success: boolean
-  message: string
-  data?: DrivingLicenseOcrData
-  image_url?: string
-  vin_valid?: boolean
+  [key: string]: unknown
 }

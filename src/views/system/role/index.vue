@@ -107,7 +107,7 @@
     fetchSystemRoleSave,
     type ScrapRoleOption
   } from '@/api/recycle/system-role'
-  import type { SystemRoleItem, SystemRoleMenuNode } from '@/types/recycle/system'
+  import type { SystemRoleItem, SystemRoleMenuNode } from '@/types/recycle/system/system'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import RoleAddDialog from './modules/role-add-dialog.vue'
   import RolePermPanel from './modules/role-perm-panel.vue'

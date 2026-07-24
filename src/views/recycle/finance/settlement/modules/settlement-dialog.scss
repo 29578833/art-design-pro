@@ -256,6 +256,11 @@
       color: #4169ff;
     }
   }
+
+  .fs-create-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #f3f4f6;
+  }
 }
 
 .fs-create-header {
@@ -347,6 +352,10 @@
   overflow: hidden;
 }
 
+:deep(.el-input-number--small) {
+  width: 100% !important;
+}
+
 .fs-create-table {
   width: 100%;
   min-width: 1100px;
@@ -374,10 +383,6 @@
   .fs-plate {
     font-weight: 600;
     color: #4169ff;
-  }
-
-  :deep(.el-input-number--small) {
-    width: 100% !important;
   }
 
   .fs-edit-cell :deep(.el-input__wrapper) {

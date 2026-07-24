@@ -4,7 +4,7 @@ import type {
   SystemNotificationInfo,
   SystemNotificationItem,
   SystemNotificationSaveParams
-} from '@/types/recycle/system-notification'
+} from '@/types/recycle/system/system-notification'
 
 /** 按 type 拉取单次通知列表 */
 async function fetchNotificationListByType(type: number | string) {

@@ -1,5 +1,5 @@
 import request from '@/utils/http'
-import type { OrderAttachment, SignatureTemplate } from '@/types/recycle/order'
+import type { OrderAttachment, SignatureTemplate } from '@/types/recycle/recovery/orders/order'
 
 /** 签名模板列表 */
 export function fetchSignTemplates(): Promise<SignatureTemplate[]> {

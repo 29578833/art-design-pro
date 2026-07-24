@@ -204,8 +204,8 @@
     AcceptListItem,
     AcceptListParams,
     AcceptSubmitResult
-  } from '@/types/recycle/accept'
-  import type { ScrapVehicle } from '@/types/recycle/vehicle'
+  } from '@/types/recycle/recovery/commerce/accept'
+  import type { ScrapVehicle } from '@/types/recycle/recovery/vehicles/vehicle'
   import { ElMessage, ElTag } from 'element-plus'
   import VehicleArchiveEditDialog from '../vehicles/modules/vehicle-archive-edit-dialog.vue'
   import SubmitResultDialog from '../vehicles/modules/vehicle-archive/submit-result-dialog.vue'

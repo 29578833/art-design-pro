@@ -49,7 +49,7 @@
   import type {
     WarehouseAreaOverviewItem,
     WarehouseAreaSaveParams
-  } from '@/types/recycle/warehouse-location'
+  } from '@/types/recycle/warehouse/location/warehouse-location'
 
   interface Props {
     visible: boolean

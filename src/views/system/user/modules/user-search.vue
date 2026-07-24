@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { SystemAdminSearchParams } from '@/types/recycle/system'
+  import type { SystemAdminSearchParams } from '@/types/recycle/system/system'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

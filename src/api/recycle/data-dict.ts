@@ -6,8 +6,8 @@ import type {
   DataDictSaveParams,
   DataDictSearchParams,
   DataDictStatus
-} from '@/types/recycle/system'
-import type { CllxCascadeNode } from '@/types/recycle/data-dict'
+} from '@/types/recycle/system/system'
+import type { CllxCascadeNode } from '@/types/recycle/system/data-dict'
 
 function resolvePagination(params?: {
   current?: number

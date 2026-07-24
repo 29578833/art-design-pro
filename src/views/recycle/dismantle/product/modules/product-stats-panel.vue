@@ -42,11 +42,11 @@
 </template>
 
 <script setup lang="ts">
-  import type { ProductStoreStats } from '@/types/recycle/product-store'
+  import type { ProductStoreStats } from '@/types/recycle/dismantle/product/product-store'
   import {
     PRODUCT_STORE_CATEGORY_CONFIG,
     type ProductStoreCategory
-  } from '@/types/recycle/product-store'
+  } from '@/types/recycle/dismantle/product/product-store'
 
   interface Props {
     stats: ProductStoreStats

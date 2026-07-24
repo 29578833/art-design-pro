@@ -6,7 +6,7 @@ import type {
   WarehouseInboundVehicle,
   WarehouseInboundVehicleSearchParams,
   WarehouseLocationStats
-} from '@/types/recycle/warehouse-location'
+} from '@/types/recycle/warehouse/location/warehouse-location'
 
 function resolvePagination(params: {
   current?: number

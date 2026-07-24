@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { SettlementBillSearchParams } from '@/types/recycle/finance-settlement'
+  import type { SettlementBillSearchParams } from '@/types/recycle/finance/settlement/finance-settlement'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   const props = defineProps<{

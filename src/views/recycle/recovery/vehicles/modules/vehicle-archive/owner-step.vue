@@ -125,7 +125,7 @@
     fetchAcceptSaveOwner,
     fetchAcceptUploadImage
   } from '@/api/recycle/accept'
-  import type { AcceptHplx, AcceptSyq } from '@/types/recycle/accept'
+  import type { AcceptHplx, AcceptSyq } from '@/types/recycle/recovery/commerce/accept'
   import { fetchDataDictList } from '@/api/recycle/data-dict'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { ElMessage } from 'element-plus'

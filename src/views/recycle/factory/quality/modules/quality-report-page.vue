@@ -24,8 +24,11 @@
   import { fetchQualityReportList } from '@/api/recycle/quality'
   import type { ColumnOption } from '@/types/component'
   import { useTable } from '@/hooks/core/useTable'
-  import type { QualityReportItem, QualitySearchParams } from '@/types/recycle/quality'
-  import { QC_RESULT_CONFIG } from '@/types/recycle/quality'
+  import type {
+    QualityReportItem,
+    QualitySearchParams
+  } from '@/types/recycle/factory/quality/quality'
+  import { QC_RESULT_CONFIG } from '@/types/recycle/factory/quality/quality'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

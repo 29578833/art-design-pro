@@ -73,12 +73,12 @@
     QualitySearchParams,
     QueueStatus,
     QcResult
-  } from '@/types/recycle/quality'
+  } from '@/types/recycle/factory/quality/quality'
   import {
     QUALITY_TAB_CONFIG,
     QUEUE_STATUS_FILTER_OPTIONS,
     QC_RESULT_FILTER_OPTIONS
-  } from '@/types/recycle/quality'
+  } from '@/types/recycle/factory/quality/quality'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

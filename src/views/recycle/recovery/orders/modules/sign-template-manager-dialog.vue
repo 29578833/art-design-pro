@@ -42,7 +42,7 @@
           <!-- 信息 -->
           <div class="stm-info">
             <p class="stm-name">{{ tpl.name || '未命名模板' }}</p>
-            <p v-if="tpl.add_time" class="stm-time"> 创建时间：{{ formatTime(tpl.add_time) }} </p>
+            <p v-if="tpl.add_time" class="stm-time">创建时间：{{ formatTime(tpl.add_time) }}</p>
           </div>
 
           <!-- 删除 -->
@@ -76,7 +76,7 @@
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchSignTemplates, fetchDeleteTemplate } from '@/api/recycle/sign'
-  import type { SignatureTemplate } from '@/types/recycle/order'
+  import type { SignatureTemplate } from '@/types/recycle/recovery/orders/order'
 
   interface Props {
     visible: boolean

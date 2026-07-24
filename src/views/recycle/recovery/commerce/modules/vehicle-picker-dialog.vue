@@ -80,7 +80,7 @@
 <script setup lang="ts">
   import { fetchVehicleList } from '@/api/recycle/vehicle'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
-  import type { ScrapVehicle } from '@/types/recycle/vehicle'
+  import type { ScrapVehicle } from '@/types/recycle/recovery/vehicles/vehicle'
 
   const props = defineProps<{ visible: boolean }>()
   const emit = defineEmits<{

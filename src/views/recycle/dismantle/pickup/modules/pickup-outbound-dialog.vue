@@ -78,9 +78,11 @@
 
           <div v-if="!filteredVehicles.length" class="pickup-vehicle-empty">
             <ArtSvgIcon icon="ri:inbox-line" class="pickup-empty-icon" />
-            <p>{{
-              pendingVehicles.length === 0 ? '暂无待领料车辆' : '未找到匹配车辆，请调整搜索条件'
-            }}</p>
+            <p>
+              {{
+                pendingVehicles.length === 0 ? '暂无待领料车辆' : '未找到匹配车辆，请调整搜索条件'
+              }}
+            </p>
           </div>
 
           <div v-else class="pickup-vehicle-items">
@@ -212,7 +214,10 @@
     fetchMaterialList,
     fetchMaterialStaffList
   } from '@/api/recycle/material'
-  import type { MaterialItem, MaterialStaffOption } from '@/types/recycle/material'
+  import type {
+    MaterialItem,
+    MaterialStaffOption
+  } from '@/types/recycle/dismantle/product/material'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

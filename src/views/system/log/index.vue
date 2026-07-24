@@ -37,7 +37,7 @@
   import { fetchSystemLogList } from '@/api/recycle/system-log'
   import type { ColumnOption } from '@/types/component'
   import { useTable } from '@/hooks/core/useTable'
-  import type { SystemLogItem, SystemLogSearchParams } from '@/types/recycle/system-log'
+  import type { SystemLogItem, SystemLogSearchParams } from '@/types/recycle/system/system-log'
   import LogSearch from './modules/log-search.vue'
 
   defineOptions({ name: 'SystemLog' })

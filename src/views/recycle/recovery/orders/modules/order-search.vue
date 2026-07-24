@@ -171,7 +171,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { OrderSearchParams, OrderTab } from '@/types/recycle/order'
+  import type { OrderSearchParams, OrderTab } from '@/types/recycle/recovery/orders/order'
 
   interface Props {
     modelValue: OrderSearchParams

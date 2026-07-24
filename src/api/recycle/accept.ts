@@ -17,8 +17,8 @@ import type {
   AcceptSubmitResult,
   AcceptSyncFiles,
   AcceptUploadResult
-} from '@/types/recycle/accept'
-import type { DrivingLicenseOcrData } from '@/types/recycle/ocr'
+} from '@/types/recycle/recovery/commerce/accept'
+import type { DrivingLicenseOcrData } from '@/types/recycle/recovery/vehicles/ocr'
 
 function resolvePagination(params: AcceptListParams) {
   return {

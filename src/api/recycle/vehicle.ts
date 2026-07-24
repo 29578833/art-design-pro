@@ -7,8 +7,8 @@ import type {
   VehicleStatusCounts,
   VehicleTab,
   VehicleTabCount
-} from '@/types/recycle/vehicle'
-import { VEHICLE_TAB_CONFIG } from '@/types/recycle/vehicle'
+} from '@/types/recycle/recovery/vehicles/vehicle'
+import { VEHICLE_TAB_CONFIG } from '@/types/recycle/recovery/vehicles/vehicle'
 
 function resolvePagination(params: VehicleSearchParams) {
   return {

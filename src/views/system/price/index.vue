@@ -113,7 +113,7 @@
   } from '@/api/recycle/price-config'
   import type { ColumnOption } from '@/types/component'
   import { useTable } from '@/hooks/core/useTable'
-  import type { CollectPriceItem, InspectionItem } from '@/types/recycle/system'
+  import type { CollectPriceItem, InspectionItem } from '@/types/recycle/system/system'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import CollectPriceDialog from './modules/collect-price-dialog.vue'
 

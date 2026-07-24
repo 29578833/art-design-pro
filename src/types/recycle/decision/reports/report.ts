@@ -56,8 +56,4 @@ export interface DecisionStatistics {
 
 /** 报表卡片 key */
 export type ReportKey =
-  | 'vehicle-summary'
-  | 'dismantle-output'
-  | 'settlement-summary'
-  | 'salesman-perf'
-  | 'waste-stat'
+  'vehicle-summary' | 'dismantle-output' | 'settlement-summary' | 'salesman-perf' | 'waste-stat'

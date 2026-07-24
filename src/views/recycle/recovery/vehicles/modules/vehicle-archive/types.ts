@@ -1,4 +1,4 @@
-import type { AcceptHplx, AcceptSyq } from '@/types/recycle/accept'
+import type { AcceptHplx, AcceptSyq } from '@/types/recycle/recovery/commerce/accept'
 
 /** 下拉字典选项。 */
 export interface ArchiveDictOption {

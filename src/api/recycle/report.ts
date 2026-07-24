@@ -4,7 +4,7 @@ import type {
   ReportDateParams,
   SalesPerformanceResult,
   ScrapSummaryResult
-} from '@/types/recycle/report'
+} from '@/types/recycle/decision/reports/report'
 
 /** 收车汇总报表 */
 export function fetchScrapSummary(params?: ReportDateParams) {

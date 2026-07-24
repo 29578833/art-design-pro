@@ -52,11 +52,14 @@
 <script setup lang="ts">
   import { ElMessageBox } from 'element-plus'
   import { fetchSaleOutboundApprove, fetchSaleOutboundComplete } from '@/api/recycle/sale-outbound'
-  import type { SaleOutboundItem, SaleOutboundType } from '@/types/recycle/sale-outbound'
+  import type {
+    SaleOutboundItem,
+    SaleOutboundType
+  } from '@/types/recycle/warehouse/outbound/sale-outbound'
   import {
     SALE_OUTBOUND_STATUS_CONFIG,
     SALE_OUTBOUND_TYPE_CONFIG
-  } from '@/types/recycle/sale-outbound'
+  } from '@/types/recycle/warehouse/outbound/sale-outbound'
 
   interface Props {
     visible: boolean

@@ -240,7 +240,7 @@
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchPreviewOrderAttachment, fetchUploadSignedAttachment } from '@/api/recycle/order'
   import { uploadFileGetUrl } from '@/api/upload'
-  import type { OrderAttachment } from '@/types/recycle/order'
+  import type { OrderAttachment } from '@/types/recycle/recovery/orders/order'
   import SignCanvasDialog from './sign-canvas-dialog.vue'
 
   const props = withDefaults(

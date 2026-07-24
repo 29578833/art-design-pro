@@ -104,8 +104,8 @@
   import { ElMessage } from 'element-plus'
   import { fetchSettlementBillPay } from '@/api/recycle/finance-settlement'
   import { uploadFileGetUrl } from '@/api/upload'
-  import type { SettlementBillItem } from '@/types/recycle/finance-settlement'
-  import { SETTLEMENT_BILL_TYPE_CONFIG } from '@/types/recycle/finance-settlement'
+  import type { SettlementBillItem } from '@/types/recycle/finance/settlement/finance-settlement'
+  import { SETTLEMENT_BILL_TYPE_CONFIG } from '@/types/recycle/finance/settlement/finance-settlement'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   const props = defineProps<{

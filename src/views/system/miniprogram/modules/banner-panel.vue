@@ -78,7 +78,7 @@
     fetchBannerSort,
     fetchBannerUpdate
   } from '@/api/recycle/miniprogram-config'
-  import type { MiniBannerItem } from '@/types/recycle/miniprogram'
+  import type { MiniBannerItem } from '@/types/recycle/recovery/commerce/miniprogram'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import BannerDialog from './banner-dialog.vue'
 

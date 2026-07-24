@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { RecycleOrder } from '@/types/recycle/order'
+  import type { RecycleOrder } from '@/types/recycle/recovery/orders/order'
   import {
     isLeadAssigned,
     isLeadOrder,
@@ -23,7 +23,7 @@
     isLeadViewed,
     isPendingFormalReview,
     isTowOrder
-  } from '@/types/recycle/order'
+  } from '@/types/recycle/recovery/orders/order'
 
   export interface OrderActionEvent {
     (e: 'view', row: RecycleOrder): void

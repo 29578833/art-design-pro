@@ -131,8 +131,11 @@
     RecyclePartner,
     UserGroupOption,
     UserLevelOption
-  } from '@/types/recycle/customer'
-  import { PARTNER_STATUS_CONFIG, resolvePartnerTypeFromGroup } from '@/types/recycle/customer'
+  } from '@/types/recycle/customers/customer'
+  import {
+    PARTNER_STATUS_CONFIG,
+    resolvePartnerTypeFromGroup
+  } from '@/types/recycle/customers/customer'
   import type { DialogType } from '@/types'
   import type { FormInstance, FormRules } from 'element-plus'
 

@@ -1,5 +1,5 @@
 import request from '@/utils/http'
-import type { ScrapUserRoleItem, ScrapUserRoleListParams } from '@/types/recycle/role'
+import type { ScrapUserRoleItem, ScrapUserRoleListParams } from '@/types/recycle/system/role'
 
 /** 用户角色关联列表 */
 export async function fetchUserRoleList(params: ScrapUserRoleListParams) {

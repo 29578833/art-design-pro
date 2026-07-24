@@ -52,8 +52,8 @@
     fetchFaqUpdate
   } from '@/api/recycle/miniprogram-config'
   import type { ColumnOption } from '@/types/component'
-  import type { MiniFaqItem } from '@/types/recycle/miniprogram'
-  import { FAQ_CATEGORIES } from '@/types/recycle/miniprogram'
+  import type { MiniFaqItem } from '@/types/recycle/recovery/commerce/miniprogram'
+  import { FAQ_CATEGORIES } from '@/types/recycle/recovery/commerce/miniprogram'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import FaqDialog from './faq-dialog.vue'
 

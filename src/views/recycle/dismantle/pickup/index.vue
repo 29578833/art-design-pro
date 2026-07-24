@@ -83,8 +83,12 @@
   } from '@/api/recycle/material'
   import type { ColumnOption } from '@/types/component'
   import { useTable } from '@/hooks/core/useTable'
-  import type { MaterialItem, MaterialSearchParams, MaterialStats } from '@/types/recycle/material'
-  import { MATERIAL_STATUS_CONFIG } from '@/types/recycle/material'
+  import type {
+    MaterialItem,
+    MaterialSearchParams,
+    MaterialStats
+  } from '@/types/recycle/dismantle/product/material'
+  import { MATERIAL_STATUS_CONFIG } from '@/types/recycle/dismantle/product/material'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import PickupSearch from './modules/pickup-search.vue'
   import PickupOutboundDialog from './modules/pickup-outbound-dialog.vue'

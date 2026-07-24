@@ -6,9 +6,13 @@ import {
   fetchAcceptSubmitResult,
   fetchAcceptSyncFiles
 } from '@/api/recycle/accept'
-import type { AcceptHplx, AcceptSubmitResult, AcceptSyq } from '@/types/recycle/accept'
+import type {
+  AcceptHplx,
+  AcceptSubmitResult,
+  AcceptSyq
+} from '@/types/recycle/recovery/commerce/accept'
 import { fetchVehicleDetail } from '@/api/recycle/vehicle'
-import type { ScrapVehicle } from '@/types/recycle/vehicle'
+import type { ScrapVehicle } from '@/types/recycle/recovery/vehicles/vehicle'
 import { ElMessage } from 'element-plus'
 import type AgentStep from './agent-step.vue'
 import type MaterialsStep from './materials-step.vue'

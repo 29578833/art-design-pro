@@ -36,7 +36,7 @@
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchDataDictCategorySave } from '@/api/recycle/data-dict'
-  import type { DataDictCategory } from '@/types/recycle/system'
+  import type { DataDictCategory } from '@/types/recycle/system/system'
 
   interface Props {
     visible: boolean

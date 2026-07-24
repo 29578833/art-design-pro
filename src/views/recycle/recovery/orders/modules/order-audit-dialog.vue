@@ -181,7 +181,7 @@
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchAuditOrder, fetchOrderDetail } from '@/api/recycle/order'
-  import type { OrderDetail, OrderVehicle } from '@/types/recycle/order'
+  import type { OrderDetail, OrderVehicle } from '@/types/recycle/recovery/orders/order'
 
   interface Props {
     visible: boolean

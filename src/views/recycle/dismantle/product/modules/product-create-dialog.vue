@@ -159,9 +159,9 @@
     ProductStoreCategory,
     ProductStoreCreateItem,
     ProductStoreOperator
-  } from '@/types/recycle/product-store'
-  import { PRODUCT_STORE_CATEGORY_CONFIG } from '@/types/recycle/product-store'
-  import type { WarehouseLocationOption } from '@/types/recycle/warehouse'
+  } from '@/types/recycle/dismantle/product/product-store'
+  import { PRODUCT_STORE_CATEGORY_CONFIG } from '@/types/recycle/dismantle/product/product-store'
+  import type { WarehouseLocationOption } from '@/types/recycle/warehouse/warehouse'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

@@ -6,7 +6,7 @@ import type {
   SystemAdminSearchParams,
   SystemAdminStatus,
   SystemRoleItem
-} from '@/types/recycle/system'
+} from '@/types/recycle/system/system'
 
 /** FormBuilder 单条规则 */
 interface FormBuilderRule {

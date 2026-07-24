@@ -101,7 +101,7 @@
   import { ElMessage } from 'element-plus'
   import { useRouter } from 'vue-router'
   import { fetchDecisionStatistics } from '@/api/recycle/report'
-  import type { DecisionStatistics } from '@/types/recycle/report'
+  import type { DecisionStatistics } from '@/types/recycle/decision/reports/report'
   import ArtLineChart from '@/components/core/charts/art-line-chart/index.vue'
 
   defineOptions({ name: 'RecycleDecisionTrends' })

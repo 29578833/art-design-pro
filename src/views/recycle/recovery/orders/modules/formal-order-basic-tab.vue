@@ -7,9 +7,9 @@
         <ElCol :span="8">
           <div class="fob-item">
             <div class="fob-label">订单编号</div>
-            <div class="fob-value fob-value--mono fob-value--primary">{{
-              detail.order_no || '—'
-            }}</div>
+            <div class="fob-value fob-value--mono fob-value--primary">
+              {{ detail.order_no || '—' }}
+            </div>
           </div>
         </ElCol>
         <ElCol :span="8">
@@ -65,9 +65,9 @@
         <ElCol :span="8">
           <div class="fob-item">
             <div class="fob-label">车牌号</div>
-            <div class="fob-value fob-value--bold fob-value--plate">{{
-              currentVehicle?.plate_no || '—'
-            }}</div>
+            <div class="fob-value fob-value--bold fob-value--plate">
+              {{ currentVehicle?.plate_no || '—' }}
+            </div>
           </div>
         </ElCol>
         <ElCol :span="8">
@@ -336,7 +336,7 @@
 
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
-  import type { OrderDetail, OrderStatusLog } from '@/types/recycle/order'
+  import type { OrderDetail, OrderStatusLog } from '@/types/recycle/recovery/orders/order'
 
   defineOptions({ name: 'FormalOrderBasicTab' })
 

@@ -77,8 +77,8 @@
     RecyclePartner,
     UserGroupOption,
     UserLevelOption
-  } from '@/types/recycle/customer'
-  import { resolveLevelStyle } from '@/types/recycle/customer'
+  } from '@/types/recycle/customers/customer'
+  import { resolveLevelStyle } from '@/types/recycle/customers/customer'
   import type { DialogType } from '@/types'
   import * as XLSX from 'xlsx'
   import CustomerSearch from './modules/customer-search.vue'

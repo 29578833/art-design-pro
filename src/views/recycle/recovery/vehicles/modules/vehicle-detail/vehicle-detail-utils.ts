@@ -1,5 +1,9 @@
-import type { AcceptSyncFiles } from '@/types/recycle/accept'
-import type { ScrapVehicleDetail, VehicleDimStatus, VehicleFlowStep } from '@/types/recycle/vehicle'
+import type { AcceptSyncFiles } from '@/types/recycle/recovery/commerce/accept'
+import type {
+  ScrapVehicleDetail,
+  VehicleDimStatus,
+  VehicleFlowStep
+} from '@/types/recycle/recovery/vehicles/vehicle'
 
 /** 对齐 xinguang_api ScrapVehicleServices 状态常量 */
 const VEHICLE_STATUS = {

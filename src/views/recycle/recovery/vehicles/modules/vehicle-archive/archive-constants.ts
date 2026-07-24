@@ -1,4 +1,4 @@
-import type { AcceptHplx, AcceptSyq } from '@/types/recycle/accept'
+import type { AcceptHplx, AcceptSyq } from '@/types/recycle/recovery/commerce/accept'
 import type { ArchiveDictOption, ArchivePhotoItem, ArchiveSceneOption } from './types'
 
 /** 车辆属地选项。 */

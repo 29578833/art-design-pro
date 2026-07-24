@@ -4,9 +4,9 @@
     <div v-if="factorySteps.length" class="vd-v20-list">
       <div v-for="(step, idx) in factorySteps" :key="idx" class="vd-v20-card" :class="step.state">
         <div class="vd-v20-left">
-          <div class="vd-v20-circle" :class="step.state">{{
-            step.state === 'done' ? '✓' : idx + 1
-          }}</div>
+          <div class="vd-v20-circle" :class="step.state">
+            {{ step.state === 'done' ? '✓' : idx + 1 }}
+          </div>
           <div class="vd-v20-text">
             <div class="vd-v20-title-row">
               <span class="vd-v20-title" :class="{ muted: step.state === 'pending' }">{{
@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { ScrapVehicleDetail } from '@/types/recycle/vehicle'
+  import type { ScrapVehicleDetail } from '@/types/recycle/recovery/vehicles/vehicle'
   import { buildFactorySteps } from './vehicle-detail-utils'
 
   defineOptions({ name: 'VehicleDetailEntryTab' })

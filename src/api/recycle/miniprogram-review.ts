@@ -3,7 +3,7 @@ import type {
   MiniReviewItem,
   MiniReviewSearchParams,
   MiniReviewStats
-} from '@/types/recycle/miniprogram'
+} from '@/types/recycle/recovery/commerce/miniprogram'
 
 function resolvePagination(params?: MiniReviewSearchParams) {
   return {

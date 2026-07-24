@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { VehicleSearchParams } from '@/types/recycle/vehicle'
+  import type { VehicleSearchParams } from '@/types/recycle/recovery/vehicles/vehicle'
 
   interface Props {
     modelValue: VehicleSearchParams

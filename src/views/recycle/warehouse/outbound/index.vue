@@ -77,11 +77,11 @@
     SaleOutboundSearchParams,
     SaleOutboundStats,
     SaleOutboundType
-  } from '@/types/recycle/sale-outbound'
+  } from '@/types/recycle/warehouse/outbound/sale-outbound'
   import {
     SALE_OUTBOUND_STATUS_CONFIG,
     SALE_OUTBOUND_TYPE_CONFIG
-  } from '@/types/recycle/sale-outbound'
+  } from '@/types/recycle/warehouse/outbound/sale-outbound'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import OutboundSearch from './modules/outbound-search.vue'
   import OutboundCreateDialog from './modules/outbound-create-dialog.vue'

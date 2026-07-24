@@ -5,7 +5,7 @@ import type {
   ProductStoreOperator,
   ProductStoreSearchParams,
   ProductStoreStats
-} from '@/types/recycle/product-store'
+} from '@/types/recycle/dismantle/product/product-store'
 
 function resolvePagination(params: {
   current?: number

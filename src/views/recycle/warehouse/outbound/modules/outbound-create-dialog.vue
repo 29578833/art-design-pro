@@ -182,9 +182,12 @@
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchInventoryItemList } from '@/api/recycle/inventory-item'
   import { fetchSaleOutboundCreate } from '@/api/recycle/sale-outbound'
-  import type { InventoryItem } from '@/types/recycle/inventory-item'
-  import type { SaleOutboundCreateParams, SaleOutboundType } from '@/types/recycle/sale-outbound'
-  import { SALE_OUTBOUND_TYPE_CONFIG } from '@/types/recycle/sale-outbound'
+  import type { InventoryItem } from '@/types/recycle/warehouse/inventory/inventory-item'
+  import type {
+    SaleOutboundCreateParams,
+    SaleOutboundType
+  } from '@/types/recycle/warehouse/outbound/sale-outbound'
+  import { SALE_OUTBOUND_TYPE_CONFIG } from '@/types/recycle/warehouse/outbound/sale-outbound'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

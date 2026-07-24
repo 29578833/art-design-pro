@@ -251,9 +251,9 @@
             <div v-if="form.is_deal === false" class="deal-hint">
               选择「否」后，所有信息字段均为非必填项，可直接保存为意向订单
             </div>
-            <div v-else-if="form.is_deal === null" class="deal-empty-hint"
-              >请选择成交状态后继续下一步</div
-            >
+            <div v-else-if="form.is_deal === null" class="deal-empty-hint">
+              请选择成交状态后继续下一步
+            </div>
           </div>
         </div>
 
@@ -309,9 +309,9 @@
                   行驶证智能识别
                   <span class="ocr-text-hint">（可选）</span>
                 </div>
-                <div class="ocr-text-desc"
-                  >上传行驶证图片，系统自动识别并填充车辆和回收用户信息</div
-                >
+                <div class="ocr-text-desc">
+                  上传行驶证图片，系统自动识别并填充车辆和回收用户信息
+                </div>
               </div>
               <div v-if="ocrDone" class="ocr-success">
                 <ArtSvgIcon icon="ri:check-line" />
@@ -345,9 +345,9 @@
             <div v-if="!form.vehicles.length" class="vehicle-empty">
               <ArtSvgIcon icon="ri:car-line" class="vehicle-empty-icon" />
               <div class="vehicle-empty-text">暂未添加车辆档案</div>
-              <div class="vehicle-empty-hint"
-                >点击"添加车辆"按钮录入车辆，或先提交订单后续编辑补充</div
-              >
+              <div class="vehicle-empty-hint">
+                点击"添加车辆"按钮录入车辆，或先提交订单后续编辑补充
+              </div>
               <button type="button" class="btn-add-vehicle" @click="addVehicle">
                 <ArtSvgIcon icon="ri:add-line" />
                 添加第一辆车
@@ -680,11 +680,11 @@
   } from '@/api/recycle/ocr'
   import { fetchPartnerList } from '@/api/recycle/customer'
   import { fetchSaveOrder } from '@/api/recycle/order'
-  import type { CustomerGrade } from '@/types/recycle/customer'
-  import type { DrivingLicenseOcrData } from '@/types/recycle/ocr'
+  import type { CustomerGrade } from '@/types/recycle/customers/customer'
+  import type { DrivingLicenseOcrData } from '@/types/recycle/recovery/vehicles/ocr'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import CustomerDialog from '@/views/recycle/customers/modules/customer-dialog.vue'
-  import type { OrderSavePayload, RecycleOrder } from '@/types/recycle/order'
+  import type { OrderSavePayload, RecycleOrder } from '@/types/recycle/recovery/orders/order'
 
   interface VehicleFormItem {
     _id: string

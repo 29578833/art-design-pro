@@ -19,12 +19,7 @@ export interface SystemNotificationItem {
 
 /** 通知渠道字段名 */
 export type NotificationChannelType =
-  | 'is_system'
-  | 'is_sms'
-  | 'is_wechat'
-  | 'is_routine'
-  | 'is_app'
-  | 'is_ent_wechat'
+  'is_system' | 'is_sms' | 'is_wechat' | 'is_routine' | 'is_app' | 'is_ent_wechat'
 
 /** 通知详情（info 接口） */
 export interface SystemNotificationInfo extends SystemNotificationItem {

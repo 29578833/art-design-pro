@@ -10,8 +10,8 @@ import type {
   OrderTabCount,
   RecycleOrder,
   TowDriverRecord
-} from '@/types/recycle/order'
-import { ORDER_TAB_CONFIG } from '@/types/recycle/order'
+} from '@/types/recycle/recovery/orders/order'
+import { ORDER_TAB_CONFIG } from '@/types/recycle/recovery/orders/order'
 
 function resolvePagination(params: OrderSearchParams) {
   return {
@@ -216,7 +216,9 @@ export function fetchMarkLeadFollow(id: number) {
 
 /** 获取跟进人列表 */
 export async function fetchLeadFollowPersons(keyword = '') {
-  const res = await request.get<{ list: import('@/types/recycle/order').LeadFollowPerson[] }>({
+  const res = await request.get<{
+    list: import('@/types/recycle/recovery/orders/order').LeadFollowPerson[]
+  }>({
     url: '/scrap/lead/follow_persons',
     params: { keyword, page: 1, limit: 50 }
   })

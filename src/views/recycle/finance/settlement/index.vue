@@ -93,12 +93,12 @@
     SettlementBillNavTab,
     SettlementBillSearchParams,
     SettlementBillType
-  } from '@/types/recycle/finance-settlement'
+  } from '@/types/recycle/finance/settlement/finance-settlement'
   import {
     SETTLEMENT_BILL_NAV_TABS,
     SETTLEMENT_BILL_STATUS_CONFIG,
     SETTLEMENT_BILL_TYPE_CONFIG
-  } from '@/types/recycle/finance-settlement'
+  } from '@/types/recycle/finance/settlement/finance-settlement'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import SettlementSearch from './modules/settlement-search.vue'
   import SettlementDetailDialog from './modules/settlement-detail-dialog.vue'

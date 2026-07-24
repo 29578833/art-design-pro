@@ -3,7 +3,7 @@ import type {
   MiniAgreementItem,
   MiniAgreementSaveParams,
   MiniAgreementType
-} from '@/types/recycle/miniprogram'
+} from '@/types/recycle/recovery/commerce/miniprogram'
 
 /** 获取协议内容 */
 export function fetchAgreement(type: MiniAgreementType | number) {

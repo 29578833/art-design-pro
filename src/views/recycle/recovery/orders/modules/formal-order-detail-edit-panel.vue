@@ -197,7 +197,7 @@
 
 <script setup lang="ts">
   import { fetchUpdateOrder } from '@/api/recycle/order'
-  import type { OrderDetail, OrderUpdatePayload } from '@/types/recycle/order'
+  import type { OrderDetail, OrderUpdatePayload } from '@/types/recycle/recovery/orders/order'
 
   defineOptions({ name: 'FormalOrderDetailEditPanel' })
 

@@ -14,7 +14,7 @@ import type {
   QualityUpdateParams,
   QualityBatchAuditParams,
   InspectionCategory
-} from '@/types/recycle/quality'
+} from '@/types/recycle/factory/quality/quality'
 
 // ==================== 分页辅助 ====================
 

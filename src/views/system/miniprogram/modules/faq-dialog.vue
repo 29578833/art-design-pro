@@ -37,8 +37,8 @@
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchFaqSave, fetchFaqUpdate } from '@/api/recycle/miniprogram-config'
-  import type { MiniFaqItem } from '@/types/recycle/miniprogram'
-  import { FAQ_CATEGORIES } from '@/types/recycle/miniprogram'
+  import type { MiniFaqItem } from '@/types/recycle/recovery/commerce/miniprogram'
+  import { FAQ_CATEGORIES } from '@/types/recycle/recovery/commerce/miniprogram'
 
   interface Props {
     visible: boolean

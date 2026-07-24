@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { ScrapVehicleDetail } from '@/types/recycle/vehicle'
+  import type { ScrapVehicleDetail } from '@/types/recycle/recovery/vehicles/vehicle'
   import { buildLogItems } from './vehicle-detail-utils'
 
   defineOptions({ name: 'VehicleDetailLogTab' })

@@ -10,9 +10,9 @@
     <div class="product-location-map-desc">绿色=可用 · 灰色=已占用 · 红色=危废专区</div>
 
     <div v-loading="loading" class="product-location-map-body">
-      <div v-if="!loading && !gridAreas.length" class="product-location-map-empty"
-        >暂无库位数据</div
-      >
+      <div v-if="!loading && !gridAreas.length" class="product-location-map-empty">
+        暂无库位数据
+      </div>
       <div v-else class="product-location-map-grid">
         <div
           v-for="(areaItem, areaIndex) in gridAreas"
@@ -52,7 +52,7 @@
   import type {
     WarehouseLocationGridArea,
     WarehouseLocationGridSlot
-  } from '@/types/recycle/warehouse'
+  } from '@/types/recycle/warehouse/warehouse'
 
   interface Props {
     visible: boolean

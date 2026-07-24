@@ -60,11 +60,11 @@
     SaleOutboundSearchParams,
     SaleOutboundStatus,
     SaleOutboundType
-  } from '@/types/recycle/sale-outbound'
+  } from '@/types/recycle/warehouse/outbound/sale-outbound'
   import {
     SALE_OUTBOUND_STATUS_FILTERS,
     SALE_OUTBOUND_TYPE_FILTERS
-  } from '@/types/recycle/sale-outbound'
+  } from '@/types/recycle/warehouse/outbound/sale-outbound'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

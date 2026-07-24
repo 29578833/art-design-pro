@@ -41,10 +41,10 @@
 
 <script setup lang="ts">
   import { fetchInventoryItemDetail } from '@/api/recycle/inventory-item'
-  import type { InventoryItem } from '@/types/recycle/inventory-item'
-  import { INVENTORY_STATUS_CONFIG } from '@/types/recycle/inventory-item'
-  import type { ProductStoreCategory } from '@/types/recycle/product-store'
-  import { PRODUCT_STORE_CATEGORY_CONFIG } from '@/types/recycle/product-store'
+  import type { InventoryItem } from '@/types/recycle/warehouse/inventory/inventory-item'
+  import { INVENTORY_STATUS_CONFIG } from '@/types/recycle/warehouse/inventory/inventory-item'
+  import type { ProductStoreCategory } from '@/types/recycle/dismantle/product/product-store'
+  import { PRODUCT_STORE_CATEGORY_CONFIG } from '@/types/recycle/dismantle/product/product-store'
 
   interface Props {
     visible: boolean

@@ -30,7 +30,10 @@
   import { ElMessage } from 'element-plus'
   import { fetchSalesPerformance } from '@/api/recycle/report'
   import type { ColumnOption } from '@/types/component'
-  import type { SalesPerformanceItem, SalesPerformanceResult } from '@/types/recycle/report'
+  import type {
+    SalesPerformanceItem,
+    SalesPerformanceResult
+  } from '@/types/recycle/decision/reports/report'
   import ArtBarChart from '@/components/core/charts/art-bar-chart/index.vue'
 
   const props = defineProps<{

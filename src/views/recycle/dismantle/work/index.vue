@@ -83,12 +83,12 @@
     PlateSearchParams,
     PlateStats,
     PlateVehicleType
-  } from '@/types/recycle/plate'
+  } from '@/types/recycle/dismantle/work/plate'
   import {
     PLATE_PREPROCESS_STATUS_CONFIG,
     PLATE_STATUS_CONFIG,
     PLATE_VEHICLE_TYPE_CONFIG
-  } from '@/types/recycle/plate'
+  } from '@/types/recycle/dismantle/work/plate'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import WorkSearch from './modules/work-search.vue'
   import WorkCreateDialog from './modules/work-create-dialog.vue'

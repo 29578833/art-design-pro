@@ -160,7 +160,7 @@
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchAuditOrder, fetchOrderDetail } from '@/api/recycle/order'
-  import type { OrderDetail, OrderVehicle } from '@/types/recycle/order'
+  import type { OrderDetail, OrderVehicle } from '@/types/recycle/recovery/orders/order'
   import FormalOrderDetailOrderSummary from './formal-order-detail-order-summary.vue'
   import FormalOrderDetailViewPanel from './formal-order-detail-view-panel.vue'
   import FormalOrderDetailEditPanel from './formal-order-detail-edit-panel.vue'

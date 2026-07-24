@@ -3,7 +3,7 @@ import type {
   SystemLogAdminOption,
   SystemLogItem,
   SystemLogSearchParams
-} from '@/types/recycle/system-log'
+} from '@/types/recycle/system/system-log'
 
 function resolvePagination(params?: {
   current?: number

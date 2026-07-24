@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { OrderDetail } from '@/types/recycle/order'
+  import type { OrderDetail } from '@/types/recycle/recovery/orders/order'
   import FormalOrderBasicTab from './formal-order-basic-tab.vue'
 
   defineOptions({ name: 'FormalOrderDetailViewPanel' })

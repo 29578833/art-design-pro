@@ -5,7 +5,7 @@ import type {
   InventoryItemSearchParams,
   InventoryItemStats,
   InventoryTransferParams
-} from '@/types/recycle/inventory-item'
+} from '@/types/recycle/warehouse/inventory/inventory-item'
 
 function resolvePagination(params: {
   current?: number

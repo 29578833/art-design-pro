@@ -135,7 +135,10 @@
     fetchReviewReply,
     fetchReviewStats
   } from '@/api/recycle/miniprogram-review'
-  import type { MiniReviewItem, MiniReviewStats } from '@/types/recycle/miniprogram'
+  import type {
+    MiniReviewItem,
+    MiniReviewStats
+  } from '@/types/recycle/recovery/commerce/miniprogram'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   const loading = ref(false)

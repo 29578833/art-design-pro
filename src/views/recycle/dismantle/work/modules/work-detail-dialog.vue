@@ -219,8 +219,15 @@
     fetchPlateDetail,
     fetchPlateUpdateStatus
   } from '@/api/recycle/plate'
-  import type { DismantlePhotoItem, DismantleTimeForm, PlateItem } from '@/types/recycle/plate'
-  import { MINISTRY_DISMANTLE_PHOTOS, PLATE_STATUS_CONFIG } from '@/types/recycle/plate'
+  import type {
+    DismantlePhotoItem,
+    DismantleTimeForm,
+    PlateItem
+  } from '@/types/recycle/dismantle/work/plate'
+  import {
+    MINISTRY_DISMANTLE_PHOTOS,
+    PLATE_STATUS_CONFIG
+  } from '@/types/recycle/dismantle/work/plate'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

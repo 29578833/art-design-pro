@@ -58,8 +58,8 @@
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchInventoryTransfer } from '@/api/recycle/inventory-item'
   import { fetchAllWarehouseLocations } from '@/api/recycle/warehouse'
-  import type { InventoryItem } from '@/types/recycle/inventory-item'
-  import type { WarehouseLocationOption } from '@/types/recycle/warehouse'
+  import type { InventoryItem } from '@/types/recycle/warehouse/inventory/inventory-item'
+  import type { WarehouseLocationOption } from '@/types/recycle/warehouse/warehouse'
 
   interface Props {
     visible: boolean

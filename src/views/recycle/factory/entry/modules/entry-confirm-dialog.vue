@@ -165,7 +165,7 @@
     WarehouseAreaOption,
     WarehouseEntryItem,
     WarehouseLocationOption
-  } from '@/types/recycle/warehouse'
+  } from '@/types/recycle/warehouse/warehouse'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

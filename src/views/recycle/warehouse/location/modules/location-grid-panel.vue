@@ -44,7 +44,7 @@
   import type {
     WarehouseLocationGridArea,
     WarehouseLocationGridSlot
-  } from '@/types/recycle/warehouse'
+  } from '@/types/recycle/warehouse/warehouse'
 
   const AREA_COLORS = ['#1677ff', '#52C41A', '#FF4D4F', '#8C8C8C', '#722ED1', '#FA8C16']
 

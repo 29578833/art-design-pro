@@ -87,7 +87,7 @@
     PlateItem,
     PreprocessCheckedItem,
     PreprocessStepOption
-  } from '@/types/recycle/plate'
+  } from '@/types/recycle/dismantle/work/plate'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface StepState {

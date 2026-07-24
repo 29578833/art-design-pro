@@ -101,7 +101,10 @@
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchOrderDetail } from '@/api/recycle/order'
-  import { resolveOrderAttachmentsAll, type OrderAttachment } from '@/types/recycle/order'
+  import {
+    resolveOrderAttachmentsAll,
+    type OrderAttachment
+  } from '@/types/recycle/recovery/orders/order'
   import SignCanvasDialog from './sign-canvas-dialog.vue'
 
   interface Props {

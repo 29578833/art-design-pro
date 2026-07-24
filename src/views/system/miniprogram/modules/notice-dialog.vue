@@ -38,7 +38,7 @@
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchNoticeSave, fetchNoticeUpdate } from '@/api/recycle/miniprogram-config'
-  import type { MiniNoticeItem } from '@/types/recycle/miniprogram'
+  import type { MiniNoticeItem } from '@/types/recycle/recovery/commerce/miniprogram'
 
   interface Props {
     visible: boolean

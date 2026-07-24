@@ -258,7 +258,11 @@
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchQualityDetail, previewQualityPdf } from '@/api/recycle/quality'
-  import type { QualityDetail, QualityCheckItem, ItemStatus } from '@/types/recycle/quality'
+  import type {
+    QualityDetail,
+    QualityCheckItem,
+    ItemStatus
+  } from '@/types/recycle/factory/quality/quality'
   import {
     QC_CATEGORY_COLORS,
     QC_CATEGORY_BG,
@@ -267,7 +271,7 @@
     QC_ENTRY_PHOTO_CONFIG,
     QC_SIGNATURE_CONFIG,
     isBatteryItem
-  } from '@/types/recycle/quality'
+  } from '@/types/recycle/factory/quality/quality'
 
   interface Props {
     visible: boolean

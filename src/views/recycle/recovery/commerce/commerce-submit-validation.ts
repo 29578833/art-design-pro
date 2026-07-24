@@ -3,7 +3,7 @@ import type {
   AcceptOwnerData,
   AcceptSyncFiles,
   AcceptVehicleData
-} from '@/types/recycle/accept'
+} from '@/types/recycle/recovery/commerce/accept'
 
 export interface CommerceMissingSection {
   fields: string[]

@@ -57,11 +57,11 @@
     ProductStoreCategoryCounts,
     ProductStoreSearchParams,
     ProductStoreStatus
-  } from '@/types/recycle/product-store'
+  } from '@/types/recycle/dismantle/product/product-store'
   import {
     PRODUCT_STORE_CATEGORY_FILTERS,
     PRODUCT_STORE_STATUS_FILTER_OPTIONS
-  } from '@/types/recycle/product-store'
+  } from '@/types/recycle/dismantle/product/product-store'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {

@@ -201,7 +201,7 @@
     type SettlementExportColumnDef,
     type SettlementExportBusiness,
     type SettlementVehicleExportRow
-  } from '@/types/recycle/finance-settlement-export'
+  } from '@/types/recycle/finance/export/finance-settlement-export'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   defineOptions({ name: 'RecycleFinanceExport' })
