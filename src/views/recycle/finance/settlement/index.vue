@@ -32,16 +32,15 @@
           <span class="fs-tab-count">{{ tabCounts[tab.key] ?? 0 }}</span>
         </button>
       </div>
+      <SettlementSearch
+        :search-form="searchForm"
+        :show-status-quick="activeTab === 'all'"
+        :exporting="exporting"
+        @search="handleSearch"
+        @reset="handleReset"
+        @export="handleExport"
+      />
     </ElCard>
-
-    <SettlementSearch
-      :search-form="searchForm"
-      :show-status-quick="activeTab === 'all'"
-      :exporting="exporting"
-      @search="handleSearch"
-      @reset="handleReset"
-      @export="handleExport"
-    />
 
     <div class="fs-list-page">
       <ElCard

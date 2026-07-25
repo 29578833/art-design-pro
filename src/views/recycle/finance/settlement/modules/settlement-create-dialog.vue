@@ -5,21 +5,24 @@
     align-center
     destroy-on-close
     class="fs-create-dialog"
+    style="padding: 0 !important"
     :show-close="false"
     @opened="onOpened"
   >
-    <div
-      v-if="billType"
-      class="fs-create-header"
-      :class="{ 'is-residual': billType === 'residual' }"
-    >
-      <span class="fs-create-header-title"
-        >提交{{ SETTLEMENT_BILL_TYPE_CONFIG[billType].label }}申请</span
+    <template #header>
+      <div
+        v-if="billType"
+        class="fs-create-header"
+        :class="{ 'is-residual': billType === 'residual' }"
       >
-      <button type="button" class="fs-create-close" @click="dialogVisible = false">
-        <ArtSvgIcon icon="ri:close-line" />
-      </button>
-    </div>
+        <span class="fs-create-header-title"
+          >提交{{ SETTLEMENT_BILL_TYPE_CONFIG[billType].label }}申请</span
+        >
+        <button type="button" class="fs-create-close" @click="dialogVisible = false">
+          <ArtSvgIcon icon="ri:close-line" />
+        </button>
+      </div>
+    </template>
 
     <div v-if="billType" class="fs-create-steps">
       <div class="fs-create-step" :class="stepClass(1)">
@@ -62,6 +65,11 @@
         >
           <template #plate_no="{ row }">
             <span class="fs-plate">{{ row.plate_no }}</span>
+          </template>
+          <template #settlement_method="{ row }">
+            <span class="fs-tag">{{
+              settlementMethodDict[row.settlement_method] || row.settlement_method
+            }}</span>
           </template>
           <template #entry_time="{ row }">{{ formatEntryTime(row.entry_time) }}</template>
           <template #weight="{ row }">{{ kgToTon(row.weight) }}</template>
@@ -146,6 +154,11 @@
                 "
               />
             </div>
+          </template>
+          <template #settlement_method="{ row }">
+            <span class="fs-tag">{{
+              settlementMethodDict[row.settlement_method] || row.settlement_method
+            }}</span>
           </template>
           <template #edit_residual_value="{ row }">
             <div class="fs-edit-cell">
@@ -287,6 +300,14 @@
   const dialogVisible = computed({
     get: () => props.visible,
     set: (v) => emit('update:visible', v)
+  })
+
+  const settlementMethodDict = ref({
+    weight: '重量结算',
+    curb_weight: '整备质量结算',
+    gross_weight: '整备质量结算',
+    unit: '整车结算',
+    whole_vehicle: '整车结算'
   })
 
   /** 步骤：1 选车 → 2 确认金额 */

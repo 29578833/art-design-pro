@@ -123,9 +123,7 @@
     gap: 8px;
     align-items: center;
     padding: 12px 16px;
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    border-top: 1px solid #f3f4f6;
   }
 
   .fs-search-actions {

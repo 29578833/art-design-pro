@@ -20,7 +20,13 @@ export function buildCreateStep1Columns(isService: boolean): SettlementGridColum
     { field: 'plate_no', title: '车牌号', width: 90, slots: { default: 'plate_no' }, ...thBase },
     { field: 'model', title: '车型', width: 100, ...thBase },
     { field: 'vehicle_type', title: '车辆类型', width: 100, ...thBase },
-    { field: 'settlement_method', title: '结算类型', width: 88, ...thBase },
+    {
+      field: 'settlement_method',
+      title: '结算类型',
+      width: 95,
+      slots: { default: 'settlement_method' },
+      ...thBase
+    },
     {
       field: 'weight',
       title: '整备总量(吨)',
@@ -105,7 +111,13 @@ export function buildCreateStep2Columns(isService: boolean): SettlementGridColum
     { field: 'vehicle_no', title: '自编号', width: 130, ...thBase },
     { field: 'plate_no', title: '车牌号', width: 90, slots: { default: 'plate_no' }, ...thBase },
     { field: 'model', title: '车辆类型', width: 100, ...thBase },
-    { field: 'settlement_method', title: '结算类型', width: 88, ...thBase },
+    {
+      field: 'settlement_method',
+      title: '结算类型',
+      width: 88,
+      slots: { default: 'settlement_method' },
+      ...thBase
+    },
     {
       field: 'weight',
       title: '整备质量(吨)',
