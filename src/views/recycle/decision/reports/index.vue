@@ -49,6 +49,7 @@
       <VehicleArchivePanel v-else-if="activeReport === 'vehicle-archive-summary'" />
       <QcSummaryPanel v-else-if="activeReport === 'qc-summary'" />
       <MaterialInoutPanel v-else-if="activeReport === 'raw-material-inout'" />
+      <MaterialDailyPanel v-else-if="activeReport === 'raw-material'" />
       <div v-else class="report-empty">该报表暂未开放</div>
     </div>
   </div>
@@ -63,6 +64,7 @@
   import VehicleArchivePanel from './modules/panel-vehicle-archive/index.vue'
   import QcSummaryPanel from './modules/panel-qc-summary/index.vue'
   import MaterialInoutPanel from './modules/panel-material-inout/index.vue'
+  import MaterialDailyPanel from './modules/panel-material-daily/index.vue'
 
   defineOptions({ name: 'RecycleDecisionReports' })
 
@@ -96,6 +98,14 @@
       desc: '报废车辆（商用车、轻摩、私家车）出入库明细，多维筛选导出',
       icon: 'ri:folder-chart-line',
       color: '#08979C',
+      available: true
+    },
+    {
+      key: 'raw-material',
+      label: '原料日报表',
+      desc: '各车型原料初期库数、本日/本月入库出库及结存统计',
+      icon: 'ri:archive-2-line',
+      color: '#096DD9',
       available: true
     },
     {

@@ -205,6 +205,7 @@ export type ReportKey =
   | 'salesman-perf'
   | 'waste-stat'
   | 'raw-material-inout'
+  | 'raw-material'
 
 /** 质检汇总表 — 列表行 */
 export interface QualityInspectionItem {
@@ -383,4 +384,70 @@ export interface MaterialInOutResult {
   list: MaterialInOutItem[]
   count: number
   stats: MaterialInOutStats
+}
+
+/** 原料日报表 — 列表行 */
+export interface MaterialDailyItem {
+  /** 车型名称 */
+  name: string
+  /** 规格 */
+  spec: string
+  /** 原料初期库数-重量/吨 */
+  init_weight: string
+  /** 原料初期库数-数量 */
+  init_count: string | number
+  /** 本日入库量-重量/吨 */
+  today_in_weight: string
+  /** 本日入库量-数量 */
+  today_in_count: string | number
+  /** 本日出库数-重量/吨 */
+  today_out_weight: string
+  /** 本日出库数-数量 */
+  today_out_count: string | number
+  /** 本月入库量-重量/吨 */
+  month_in_weight: string
+  /** 本月入库量-数量 */
+  month_in_count: string | number
+  /** 本月出库累计-重量/吨 */
+  month_out_weight: string
+  /** 本月出库累计-数量 */
+  month_out_count: string | number
+  /** 本日结存-重量/吨 */
+  stock_weight: string
+  /** 本日结存-数量 */
+  stock_count: string | number
+}
+
+/** 原料日报表 — 统计卡片（后端 camelCase 原样） */
+export interface MaterialDailyStats {
+  initCount: number
+  initWeight: string
+  todayInCount: number
+  todayInWeight: string
+  todayOutCount: number
+  todayOutWeight: string
+  monthInCount: number
+  monthInWeight: string
+  monthOutCount: number
+  monthOutWeight: string
+  stockCount: number
+  stockWeight: string
+}
+
+/** 原料日报表 — 请求参数 */
+export interface MaterialDailyParams {
+  keyword?: string
+  vehicle_category?: string
+  start_date?: string
+  end_date?: string
+  time_mode?: 'day' | 'week' | 'month'
+  page?: number
+  limit?: number
+}
+
+/** 原料日报表 — 返回结构 */
+export interface MaterialDailyResult {
+  list: MaterialDailyItem[]
+  count: number
+  stats: MaterialDailyStats
 }

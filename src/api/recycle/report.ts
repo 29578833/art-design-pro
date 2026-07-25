@@ -1,6 +1,8 @@
 import request from '@/utils/http'
 import type {
   DecisionStatistics,
+  MaterialDailyParams,
+  MaterialDailyResult,
   MaterialInOutParams,
   MaterialInOutResult,
   QualityInspectionParams,
@@ -92,6 +94,22 @@ export function fetchMaterialInOut(params?: MaterialInOutParams) {
       material_end_date: params?.material_end_date || '',
       page: params?.page || 1,
       limit: params?.limit || 20
+    }
+  })
+}
+
+/** 原料日报表 */
+export function fetchMaterialDaily(params?: MaterialDailyParams) {
+  return request.get<MaterialDailyResult>({
+    url: '/scrap/report/material_daily',
+    params: {
+      keyword: params?.keyword || '',
+      vehicle_category: params?.vehicle_category || '',
+      start_date: params?.start_date || '',
+      end_date: params?.end_date || '',
+      time_mode: params?.time_mode || 'day',
+      page: params?.page || 1,
+      limit: params?.limit || 25
     }
   })
 }
