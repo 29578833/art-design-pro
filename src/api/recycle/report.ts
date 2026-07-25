@@ -1,6 +1,8 @@
 import request from '@/utils/http'
 import type {
   DecisionStatistics,
+  MaterialInOutParams,
+  MaterialInOutResult,
   QualityInspectionParams,
   QualityInspectionResult,
   ReportDateParams,
@@ -65,6 +67,31 @@ export function fetchQualityInspection(params?: QualityInspectionParams) {
       vehicle_category: params?.vehicle_category || '',
       page: params?.page || 1,
       limit: params?.limit || 10
+    }
+  })
+}
+
+/** 原料出入库清单 */
+export function fetchMaterialInOut(params?: MaterialInOutParams) {
+  return request.get<MaterialInOutResult>({
+    url: '/scrap/report/material_in_out',
+    params: {
+      plate_no: params?.plate_no || '',
+      internal_no: params?.internal_no || '',
+      vin: params?.vin || '',
+      owner: params?.owner || '',
+      entry_no: params?.entry_no || '',
+      business: params?.business || '',
+      vehicle_category: params?.vehicle_category || '',
+      vehicle_model: params?.vehicle_model || '',
+      drive_type: params?.drive_type || '',
+      supervision: params?.supervision || '',
+      start_date: params?.start_date || '',
+      end_date: params?.end_date || '',
+      material_start_date: params?.material_start_date || '',
+      material_end_date: params?.material_end_date || '',
+      page: params?.page || 1,
+      limit: params?.limit || 20
     }
   })
 }

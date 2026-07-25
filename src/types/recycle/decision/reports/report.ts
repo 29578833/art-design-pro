@@ -204,6 +204,7 @@ export type ReportKey =
   | 'settlement-summary'
   | 'salesman-perf'
   | 'waste-stat'
+  | 'raw-material-inout'
 
 /** 质检汇总表 — 列表行 */
 export interface QualityInspectionItem {
@@ -299,4 +300,87 @@ export interface QualityInspectionResult {
   count: number
   stats: QualityInspectionStats
   filter_options: QualityInspectionFilterOptions
+}
+
+/** 原料出入库清单 — 列表行 */
+export interface MaterialInOutItem {
+  /** 入库日期 */
+  date: string
+  /** 厂内编号 */
+  internal_no: string
+  /** 分类码 commercial/moto/private */
+  category: string
+  /** 分类文案 */
+  category_label: string
+  /** 车型 */
+  vehicle_model: string
+  /** 车架号 */
+  vin: string
+  /** 牌照号码 */
+  plate_no: string
+  /** 驱动类型 */
+  drive_type: string
+  /** 重量/吨 */
+  weight: string
+  /** 车辆产权人 */
+  owner: string
+  /** 入库单号 */
+  entry_no: string
+  /** 业务员 */
+  salesman: string
+  /** 代理人 */
+  agent: string
+  /** 领料人 */
+  receiver: string
+  /** 监销/非监销 */
+  supervision: string
+  /** 领料日期 */
+  material_date: string
+  /** 领证日期 */
+  cert_date: string
+  /** 备注 */
+  remark: string
+}
+
+/** 原料出入库清单 — 统计 */
+export interface MaterialInOutStats {
+  /** 商用车数量 */
+  commercial: number
+  /** 商用车重量/吨 */
+  commercialWeight: string
+  /** 轻摩数量 */
+  moto: number
+  /** 轻摩重量/吨 */
+  motoWeight: string
+  /** 私家车数量 */
+  private: number
+  /** 私家车重量/吨 */
+  privateWeight: string
+}
+
+/** 原料出入库清单 — 请求参数 */
+export interface MaterialInOutParams {
+  plate_no?: string
+  internal_no?: string
+  vin?: string
+  owner?: string
+  entry_no?: string
+  business?: string
+  vehicle_category?: string
+  vehicle_model?: string
+  drive_type?: string
+  supervision?: string
+  start_date?: string
+  end_date?: string
+  material_start_date?: string
+  material_end_date?: string
+  page?: number
+  limit?: number
+}
+
+/** 原料出入库清单 — 返回结构 */
+export interface MaterialInOutResult {
+  list: MaterialInOutItem[]
+  count: number
+  stats: MaterialInOutStats
 }

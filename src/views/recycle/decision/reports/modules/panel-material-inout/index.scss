@@ -1,0 +1,455 @@
+.rmi-panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.rmi-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.rmi-kpi-card {
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.rmi-kpi-label {
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.rmi-kpi-value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.rmi-kpi-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.rmi-filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.rmi-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.rmi-search-input {
+  &.is-w-120 {
+    width: 120px;
+  }
+
+  &.is-w-110 {
+    width: 110px;
+  }
+
+  &.is-w-150 {
+    width: 150px;
+  }
+}
+
+.rmi-filter-select {
+  width: 120px;
+}
+
+.rmi-filter-input {
+  width: 110px;
+}
+
+.rmi-search-icon {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.rmi-date-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.rmi-date-label {
+  font-size: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.rmi-date-picker {
+  width: 240px;
+}
+
+.rmi-date-single {
+  width: 132px;
+}
+
+.rmi-date-sep {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.rmi-shift-btn {
+  min-width: 28px;
+  padding: 0 8px;
+}
+
+.rmi-filter-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.rmi-report-card {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.rmi-report-title {
+  padding: 10px 16px;
+  text-align: center;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.rmi-report-title-main {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.rmi-report-title-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.rmi-legend {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 8px 16px;
+  border-bottom: 1px solid #f9fafb;
+}
+
+.rmi-legend-item {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.rmi-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+
+  &.is-commercial {
+    background: #fffbe6;
+    border: 1px solid #fa8c16;
+  }
+
+  &.is-moto {
+    background: #f0fff4;
+    border: 1px solid #52c41a;
+  }
+
+  &.is-private {
+    background: #fff;
+    border: 1px solid #1890ff;
+  }
+}
+
+.rmi-legend-summary {
+  margin-left: auto;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.rmi-table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.rmi-pagination {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.rmi-pagination-info {
+  font-size: 12px;
+  color: #9ca3af;
+
+  b {
+    font-weight: 600;
+    color: #4b5563;
+  }
+}
+
+.rmi-plate {
+  font-weight: 600;
+  color: #374151;
+}
+
+.rmi-owner {
+  display: block;
+  overflow: hidden;
+  color: #374151;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rmi-entry-no {
+  color: #595959;
+}
+
+.rmi-internal-no {
+  font-weight: 600;
+  color: #08979c;
+}
+
+.rmi-vin {
+  font-size: 10px;
+  color: #595959;
+}
+
+.rmi-weight {
+  font-weight: 600;
+  color: #08979c;
+}
+
+.rmi-material-date {
+  color: #006d75;
+}
+
+.rmi-cert-done {
+  padding: 1px 6px;
+  font-size: 11px;
+  color: #52c41a;
+  background: #f6ffed;
+  border-radius: 3px;
+}
+
+.rmi-pending {
+  font-size: 11px;
+  color: #d9d9d9;
+}
+
+.rmi-muted {
+  color: #d9d9d9;
+}
+
+.rmi-remark {
+  color: #8c8c8c;
+}
+
+.rmi-empty-text {
+  color: #9ca3af;
+}
+
+.rmi-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 11px;
+  border-radius: 3px;
+
+  &.is-commercial {
+    color: #fa8c16;
+    background: #fff7e6;
+    border-radius: 12px;
+  }
+
+  &.is-moto {
+    color: #52c41a;
+    background: #f6ffed;
+    border-radius: 12px;
+  }
+
+  &.is-private {
+    color: #1890ff;
+    background: #e6f7ff;
+    border-radius: 12px;
+  }
+
+  &.is-fuel {
+    color: #595959;
+    background: #f5f5f5;
+  }
+
+  &.is-ev {
+    color: #1890ff;
+    background: #e6f7ff;
+  }
+
+  &.is-hybrid {
+    color: #fa8c16;
+    background: #fff7e6;
+  }
+
+  &.is-supervision {
+    color: #cf1322;
+    background: #fff1f0;
+  }
+
+  &.is-normal {
+    color: #389e0d;
+    background: #f6ffed;
+  }
+}
+
+.mr-1 {
+  margin-right: 4px;
+}
+
+.rmi-vxe-grid {
+  // 表头边框
+  .vxe-header--row .vxe-header--column {
+    border-color: #d9d9d9 !important;
+    border-bottom: 1px solid #d9d9d9 !important;
+  }
+
+  // 单元格边框（对齐原型 border-gray-100）
+  .vxe-body--column {
+    font-size: 11px;
+    border-color: #f0f0f0 !important;
+  }
+
+  // 表尾边框
+  .vxe-footer--row .vxe-footer--column {
+    border-color: #d9d9d9 !important;
+  }
+
+  .rmi-head-base {
+    color: #006d75 !important;
+    background: #d6fffa !important;
+    border-color: #d9d9d9 !important;
+  }
+
+  .rmi-head-weight {
+    font-weight: 600 !important;
+    color: #006d75 !important;
+    background: #d6fffa !important;
+    border-color: #d9d9d9 !important;
+  }
+
+  .vxe-header--column {
+    font-size: 11px;
+  }
+
+  .rmi-cell-seq {
+    color: #bfbfbf !important;
+  }
+
+  // 分类行背景
+  .vxe-body--row.is-commercial .vxe-body--column {
+    background: #fffbe6 !important;
+  }
+
+  .vxe-body--row.is-moto .vxe-body--column {
+    background: #f0fff4 !important;
+  }
+
+  .vxe-body--row.is-private .vxe-body--column {
+    background: #fff !important;
+  }
+
+  .vxe-body--row.is-commercial {
+    background: #fffbe6;
+  }
+
+  .vxe-body--row.is-moto {
+    background: #f0fff4;
+  }
+
+  .vxe-body--row.is-private {
+    background: #fff;
+  }
+
+  .vxe-body--row.row--hover {
+    filter: brightness(0.98);
+  }
+
+  .vxe-footer--row.rmi-footer-row {
+    background: #d6fffa;
+    border-top: 2px solid #5cdbd3;
+
+    .vxe-footer--column {
+      font-size: 12px;
+      font-weight: 700;
+      color: #006d75;
+      background: #d6fffa !important;
+      border-color: #d9d9d9 !important;
+    }
+
+    .vxe-footer--column.col--weight {
+      color: #006d75 !important;
+    }
+
+    .vxe-footer--column:first-child {
+      text-align: center !important;
+    }
+  }
+
+  .rmi-cell-sticky-seq,
+  .rmi-head-sticky-seq {
+    position: sticky !important;
+    left: 0;
+    z-index: 3;
+  }
+
+  .rmi-cell-sticky-date,
+  .rmi-head-sticky-date {
+    position: sticky !important;
+    left: 50px;
+    z-index: 3;
+  }
+
+  .vxe-body--row.is-commercial .rmi-cell-sticky,
+  .vxe-body--row.is-moto .rmi-cell-sticky,
+  .vxe-body--row.is-private .rmi-cell-sticky {
+    background: inherit !important;
+  }
+
+  .rmi-head-sticky {
+    background: #d6fffa !important;
+  }
+}
+
+@media (width <=1200px) {
+  .rmi-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width <=768px) {
+  .rmi-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}

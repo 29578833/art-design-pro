@@ -48,6 +48,7 @@
       <SalesPerfPanel v-else-if="activeReport === 'salesman-perf'" />
       <VehicleArchivePanel v-else-if="activeReport === 'vehicle-archive-summary'" />
       <QcSummaryPanel v-else-if="activeReport === 'qc-summary'" />
+      <MaterialInoutPanel v-else-if="activeReport === 'raw-material-inout'" />
       <div v-else class="report-empty">该报表暂未开放</div>
     </div>
   </div>
@@ -61,6 +62,7 @@
   import SalesPerfPanel from './modules/panel-sale-perf/index.vue'
   import VehicleArchivePanel from './modules/panel-vehicle-archive/index.vue'
   import QcSummaryPanel from './modules/panel-qc-summary/index.vue'
+  import MaterialInoutPanel from './modules/panel-material-inout/index.vue'
 
   defineOptions({ name: 'RecycleDecisionReports' })
 
@@ -86,6 +88,14 @@
       desc: '质检单汇总，支持多维筛选与导出',
       icon: 'ri:search-eye-line',
       color: '#13C2C2',
+      available: true
+    },
+    {
+      key: 'raw-material-inout',
+      label: '原料出入库清单',
+      desc: '报废车辆（商用车、轻摩、私家车）出入库明细，多维筛选导出',
+      icon: 'ri:folder-chart-line',
+      color: '#08979C',
       available: true
     },
     {
