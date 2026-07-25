@@ -80,94 +80,94 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   const isPersonal = computed(() => syq.value === 2)
 
   const linkInfo = reactive<ArchiveLinkInfo>({
-    order_no: '',
-    archive_no: '',
-    tow_order_no: '',
-    lead_no: ''
+    order_no: '', // 回收订单号
+    archive_no: '', // 车辆档案单号
+    tow_order_no: '', // 拖车订单号
+    lead_no: '' // 线索单号
   })
 
   const ownerForm = reactive<ArchiveOwnerForm>({
-    syr: '',
-    sfzmhm: '',
-    dh: '',
-    dz: '',
-    sfzmmc: '',
-    hpzl: '',
-    syrsmrz: '',
-    sfyd: '',
-    zcbj: '',
-    syq: ''
+    syr: '', // 所有人姓名
+    sfzmhm: '', // 所有人证件号码
+    dh: '', // 所有人联系电话
+    dz: '', // 所有人联系地址
+    sfzmmc: '', // 所有人证件类型
+    hpzl: '', // 所有人号牌种类
+    syrsmrz: '', // 所有人实名认证状态
+    sfyd: '', // 所有人身份证是否异地
+    zcbj: '', // 注册标记
+    syq: '' // 所有人所有权类型
   })
   const ownerImages = reactive<ArchiveOwnerImages>({
-    syrzp: '',
-    sfz1zp: '',
-    sfz2zp: '',
-    qksmzp: '',
-    blpzzp: ''
+    syrzp: '', // 所有人主证件照
+    sfz1zp: '', // 所有人身份证正面
+    sfz2zp: '', // 所有人身份证反面
+    qksmzp: '', // 所有人证件缺失情况说明
+    blpzzp: '' // 所有人产权变更页照片
   })
 
   const vehicleForm = reactive<ArchiveVehicleForm>({
-    clsbdh: '',
-    hphm: '',
-    hpzl: '',
-    cllx: '',
-    syxz: '',
-    ccdjrq: '',
-    rlzl: '',
-    fdjh: '',
-    fdjxh: '',
-    xszbh: '',
-    czbh: '',
-    clpp1: '',
-    clxh: '',
-    ppxh: '',
-    cwkc: '',
-    cwkk: '',
-    cwkg: '',
-    gl: '',
-    pl: '',
-    hdzk: '',
-    zbzl: '',
-    zzl: '',
-    csys: '',
-    delivery_method: 'self',
-    tow_pickup_address: '',
-    tow_pickup_contact: '',
-    tow_pickup_phone: '',
-    self_delivery_address: '',
-    self_delivery_name: '',
-    self_delivery_phone: '',
-    settlement_type: 'personal',
-    settlement_method: '',
-    settlement_amount: '',
-    bank_name: '',
-    bank_branch: '',
-    bank_card_no: '',
-    remark: ''
+    clsbdh: '', // 车辆识别代号（车架号）
+    hphm: '', // 车辆号牌号码
+    hpzl: '', // 车辆号牌种类
+    cllx: '', // 车辆类型
+    syxz: '', // 使用性质
+    ccdjrq: '', // 初次登记日期
+    rlzl: '', // 燃料种类
+    fdjh: '', // 发动机号码
+    fdjxh: '', // 发动机型号
+    xszbh: '', // 行驶证编号
+    czbh: '', // 机动车登记证书编号
+    clpp1: '', // 车辆品牌
+    clxh: '', // 车辆型号
+    ppxh: '', // 品牌型号组合值
+    cwkc: '', // 外廓长度，单位毫米
+    cwkk: '', // 外廓宽度，单位毫米
+    cwkg: '', // 外廓高度，单位毫米
+    gl: '', // 功率，单位千瓦
+    pl: '', // 排量，单位毫升
+    hdzk: '', // 核定载客人数
+    zbzl: '', // 整备质量，单位千克
+    zzl: '', // 总质量，单位千克
+    csys: '', // 车身颜色
+    delivery_method: 'self', // 送货方式，tow 为拖车，self 为自送
+    tow_pickup_address: '', // 拖车上门取车地址
+    tow_pickup_contact: '', // 拖车取车联系人
+    tow_pickup_phone: '', // 拖车取车联系电话
+    self_delivery_address: '', // 自行送车地址
+    self_delivery_name: '', // 自行送车联系人
+    self_delivery_phone: '', // 自行送车联系电话
+    settlement_type: 'personal', // 结算类型
+    settlement_method: '', // 结算方式
+    settlement_amount: '', // 结算金额，单位元
+    bank_name: '', // 开户姓名或单位名称
+    bank_branch: '', // 开户银行
+    bank_card_no: '', // 银行卡号
+    remark: '' // 备注说明
   })
   const vehicleImages = reactive<ArchiveVehicleImages>({
-    xszzp: '',
-    xszzpfy: '',
-    xszbmzp: '',
-    czzp: ''
+    xszzp: '', // 行驶证正页
+    xszzpfy: '', // 行驶证副页
+    xszbmzp: '', // 行驶证正副本背面
+    czzp: '' // 机动车登记证书一二页
   })
   const materialImages = reactive<ArchiveMaterialImages>({
-    photo_front: '',
-    photo_side: '',
-    photo_back: '',
-    photo_interior: ''
+    photo_front: '', // 拖车单图片
+    photo_side: '', // 整车照片
+    photo_back: '', // 车架拓印照片
+    photo_interior: '' // 车架号照片
   })
 
   const agentForm = reactive<ArchiveAgentForm>({
-    jbr: '',
-    jbrsfzmhm: '',
-    jbrdh: '',
-    jbrsmrz: ''
+    jbr: '', // 代理人姓名
+    jbrsfzmhm: '', // 代理人证件号码
+    jbrdh: '', // 代理人联系电话
+    jbrsmrz: '' // 代理人实名认证状态
   })
   const agentImages = reactive<ArchiveAgentImages>({
-    jbrsfz1zp: '',
-    jbrsfz2zp: '',
-    jbrzp: ''
+    jbrsfz1zp: '', // 代理人身份证正面
+    jbrsfz2zp: '', // 代理人身份证反面
+    jbrzp: '' // 委托说明图片
   })
 
   const authCompleted = computed(() => {

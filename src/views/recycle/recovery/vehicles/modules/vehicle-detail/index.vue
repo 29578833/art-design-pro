@@ -55,15 +55,20 @@
       </div>
 
       <div class="vd-body">
+        <!-- 档案信息 -->
         <VehicleDetailInfoTab
           v-if="activeTab === 'info'"
           :detail="detail"
           :scrap-djid="scrapDjid"
           :scrap-cache-files="scrapCacheFiles"
         />
+        <!-- 拖车进度 -->
         <VehicleDetailTowTab v-else-if="activeTab === 'tow'" :detail="detail" />
+        <!-- 入厂拆解 -->
         <VehicleDetailEntryTab v-else-if="activeTab === 'entry'" :detail="detail" />
+        <!-- 注销办证 -->
         <VehicleDetailCancelTab v-else-if="activeTab === 'cancel'" :detail="detail" />
+        <!-- 操作日志 -->
         <VehicleDetailLogTab v-else-if="activeTab === 'log'" :detail="detail" />
       </div>
 
