@@ -409,26 +409,6 @@
   width: 100%;
   min-width: 0;
 
-  // 覆盖 reset.scss 中全局隐藏横向滚动条的规则
-  *::-webkit-scrollbar {
-    width: 8px !important;
-    height: 8px !important;
-  }
-
-  *::-webkit-scrollbar-track {
-    background: #f3f4f6;
-  }
-
-  *::-webkit-scrollbar-thumb {
-    background: #c5c9d1 !important;
-    border-radius: 4px;
-  }
-
-  .vxe-table--body-wrapper,
-  .vxe-table--footer-wrapper {
-    scrollbar-width: thin;
-  }
-
   .vxe-table--header-wrapper {
     .vxe-header--column.fs-export-seq-header {
       background: #fafafa;

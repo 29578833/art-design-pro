@@ -1,0 +1,26 @@
+/**
+ * vxe-grid 滚动条可见
+ * 覆盖 reset.scss 中全局 ::-webkit-scrollbar { height: 0 } 导致横向滚动条不显示的问题
+ * 所有 vxe-grid 自动生效，业务侧无需再写一遍
+ */
+
+.vxe-grid {
+  *::-webkit-scrollbar {
+    width: 8px !important;
+    height: 8px !important;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #f3f4f6;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: #c5c9d1 !important;
+    border-radius: 4px;
+  }
+
+  .vxe-table--body-wrapper,
+  .vxe-table--footer-wrapper {
+    scrollbar-width: thin;
+  }
+}

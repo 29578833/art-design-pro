@@ -24,3 +24,6 @@
 
 // 列表操作列按钮（多模块表格共用）
 @use './custom/order-table-actions.scss';
+
+// vxe-grid 滚动条可见（覆盖 reset 隐藏横向滚动条）
+@use './custom/vxe-grid-scrollbar.scss';
