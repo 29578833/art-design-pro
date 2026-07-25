@@ -1,5 +1,22 @@
 <template>
   <div v-loading="loading" class="sales-perf-panel">
+    <div class="report-filter-bar">
+      <ElDatePicker
+        v-model="dateRange"
+        type="daterange"
+        value-format="YYYY-MM-DD"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+        :unlink-panels="true"
+        class="report-filter-date"
+      />
+      <ElButton type="primary" @click="handleQuery">查询</ElButton>
+      <ElButton :loading="exporting" @click="exportExcel">
+        <ArtSvgIcon icon="ri:download-line" class="mr-1" />
+        导出Excel
+      </ElButton>
+    </div>
+
     <div class="report-panel-card">
       <div class="report-panel-title">业务员本期收车量</div>
       <ArtBarChart
@@ -35,11 +52,12 @@
     SalesPerformanceResult
   } from '@/types/recycle/decision/reports/report'
   import ArtBarChart from '@/components/core/charts/art-bar-chart/index.vue'
+  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import { defaultReportDateRange } from '../../utils'
 
-  const props = defineProps<{
-    startDate: string
-    endDate: string
-  }>()
+  const dateRange = ref<[string, string]>(defaultReportDateRange())
+  const queryRange = ref<[string, string]>(defaultReportDateRange())
+  const exporting = ref(false)
 
   const loading = ref(false)
   const result = ref<SalesPerformanceResult | null>(null)
@@ -114,41 +132,73 @@
     loading.value = true
     try {
       result.value = await fetchSalesPerformance({
-        start_date: props.startDate,
-        end_date: props.endDate
+        start_date: queryRange.value[0],
+        end_date: queryRange.value[1]
       })
     } finally {
       loading.value = false
     }
   }
 
-  function exportExcel() {
-    if (!list.value.length) {
-      ElMessage.warning('暂无数据可导出')
+  function handleQuery() {
+    if (!dateRange.value || dateRange.value.length !== 2) {
+      ElMessage.warning('请选择日期范围')
       return
     }
-    const rows = list.value.map((item, index) => ({
-      排名: index + 1,
-      业务员: item.name,
-      收车数量: item.count,
-      结算金额: item.amount,
-      平均单价: item.avg_price,
-      完成率: `${item.rate}%`
-    }))
-    const sheet = XLSX.utils.json_to_sheet(rows)
-    const book = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(book, sheet, '业务员绩效')
-    XLSX.writeFile(book, `业务员绩效_${props.startDate || ''}_${props.endDate || ''}.xlsx`)
-    ElMessage.success('导出成功')
+    queryRange.value = [...dateRange.value]
+    loadData()
   }
 
-  watch(
-    () => [props.startDate, props.endDate],
-    () => {
-      loadData()
-    },
-    { immediate: true }
-  )
+  function exportExcel() {
+    exporting.value = true
+    try {
+      if (!list.value.length) {
+        ElMessage.warning('暂无数据可导出')
+        return
+      }
+      const rows = list.value.map((item, index) => ({
+        排名: index + 1,
+        业务员: item.name,
+        收车数量: item.count,
+        结算金额: item.amount,
+        平均单价: item.avg_price,
+        完成率: `${item.rate}%`
+      }))
+      const sheet = XLSX.utils.json_to_sheet(rows)
+      const book = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(book, sheet, '业务员绩效')
+      XLSX.writeFile(
+        book,
+        `业务员绩效_${queryRange.value[0] || ''}_${queryRange.value[1] || ''}.xlsx`
+      )
+      ElMessage.success('导出成功')
+    } finally {
+      exporting.value = false
+    }
+  }
 
-  defineExpose({ reload: loadData, exportExcel })
+  onMounted(() => {
+    loadData()
+  })
 </script>
+
+<style lang="scss" scoped>
+  .report-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+  }
+
+  .report-filter-date {
+    width: 260px;
+  }
+
+  .mr-1 {
+    margin-right: 4px;
+  }
+</style>

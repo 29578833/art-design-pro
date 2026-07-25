@@ -198,8 +198,105 @@ export interface VehicleArchiveResult {
 /** 报表卡片 key */
 export type ReportKey =
   | 'vehicle-archive-summary'
+  | 'qc-summary'
   | 'vehicle-summary'
   | 'dismantle-output'
   | 'settlement-summary'
   | 'salesman-perf'
   | 'waste-stat'
+
+/** 质检汇总表 — 列表行 */
+export interface QualityInspectionItem {
+  /** 车辆 ID */
+  id: number
+  /** 车辆档案号 */
+  vehicle_no: string
+  /** 收车日期 */
+  collect_date: string
+  /** 自编号 */
+  self_no: string
+  /** 车牌号 */
+  plate_no: string
+  /** 质检状态码 */
+  qc_status: string
+  /** 质检状态文案 */
+  qc_status_text: string
+  /** 车主类型 personal/corporate */
+  owner_type: string
+  /** 排放标准 */
+  emission_standard: string
+  /** 车型 */
+  vehicle_type_text: string
+  /** 号牌状态 */
+  plate_status: string
+  /** 车主姓名 */
+  owner_name: string
+  /** 业务员 */
+  business_name: string
+  /** 代理人 */
+  agent_name: string
+  /** 运输方式 tow/self */
+  delivery_type: string
+  /** 拖车驾驶员/车牌 */
+  driver_name: string
+  /** 驱动类型 */
+  fuel_type_text: string
+  /** 磅重 kg */
+  weight: number
+  /** 电瓶状态 */
+  battery_status: string
+  /** 三元催化状态 */
+  catalyst_status: string
+  /** 缺件扣款 */
+  deduction: number
+  /** 质检单号 */
+  check_no: string
+  /** 质检员 */
+  inspector_name: string
+}
+
+/** 质检汇总表 — 统计 */
+export interface QualityInspectionStats {
+  /** 质检总数 */
+  total: number
+  /** 已完成 */
+  completed: number
+  /** 质检中 */
+  in_progress: number
+  /** 已质检·待补资料 */
+  pending_materials: number
+  /** 不合格 */
+  failed: number
+  /** 筛选结果磅重合计（kg，后端可选返回） */
+  total_weight?: number
+}
+
+/** 质检汇总表 — 筛选项 */
+export interface QualityInspectionFilterOptions {
+  agents: string[]
+  inspectors: string[]
+}
+
+/** 质检汇总表 — 请求参数 */
+export interface QualityInspectionParams {
+  keyword?: string
+  start_date?: string
+  end_date?: string
+  agent_name?: string
+  inspector_name?: string
+  qc_status?: string
+  emission_standard?: string
+  fuel_type?: string
+  owner_type?: string
+  vehicle_category?: string
+  page?: number
+  limit?: number
+}
+
+/** 质检汇总表 — 返回结构 */
+export interface QualityInspectionResult {
+  list: QualityInspectionItem[]
+  count: number
+  stats: QualityInspectionStats
+  filter_options: QualityInspectionFilterOptions
+}

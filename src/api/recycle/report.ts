@@ -1,6 +1,8 @@
 import request from '@/utils/http'
 import type {
   DecisionStatistics,
+  QualityInspectionParams,
+  QualityInspectionResult,
   ReportDateParams,
   SalesPerformanceResult,
   ScrapSummaryResult,
@@ -42,6 +44,27 @@ export function fetchVehicleArchive(params?: VehicleArchiveParams) {
       progress_status: params?.progress_status || '',
       page: params?.page || 1,
       limit: params?.limit || 20
+    }
+  })
+}
+
+/** 报废车辆质检汇总表 */
+export function fetchQualityInspection(params?: QualityInspectionParams) {
+  return request.get<QualityInspectionResult>({
+    url: '/scrap/report/quality_inspection',
+    params: {
+      keyword: params?.keyword || '',
+      start_date: params?.start_date || '',
+      end_date: params?.end_date || '',
+      agent_name: params?.agent_name || '',
+      inspector_name: params?.inspector_name || '',
+      qc_status: params?.qc_status || '',
+      emission_standard: params?.emission_standard || '',
+      fuel_type: params?.fuel_type || '',
+      owner_type: params?.owner_type || '',
+      vehicle_category: params?.vehicle_category || '',
+      page: params?.page || 1,
+      limit: params?.limit || 10
     }
   })
 }

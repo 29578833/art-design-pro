@@ -1,30 +1,39 @@
 <template>
   <div v-loading="loading" class="vehicle-archive-panel">
-    <!-- Tab 切换（原型：Tab 在上） -->
-    <div class="va-tabs">
-      <button
-        type="button"
-        class="va-tab-btn"
-        :class="{ 'is-active': activeType === 'car' }"
-        @click="switchType('car')"
-      >
-        汽车（乘用车和商用车）
-        <span class="va-tab-count">{{ tabs.car }}</span>
-      </button>
-      <button
-        type="button"
-        class="va-tab-btn"
-        :class="{ 'is-active': activeType === 'moto' }"
-        @click="switchType('moto')"
-      >
-        轻摩摩托车
-        <span class="va-tab-count">{{ tabs.moto }}</span>
-      </button>
-    </div>
+    <!-- Tab + 筛选栏 -->
+    <div class="va-toolbar">
+      <div class="va-tabs">
+        <button
+          type="button"
+          class="va-tab-btn"
+          :class="{ 'is-active': activeType === 'car' }"
+          @click="switchType('car')"
+        >
+          汽车（乘用车和商用车）
+          <span class="va-tab-count">{{ tabs.car }}</span>
+        </button>
+        <button
+          type="button"
+          class="va-tab-btn"
+          :class="{ 'is-active': activeType === 'moto' }"
+          @click="switchType('moto')"
+        >
+          轻摩摩托车
+          <span class="va-tab-count">{{ tabs.moto }}</span>
+        </button>
+      </div>
 
-    <!-- 筛选栏 -->
-    <div class="va-filter-bar">
       <div class="va-filter-row">
+        <ElDatePicker
+          v-model="dateRange"
+          type="daterange"
+          value-format="YYYY-MM-DD"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          :unlink-panels="true"
+          class="va-date-picker"
+        />
+
         <ElInput
           v-model="keyword"
           :placeholder="
@@ -78,7 +87,7 @@
     <div class="va-report-card">
       <div class="va-report-title">
         <div class="va-report-title-main">{{ reportTitle }}</div>
-        <div class="va-report-title-sub">{{ props.startDate }} — {{ props.endDate }}</div>
+        <div class="va-report-title-sub">{{ queryRange[0] }} — {{ queryRange[1] }}</div>
       </div>
 
       <div class="va-table-wrap">
@@ -182,16 +191,16 @@
 
 <script setup lang="ts">
   import type { VxeGridInstance } from 'vxe-table'
+  import { ElMessage } from 'element-plus'
   import { fetchVehicleArchive } from '@/api/recycle/report'
   import type { VehicleArchiveResult } from '@/types/recycle/decision/reports/report'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { buildCarColumns, buildMotoColumns, CAR_PROGRESS_STEPS } from './grid-columns'
   import { useVehicleArchiveExport } from './grid-export'
+  import { defaultReportDateRange } from '../../utils'
 
-  const props = defineProps<{
-    startDate: string
-    endDate: string
-  }>()
+  const dateRange = ref<[string, string]>(defaultReportDateRange())
+  const queryRange = ref<[string, string]>(defaultReportDateRange())
 
   const loading = ref(false)
   const gridRef = ref<VxeGridInstance | null>(null)
@@ -242,11 +251,18 @@
   }
 
   function handleSearch() {
+    if (!dateRange.value || dateRange.value.length !== 2) {
+      ElMessage.warning('请选择日期范围')
+      return
+    }
+    queryRange.value = [...dateRange.value]
     page.value = 1
     loadData()
   }
 
   function handleReset() {
+    dateRange.value = defaultReportDateRange()
+    queryRange.value = defaultReportDateRange()
     keyword.value = ''
     progressStatus.value = ''
     page.value = 1
@@ -263,8 +279,8 @@
     try {
       result.value = await fetchVehicleArchive({
         keyword: keyword.value || undefined,
-        start_date: props.startDate,
-        end_date: props.endDate,
+        start_date: queryRange.value[0],
+        end_date: queryRange.value[1],
         type: activeType.value,
         progress_status: progressStatus.value || undefined,
         page: page.value,
@@ -279,8 +295,8 @@
   async function exportExcel() {
     await exportReport({
       type: activeType.value,
-      startDate: props.startDate,
-      endDate: props.endDate,
+      startDate: queryRange.value[0],
+      endDate: queryRange.value[1],
       keyword: keyword.value || undefined,
       progress_status: progressStatus.value || undefined
     })
@@ -290,18 +306,11 @@
     exportExcel()
   }
 
-  watch(
-    () => [props.startDate, props.endDate],
-    () => {
-      page.value = 1
-      loadData()
-    },
-    { immediate: true }
-  )
-
-  defineExpose({ reload: loadData, exportExcel })
+  onMounted(() => {
+    loadData()
+  })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   @use './index';
 </style>

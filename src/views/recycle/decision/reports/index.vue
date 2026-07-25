@@ -1,6 +1,6 @@
 <template>
   <div class="decision-reports-page art-full-height">
-    <div class="decision-header">
+    <div v-if="!activeReport" class="decision-header">
       <div>
         <div class="decision-title">数据决策中心</div>
         <div class="decision-desc">报表中心 · 趋势分析 · 经营决策</div>
@@ -29,15 +29,6 @@
           </div>
         </div>
         <div class="report-card-right">
-          <button
-            type="button"
-            class="report-card-export"
-            :disabled="cardExportingKey === item.key"
-            @click.stop="handleCardExport(item)"
-          >
-            <ArtSvgIcon icon="ri:download-line" class="report-card-export-ico" />
-            {{ cardExportingKey === item.key ? '导出中' : '导出' }}
-          </button>
           <ArtSvgIcon icon="ri:arrow-right-s-line" class="report-card-arrow" />
         </div>
       </div>
@@ -51,59 +42,27 @@
         </button>
         <span class="report-detail-sep">/</span>
         <span class="report-detail-title">{{ activeReportMeta?.label }}</span>
-        <ElDatePicker
-          v-model="dateRange"
-          class="report-detail-date"
-          type="daterange"
-          value-format="YYYY-MM-DD"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          :unlink-panels="true"
-        />
-        <ElButton type="primary" @click="handleQuery">查询</ElButton>
-        <ElButton :loading="exporting" @click="handleExport">
-          <ArtSvgIcon icon="ri:download-line" class="mr-1" />
-          导出Excel
-        </ElButton>
       </div>
 
-      <ScrapSummaryPanel
-        v-if="activeReport === 'vehicle-summary'"
-        ref="scrapPanelRef"
-        :start-date="queryRange[0]"
-        :end-date="queryRange[1]"
-      />
-      <SalesPerfPanel
-        v-else-if="activeReport === 'salesman-perf'"
-        ref="salesPanelRef"
-        :start-date="queryRange[0]"
-        :end-date="queryRange[1]"
-      />
-      <VehicleArchivePanel
-        v-else-if="activeReport === 'vehicle-archive-summary'"
-        ref="vehicleArchivePanelRef"
-        :start-date="queryRange[0]"
-        :end-date="queryRange[1]"
-      />
+      <ScrapSummaryPanel v-if="activeReport === 'vehicle-summary'" />
+      <SalesPerfPanel v-else-if="activeReport === 'salesman-perf'" />
+      <VehicleArchivePanel v-else-if="activeReport === 'vehicle-archive-summary'" />
+      <QcSummaryPanel v-else-if="activeReport === 'qc-summary'" />
       <div v-else class="report-empty">该报表暂未开放</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-  import * as XLSX from 'xlsx'
   import { ElMessage } from 'element-plus'
-  import { fetchSalesPerformance, fetchScrapSummary } from '@/api/recycle/report'
-  import { useVehicleArchiveExport } from './modules/panel-vehicle-archive/grid-export'
+  import type { ReportKey } from '@/types/recycle/decision/reports/report'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import ScrapSummaryPanel from './modules/panel-scrap-summary/index.vue'
   import SalesPerfPanel from './modules/panel-sale-perf/index.vue'
   import VehicleArchivePanel from './modules/panel-vehicle-archive/index.vue'
-  import type { ReportKey } from '@/types/recycle/decision/reports/report'
+  import QcSummaryPanel from './modules/panel-qc-summary/index.vue'
 
   defineOptions({ name: 'RecycleDecisionReports' })
-
-  const { exportReport: exportVehicleArchiveReport } = useVehicleArchiveExport()
 
   const REPORT_CARDS: {
     key: ReportKey
@@ -119,6 +78,14 @@
       desc: '报废汽车及轻摩摩托车档案汇总，含进度状态与注销办证流程',
       icon: 'ri:file-list-3-line',
       color: '#531DAB',
+      available: true
+    },
+    {
+      key: 'qc-summary',
+      label: '报废车辆质检汇总表',
+      desc: '质检单汇总，支持多维筛选与导出',
+      icon: 'ri:search-eye-line',
+      color: '#13C2C2',
       available: true
     },
     {
@@ -164,30 +131,10 @@
   ]
 
   const activeReport = ref<ReportKey | null>(null)
-  const exporting = ref(false)
-  const cardExportingKey = ref<ReportKey | null>(null)
-
-  function defaultRange(): [string, string] {
-    const end = new Date()
-    const start = new Date(end.getFullYear(), end.getMonth(), 1)
-    const pad = (n: number) => String(n).padStart(2, '0')
-    const fmt = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-    return [fmt(start), fmt(end)]
-  }
-
-  const dateRange = ref<[string, string] | null>(defaultRange())
-  const queryRange = ref<[string, string]>(defaultRange())
 
   const activeReportMeta = computed(() =>
     REPORT_CARDS.find((item) => item.key === activeReport.value)
   )
-
-  const scrapPanelRef = ref<{ reload: () => Promise<void>; exportExcel: () => void } | null>(null)
-  const salesPanelRef = ref<{ reload: () => Promise<void>; exportExcel: () => void } | null>(null)
-  const vehicleArchivePanelRef = ref<{
-    reload: () => Promise<void>
-    exportExcel: () => void
-  } | null>(null)
 
   function openReport(item: (typeof REPORT_CARDS)[number]) {
     if (!item.available) {
@@ -195,97 +142,9 @@
       return
     }
     activeReport.value = item.key
-    dateRange.value = defaultRange()
-    queryRange.value = defaultRange()
-  }
-
-  function handleQuery() {
-    if (!dateRange.value || dateRange.value.length !== 2) {
-      ElMessage.warning('请选择日期范围')
-      return
-    }
-    queryRange.value = [...dateRange.value] as [string, string]
-  }
-
-  function handleExport() {
-    exporting.value = true
-    try {
-      if (activeReport.value === 'vehicle-summary') scrapPanelRef.value?.exportExcel()
-      else if (activeReport.value === 'salesman-perf') salesPanelRef.value?.exportExcel()
-      else if (activeReport.value === 'vehicle-archive-summary')
-        vehicleArchivePanelRef.value?.exportExcel()
-    } finally {
-      exporting.value = false
-    }
-  }
-
-  async function handleCardExport(item: (typeof REPORT_CARDS)[number]) {
-    if (!item.available) {
-      ElMessage.info('该报表暂未开放')
-      return
-    }
-    const [start_date, end_date] = defaultRange()
-    cardExportingKey.value = item.key
-    try {
-      if (item.key === 'vehicle-summary') {
-        const res = await fetchScrapSummary({ start_date, end_date })
-        const rows = (res.monthly || []).map((row) => ({
-          月份: row.month,
-          收车数量: row.count,
-          个人车主: row.personal,
-          企业客户: row.enterprise,
-          平均价格: row.avg_price,
-          总结算额: row.total_amount,
-          同比: `${row.yoy}%`
-        }))
-        if (!rows.length) {
-          ElMessage.warning('暂无数据可导出')
-          return
-        }
-        const sheet = XLSX.utils.json_to_sheet(rows)
-        const book = XLSX.utils.book_new()
-        XLSX.utils.book_append_sheet(book, sheet, '收车汇总')
-        XLSX.writeFile(book, `收车汇总_${start_date}_${end_date}.xlsx`)
-        ElMessage.success('导出成功')
-        return
-      }
-      if (item.key === 'salesman-perf') {
-        const res = await fetchSalesPerformance({ start_date, end_date })
-        const rows = (res.list || []).map((row, index) => ({
-          排名: index + 1,
-          业务员: row.name,
-          收车数量: row.count,
-          结算金额: row.amount,
-          平均单价: row.avg_price,
-          完成率: `${row.rate}%`
-        }))
-        if (!rows.length) {
-          ElMessage.warning('暂无数据可导出')
-          return
-        }
-        const sheet = XLSX.utils.json_to_sheet(rows)
-        const book = XLSX.utils.book_new()
-        XLSX.utils.book_append_sheet(book, sheet, '业务员绩效')
-        XLSX.writeFile(book, `业务员绩效_${start_date}_${end_date}.xlsx`)
-        ElMessage.success('导出成功')
-      }
-      if (item.key === 'vehicle-archive-summary') {
-        await exportVehicleArchiveReport({
-          type: 'car',
-          startDate: start_date,
-          endDate: end_date
-        })
-      }
-    } finally {
-      cardExportingKey.value = null
-    }
   }
 </script>
 
 <style lang="scss">
   @use './reports';
-
-  .mr-1 {
-    margin-right: 4px;
-  }
 </style>
