@@ -99,17 +99,17 @@ export const SETTLEMENT_EXPORT_COLUMN_GROUPS = [
 ] as const
 
 export const SETTLEMENT_EXPORT_COLUMNS: SettlementExportColumnDef[] = [
-  { key: 'vehicle_no', exportKey: 'vehicle_no', label: '自编号', group: '基础信息', width: 90 },
-  { key: 'model', exportKey: 'our_model', label: '我司车型', group: '基础信息', width: 110 },
+  { key: 'vehicle_no', exportKey: 'vehicle_no', label: '自编号', group: '基础信息', width: 130 },
+  { key: 'model', exportKey: 'our_model', label: '我司车型', group: '基础信息', width: 150 },
   { key: 'fuel_type', exportKey: 'fuel_type', label: '柴油/汽油', group: '基础信息', width: 80 },
-  { key: 'add_time', exportKey: 'add_time', label: '信息录入日期', group: '基础信息', width: 108 },
-  { key: 'entry_time', exportKey: 'entry_time', label: '入场日期', group: '基础信息', width: 92 },
+  { key: 'add_time', exportKey: 'add_time', label: '信息录入日期', group: '基础信息', width: 130 },
+  { key: 'entry_time', exportKey: 'entry_time', label: '入场日期', group: '基础信息', width: 130 },
   {
     key: 'warehouse_no',
     exportKey: 'warehouse_no',
     label: '入库单号',
     group: '基础信息',
-    width: 108
+    width: 140
   },
   {
     key: 'delivery_type_text',
@@ -213,7 +213,7 @@ export const SETTLEMENT_EXPORT_COLUMNS: SettlementExportColumnDef[] = [
     exportKey: 'settlement_date',
     label: '结算日期',
     group: '结算信息',
-    width: 92
+    width: 130
   },
   { key: 'salesman', exportKey: 'salesman', label: '业务员', group: '结算信息', width: 80 },
   { key: 'remark', exportKey: 'remark', label: '备注', group: '结算信息', width: 100 }

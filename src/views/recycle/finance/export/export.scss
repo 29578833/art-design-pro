@@ -9,6 +9,7 @@
 
 .fs-export-header {
   display: flex;
+  flex-shrink: 0;
   gap: 16px;
   align-items: flex-start;
   justify-content: space-between;
@@ -26,9 +27,93 @@
   color: #9ca3af;
 }
 
-.fs-export-header-actions {
+.fs-export-filter-card {
+  flex-shrink: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: none !important;
+}
+
+.fs-export-filters {
   display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fs-export-filter-row {
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
+  align-items: center;
+}
+
+.fs-export-labeled-input {
+  .el-input__wrapper {
+    padding-left: 10px;
+  }
+
+  .el-input__prefix {
+    margin-right: 0;
+  }
+
+  .el-input__prefix-inner {
+    align-items: center;
+  }
+}
+
+.fs-export-input-label {
+  margin-right: 6px;
+  font-size: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.fs-export-date-label {
+  font-size: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.fs-export-status-group {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+}
+
+.fs-export-status-btn {
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #666;
+  white-space: nowrap;
+  cursor: pointer;
+  background: #fff;
+  border: none;
+  border-right: 1px solid #e8e8e8;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
+
+  &:last-child {
+    border-right: none;
+  }
+
+  &.is-all.is-active {
+    color: #1890ff;
+    background: #e6f7ff;
+  }
+
+  &.is-pending.is-active {
+    color: #fa8c16;
+    background: #fff7e6;
+  }
+
+  &.is-settled.is-active {
+    color: #52c41a;
+    background: #f6ffed;
+  }
 }
 
 .fs-export-card {
@@ -51,13 +136,81 @@
   }
 }
 
-.fs-export-filters {
+.fs-export-toolbar {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.fs-export-toolbar-left {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid #f3f4f6;
+  min-width: 0;
+}
+
+.fs-export-btn {
+  color: #fff !important;
+  background: #fa8c16 !important;
+  border-color: #fa8c16 !important;
+
+  &:hover,
+  &:focus {
+    color: #fff !important;
+    background: #e67e0f !important;
+    border-color: #e67e0f !important;
+  }
+}
+
+.fs-export-group-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  margin-left: 4px;
+}
+
+.fs-export-group-tag {
+  padding: 2px 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  border-radius: 10px;
+}
+
+.fs-export-toolbar-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin-left: auto;
+  font-size: 12px;
+  color: #9ca3af;
+
+  b {
+    font-weight: 700;
+
+    &.is-total {
+      color: #374151;
+    }
+
+    &.is-pending {
+      color: #fa8c16;
+    }
+
+    &.is-settled {
+      color: #52c41a;
+    }
+
+    &.is-cols {
+      color: #1890ff;
+    }
+  }
 }
 
 .fs-export-table-wrap {

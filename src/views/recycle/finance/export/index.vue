@@ -3,75 +3,151 @@
     <div class="fs-export-header">
       <div>
         <div class="fs-page-title">结算车辆导出</div>
-        <div class="fs-page-desc">按分组字段导出车辆结算宽表，支持列显示配置</div>
-      </div>
-      <div class="fs-export-header-actions">
-        <ElButton @click="columnDialogVisible = true">
-          <ArtSvgIcon icon="ri:table-line" class="mr-1" />
-          列显示设置
-        </ElButton>
-        <ElButton type="primary" :loading="exporting" @click="handleExport">
-          <ArtSvgIcon icon="ri:download-line" class="mr-1" />
-          导出Excel
-        </ElButton>
+        <div class="fs-page-desc">查询结算车辆明细，支持自定义字段导出Excel报表</div>
       </div>
     </div>
 
-    <ElCard shadow="never" class="fs-export-card" :body-style="{ padding: 0 }">
+    <ElCard shadow="never" class="fs-export-filter-card" :body-style="{ padding: '16px' }">
       <div class="fs-export-filters">
-        <ElInput
-          v-model="searchForm.plate_no"
-          placeholder="车牌号"
-          clearable
-          style="width: 120px"
-        />
-        <ElInput
-          v-model="searchForm.vehicle_no"
-          placeholder="自编号"
-          clearable
-          style="width: 120px"
-        />
-        <ElInput
-          v-model="searchForm.owner_name"
-          placeholder="产权人"
-          clearable
-          style="width: 120px"
-        />
-        <ElInput
-          v-model="searchForm.payee_name"
-          placeholder="收款人"
-          clearable
-          style="width: 120px"
-        />
-        <ElInput
-          v-model="searchForm.payee_account"
-          placeholder="收款账号"
-          clearable
-          style="width: 140px"
-        />
-        <ElSelect v-model="searchForm.salesman" placeholder="业务员" clearable style="width: 120px">
-          <ElOption
-            v-for="item in businessOptions"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
+        <div class="fs-export-filter-row">
+          <ElInput
+            v-model="searchForm.vehicle_no"
+            class="fs-export-labeled-input"
+            placeholder="请输入"
+            clearable
+            style="width: 200px"
+          >
+            <template #prefix>
+              <span class="fs-export-input-label">车辆编号</span>
+            </template>
+          </ElInput>
+          <ElInput
+            v-model="searchForm.owner_name"
+            class="fs-export-labeled-input"
+            placeholder="请输入"
+            clearable
+            style="width: 200px"
+          >
+            <template #prefix>
+              <span class="fs-export-input-label">车主姓名</span>
+            </template>
+          </ElInput>
+          <ElInput
+            v-model="searchForm.plate_no"
+            class="fs-export-labeled-input"
+            placeholder="请输入"
+            clearable
+            style="width: 200px"
+          >
+            <template #prefix>
+              <span class="fs-export-input-label">车牌号</span>
+            </template>
+          </ElInput>
+          <ElInput
+            v-model="searchForm.payee_name"
+            class="fs-export-labeled-input"
+            placeholder="请输入"
+            clearable
+            style="width: 200px"
+          >
+            <template #prefix>
+              <span class="fs-export-input-label">收款人名称</span>
+            </template>
+          </ElInput>
+          <ElInput
+            v-model="searchForm.payee_account"
+            class="fs-export-labeled-input"
+            placeholder="请输入"
+            clearable
+            style="width: 200px"
+          >
+            <template #prefix>
+              <span class="fs-export-input-label">收款人账号</span>
+            </template>
+          </ElInput>
+          <ElSelect
+            v-model="searchForm.salesman"
+            placeholder="业务员(全部)"
+            clearable
+            style="width: 200px"
+          >
+            <ElOption
+              v-for="item in businessOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </ElSelect>
+        </div>
+
+        <div class="fs-export-filter-row">
+          <span class="fs-export-date-label">录入日期：</span>
+          <ElDatePicker
+            v-model="dateRange"
+            type="daterange"
+            value-format="YYYY-MM-DD"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            :unlink-panels="true"
+            style="flex-grow: 0; width: 340px"
           />
-        </ElSelect>
-        <ElSelect v-model="searchForm.status" placeholder="是否结算" clearable style="width: 120px">
-          <ElOption label="待结算" value="pending" />
-          <ElOption label="已结算" value="settled" />
-        </ElSelect>
-        <ElDatePicker
-          v-model="dateRange"
-          type="daterange"
-          value-format="YYYY-MM-DD"
-          start-placeholder="入库开始"
-          end-placeholder="入库结束"
-          :unlink-panels="true"
-          style="width: 240px"
-        />
-        <ElButton type="primary" @click="handleSearch">查询</ElButton>
-        <ElButton @click="handleReset">重置</ElButton>
+          <div class="fs-export-status-group">
+            <button
+              v-for="item in statusOptions"
+              :key="item.value || 'all'"
+              type="button"
+              class="fs-export-status-btn"
+              :class="[item.cls, { 'is-active': searchForm.status === item.value }]"
+              @click="setStatus(item.value)"
+            >
+              {{ item.label }}
+            </button>
+          </div>
+          <ElButton type="primary" @click="handleSearch"> 查询 </ElButton>
+          <ElButton @click="handleReset"> 重置 </ElButton>
+        </div>
+      </div>
+    </ElCard>
+
+    <ElCard shadow="never" class="fs-export-card" :body-style="{ padding: 0 }">
+      <div class="fs-export-toolbar">
+        <div class="fs-export-toolbar-left">
+          <ElButton class="fs-export-btn" :loading="exporting" @click="handleExport">
+            <ArtSvgIcon icon="ri:download-line" class="mr-1" />
+            导出Excel
+          </ElButton>
+          <ElButton @click="columnDialogVisible = true">
+            <ArtSvgIcon icon="ri:list-settings-line" class="mr-1" />
+            导出字段配置
+          </ElButton>
+          <div class="fs-export-group-tags">
+            <span
+              v-for="group in visibleGroups"
+              :key="group.name"
+              class="fs-export-group-tag"
+              :style="{
+                background: SETTLEMENT_EXPORT_GROUP_COLORS[group.name]?.[0],
+                color: SETTLEMENT_EXPORT_GROUP_COLORS[group.name]?.[1]
+              }"
+            >
+              {{ group.name }}
+            </span>
+          </div>
+        </div>
+        <div class="fs-export-toolbar-stats">
+          <span
+            >共 <b class="is-total">{{ pagination.total }}</b> 条</span
+          >
+          <span
+            >待结算 <b class="is-pending">{{ pendingCount }}</b></span
+          >
+          <span
+            >已结算 <b class="is-settled">{{ settledCount }}</b></span
+          >
+          <span
+            >导出 <b class="is-cols">{{ selectedKeys.size }}</b> 列</span
+          >
+        </div>
       </div>
 
       <div v-loading="loading" class="fs-export-table-wrap">
@@ -130,7 +206,7 @@
 
     <ElDialog
       v-model="columnDialogVisible"
-      title="导出列显示设置"
+      title="导出字段配置"
       width="820px"
       align-center
       destroy-on-close
@@ -227,11 +303,30 @@
     end_time: ''
   })
   const dateRange = ref<[string, string] | null>(null)
+  const statusOptions = [
+    { label: '全部', value: '' as const, cls: 'is-all' },
+    { label: '待结算', value: 'pending' as const, cls: 'is-pending' },
+    { label: '已结算', value: 'settled' as const, cls: 'is-settled' }
+  ]
+  function setStatus(status: '' | 'pending' | 'settled') {
+    searchForm.status = status
+    handleSearch()
+  }
 
   /** 列表数据与分页 */
   const loading = ref(false)
   const tableRows = ref<SettlementVehicleExportRow[]>([])
   const pagination = reactive({ current: 1, size: 10, total: 0 })
+  const pendingCount = computed(() => {
+    if (searchForm.status === 'pending') return pagination.total
+    if (searchForm.status === 'settled') return 0
+    return tableRows.value.filter((r) => r.status === 'pending').length
+  })
+  const settledCount = computed(() => {
+    if (searchForm.status === 'settled') return pagination.total
+    if (searchForm.status === 'pending') return 0
+    return tableRows.value.filter((r) => r.status === 'settled').length
+  })
   function buildParams() {
     return {
       vehicle_no: searchForm.vehicle_no,
