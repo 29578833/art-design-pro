@@ -79,6 +79,12 @@
         :start-date="queryRange[0]"
         :end-date="queryRange[1]"
       />
+      <VehicleArchivePanel
+        v-else-if="activeReport === 'vehicle-archive-summary'"
+        ref="vehicleArchivePanelRef"
+        :start-date="queryRange[0]"
+        :end-date="queryRange[1]"
+      />
       <div v-else class="report-empty">该报表暂未开放</div>
     </div>
   </div>
@@ -88,12 +94,16 @@
   import * as XLSX from 'xlsx'
   import { ElMessage } from 'element-plus'
   import { fetchSalesPerformance, fetchScrapSummary } from '@/api/recycle/report'
-  import type { ReportKey } from '@/types/recycle/decision/reports/report'
+  import { useVehicleArchiveExport } from './modules/panel-vehicle-archive/grid-export'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import ScrapSummaryPanel from './modules/panel-scrap-summary/index.vue'
   import SalesPerfPanel from './modules/panel-sale-perf/index.vue'
+  import VehicleArchivePanel from './modules/panel-vehicle-archive/index.vue'
+  import type { ReportKey } from '@/types/recycle/decision/reports/report'
 
   defineOptions({ name: 'RecycleDecisionReports' })
+
+  const { exportReport: exportVehicleArchiveReport } = useVehicleArchiveExport()
 
   const REPORT_CARDS: {
     key: ReportKey
@@ -103,6 +113,14 @@
     color: string
     available: boolean
   }[] = [
+    {
+      key: 'vehicle-archive-summary',
+      label: '车辆档案信息汇总表',
+      desc: '报废汽车及轻摩摩托车档案汇总，含进度状态与注销办证流程',
+      icon: 'ri:file-list-3-line',
+      color: '#531DAB',
+      available: true
+    },
     {
       key: 'vehicle-summary',
       label: '收车汇总报表',
@@ -166,6 +184,10 @@
 
   const scrapPanelRef = ref<{ reload: () => Promise<void>; exportExcel: () => void } | null>(null)
   const salesPanelRef = ref<{ reload: () => Promise<void>; exportExcel: () => void } | null>(null)
+  const vehicleArchivePanelRef = ref<{
+    reload: () => Promise<void>
+    exportExcel: () => void
+  } | null>(null)
 
   function openReport(item: (typeof REPORT_CARDS)[number]) {
     if (!item.available) {
@@ -190,6 +212,8 @@
     try {
       if (activeReport.value === 'vehicle-summary') scrapPanelRef.value?.exportExcel()
       else if (activeReport.value === 'salesman-perf') salesPanelRef.value?.exportExcel()
+      else if (activeReport.value === 'vehicle-archive-summary')
+        vehicleArchivePanelRef.value?.exportExcel()
     } finally {
       exporting.value = false
     }
@@ -244,6 +268,13 @@
         XLSX.utils.book_append_sheet(book, sheet, '业务员绩效')
         XLSX.writeFile(book, `业务员绩效_${start_date}_${end_date}.xlsx`)
         ElMessage.success('导出成功')
+      }
+      if (item.key === 'vehicle-archive-summary') {
+        await exportVehicleArchiveReport({
+          type: 'car',
+          startDate: start_date,
+          endDate: end_date
+        })
       }
     } finally {
       cardExportingKey.value = null

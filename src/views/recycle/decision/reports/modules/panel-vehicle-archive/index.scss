@@ -1,0 +1,370 @@
+// ========== 车辆档案汇总表 vxe-grid ==========
+.va-vxe-grid {
+  .vxe-header--column {
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .vxe-body--column {
+    font-size: 11px;
+  }
+
+  // 汽车 — 分组表头（深色）
+  .va-group-biz {
+    font-weight: 700 !important;
+    color: #096dd9 !important;
+    background: #bae7ff !important;
+  }
+
+  .va-group-vehicle {
+    font-weight: 700 !important;
+    color: #389e0d !important;
+    background: #d9f7be !important;
+  }
+
+  .va-group-weight {
+    font-weight: 700 !important;
+    color: #874d00 !important;
+    background: #ffe7ba !important;
+  }
+
+  .va-group-scrap {
+    font-weight: 700 !important;
+    color: #9e1068 !important;
+    background: #ffd6e7 !important;
+  }
+
+  .va-group-progress {
+    font-weight: 700 !important;
+    color: #531dab !important;
+    background: #f9f0ff !important;
+  }
+
+  // 汽车 — 叶子表头（浅色）
+  .va-leaf-seq {
+    color: #4b5563 !important;
+    background: #e6f7ff !important;
+  }
+
+  .va-leaf-biz {
+    color: #4b5563 !important;
+    background: #e6f4ff !important;
+  }
+
+  .va-leaf-vehicle {
+    color: #4b5563 !important;
+    background: #f6ffe6 !important;
+  }
+
+  .va-leaf-weight {
+    color: #4b5563 !important;
+    background: #fff7e6 !important;
+  }
+
+  .va-leaf-scrap {
+    color: #4b5563 !important;
+    background: #fff0f6 !important;
+  }
+
+  .va-leaf-progress {
+    color: #4b5563 !important;
+    background: #faf0ff !important;
+  }
+
+  // 摩托车 — 单行表头
+  .va-moto-sticky {
+    color: #4b5563 !important;
+    background: #f0e6ff !important;
+  }
+
+  .va-moto-weight {
+    font-weight: 600 !important;
+    color: #874d00 !important;
+    background: #fff7e6 !important;
+  }
+
+  .va-moto-vehicle {
+    font-weight: 600 !important;
+    color: #389e0d !important;
+    background: #d9f7be !important;
+  }
+
+  .va-moto-flow {
+    font-weight: 600 !important;
+    color: #006d75 !important;
+    background: #e6fffb !important;
+  }
+
+  // 固定列阴影
+  .vxe-table--fixed-left-wrapper {
+    box-shadow: 2px 0 6px rgb(0 0 0 / 6%);
+  }
+
+  .vxe-body--row.row--hover {
+    background: rgb(24 144 255 / 4%);
+  }
+}
+
+.vehicle-archive-panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.va-tabs {
+  display: flex;
+  gap: 0;
+  background: #fff;
+  border-bottom: 2px solid #e8e8e8;
+  border-radius: 8px 8px 0 0;
+}
+
+.va-tab-btn {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 10px 20px;
+  margin-bottom: -2px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #8c8c8c;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+
+  &:hover {
+    color: #1890ff;
+  }
+
+  &.is-active {
+    color: #1890ff;
+    border-bottom-color: #1890ff;
+  }
+}
+
+.va-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #8c8c8c;
+  background: #f5f5f5;
+  border-radius: 9px;
+
+  .is-active & {
+    color: #1890ff;
+    background: #e6f7ff;
+  }
+}
+
+.va-filter-bar {
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.va-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.va-search-input {
+  width: 320px;
+}
+
+.va-progress-select {
+  width: 130px;
+}
+
+.va-search-icon {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.va-filter-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.va-report-card {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.va-report-title {
+  padding: 10px 16px;
+  text-align: center;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.va-report-title-main {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.va-report-title-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.va-table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.va-pagination {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.va-pagination-info {
+  font-size: 12px;
+  color: #9ca3af;
+
+  b {
+    font-weight: 600;
+    color: #4b5563;
+  }
+}
+
+.va-self-no {
+  font-size: 12px;
+  font-weight: 600;
+
+  &.is-car {
+    color: #1890ff;
+  }
+
+  &.is-moto {
+    color: #531dab;
+  }
+}
+
+.va-vin {
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+}
+
+.va-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 3px;
+
+  &.is-passenger {
+    color: #1890ff;
+    background: #e6f7ff;
+  }
+
+  &.is-commercial {
+    color: #fa8c16;
+    background: #fff7e6;
+  }
+
+  &.is-supervision {
+    color: #cf1322;
+    background: #fff1f0;
+  }
+
+  &.is-normal-scrap {
+    color: #389e0d;
+    background: #f6ffed;
+  }
+
+  &.is-ok {
+    color: #389e0d;
+    background: #f6ffed;
+  }
+
+  &.is-abnormal {
+    color: #fa8c16;
+    background: #fff7e6;
+  }
+}
+
+.va-progress-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  min-width: 56px;
+}
+
+.va-progress-mark {
+  font-size: 10px;
+  font-weight: 500;
+
+  &.is-done {
+    color: #52c41a;
+  }
+
+  &.is-pending {
+    color: #d9d9d9;
+  }
+}
+
+.va-progress-sub {
+  font-size: 9px;
+
+  &.is-date {
+    color: #8c8c8c;
+  }
+
+  &.is-wait {
+    color: #d9d9d9;
+  }
+}
+
+.va-flow-date {
+  font-size: 12px;
+  font-weight: 500;
+  color: #006d75;
+}
+
+.va-cert-done {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 11px;
+  color: #52c41a;
+  background: #f6ffed;
+  border-radius: 3px;
+}
+
+.va-empty-cell {
+  font-size: 12px;
+  color: #d1d5db;
+}
+
+.va-empty-text {
+  color: #9ca3af;
+}
+
+.mr-1 {
+  margin-right: 4px;
+}

@@ -3,7 +3,9 @@ import type {
   DecisionStatistics,
   ReportDateParams,
   SalesPerformanceResult,
-  ScrapSummaryResult
+  ScrapSummaryResult,
+  VehicleArchiveParams,
+  VehicleArchiveResult
 } from '@/types/recycle/decision/reports/report'
 
 /** 收车汇总报表 */
@@ -24,6 +26,22 @@ export function fetchSalesPerformance(params?: ReportDateParams) {
     params: {
       start_date: params?.start_date || '',
       end_date: params?.end_date || ''
+    }
+  })
+}
+
+/** 车辆档案信息汇总表 */
+export function fetchVehicleArchive(params?: VehicleArchiveParams) {
+  return request.get<VehicleArchiveResult>({
+    url: '/scrap/report/vehicle_archive',
+    params: {
+      keyword: params?.keyword || '',
+      start_date: params?.start_date || '',
+      end_date: params?.end_date || '',
+      type: params?.type || 'car',
+      progress_status: params?.progress_status || '',
+      page: params?.page || 1,
+      limit: params?.limit || 20
     }
   })
 }
