@@ -8,7 +8,7 @@ description: >-
 
 ## 路径配置
 
-- **原型代码**：`C:\Users\29758\Desktop\figma_car_yuanxing`（Figma Make 导出，React + shadcn，仅作 UI/交互/字段参考，不直接复制）
+- **原型代码**：`C:\Users\29758\Desktop\figma_yuanxing_front`（Figma Make 导出，React + shadcn，仅作 UI/交互/字段参考，不直接复制）
 - **后端代码**：`D:\ROOT\QXB\xinguang-api\xinguang_api`（ThinkPHP / CRMEB，scrap 模块）
 - **目标项目**：`art-design-pro`（Vue 3 + Element Plus + Pinia + Vue Router）
 
