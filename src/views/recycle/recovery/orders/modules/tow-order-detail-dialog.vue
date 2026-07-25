@@ -1149,7 +1149,6 @@
   .td-order-no {
     font-size: 13px;
     font-weight: 500;
-    // font-family: ui-monospace, 'Courier New', monospace;
     color: #595959;
   }
 

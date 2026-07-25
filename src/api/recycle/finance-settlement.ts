@@ -124,13 +124,20 @@ export async function fetchSettlementVehicleExportList(
   const query = { ...params }
   delete query.current
   delete query.size
-  const res = await request.get<{ list: SettlementVehicleExportRow[]; count: number }>({
+  const res = await request.get<{
+    list: SettlementVehicleExportRow[]
+    count: number
+    pendingCount?: number
+    settledCount?: number
+  }>({
     url: '/scrap/settlement_vehicle_export/list',
     params: { ...query, page, limit }
   })
   return {
     records: res.list || [],
     total: Number(res.count || 0),
+    pendingCount: Number(res.pendingCount || 0),
+    settledCount: Number(res.settledCount || 0),
     current: page,
     size: limit
   }

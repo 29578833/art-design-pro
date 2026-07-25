@@ -393,10 +393,6 @@
       font-weight: 600;
     }
 
-    &--mono {
-      font-family: ui-monospace, monospace;
-    }
-
     &--price {
       font-size: 15px;
       font-weight: 600;

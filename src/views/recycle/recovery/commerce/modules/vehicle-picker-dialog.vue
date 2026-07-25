@@ -147,7 +147,6 @@
   }
 
   .commerce-picker-vin {
-    font-family: Menlo, Monaco, Consolas, monospace;
     font-size: 12px;
   }
 

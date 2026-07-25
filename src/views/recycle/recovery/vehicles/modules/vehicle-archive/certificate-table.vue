@@ -246,14 +246,12 @@
   }
 
   .cert-main-title {
-    font-family: SimSun, '宋体', serif;
     font-size: 19.2pt;
     vertical-align: top;
   }
 
   .table-no-border,
   .table-border {
-    font-family: SimSun, '宋体', serif;
     font-size: 9.6pt;
     font-weight: 700;
     color: #000;

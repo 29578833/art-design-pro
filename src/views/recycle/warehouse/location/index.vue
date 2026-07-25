@@ -1,5 +1,5 @@
 <template>
-  <div class="loc-page art-full-height">
+  <div class="loc-page art-full-height" :class="{ 'is-page-scroll': activeTab === 'areas' }">
     <div class="loc-page-header">
       <div>
         <div class="loc-page-title">库位管理</div>

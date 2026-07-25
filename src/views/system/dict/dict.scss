@@ -89,7 +89,6 @@
 
   .dict-cat-code {
     margin-top: 2px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 12px;
     color: #9ca3af;
   }
@@ -127,7 +126,6 @@
   }
 
   .dict-main-code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 12px;
     color: #9ca3af;
   }
@@ -181,7 +179,6 @@
   }
 
   .dict-value {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 12px;
     color: #6b7280;
   }
@@ -265,7 +262,7 @@
   }
 }
 
-@media (width <= 900px) {
+@media (width <=900px) {
   .dict-page .dict-layout {
     grid-template-columns: 1fr;
   }

@@ -6,6 +6,30 @@
   padding: 4px 0;
   overflow: hidden;
 
+  &.is-page-scroll {
+    overflow-y: auto;
+
+    .loc-list-page {
+      flex: 0 0 auto;
+      overflow: visible;
+    }
+
+    .loc-table-card {
+      flex: none;
+      min-height: auto;
+      overflow: visible;
+
+      :deep(.el-card__body) {
+        height: auto;
+        overflow: visible;
+      }
+
+      :deep(.art-table) {
+        flex: none;
+      }
+    }
+  }
+
   .loc-page-header,
   .loc-stats,
   .loc-main-tabs,
@@ -188,7 +212,6 @@
   .loc-code-tag {
     display: inline-block;
     padding: 2px 8px;
-    font-family: monospace;
     font-size: 12px;
     font-weight: 600;
     color: #374151;
@@ -332,7 +355,6 @@
   align-items: center;
   justify-content: center;
   aspect-ratio: 1;
-  font-family: monospace;
   font-size: 10px;
   font-weight: 500;
   border: 1px solid;

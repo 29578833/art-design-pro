@@ -317,16 +317,8 @@
   const loading = ref(false)
   const tableRows = ref<SettlementVehicleExportRow[]>([])
   const pagination = reactive({ current: 1, size: 10, total: 0 })
-  const pendingCount = computed(() => {
-    if (searchForm.status === 'pending') return pagination.total
-    if (searchForm.status === 'settled') return 0
-    return tableRows.value.filter((r) => r.status === 'pending').length
-  })
-  const settledCount = computed(() => {
-    if (searchForm.status === 'settled') return pagination.total
-    if (searchForm.status === 'pending') return 0
-    return tableRows.value.filter((r) => r.status === 'settled').length
-  })
+  const pendingCount = ref(0)
+  const settledCount = ref(0)
   function buildParams() {
     return {
       vehicle_no: searchForm.vehicle_no,
@@ -350,6 +342,8 @@
       pagination.total = res.total
       pagination.current = res.current
       pagination.size = res.size
+      pendingCount.value = res.pendingCount
+      settledCount.value = res.settledCount
     } finally {
       loading.value = false
     }

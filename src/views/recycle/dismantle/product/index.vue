@@ -33,34 +33,14 @@
       </div>
     </div>
 
-    <div class="product-main-tabs">
-      <button
-        type="button"
-        class="product-main-tab"
-        :class="{ 'is-active': activeTab === 'list' }"
-        @click="activeTab = 'list'"
-      >
-        入库清单
-      </button>
-      <button
-        type="button"
-        class="product-main-tab"
-        :class="{ 'is-active': activeTab === 'stats' }"
-        @click="activeTab = 'stats'"
-      >
-        产物统计
-      </button>
-    </div>
-
     <ProductSearch
-      v-if="activeTab === 'list'"
       v-model:search-form="searchForm"
       :category-counts="categoryCounts"
       @search="handleToolbarSearch"
       @reset="handleToolbarReset"
     />
 
-    <div v-if="activeTab === 'list'" class="product-list-page">
+    <div class="product-list-page">
       <ElCard
         class="product-table-card art-table-card"
         shadow="never"
@@ -79,8 +59,6 @@
         />
       </ElCard>
     </div>
-
-    <ProductStatsPanel v-else :stats="stats" />
 
     <ProductCreateDialog v-model:visible="createVisible" @success="handleCreateSuccess" />
 
@@ -115,14 +93,9 @@
   import ProductSearch from './modules/product-search.vue'
   import ProductCreateDialog from './modules/product-create-dialog.vue'
   import ProductDetailDialog from './modules/product-detail-dialog.vue'
-  import ProductStatsPanel from './modules/product-stats-panel.vue'
   import ProductLocationMapDialog from './modules/product-location-map-dialog.vue'
 
   defineOptions({ name: 'RecycleDismantleProduct' })
-
-  type ProductPageTab = 'list' | 'stats'
-
-  const activeTab = ref<ProductPageTab>('list')
 
   const searchForm = ref<ProductStoreSearchParams>({
     keyword: undefined,
@@ -306,7 +279,7 @@
       {
         prop: 'operation',
         label: '操作',
-        width: 100,
+        width: 130,
         align: 'center',
         fixed: 'right',
         formatter: (row) =>
