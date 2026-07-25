@@ -5,10 +5,6 @@
         <div class="decision-title">数据决策中心</div>
         <div class="decision-desc">报表中心 · 趋势分析 · 经营决策</div>
       </div>
-      <div class="decision-nav">
-        <button type="button" class="decision-nav-btn is-active">报表中心</button>
-        <button type="button" class="decision-nav-btn" @click="goTrends">趋势分析</button>
-      </div>
     </div>
 
     <!-- 报表列表 -->
@@ -91,12 +87,11 @@
 <script setup lang="ts">
   import * as XLSX from 'xlsx'
   import { ElMessage } from 'element-plus'
-  import { useRouter } from 'vue-router'
   import { fetchSalesPerformance, fetchScrapSummary } from '@/api/recycle/report'
   import type { ReportKey } from '@/types/recycle/decision/reports/report'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
-  import ScrapSummaryPanel from './modules/scrap-summary-panel.vue'
-  import SalesPerfPanel from './modules/sales-perf-panel.vue'
+  import ScrapSummaryPanel from './modules/panel-scrap-summary/index.vue'
+  import SalesPerfPanel from './modules/panel-sale-perf/index.vue'
 
   defineOptions({ name: 'RecycleDecisionReports' })
 
@@ -150,7 +145,6 @@
     }
   ]
 
-  const router = useRouter()
   const activeReport = ref<ReportKey | null>(null)
   const exporting = ref(false)
   const cardExportingKey = ref<ReportKey | null>(null)
@@ -254,10 +248,6 @@
     } finally {
       cardExportingKey.value = null
     }
-  }
-
-  function goTrends() {
-    router.push('/recycle/decision/trends')
   }
 </script>
 
