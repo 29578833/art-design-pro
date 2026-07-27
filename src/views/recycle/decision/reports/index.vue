@@ -124,8 +124,8 @@
     },
     {
       key: 'dismantle-photos',
-      label: '机动车报废拆解清单',
-      desc: '机动车报废拆解全流程照片留档，含掀顶断粱、五大总成等工序，支持按车牌批量下载',
+      label: '拆解照片核销清单',
+      desc: '拆解车辆各工序照片留档，支持按车牌批量下载图片',
       icon: 'ri:camera-line',
       color: '#13C2C2',
       available: true
@@ -147,36 +147,12 @@
       available: true
     },
     {
-      key: 'dismantle-output',
-      label: '拆解产物统计',
-      desc: '各类产物（回用件/废金属/危废）数量和重量',
-      icon: 'ri:settings-3-line',
-      color: '#722ED1',
-      available: false
-    },
-    {
-      key: 'settlement-summary',
-      label: '结算汇总报表',
-      desc: '按客户/时间段汇总结算金额和付款状态',
-      icon: 'ri:money-cny-circle-line',
-      color: '#52C41A',
-      available: false
-    },
-    {
       key: 'salesman-perf',
       label: '业务员绩效报表',
       desc: '各业务员收车量、结算金额排行',
       icon: 'ri:user-star-line',
       color: '#FA8C16',
       available: true
-    },
-    {
-      key: 'waste-stat',
-      label: '废料管理报表',
-      desc: '废铁/废铜/废铝等废料的重量和收益统计',
-      icon: 'ri:recycle-line',
-      color: '#13C2C2',
-      available: false
     }
   ]
 

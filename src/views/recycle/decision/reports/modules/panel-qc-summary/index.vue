@@ -314,7 +314,7 @@
 
   const gridOptions = {
     border: true,
-    size: 'mini' as const,
+    size: 'small' as const,
     align: 'center' as const,
     headerAlign: 'center' as const,
     showOverflow: 'tooltip' as const,
