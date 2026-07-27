@@ -50,6 +50,9 @@
       <QcSummaryPanel v-else-if="activeReport === 'qc-summary'" />
       <MaterialInoutPanel v-else-if="activeReport === 'raw-material-inout'" />
       <MaterialDailyPanel v-else-if="activeReport === 'raw-material'" />
+      <DismantleDetailPanel v-else-if="activeReport === 'dismantle-detail'" />
+      <PhotoChecklistPanel v-else-if="activeReport === 'dismantle-photos'" />
+      <FinanceSettlementPanel v-else-if="activeReport === 'finance-settlement'" />
       <div v-else class="report-empty">该报表暂未开放</div>
     </div>
   </div>
@@ -65,6 +68,9 @@
   import QcSummaryPanel from './modules/panel-qc-summary/index.vue'
   import MaterialInoutPanel from './modules/panel-material-inout/index.vue'
   import MaterialDailyPanel from './modules/panel-material-daily/index.vue'
+  import DismantleDetailPanel from './modules/panel-dismantle-detail/index.vue'
+  import PhotoChecklistPanel from './modules/panel-photo-checklist/index.vue'
+  import FinanceSettlementPanel from './modules/panel-finance-settlement/index.vue'
 
   defineOptions({ name: 'RecycleDecisionReports' })
 
@@ -106,6 +112,30 @@
       desc: '各车型原料初期库数、本日/本月入库出库及结存统计',
       icon: 'ri:archive-2-line',
       color: '#096DD9',
+      available: true
+    },
+    {
+      key: 'dismantle-detail',
+      label: '报废车拆解报表',
+      desc: '按车型统计拆解明细、产物明细及本月预售/累计发货',
+      icon: 'ri:tools-line',
+      color: '#FA541C',
+      available: true
+    },
+    {
+      key: 'dismantle-photos',
+      label: '机动车报废拆解清单',
+      desc: '机动车报废拆解全流程照片留档，含掀顶断粱、五大总成等工序，支持按车牌批量下载',
+      icon: 'ri:camera-line',
+      color: '#13C2C2',
+      available: true
+    },
+    {
+      key: 'finance-settlement',
+      label: '财务结算申请表',
+      desc: '车辆收购结算明细，含产权人、代理人、费用及付款信息',
+      icon: 'ri:bank-card-line',
+      color: '#389E0D',
       available: true
     },
     {

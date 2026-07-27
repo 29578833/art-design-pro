@@ -43,17 +43,6 @@ export interface ReportDateParams {
   end_date?: string
 }
 
-/** 数据决策看板统计（趋势分析用） */
-export interface DecisionStatistics {
-  purchase_trend?: number[]
-  settlement_trend_data?: number[]
-  overdue_count?: number
-  pending_settlement_count?: number
-  pending_settlement_amount?: number | string
-  warehouse_count?: number
-  [key: string]: unknown
-}
-
 /** 车辆档案信息汇总表 — 进度步骤 */
 export interface VehicleArchiveProgress {
   /** 信息录入日期 (mm-dd) */
@@ -201,6 +190,9 @@ export type ReportKey =
   | 'qc-summary'
   | 'vehicle-summary'
   | 'dismantle-output'
+  | 'dismantle-detail'
+  | 'dismantle-photos'
+  | 'finance-settlement'
   | 'settlement-summary'
   | 'salesman-perf'
   | 'waste-stat'
@@ -450,4 +442,312 @@ export interface MaterialDailyResult {
   list: MaterialDailyItem[]
   count: number
   stats: MaterialDailyStats
+}
+
+/** 报废车拆解报表 — 车辆行 */
+export interface DismantleVehicleItem {
+  /** 车型名称 */
+  name: string
+  /** 前期在制品-数量 */
+  prev_wip_count: string | number
+  /** 前期在制品-重量/吨 */
+  prev_wip_weight: string
+  /** 本日领料-数量 */
+  today_receive_count: string | number
+  /** 本日领料-重量/吨 */
+  today_receive_weight: string
+  /** 本月累计领料-数量 */
+  month_receive_count: string | number
+  /** 本月累计领料-重量/吨 */
+  month_receive_weight: string
+  /** 本日拆解-数量 */
+  today_dismantle_count: string | number
+  /** 本日拆解-重量/吨 */
+  today_dismantle_weight: string
+  /** 本月累计拆解-数量 */
+  month_dismantle_count: string | number
+  /** 本月累计拆解-重量/吨 */
+  month_dismantle_weight: string
+  /** 本日累计在制品-数量 */
+  today_wip_count: string | number
+  /** 本日累计在制品-重量/吨 */
+  today_wip_weight: string
+}
+
+/** 报废车拆解报表 — 产物缴库行 */
+export interface DismantleStorageItem {
+  /** 类别 */
+  category: string
+  /** 产物名称 */
+  product_name: string
+  /** 本日缴库-数量 */
+  today_storage_count: string | number
+  /** 本日缴库-重量/吨 */
+  today_storage_weight: string
+  /** 本月累计缴库-数量 */
+  month_storage_count: string | number
+  /** 本月累计缴库-重量/吨 */
+  month_storage_weight: string
+}
+
+/** 报废车拆解报表 — 统计 */
+export interface DismantleStats {
+  /** 本月累计领料数量 */
+  month_received_count: number
+  /** 本月累计领料重量 */
+  month_received_weight: string
+  /** 本月累计拆解数量 */
+  month_dismantle_count: number
+  /** 本月累计拆解重量 */
+  month_dismantle_weight: string
+  /** 当日拆解数量 */
+  today_dismantle_count: number
+  /** 当日拆解重量 */
+  today_dismantle_weight: string
+  /** 前期在制品数量 */
+  prev_wip_count: number
+  /** 前期在制品重量 */
+  prev_wip_weight: string
+}
+
+/** 报废车拆解报表 — 请求参数 */
+export interface DismantleParams {
+  keyword?: string
+  vehicle_category?: string
+  start_date?: string
+  end_date?: string
+  time_mode?: 'day' | 'week' | 'month'
+  page?: number
+  limit?: number
+}
+
+/** 报废车拆解报表 — 返回结构 */
+export interface DismantleResult {
+  vehicle_list: DismantleVehicleItem[]
+  storage_list: DismantleStorageItem[]
+  product_categories: Record<string, string[]>
+  stats: DismantleStats
+}
+
+/** 照片清单列字段 */
+export type PhotoChecklistField =
+  | 'photo_frame1'
+  | 'photo_frame2'
+  | 'photo_engine'
+  | 'photo_transmission'
+  | 'photo_steering'
+  | 'photo_front_axle'
+  | 'photo_rear_axle'
+  | 'photo_stamp'
+  | 'photo_battery'
+
+/** 机动车报废拆解清单 — 列表行 */
+export interface PhotoChecklistItem {
+  /** 工单 ID */
+  work_id: number
+  /** 车牌号 */
+  plate_no: string
+  /** 工位负责人 */
+  workstation?: string
+  /** 拆解日期 */
+  dismantle_date: string
+  /** 掀顶/断粱时间 */
+  roof_cut_time: string
+  /** 五大总成拆解时间 */
+  assembly_dismantle_time: string
+  /** 已上传数量 */
+  uploaded: number
+  /** 应传总数 */
+  total: number
+  photo_frame1?: string | null
+  photo_frame2?: string | null
+  photo_engine?: string | null
+  photo_transmission?: string | null
+  photo_steering?: string | null
+  photo_front_axle?: string | null
+  photo_rear_axle?: string | null
+  photo_stamp?: string | null
+  photo_battery?: string | null
+}
+
+/** 照片清单统计（后端 camelCase 原样） */
+export interface PhotoChecklistStats {
+  verifiedCount: number
+  totalPhotos: number
+  completionRate: number
+  pendingCount: number
+}
+
+/** 照片清单合计摘要 */
+export interface PhotoChecklistSummary {
+  uploaded: number
+  total: number
+  total_rows: number
+  photo_frame1?: number
+  photo_frame2?: number
+  photo_engine?: number
+  photo_transmission?: number
+  photo_steering?: number
+  photo_front_axle?: number
+  photo_rear_axle?: number
+  photo_stamp?: number
+  photo_battery?: number
+}
+
+/** 照片清单 — 请求参数 */
+export interface PhotoChecklistParams {
+  plate_no?: string
+  start_date?: string
+  end_date?: string
+  time_mode?: 'day' | 'week' | 'month'
+  page?: number
+  limit?: number
+}
+
+/** 照片清单 — 返回结构 */
+export interface PhotoChecklistResult {
+  list: PhotoChecklistItem[]
+  count: number
+  stats: PhotoChecklistStats
+  summary: PhotoChecklistSummary
+}
+
+/** 财务结算申请表 — 列表行（接口现有字段 + 预留金额列） */
+export interface FinancialSettlementItem {
+  /** 结算单号 */
+  settlement_no: string
+  /** 车辆类型文案 */
+  vehicle_type_text: string
+  /** 车辆承类 */
+  vehicle_class: string
+  /** 自主录入日期 */
+  entry_date: string
+  /** 入库日期 */
+  warehouse_date: string
+  /** 入库单号 */
+  warehouse_no: string
+  /** 车辆产权人 */
+  owner_name: string
+  /** 身份证/机构代码 */
+  owner_id_number: string
+  /** 车主户口 */
+  owner_address: string
+  /** 车主银行卡号 */
+  owner_bank_card: string
+  /** 车辆档案单号 */
+  archive_no: string
+  /** 回收订单号 */
+  order_no: string
+  /** 代理人 */
+  agent_name: string
+  /** 代理人身份证 */
+  agent_id_number: string
+  /** 代理人手机号 */
+  agent_phone: string
+  /** 联系电话 */
+  agent_contact: string
+  /** 代理人户口 */
+  agent_address: string
+  /** 代理人银行卡号 */
+  agent_bank_card: string
+  /** 车牌号 */
+  plate_no: string
+  /** 车架号 */
+  vin: string
+  /** 自编号（预留） */
+  vehicle_no?: string
+  /** 我司车型（预留） */
+  my_vehicle_model?: string
+  /** 发动机号（预留） */
+  engine_no?: string
+  /** 品牌型号（预留） */
+  brand?: string
+  /** 车辆类型（预留） */
+  vehicle_type?: string
+  /** 车辆数（预留） */
+  vehicle_count?: number | string
+  /** 重量吨（预留） */
+  weight?: number | string
+  /** 磅差位置（预留） */
+  scale_diff?: string
+  /** 实际磅位（预留） */
+  actual_scale?: number | string
+  /** 拖车补贴元/吨（预留） */
+  transport_subsidy?: number | string
+  /** 拖车补贴金额（预留） */
+  transport_subsidy_amt?: number | string
+  /** 运费类目（预留） */
+  freight_category?: string
+  /** 道路运费元/吨（预留） */
+  freight_per_ton?: number | string
+  /** 结算类目（预留） */
+  settlement_category?: string
+  /** 结算价格元/吨（预留） */
+  settlement_price?: number | string
+  /** 竞价合同（预留） */
+  bidding_contract?: string
+  /** 合同金额（预留） */
+  contract_amt?: number | string
+  /** 应付金额（预留） */
+  payable_amt?: number | string
+  /** 现金支付金额（预留） */
+  cash_pay_amt?: number | string
+  /** 服务费类目（预留） */
+  service_fee_category?: string
+  /** 服务费元/吨（预留） */
+  service_fee_per_ton?: number | string
+  /** 服务费合计（预留） */
+  service_fee_total?: number | string
+  /** 正规费合计（预留） */
+  regular_fee_total?: number | string
+  /** 本年总金额（预留） */
+  year_total_amt?: number | string
+  /** 合计（预留） */
+  grand_total?: number | string
+  /** 备注（预留） */
+  remark?: string
+  /** 其他费用（预留） */
+  other_fee?: number | string
+  /** 分公司（预留） */
+  branch_office?: string
+}
+
+/** 财务结算申请表 — 统计（后端 camelCase 原样） */
+export interface FinancialSettlementStats {
+  settlementCount: number
+  totalAmount: string
+  serviceFee: string
+  yearTotalAmount: string
+}
+
+/** 财务结算申请表 — 请求参数 */
+export interface FinancialSettlementParams {
+  plate_no?: string
+  vin?: string
+  vehicle_no?: string
+  my_vehicle_model?: string
+  owner?: string
+  agent_name?: string
+  agent_phone?: string
+  warehouse_no?: string
+  archive_no?: string
+  order_no?: string
+  vehicle_category?: string
+  remark?: string
+  entry_start_date?: string
+  entry_end_date?: string
+  archive_start_date?: string
+  archive_end_date?: string
+  order_start_date?: string
+  order_end_date?: string
+  time_mode?: 'day' | 'week' | 'month'
+  page?: number
+  limit?: number
+}
+
+/** 财务结算申请表 — 返回结构 */
+export interface FinancialSettlementResult {
+  list: FinancialSettlementItem[]
+  count: number
+  stats: FinancialSettlementStats
 }

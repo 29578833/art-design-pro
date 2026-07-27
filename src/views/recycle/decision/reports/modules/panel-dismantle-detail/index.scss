@@ -1,0 +1,375 @@
+.dd-panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.dd-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.dd-kpi-card {
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.dd-kpi-label {
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.dd-kpi-value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.dd-kpi-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.dd-filter-bar {
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.dd-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.dd-date-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.dd-date-single {
+  width: 132px;
+}
+
+.dd-date-sep {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.dd-shift-btn {
+  min-width: 28px;
+  padding: 0 8px;
+}
+
+.dd-filter-select {
+  width: 148px;
+}
+
+.dd-search-input {
+  width: 148px;
+}
+
+.dd-search-icon {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.dd-filter-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.dd-report-card {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.dd-tabs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 0 16px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.dd-tab {
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+
+  &.is-active {
+    color: #1890ff;
+    border-bottom-color: #1890ff;
+  }
+}
+
+.dd-tab-meta {
+  margin-left: auto;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.dd-storage-banner {
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1890ff;
+  text-align: center;
+  background: #f0f5ff;
+  border-bottom: 1px solid #bae0ff;
+}
+
+.dd-table-wrap {
+  flex: 1;
+  min-height: 360px;
+  overflow: hidden;
+}
+
+.dd-pagination {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.dd-pagination-info {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.dd-empty-text {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.mr-1 {
+  margin-right: 4px;
+}
+
+.dd-vxe-grid {
+  width: 100%;
+  height: 100%;
+
+  .vxe-table,
+  .vxe-table--body-wrapper,
+  .vxe-table--header-wrapper {
+    width: 100% !important;
+  }
+
+  .vxe-header--column {
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.3;
+    border-color: #d1d5db !important;
+  }
+
+  .vxe-body--column {
+    font-size: 11px;
+    border-color: #e5e7eb !important;
+  }
+
+  .vxe-footer--column {
+    font-size: 12px;
+    font-weight: 700;
+    border-color: #d9d9d9 !important;
+  }
+
+  .dd-head-base {
+    color: #4b5563 !important;
+    background: #f9fafb !important;
+  }
+
+  .dd-head-leaf {
+    color: #4b5563 !important;
+    background: #f9fafb !important;
+  }
+
+  .dd-group-prev {
+    color: #096dd9 !important;
+    background: #e6f7ff !important;
+  }
+
+  .dd-group-today-in {
+    color: #d46b08 !important;
+    background: #fff7e6 !important;
+  }
+
+  .dd-group-month-in {
+    color: #ad8b00 !important;
+    background: #fffbe6 !important;
+  }
+
+  .dd-group-today-out {
+    color: #237804 !important;
+    background: #f6ffed !important;
+  }
+
+  .dd-group-month-out {
+    color: #2e7d32 !important;
+    background: #e8f5e9 !important;
+  }
+
+  .dd-group-wip {
+    color: #531dab !important;
+    background: #f9f0ff !important;
+  }
+
+  .dd-unit-today-in {
+    font-size: 10px !important;
+    font-weight: 500 !important;
+    color: #8c8c8c !important;
+    background: #fffef5 !important;
+  }
+
+  .dd-unit-today-out {
+    font-size: 10px !important;
+    font-weight: 500 !important;
+    color: #8c8c8c !important;
+    background: #f6fff8 !important;
+  }
+
+  .dd-cell-seq {
+    color: #bfbfbf !important;
+  }
+
+  .dd-cell-name,
+  .dd-name {
+    color: #262626;
+  }
+
+  .dd-cell-product {
+    padding-left: 10px !important;
+  }
+
+  // 表体底色：对齐原型（数量列多数无底，重量列有底）
+  .vxe-body--column.dd-col-prev {
+    background-color: #f0f8ff !important;
+  }
+
+  .vxe-body--column.dd-col-today-in-wt {
+    background: #fffef5 !important;
+  }
+
+  .vxe-body--column.dd-col-month-in-wt {
+    background: #fffffb !important;
+  }
+
+  .vxe-body--column.dd-col-today-out-wt {
+    background: #f6fff8 !important;
+  }
+
+  .vxe-body--column.dd-col-month-out-wt {
+    background: #f0fff4 !important;
+  }
+
+  .vxe-body--column.dd-col-wip-wt {
+    background: #faf0ff !important;
+  }
+
+  .dd-val-prev {
+    color: #096dd9;
+  }
+
+  .dd-val-today-in {
+    color: #d46b08;
+  }
+
+  .dd-val-month-in {
+    color: #ad8b00;
+  }
+
+  .dd-val-today-out {
+    color: #237804;
+  }
+
+  .dd-val-month-out {
+    font-weight: 600;
+    color: #2e7d32;
+  }
+
+  .dd-val-wip {
+    color: #531dab;
+  }
+
+  .dd-cat-cell {
+    display: block;
+    width: 100%;
+    height: 100%;
+    font-weight: 600;
+    line-height: 1.3;
+    word-break: keep-all;
+    white-space: normal;
+  }
+
+  .vxe-body--row.row--hover {
+    filter: brightness(0.98);
+  }
+
+  .vxe-footer--row.dd-footer-row {
+    background: #e6f7ff;
+    border-top: 2px solid #91d5ff;
+
+    .vxe-footer--column {
+      background: #e6f7ff !important;
+    }
+
+    .vxe-footer--column.col--seq,
+    .vxe-footer--column.col--category {
+      color: #1890ff !important;
+      text-align: center !important;
+    }
+
+    .vxe-footer--column.col--prev_wip_count,
+    .vxe-footer--column.col--prev_wip_weight {
+      color: #096dd9 !important;
+    }
+
+    .vxe-footer--column.col--month_dismantle_count,
+    .vxe-footer--column.col--month_dismantle_weight {
+      color: #237804 !important;
+    }
+
+    .vxe-footer--column.col--today_wip_count,
+    .vxe-footer--column.col--today_wip_weight {
+      color: #531dab !important;
+    }
+
+    .vxe-footer--column.col--today_storage_weight {
+      color: #d46b08 !important;
+    }
+
+    .vxe-footer--column.col--month_storage_count,
+    .vxe-footer--column.col--month_storage_weight {
+      color: #237804 !important;
+    }
+  }
+}
+
+@media (width <=1200px) {
+  .dd-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

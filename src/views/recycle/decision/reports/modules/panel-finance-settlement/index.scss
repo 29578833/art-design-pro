@@ -1,0 +1,380 @@
+.fs-panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.fs-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.fs-kpi-card {
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.fs-kpi-label {
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.fs-kpi-value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.fs-kpi-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.fs-filter-bar {
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.fs-filter-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.fs-gran-group {
+  display: flex;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+}
+
+.fs-gran-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #4b5563;
+  cursor: pointer;
+  background: #fff;
+  border: none;
+
+  & + & {
+    border-left: 1px solid #d1d5db;
+  }
+
+  &.is-active {
+    color: #fff;
+    background: #1890ff;
+  }
+}
+
+.fs-date-groups {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fs-date-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.fs-date-label {
+  flex-shrink: 0;
+  width: 72px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.fs-date-single {
+  width: 132px;
+}
+
+.fs-date-sep {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.fs-filter-btns {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+  align-items: center;
+}
+
+.fs-more-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding-top: 12px;
+  margin-top: 12px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.fs-more-item-label {
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.fs-report-card {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.fs-report-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.fs-report-title-main {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.fs-record-count {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.fs-table-wrap {
+  flex: 1;
+  min-height: 320px;
+  overflow: hidden;
+}
+
+.fs-pagination {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.fs-pagination-info {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.fs-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #1890ff;
+  background: #e6f7ff;
+  border-radius: 12px;
+}
+
+.fs-link {
+  color: #1890ff;
+}
+
+.fs-link-dark {
+  color: #096dd9;
+}
+
+.fs-weight {
+  font-weight: 600;
+  color: #389e0d;
+}
+
+.fs-payable {
+  font-weight: 700;
+  color: #fff;
+}
+
+.fs-year {
+  font-weight: 700;
+  color: #a8071a;
+}
+
+.fs-muted {
+  color: #8c8c8c;
+}
+
+.mr-1 {
+  margin-right: 4px;
+}
+
+.fs-vxe-grid {
+  height: 100%;
+
+  .vxe-header--column {
+    font-size: 11px;
+    font-weight: 600;
+    border-color: #d1d5db !important;
+  }
+
+  .vxe-body--column {
+    font-size: 11px;
+    border-color: #e5e7eb !important;
+  }
+
+  .fs-head-base {
+    color: #4b5563 !important;
+    background: #f9fafb !important;
+  }
+
+  .fs-group-time,
+  .fs-leaf-time,
+  .fs-group-scale,
+  .fs-leaf-scale {
+    color: #096dd9 !important;
+    background: #e6f7ff !important;
+  }
+
+  .fs-group-owner,
+  .fs-leaf-owner,
+  .fs-group-settle,
+  .fs-leaf-settle {
+    color: #531dab !important;
+    background: #f9f0ff !important;
+  }
+
+  .fs-group-agent,
+  .fs-leaf-agent,
+  .fs-group-freight,
+  .fs-leaf-freight,
+  .fs-group-service,
+  .fs-leaf-service {
+    color: #d46b08 !important;
+    background: #fff7e6 !important;
+  }
+
+  .fs-group-vehicle,
+  .fs-leaf-vehicle,
+  .fs-group-contract,
+  .fs-leaf-contract {
+    color: #389e0d !important;
+    background: #f6ffed !important;
+  }
+
+  .fs-group-spec,
+  .fs-leaf-spec {
+    color: #5b8c00 !important;
+    background: #fcffe6 !important;
+  }
+
+  .fs-group-subsidy,
+  .fs-leaf-subsidy,
+  .fs-head-year {
+    color: #a8071a !important;
+    background: #fff1f0 !important;
+  }
+
+  .fs-head-payable {
+    color: #fff !important;
+    background: #595959 !important;
+  }
+
+  .fs-cell-seq {
+    font-weight: 500;
+  }
+
+  .vxe-body--column.fs-col-time {
+    background-color: #f0f8ff !important;
+  }
+
+  .vxe-body--column.fs-col-owner {
+    background: #fcf4ff !important;
+  }
+
+  .vxe-body--column.fs-col-agent,
+  .vxe-body--column.fs-col-freight,
+  .vxe-body--column.fs-col-service {
+    background: #fffef0 !important;
+  }
+
+  .vxe-body--column.fs-col-vehicle,
+  .vxe-body--column.fs-col-contract {
+    background: #f0fff4 !important;
+  }
+
+  .vxe-body--column.fs-col-scale {
+    background-color: #f0f8ff !important;
+  }
+
+  .vxe-body--column.fs-col-subsidy {
+    background: #fff5f5 !important;
+  }
+
+  .vxe-body--column.fs-col-settle {
+    background: #fcf4ff !important;
+  }
+
+  .vxe-body--column.fs-col-payable {
+    color: #fff !important;
+    background: #2d2d2d !important;
+  }
+
+  .vxe-body--column.fs-col-year {
+    background: #fff1f0 !important;
+  }
+
+  .vxe-footer--row.fs-footer-row {
+    background: #e6f7ff;
+    border-top: 2px solid #91d5ff;
+
+    .vxe-footer--column {
+      font-size: 12px;
+      font-weight: 700;
+      background: #e6f7ff !important;
+    }
+
+    .vxe-footer--column.col--row_no {
+      color: #1890ff !important;
+      text-align: center !important;
+    }
+
+    .vxe-footer--column.col--weight {
+      color: #389e0d !important;
+    }
+
+    .vxe-footer--column.col--transport_subsidy_amt,
+    .vxe-footer--column.col--year_total_amt {
+      color: #a8071a !important;
+    }
+
+    .vxe-footer--column.col--payable_amt {
+      color: #fff !important;
+      background: #595959 !important;
+    }
+
+    .vxe-footer--column.col--service_fee_total {
+      color: #d46b08 !important;
+    }
+
+    .vxe-footer--column.col--year_total_amt {
+      background: #fff1f0 !important;
+    }
+  }
+}
+
+@media (width <=1200px) {
+  .fs-kpi-grid,
+  .fs-more-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

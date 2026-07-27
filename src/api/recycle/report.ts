@@ -1,10 +1,15 @@
 import request from '@/utils/http'
 import type {
-  DecisionStatistics,
+  DismantleParams,
+  DismantleResult,
+  FinancialSettlementParams,
+  FinancialSettlementResult,
   MaterialDailyParams,
   MaterialDailyResult,
   MaterialInOutParams,
   MaterialInOutResult,
+  PhotoChecklistParams,
+  PhotoChecklistResult,
   QualityInspectionParams,
   QualityInspectionResult,
   ReportDateParams,
@@ -114,10 +119,77 @@ export function fetchMaterialDaily(params?: MaterialDailyParams) {
   })
 }
 
-/** 数据决策看板统计（趋势） */
-export function fetchDecisionStatistics(timeType = 'month') {
-  return request.get<DecisionStatistics>({
-    url: '/scrap/statistics/index',
-    params: { time_type: timeType }
+/** 报废车拆解报表 */
+export function fetchDismantleReport(params?: DismantleParams) {
+  return request.get<DismantleResult>({
+    url: '/scrap/report/dismantle',
+    params: {
+      keyword: params?.keyword || '',
+      vehicle_category: params?.vehicle_category || '',
+      start_date: params?.start_date || '',
+      end_date: params?.end_date || '',
+      time_mode: params?.time_mode || 'day',
+      page: params?.page || 1,
+      limit: params?.limit || 20
+    }
   })
+}
+
+/** 机动车报废拆解清单 */
+export function fetchPhotoChecklist(params?: PhotoChecklistParams) {
+  return request.get<PhotoChecklistResult>({
+    url: '/scrap/report/photo_checklist',
+    params: {
+      plate_no: params?.plate_no || '',
+      start_date: params?.start_date || '',
+      end_date: params?.end_date || '',
+      time_mode: params?.time_mode || 'month',
+      page: params?.page || 1,
+      limit: params?.limit || 20
+    }
+  })
+}
+
+/** 财务结算申请表 */
+export function fetchFinancialSettlement(params?: FinancialSettlementParams) {
+  return request.get<FinancialSettlementResult>({
+    url: '/scrap/report/financial_settlement',
+    params: {
+      plate_no: params?.plate_no || '',
+      vin: params?.vin || '',
+      vehicle_no: params?.vehicle_no || '',
+      my_vehicle_model: params?.my_vehicle_model || '',
+      owner: params?.owner || '',
+      agent_name: params?.agent_name || '',
+      agent_phone: params?.agent_phone || '',
+      warehouse_no: params?.warehouse_no || '',
+      archive_no: params?.archive_no || '',
+      order_no: params?.order_no || '',
+      vehicle_category: params?.vehicle_category || '',
+      remark: params?.remark || '',
+      entry_start_date: params?.entry_start_date || '',
+      entry_end_date: params?.entry_end_date || '',
+      archive_start_date: params?.archive_start_date || '',
+      archive_end_date: params?.archive_end_date || '',
+      order_start_date: params?.order_start_date || '',
+      order_end_date: params?.order_end_date || '',
+      time_mode: params?.time_mode || 'month',
+      page: params?.page || 1,
+      limit: params?.limit || 20
+    }
+  })
+}
+
+/** 照片清单 Excel / ZIP 下载（后端直接输出文件） */
+export function buildPhotoChecklistFileUrl(
+  path: 'photo_checklist_export' | 'photo_checklist_photos',
+  params?: PhotoChecklistParams
+) {
+  const qs = new URLSearchParams()
+  qs.set('plate_no', params?.plate_no || '')
+  qs.set('start_date', params?.start_date || '')
+  qs.set('end_date', params?.end_date || '')
+  qs.set('time_mode', params?.time_mode || 'month')
+  const base = import.meta.env.VITE_API_URL || ''
+  return `${base}/scrap/report/${path}?${qs.toString()}`
 }
