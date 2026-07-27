@@ -266,7 +266,9 @@
     buildFinanceSettlementColumns,
     fmtFsAmt,
     fmtFsText,
+    FS_FOOTER_LABEL_COLSPAN,
     FS_SUM_FIELDS,
+    isFsFixedFooterColumns,
     parseFsNumber
   } from './grid-columns'
   import { useFinanceSettlementExport } from './grid-export'
@@ -377,14 +379,12 @@
 
   const gridOptions = {
     border: true,
-    size: 'mini' as const,
+    size: 'medium' as const,
     align: 'center' as const,
     headerAlign: 'center' as const,
     showOverflow: 'tooltip' as const,
     autoResize: true,
-    height: '100%',
     scrollX: { enabled: true },
-    scrollY: { enabled: true, gt: 0 },
     columnConfig: { resizable: false },
     rowConfig: { isHover: true, height: 40 },
     showFooter: true,
@@ -468,38 +468,55 @@
     return [
       columns.map((col) => {
         if (col.field === 'row_no') return '合计'
+        if (col.field === 'vehicle_no' || col.field === 'my_vehicle_model') return ''
         if (col.field && col.field in footerTotals.value) return footerTotals.value[col.field]
         return '—'
       })
     ]
   }
 
-  function footerSpanMethod({ columnIndex, rowIndex }: { columnIndex: number; rowIndex: number }) {
+  function footerSpanMethod({
+    columnIndex,
+    rowIndex,
+    columns
+  }: {
+    columnIndex: number
+    rowIndex: number
+    columns?: { field?: string }[]
+  }) {
     if (rowIndex !== 0) return { rowspan: 1, colspan: 1 }
-    if (columnIndex === 0) return { rowspan: 1, colspan: 4 }
-    if (columnIndex > 0 && columnIndex < 4) return { rowspan: 0, colspan: 0 }
+
+    // 固定列区：前三列（二级表头）合并为「合计」
+    if (columns && isFsFixedFooterColumns(columns)) {
+      if (columnIndex === 0) return { rowspan: 1, colspan: FS_FOOTER_LABEL_COLSPAN }
+      if (columnIndex > 0 && columnIndex < FS_FOOTER_LABEL_COLSPAN) {
+        return { rowspan: 0, colspan: 0 }
+      }
+    }
+
+    // 滚动列区：每个二级表头独立一格，不再合并
     return { rowspan: 1, colspan: 1 }
   }
 
   function buildParams() {
     return {
-      plate_no: filters.plate_no || undefined,
-      vehicle_no: filters.vehicle_no || undefined,
-      my_vehicle_model: filters.my_vehicle_model || undefined,
-      owner: filters.owner || undefined,
-      agent_name: filters.agent_name || undefined,
-      agent_phone: filters.agent_phone || undefined,
-      warehouse_no: filters.warehouse_no || undefined,
-      archive_no: filters.archive_no || undefined,
-      order_no: filters.order_no || undefined,
-      vehicle_category: filters.vehicle_category || undefined,
-      remark: filters.remark || undefined,
-      entry_start_date: entryRange.value[0],
-      entry_end_date: entryRange.value[1],
-      archive_start_date: archiveRange.value[0],
-      archive_end_date: archiveRange.value[1],
-      order_start_date: orderRange.value[0],
-      order_end_date: orderRange.value[1],
+      plate_no: filters.plate_no || '',
+      vehicle_no: filters.vehicle_no || '',
+      my_vehicle_model: filters.my_vehicle_model || '',
+      owner: filters.owner || '',
+      agent_name: filters.agent_name || '',
+      agent_phone: filters.agent_phone || '',
+      warehouse_no: filters.warehouse_no || '',
+      archive_no: filters.archive_no || '',
+      order_no: filters.order_no || '',
+      vehicle_category: filters.vehicle_category || '',
+      remark: filters.remark || '',
+      entry_start_date: entryRange.value ? entryRange.value[0] : '',
+      entry_end_date: entryRange.value ? entryRange.value[1] : '',
+      archive_start_date: archiveRange.value ? archiveRange.value[0] : '',
+      archive_end_date: archiveRange.value ? archiveRange.value[1] : '',
+      order_start_date: orderRange.value ? orderRange.value[0] : '',
+      order_end_date: orderRange.value ? orderRange.value[1] : '',
       time_mode: timeMode.value,
       page: page.value,
       limit: limit.value
@@ -515,7 +532,8 @@
     loading.value = true
     try {
       result.value = await fetchFinancialSettlement(buildParams())
-    } catch {
+    } catch (e) {
+      console.log(e, 111)
       result.value = null
       ElMessage.error('加载财务结算申请表失败')
     } finally {

@@ -54,10 +54,12 @@ export function buildFinanceSettlementColumns() {
     ...th
   })
 
+  const leftFixed = { fixed: 'left' as const, slot: true as const }
+
   return [
-    leaf('row_no', '行号', 48, 'fs-head-base', 'fs-cell-seq', { fixed: 'left', slot: true }),
-    leaf('vehicle_no', '自编号', 110, 'fs-head-base', '', { slot: true }),
-    leaf('my_vehicle_model', '我司车型', 90, 'fs-head-base', '', { slot: true }),
+    leaf('row_no', '行号', 48, 'fs-head-base', 'fs-cell-seq', leftFixed),
+    leaf('vehicle_no', '自编号', 110, 'fs-head-base', '', leftFixed),
+    leaf('my_vehicle_model', '我司车型', 90, 'fs-head-base', '', leftFixed),
     leaf('vehicle_class', '车辆承类', 80, 'fs-head-base', '', { slot: true }),
     {
       title: '时间 / 单号',
@@ -200,4 +202,32 @@ export function buildFinanceSettlementColumns() {
     leaf('other_fee', '其他费用', 80, 'fs-head-base', '', { slot: true }),
     leaf('branch_office', '分公司', 80, 'fs-head-base', '', { slot: true })
   ]
+}
+
+type FsColumn = ReturnType<typeof buildFinanceSettlementColumns>[number]
+
+/** 展平二级叶子列 */
+export function flattenFsColumns(columns: FsColumn[] = buildFinanceSettlementColumns()) {
+  const leaf: { field?: string }[] = []
+  columns.forEach((col) => {
+    if ('children' in col && Array.isArray(col.children) && col.children.length) {
+      col.children.forEach((child) => {
+        leaf.push({ field: child.field })
+      })
+    } else {
+      leaf.push({ field: (col as { field?: string }).field })
+    }
+  })
+  return leaf
+}
+
+/** 合计行左侧合并列数（按二级表头计） */
+export const FS_FOOTER_LABEL_COLSPAN = 3
+
+/** 左侧固定列数，与合计合并列一致 */
+export const FS_FIXED_COL_COUNT = FS_FOOTER_LABEL_COLSPAN
+
+/** 是否为左侧固定区 footer（vxe 固定列与滚动列 footer 分开渲染） */
+export function isFsFixedFooterColumns(columns: { field?: string }[]) {
+  return columns.length === FS_FIXED_COL_COUNT && columns[0]?.field === 'row_no'
 }
