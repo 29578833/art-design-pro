@@ -13,6 +13,8 @@ import type {
   QualityInspectionParams,
   QualityInspectionResult,
   ReportDateParams,
+  ReportTrendParams,
+  ReportTrendResult,
   SalesPerformanceResult,
   ScrapSummaryResult,
   VehicleArchiveParams,
@@ -176,6 +178,18 @@ export function fetchFinancialSettlement(params?: FinancialSettlementParams) {
       time_mode: params?.time_mode || 'month',
       page: params?.page || 1,
       limit: params?.limit || 20
+    }
+  })
+}
+
+/** 经营决策趋势分析 */
+export function fetchReportTrend(params?: ReportTrendParams) {
+  return request.get<ReportTrendResult>({
+    url: '/scrap/report/trend',
+    params: {
+      time_granularity: params?.time_granularity || 'month',
+      start_date: params?.start_date || '',
+      end_date: params?.end_date || ''
     }
   })
 }

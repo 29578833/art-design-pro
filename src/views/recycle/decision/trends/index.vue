@@ -24,7 +24,7 @@
         >
           {{ item.label }}
         </button>
-        <span class="trends-hint">当前接口仅支持按月近12个月数据</span>
+        <span class="trends-hint">{{ grainHint }}</span>
       </div>
 
       <div class="trends-chart-card">
@@ -32,13 +32,13 @@
           <span class="trends-chart-title">收车量趋势</span>
           <div class="trends-chart-extra">
             <span class="trends-chart-dot" style="background: #1890ff" />
-            <span>近12月 · 辆</span>
+            <span>{{ grainUnitLabel }} · 辆</span>
           </div>
         </div>
         <ArtLineChart
           height="220px"
-          :data="purchaseTrend"
-          :x-axis-data="monthLabels"
+          :data="vehicleTrend"
+          :x-axis-data="chartLabels"
           :show-area-color="true"
           :colors="['#1890FF']"
           symbol="circle"
@@ -53,13 +53,13 @@
           <span class="trends-chart-title">结算金额趋势（万元）</span>
           <div class="trends-chart-extra">
             <span class="trends-chart-dot" style="background: #52c41a" />
-            <span>近12月 · 万</span>
+            <span>{{ grainUnitLabel }} · 万</span>
           </div>
         </div>
         <ArtLineChart
           height="220px"
           :data="settlementTrend"
-          :x-axis-data="monthLabels"
+          :x-axis-data="chartLabels"
           :show-area-color="true"
           :colors="['#52C41A']"
           symbol="circle"
@@ -72,8 +72,22 @@
       <div class="trends-chart-card">
         <div class="trends-chart-head">
           <span class="trends-chart-title">产物入库趋势（吨）</span>
+          <div class="trends-chart-extra">
+            <span class="trends-chart-dot" style="background: #722ed1" />
+            <span>{{ grainUnitLabel }} · 吨</span>
+          </div>
         </div>
-        <div class="trends-empty">接口暂未提供</div>
+        <ArtLineChart
+          height="220px"
+          :data="productTrend"
+          :x-axis-data="chartLabels"
+          :show-area-color="true"
+          :colors="['#722ED1']"
+          symbol="circle"
+          :symbol-size="6"
+          :smooth="true"
+          :enable-animation="false"
+        />
       </div>
 
       <div v-if="alerts.length" class="trends-alerts">
@@ -100,8 +114,8 @@
 <script setup lang="ts">
   import { ElMessage } from 'element-plus'
   import { useRouter } from 'vue-router'
-  import { fetchDecisionStatistics } from '@/api/recycle/report'
-  import type { DecisionStatistics } from '@/types/recycle/decision/reports/report'
+  import { fetchReportTrend } from '@/api/recycle/report'
+  import type { ReportTrendResult } from '@/types/recycle/decision/reports/report'
   import ArtLineChart from '@/components/core/charts/art-line-chart/index.vue'
 
   defineOptions({ name: 'RecycleDecisionTrends' })
@@ -114,63 +128,58 @@
     { key: 'month', label: '月' }
   ]
 
+  const GRAIN_HINT: Record<Grain, string> = {
+    day: '默认展示近30天数据',
+    week: '默认展示近12周数据',
+    month: '默认展示近12个月数据'
+  }
+
+  const GRAIN_UNIT: Record<Grain, string> = {
+    day: '近30天',
+    week: '近12周',
+    month: '近12月'
+  }
+
   const router = useRouter()
   const loading = ref(false)
   const granularity = ref<Grain>('month')
-  const stats = ref<DecisionStatistics | null>(null)
+  const trendData = ref<ReportTrendResult | null>(null)
 
-  const monthLabels = computed(() => {
-    const labels: string[] = []
-    const now = new Date()
-    for (let i = 11; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-      labels.push(`${d.getMonth() + 1}月`)
-    }
-    return labels
-  })
+  const grainHint = computed(() => GRAIN_HINT[granularity.value])
+  const grainUnitLabel = computed(() => GRAIN_UNIT[granularity.value])
+  const chartLabels = computed(() => trendData.value?.labels || [])
 
-  const purchaseTrend = computed(() =>
-    (stats.value?.purchase_trend || []).map((n) => Number(n || 0))
+  const vehicleTrend = computed(() =>
+    (trendData.value?.vehicle_data || []).map((n) => Number(n || 0))
   )
   const settlementTrend = computed(() =>
-    (stats.value?.settlement_trend_data || []).map((n) => Number(n || 0))
+    (trendData.value?.settlement_data || []).map((n) => Number(n || 0))
+  )
+  const productTrend = computed(() =>
+    (trendData.value?.product_data || []).map((n) => Number(n || 0))
   )
 
-  const alerts = computed(() => {
-    const s = stats.value
-    if (!s) return []
-    const list: { label: string; desc: string; level: 'warning' | 'error' }[] = []
-    const overdue = Number(s.overdue_count || 0)
-    if (overdue > 0) {
-      list.push({
-        label: '库存积压预警',
-        desc: `当前在库车辆超过预警天数未处理：${overdue}辆`,
-        level: 'warning'
-      })
-    }
-    const pendingSettle = Number(s.pending_settlement_count || 0)
-    if (pendingSettle > 0) {
-      list.push({
-        label: '待结算预警',
-        desc: `待完成结算：${pendingSettle}条`,
-        level: 'error'
-      })
-    }
-    return list
-  })
+  const alerts = computed(() =>
+    (trendData.value?.warnings || []).map((item) => ({
+      label: item.label,
+      desc: item.desc,
+      level: item.type === 'danger' ? ('error' as const) : ('warning' as const)
+    }))
+  )
 
   function handleGrainChange(key: Grain) {
-    if (key !== 'month') {
-      ElMessage.info('暂仅支持按月查看')
-      return
-    }
+    if (granularity.value === key) return
     granularity.value = key
+    loadData()
   }
 
   async function loadData() {
     loading.value = true
     try {
-      stats.value = await fetchDecisionStatistics('month')
+      trendData.value = await fetchReportTrend({ time_granularity: granularity.value })
+    } catch {
+      trendData.value = null
+      ElMessage.error('加载趋势数据失败')
     } finally {
       loading.value = false
     }

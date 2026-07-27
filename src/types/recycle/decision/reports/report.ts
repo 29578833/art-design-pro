@@ -751,3 +751,37 @@ export interface FinancialSettlementResult {
   count: number
   stats: FinancialSettlementStats
 }
+
+/** 趋势分析 — 请求参数 */
+export interface ReportTrendParams {
+  /** 时间粒度：day / week / month */
+  time_granularity?: 'day' | 'week' | 'month'
+  /** 开始日期 yyyy-MM-dd */
+  start_date?: string
+  /** 结束日期 yyyy-MM-dd */
+  end_date?: string
+}
+
+/** 趋势分析 — 预警项 */
+export interface ReportTrendWarning {
+  /** 预警级别：warning / danger */
+  type: 'warning' | 'danger'
+  /** 预警标题 */
+  label: string
+  /** 预警描述 */
+  desc: string
+}
+
+/** 趋势分析 — 返回结构 */
+export interface ReportTrendResult {
+  /** 横轴标签 */
+  labels: string[]
+  /** 收车量趋势（辆） */
+  vehicle_data: number[]
+  /** 结算金额趋势（万元） */
+  settlement_data: number[]
+  /** 产物入库趋势（吨） */
+  product_data: number[]
+  /** 预警指标 */
+  warnings: ReportTrendWarning[]
+}
