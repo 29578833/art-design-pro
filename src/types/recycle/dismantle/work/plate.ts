@@ -112,13 +112,27 @@ export interface DismantleTimeForm {
   assembly_dismantle_time?: string
 }
 
+/** 拆解照片字段（与接口 photo_xxx 一致） */
+export type DismantlePhotoField =
+  | 'photo_frame1'
+  | 'photo_frame2'
+  | 'photo_engine'
+  | 'photo_transmission'
+  | 'photo_steering'
+  | 'photo_front_axle'
+  | 'photo_rear_axle'
+  | 'photo_stamp'
+  | 'photo_battery'
+
 /** 拆解照片项 */
 export interface DismantlePhotoItem {
-  id?: string
-  name?: string
-  code?: string
+  field: DismantlePhotoField
+  name: string
   url?: string
 }
+
+/** init 接口 photos 字段映射 */
+export type DismantlePhotosMap = Partial<Record<DismantlePhotoField, string>>
 
 /** 预处理步骤（旧拆解 init 兼容） */
 export interface DismantlePreprocessStep {
@@ -174,7 +188,7 @@ export interface DismantleInitData {
   dismantle_date?: string
   roof_cut_time?: string
   assembly_dismantle_time?: string
-  photos?: DismantlePhotoItem[]
+  photos?: DismantlePhotosMap
   preprocess_steps?: DismantlePreprocessStep[]
   preprocess_data?: string[]
   stations?: DismantleStation[]
@@ -183,14 +197,13 @@ export interface DismantleInitData {
 }
 
 /** 拆解保存参数 */
-export interface DismantleSaveParams {
+export type DismantleSaveParams = {
   dismantle_time?: DismantleTimeForm
-  photos?: DismantlePhotoItem[]
   work_status?: number
   preprocess_steps?: DismantlePreprocessStep[]
   stations?: DismantleStation[]
   assemblies?: DismantleAssembly[]
-}
+} & Partial<Record<DismantlePhotoField, string>>
 
 /** 拆解操作日志项 */
 export interface DismantleLogItem {
@@ -240,15 +253,22 @@ export const PLATE_STATUS_FILTER_TABS: { label: string; value: PlateStatusFilter
   { label: '已完成', value: 'completed' }
 ]
 
-/** 商务部拆解照片模板 */
-export const MINISTRY_DISMANTLE_PHOTOS = [
-  { id: 'p1', name: '发动机总成照', code: 'MC-EN001' },
-  { id: 'p2', name: '方向机总成照', code: 'MC-ST001' },
-  { id: 'p3', name: '变速器总成照', code: 'MC-TR001' },
-  { id: 'p4', name: '前桥总成照', code: 'MC-FA001' },
-  { id: 'p5', name: '后桥总成照', code: 'MC-RA001' },
-  { id: 'p6', name: '车辆整体照', code: 'VH-OV001' },
-  { id: 'p7', name: '车身标识照', code: 'VH-ID001' },
-  { id: 'p8', name: '发动机铭牌照', code: 'EN-LB001' },
-  { id: 'p9', name: '拆解现场全景照', code: 'SC-OV001' }
+/** 拆解照片模板（与接口字段一致） */
+export const DISMANTLE_PHOTO_FIELDS: { field: DismantlePhotoField; name: string }[] = [
+  { field: 'photo_frame1', name: '车架照' },
+  { field: 'photo_frame2', name: '车架照2' },
+  { field: 'photo_engine', name: '发动机照' },
+  { field: 'photo_transmission', name: '变速器照' },
+  { field: 'photo_steering', name: '方向器照' },
+  { field: 'photo_front_axle', name: '前桥照' },
+  { field: 'photo_rear_axle', name: '后桥照' },
+  { field: 'photo_stamp', name: '钢印部位照' },
+  { field: 'photo_battery', name: '动力电池照片' }
 ]
+
+/** @deprecated 使用 DISMANTLE_PHOTO_FIELDS */
+export const MINISTRY_DISMANTLE_PHOTOS = DISMANTLE_PHOTO_FIELDS.map((item) => ({
+  id: item.field,
+  name: item.name,
+  code: item.field
+}))

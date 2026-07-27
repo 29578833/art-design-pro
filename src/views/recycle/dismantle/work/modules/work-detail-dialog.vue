@@ -120,7 +120,7 @@
             上传拆解照片后将同步至商务部数字化管理平台（车信盟），请确保照片清晰完整
           </div>
           <div class="work-photo-grid">
-            <div v-for="(photo, index) in photoList" :key="photo.code" class="work-photo-card">
+            <div v-for="(photo, index) in photoList" :key="photo.field" class="work-photo-card">
               <div
                 class="work-photo-upload"
                 :class="{
@@ -160,7 +160,6 @@
               </div>
               <div class="work-photo-info">
                 <div class="name">{{ photo.name }}</div>
-                <div class="code">{{ photo.code }}</div>
               </div>
             </div>
           </div>
@@ -195,6 +194,7 @@
         <div class="work-footer-progress">照片进度：{{ uploadedPhotoCount }}/9 张已上传</div>
         <div class="work-footer-actions">
           <ElButton @click="dialogVisible = false">关闭</ElButton>
+          <ElButton v-if="!isCompleted" :loading="saving" @click="handleSave">保存</ElButton>
           <ElButton
             v-if="!isCompleted"
             type="success"
@@ -220,14 +220,16 @@
     fetchPlateUpdateStatus
   } from '@/api/recycle/plate'
   import type {
+    DismantleInitData,
     DismantlePhotoItem,
+    DismantlePreprocessStep,
+    DismantleSaveParams,
+    DismantleStation,
+    DismantleAssembly,
     DismantleTimeForm,
     PlateItem
   } from '@/types/recycle/dismantle/work/plate'
-  import {
-    MINISTRY_DISMANTLE_PHOTOS,
-    PLATE_STATUS_CONFIG
-  } from '@/types/recycle/dismantle/work/plate'
+  import { DISMANTLE_PHOTO_FIELDS, PLATE_STATUS_CONFIG } from '@/types/recycle/dismantle/work/plate'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {
@@ -249,6 +251,7 @@
   })
 
   const initializing = ref(false)
+  const saving = ref(false)
   const completing = ref(false)
   const uploadingIndex = ref<number>()
   const activeTab = ref<'photos' | 'log'>('photos')
@@ -263,6 +266,7 @@
   })
   const photoList = ref<DismantlePhotoItem[]>([])
   const photoInputRefs = ref<(HTMLInputElement | null)[]>([])
+  const dismantleInit = ref<DismantleInitData | null>(null)
 
   const tabs = [
     { id: 'photos' as const, label: '② 报废拆解照片', icon: 'ri:archive-line' },
@@ -307,14 +311,80 @@
     ]
   })
 
-  function buildDefaultPhotos(savedPhotos: DismantlePhotoItem[] = []) {
-    const savedMap = new Map(savedPhotos.map((item) => [item.code || item.id, item.url]))
-    return MINISTRY_DISMANTLE_PHOTOS.map((item) => ({
-      id: item.id,
+  function buildDefaultPhotos(savedPhotos: DismantleInitData['photos'] = {}) {
+    const savedMap = savedPhotos && typeof savedPhotos === 'object' ? savedPhotos : {}
+    return DISMANTLE_PHOTO_FIELDS.map((item) => ({
+      field: item.field,
       name: item.name,
-      code: item.code,
-      url: savedMap.get(item.code) || savedMap.get(item.id) || ''
+      url: savedMap[item.field] || ''
     }))
+  }
+
+  function buildPreprocessSteps(
+    steps: DismantlePreprocessStep[] = [],
+    completedKeys: string[] = []
+  ) {
+    return steps.map((step) => ({
+      ...step,
+      done: completedKeys.includes(step.key)
+    }))
+  }
+
+  function normalizeStations(stations: DismantleStation[] = []) {
+    return stations.map((station, index) => ({
+      station_key: station.station_key || (station as { key?: string }).key || '',
+      station_name: station.station_name || (station as { name?: string }).name || '',
+      station_desc: station.station_desc || (station as { desc?: string }).desc || '',
+      worker_id: station.worker_id || 0,
+      worker_name: station.worker_name || '',
+      status: station.status || 0,
+      sort: station.sort ?? index + 1
+    }))
+  }
+
+  function normalizeAssemblies(assemblies: DismantleAssembly[] = []) {
+    return assemblies.map((assembly) => ({
+      assembly_key: assembly.assembly_key || (assembly as { key?: string }).key || '',
+      assembly_name: assembly.assembly_name || '',
+      part_status: assembly.part_status || '',
+      part_no: assembly.part_no || '',
+      weight: assembly.weight || 0,
+      remark: assembly.remark || '',
+      photos: assembly.photos || ''
+    }))
+  }
+
+  function buildPhotoPayload() {
+    const payload: Partial<Record<DismantlePhotoItem['field'], string>> = {}
+    photoList.value.forEach((item) => {
+      payload[item.field] = item.url || ''
+    })
+    return payload
+  }
+
+  function buildSavePayload(complete = false): DismantleSaveParams {
+    const init = dismantleInit.value
+    const preprocessSteps = (init?.preprocess_steps || []).map((step) => ({
+      ...step,
+      done: complete ? true : Boolean(step.done || init?.preprocess_data?.includes(step.key))
+    }))
+    const stations = normalizeStations(init?.stations || []).map((station) => ({
+      ...station,
+      status: complete ? 2 : station.status
+    }))
+    const assemblies = normalizeAssemblies(init?.assemblies || []).map((assembly) => ({
+      ...assembly,
+      part_status: complete ? assembly.part_status || '已登记' : assembly.part_status
+    }))
+
+    return {
+      dismantle_time: { ...dismantleTime.value },
+      ...buildPhotoPayload(),
+      preprocess_steps: preprocessSteps,
+      stations,
+      assemblies,
+      work_status: complete ? 2 : init?.work_status || 0
+    }
   }
 
   function setPhotoInputRef(el: unknown, index: number) {
@@ -358,22 +428,39 @@
         fetchDismantleLog(props.plateId)
       ])
       plateItem.value = detail
+      dismantleInit.value = {
+        ...init,
+        preprocess_steps: buildPreprocessSteps(
+          init.preprocess_steps || [],
+          init.preprocess_data || []
+        ),
+        stations: normalizeStations(init.stations || []),
+        assemblies: normalizeAssemblies(init.assemblies || [])
+      }
       dismantleTime.value = {
         dismantle_date: init.dismantle_date || '',
         roof_cut_time: init.roof_cut_time || '',
         assembly_dismantle_time: init.assembly_dismantle_time || ''
       }
-      photoList.value = buildDefaultPhotos(init.photos || [])
+      photoList.value = buildDefaultPhotos(init.photos || {})
       logs.value = logRes.logs || []
     } finally {
       initializing.value = false
     }
   }
 
-  function buildSavePayload() {
-    return {
-      dismantle_time: { ...dismantleTime.value },
-      photos: photoList.value
+  async function handleSave() {
+    if (!props.plateId) return
+    if (!timeFieldsFilled.value) {
+      ElMessage.warning('请先填写三项必填拆解时间')
+      return
+    }
+    saving.value = true
+    try {
+      await fetchDismantleSave(props.plateId, buildSavePayload(false))
+      await loadDetail()
+    } finally {
+      saving.value = false
     }
   }
 
@@ -395,7 +482,7 @@
 
     completing.value = true
     try {
-      await fetchDismantleSave(props.plateId, buildSavePayload())
+      await fetchDismantleSave(props.plateId, buildSavePayload(true))
       await fetchPlateUpdateStatus(props.plateId, 1, 100)
       ElMessage.success('拆解已完成，已进入待缴库流程')
       emit('success')
@@ -409,6 +496,7 @@
     activeTab.value = 'photos'
     plateItem.value = null
     logs.value = []
+    dismantleInit.value = null
     dismantleTime.value = { dismantle_date: '', roof_cut_time: '', assembly_dismantle_time: '' }
     photoList.value = []
     photoInputRefs.value = []
