@@ -26,16 +26,12 @@
         <div class="pc-date-group">
           <ElButton size="small" @click="shiftDate(-1)">‹ 前一天</ElButton>
           <ElDatePicker
-            v-model="dateStart"
-            type="date"
+            v-model="dateRange"
+            type="daterange"
             value-format="YYYY-MM-DD"
-            class="pc-date-single"
-          />
-          <span class="pc-date-sep">—</span>
-          <ElDatePicker
-            v-model="dateEnd"
-            type="date"
-            value-format="YYYY-MM-DD"
+            range-separator="—"
+            start-placeholder="开始"
+            end-placeholder="结束"
             class="pc-date-single"
           />
           <ElButton size="small" @click="shiftDate(1)">后一天 ›</ElButton>
@@ -180,8 +176,7 @@
   const { exporting, downloading, exportExcel, downloadPhotos } = usePhotoChecklistExport()
 
   const defaultRange = defaultReportDateRange()
-  const dateStart = ref(defaultRange[0])
-  const dateEnd = ref(defaultRange[1])
+  const dateRange = ref<[string, string]>([...defaultRange])
   const queryRange = ref<[string, string]>([...defaultRange])
   const timeMode = ref<ReportTimeMode>('month')
   const plateNo = ref('')
@@ -270,8 +265,8 @@
   function buildParams() {
     return {
       plate_no: plateNo.value || undefined,
-      start_date: dateStart.value,
-      end_date: dateEnd.value,
+      start_date: dateRange.value[0],
+      end_date: dateRange.value[1],
       time_mode: timeMode.value,
       page: page.value,
       limit: limit.value
@@ -280,21 +275,17 @@
 
   function switchTimeMode(mode: ReportTimeMode) {
     timeMode.value = mode
-    const [s, e] = granRange(mode, new Date(dateStart.value))
-    dateStart.value = s
-    dateEnd.value = e
+    const [s, e] = granRange(mode, new Date(dateRange.value[0]))
+    dateRange.value = [s, e]
   }
 
   function shiftDate(delta: number) {
-    const [s, e] = shiftDayRange(dateStart.value, dateEnd.value, delta)
-    dateStart.value = s
-    dateEnd.value = e
+    const [s, e] = shiftDayRange(dateRange.value[0], dateRange.value[1], delta)
+    dateRange.value = [s, e]
   }
 
   function goToday() {
-    const [s, e] = defaultTodayRange()
-    dateStart.value = s
-    dateEnd.value = e
+    dateRange.value = defaultTodayRange()
   }
 
   function onPageSizeChange() {
@@ -306,7 +297,7 @@
     loading.value = true
     try {
       result.value = await fetchPhotoChecklist(buildParams())
-      queryRange.value = [dateStart.value, dateEnd.value]
+      queryRange.value = [...dateRange.value]
     } catch {
       result.value = null
       ElMessage.error('加载照片清单失败')
@@ -322,9 +313,7 @@
 
   function handleReset() {
     timeMode.value = 'month'
-    const [s, e] = defaultReportDateRange()
-    dateStart.value = s
-    dateEnd.value = e
+    dateRange.value = defaultReportDateRange()
     plateNo.value = ''
     page.value = 1
     loadData()

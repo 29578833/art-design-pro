@@ -13,18 +13,12 @@
         <div class="dd-date-group">
           <ElButton size="small" class="dd-shift-btn" @click="shiftDate(-1)">‹ 前一天</ElButton>
           <ElDatePicker
-            v-model="dateStart"
-            type="date"
+            v-model="dateRange"
+            type="daterange"
             value-format="YYYY-MM-DD"
-            placeholder="开始"
-            class="dd-date-single"
-          />
-          <span class="dd-date-sep">—</span>
-          <ElDatePicker
-            v-model="dateEnd"
-            type="date"
-            value-format="YYYY-MM-DD"
-            placeholder="结束"
+            range-separator="—"
+            start-placeholder="开始"
+            end-placeholder="结束"
             class="dd-date-single"
           />
           <ElButton size="small" class="dd-shift-btn" @click="shiftDate(1)">后一天 ›</ElButton>
@@ -200,8 +194,7 @@
   const { exporting, exportReport } = useDismantleExport()
 
   const defaultRange = defaultTodayRange()
-  const dateStart = ref(defaultRange[0])
-  const dateEnd = ref(defaultRange[1])
+  const dateRange = ref<[string, string]>([...defaultRange])
   const queryRange = ref<[string, string]>([...defaultRange])
   const vehicleCategory = ref('')
   const productKeyword = ref('')
@@ -237,7 +230,7 @@
 
   const todayStr = computed(() => defaultTodayRange()[0])
   const isToday = computed(
-    () => dateStart.value === todayStr.value && dateEnd.value === todayStr.value
+    () => dateRange.value[0] === todayStr.value && dateRange.value[1] === todayStr.value
   )
   const dateTitleText = computed(() => formatCnDateRange(queryRange.value[0], queryRange.value[1]))
 
@@ -433,15 +426,12 @@
   }
 
   function shiftDate(delta: number) {
-    const [s, e] = shiftDayRange(dateStart.value, dateEnd.value, delta)
-    dateStart.value = s
-    dateEnd.value = e
+    const [s, e] = shiftDayRange(dateRange.value[0], dateRange.value[1], delta)
+    dateRange.value = [s, e]
   }
 
   function goToday() {
-    const [s, e] = defaultTodayRange()
-    dateStart.value = s
-    dateEnd.value = e
+    dateRange.value = defaultTodayRange()
   }
 
   function onPageSizeChange() {
@@ -453,11 +443,11 @@
     try {
       result.value = await fetchDismantleReport({
         vehicle_category: vehicleCategory.value || undefined,
-        start_date: dateStart.value,
-        end_date: dateEnd.value,
+        start_date: dateRange.value[0],
+        end_date: dateRange.value[1],
         time_mode: 'day'
       })
-      queryRange.value = [dateStart.value, dateEnd.value]
+      queryRange.value = [dateRange.value[0], dateRange.value[1]]
       appliedProductKeyword.value = productKeyword.value
     } catch {
       result.value = null
@@ -473,9 +463,7 @@
   }
 
   function handleReset() {
-    const [s, e] = defaultTodayRange()
-    dateStart.value = s
-    dateEnd.value = e
+    dateRange.value = defaultTodayRange()
     vehicleCategory.value = ''
     productKeyword.value = ''
     page.value = 1

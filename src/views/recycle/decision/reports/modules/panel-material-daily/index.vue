@@ -28,18 +28,12 @@
         <div class="md-date-group">
           <ElButton size="small" class="md-shift-btn" @click="shiftDate(-1)">‹ 前一天</ElButton>
           <ElDatePicker
-            v-model="dateStart"
-            type="date"
+            v-model="dateRange"
+            type="daterange"
             value-format="YYYY-MM-DD"
-            placeholder="开始"
-            class="md-date-single"
-          />
-          <span class="md-date-sep">—</span>
-          <ElDatePicker
-            v-model="dateEnd"
-            type="date"
-            value-format="YYYY-MM-DD"
-            placeholder="结束"
+            range-separator="—"
+            start-placeholder="开始"
+            end-placeholder="结束"
             class="md-date-single"
           />
           <ElButton size="small" class="md-shift-btn" @click="shiftDate(1)">后一天 ›</ElButton>
@@ -179,8 +173,7 @@
   const { exporting, exportReport } = useMaterialDailyExport()
 
   const defaultRange = defaultTodayRange()
-  const dateStart = ref(defaultRange[0])
-  const dateEnd = ref(defaultRange[1])
+  const dateRange = ref<[string, string]>([...defaultRange])
   const queryRange = ref<[string, string]>([...defaultRange])
   const timeMode = ref<'day' | 'week' | 'month'>('day')
   const keyword = ref('')
@@ -210,7 +203,7 @@
   })
 
   const isToday = computed(
-    () => dateStart.value === todayStr.value && dateEnd.value === todayStr.value
+    () => dateRange.value[0] === todayStr.value && dateRange.value[1] === todayStr.value
   )
 
   const dateTitleText = computed(() => {
@@ -345,19 +338,18 @@
   }
 
   function handleSearch() {
-    if (!dateStart.value || !dateEnd.value) {
+    if (!dateRange.value[0] || !dateRange.value[1]) {
       ElMessage.warning('请选择日期范围')
       return
     }
-    queryRange.value = [dateStart.value, dateEnd.value]
+    queryRange.value = [...dateRange.value]
     page.value = 1
     loadData()
   }
 
   function handleReset() {
     const range = defaultTodayRange()
-    dateStart.value = range[0]
-    dateEnd.value = range[1]
+    dateRange.value = [...range]
     queryRange.value = [...range]
     timeMode.value = 'day'
     keyword.value = ''
@@ -371,21 +363,18 @@
   }
 
   function shiftDate(days: number) {
-    if (!dateStart.value || !dateEnd.value) return
+    if (!dateRange.value[0] || !dateRange.value[1]) return
     const shift = (dateStr: string) => {
       const d = new Date(dateStr)
       d.setDate(d.getDate() + days)
       const pad = (n: number) => String(n).padStart(2, '0')
       return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
     }
-    dateStart.value = shift(dateStart.value)
-    dateEnd.value = shift(dateEnd.value)
+    dateRange.value = [shift(dateRange.value[0]), shift(dateRange.value[1])]
   }
 
   function goToday() {
-    const range = defaultTodayRange()
-    dateStart.value = range[0]
-    dateEnd.value = range[1]
+    dateRange.value = defaultTodayRange()
   }
 
   function handleExport() {

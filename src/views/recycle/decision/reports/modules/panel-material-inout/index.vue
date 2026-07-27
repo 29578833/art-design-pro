@@ -68,18 +68,12 @@
           <span class="rmi-date-label">入库日期:</span>
           <ElButton size="small" class="rmi-shift-btn" @click="shiftInboundDate(-1)">‹</ElButton>
           <ElDatePicker
-            v-model="inboundStart"
-            type="date"
+            v-model="inboundRange"
+            type="daterange"
             value-format="YYYY-MM-DD"
-            placeholder="开始"
-            class="rmi-date-single"
-          />
-          <span class="rmi-date-sep">—</span>
-          <ElDatePicker
-            v-model="inboundEnd"
-            type="date"
-            value-format="YYYY-MM-DD"
-            placeholder="结束"
+            range-separator="—"
+            start-placeholder="开始"
+            end-placeholder="结束"
             class="rmi-date-single"
           />
           <ElButton size="small" class="rmi-shift-btn" @click="shiftInboundDate(1)">›</ElButton>
@@ -88,19 +82,12 @@
         <div class="rmi-date-group">
           <span class="rmi-date-label">领料日期:</span>
           <ElDatePicker
-            v-model="materialStart"
-            type="date"
+            v-model="materialRange"
+            type="daterange"
             value-format="YYYY-MM-DD"
-            placeholder="开始"
-            clearable
-            class="rmi-date-single"
-          />
-          <span class="rmi-date-sep">—</span>
-          <ElDatePicker
-            v-model="materialEnd"
-            type="date"
-            value-format="YYYY-MM-DD"
-            placeholder="结束"
+            range-separator="—"
+            start-placeholder="开始"
+            end-placeholder="结束"
             clearable
             class="rmi-date-single"
           />
@@ -277,11 +264,9 @@
   const { exporting, exportReport } = useMaterialInOutExport()
 
   const defaultRange = defaultReportDateRange()
-  const inboundStart = ref(defaultRange[0])
-  const inboundEnd = ref(defaultRange[1])
+  const inboundRange = ref<[string, string]>([...defaultRange])
   const queryRange = ref<[string, string]>([...defaultRange])
-  const materialStart = ref('')
-  const materialEnd = ref('')
+  const materialRange = ref<[string, string] | null>(null)
 
   const filters = reactive({
     plate_no: '',
@@ -413,8 +398,8 @@
       supervision: supervision.value || undefined,
       start_date: queryRange.value[0],
       end_date: queryRange.value[1],
-      material_start_date: materialStart.value || undefined,
-      material_end_date: materialEnd.value || undefined,
+      material_start_date: materialRange.value?.[0] || undefined,
+      material_end_date: materialRange.value?.[1] || undefined,
       page: page.value,
       limit: limit.value
     }
@@ -430,22 +415,20 @@
   }
 
   function handleSearch() {
-    if (!inboundStart.value || !inboundEnd.value) {
+    if (!inboundRange.value[0] || !inboundRange.value[1]) {
       ElMessage.warning('请选择入库日期范围')
       return
     }
-    queryRange.value = [inboundStart.value, inboundEnd.value]
+    queryRange.value = [...inboundRange.value]
     page.value = 1
     loadData()
   }
 
   function handleReset() {
     const range = defaultReportDateRange()
-    inboundStart.value = range[0]
-    inboundEnd.value = range[1]
+    inboundRange.value = [...range]
     queryRange.value = [...range]
-    materialStart.value = ''
-    materialEnd.value = ''
+    materialRange.value = null
     filters.plate_no = ''
     filters.internal_no = ''
     filters.vin = ''
@@ -466,15 +449,14 @@
   }
 
   function shiftInboundDate(days: number) {
-    if (!inboundStart.value || !inboundEnd.value) return
+    if (!inboundRange.value[0] || !inboundRange.value[1]) return
     const shift = (dateStr: string) => {
       const d = new Date(dateStr)
       d.setDate(d.getDate() + days)
       const pad = (n: number) => String(n).padStart(2, '0')
       return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
     }
-    inboundStart.value = shift(inboundStart.value)
-    inboundEnd.value = shift(inboundEnd.value)
+    inboundRange.value = [shift(inboundRange.value[0]), shift(inboundRange.value[1])]
   }
 
   function handleExport() {

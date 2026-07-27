@@ -30,20 +30,14 @@
               >‹ {{ shiftLabel(-1) }}</ElButton
             >
             <ElDatePicker
-              v-model="entryStart"
-              type="date"
+              v-model="entryRange"
+              type="daterange"
               value-format="YYYY-MM-DD"
+              range-separator="—"
+              start-placeholder="开始"
+              end-placeholder="结束"
               class="fs-date-single"
             />
-            <template v-if="timeMode !== 'day'">
-              <span class="fs-date-sep">—</span>
-              <ElDatePicker
-                v-model="entryEnd"
-                type="date"
-                value-format="YYYY-MM-DD"
-                class="fs-date-single"
-              />
-            </template>
             <ElButton size="small" @click="shiftGroup('entry', 1)">{{ shiftLabel(1) }} ›</ElButton>
             <ElButton link type="primary" @click="jumpGroupNow('entry')">{{ quickLabel }}</ElButton>
           </div>
@@ -53,20 +47,14 @@
               >‹ {{ shiftLabel(-1) }}</ElButton
             >
             <ElDatePicker
-              v-model="archiveStart"
-              type="date"
+              v-model="archiveRange"
+              type="daterange"
               value-format="YYYY-MM-DD"
+              range-separator="—"
+              start-placeholder="开始"
+              end-placeholder="结束"
               class="fs-date-single"
             />
-            <template v-if="timeMode !== 'day'">
-              <span class="fs-date-sep">—</span>
-              <ElDatePicker
-                v-model="archiveEnd"
-                type="date"
-                value-format="YYYY-MM-DD"
-                class="fs-date-single"
-              />
-            </template>
             <ElButton size="small" @click="shiftGroup('archive', 1)"
               >{{ shiftLabel(1) }} ›</ElButton
             >
@@ -80,20 +68,14 @@
               >‹ {{ shiftLabel(-1) }}</ElButton
             >
             <ElDatePicker
-              v-model="orderStart"
-              type="date"
+              v-model="orderRange"
+              type="daterange"
               value-format="YYYY-MM-DD"
+              range-separator="—"
+              start-placeholder="开始"
+              end-placeholder="结束"
               class="fs-date-single"
             />
-            <template v-if="timeMode !== 'day'">
-              <span class="fs-date-sep">—</span>
-              <ElDatePicker
-                v-model="orderEnd"
-                type="date"
-                value-format="YYYY-MM-DD"
-                class="fs-date-single"
-              />
-            </template>
             <ElButton size="small" @click="shiftGroup('order', 1)">{{ shiftLabel(1) }} ›</ElButton>
             <ElButton link type="primary" @click="jumpGroupNow('order')">{{ quickLabel }}</ElButton>
           </div>
@@ -331,12 +313,9 @@
 
   const initRange = granRange('month')
   const timeMode = ref<ReportTimeMode>('month')
-  const entryStart = ref(initRange[0])
-  const entryEnd = ref(initRange[1])
-  const archiveStart = ref(initRange[0])
-  const archiveEnd = ref(initRange[1])
-  const orderStart = ref(initRange[0])
-  const orderEnd = ref(initRange[1])
+  const entryRange = ref<[string, string]>([...initRange])
+  const archiveRange = ref<[string, string]>([...initRange])
+  const orderRange = ref<[string, string]>([...initRange])
   const page = ref(1)
   const limit = ref(20)
 
@@ -444,30 +423,30 @@
 
   function switchTimeMode(mode: ReportTimeMode) {
     timeMode.value = mode
-    ;[entryStart.value, entryEnd.value] = granRange(mode, new Date(entryStart.value))
-    ;[archiveStart.value, archiveEnd.value] = granRange(mode, new Date(archiveStart.value))
-    ;[orderStart.value, orderEnd.value] = granRange(mode, new Date(orderStart.value))
+    entryRange.value = granRange(mode, new Date(entryRange.value[0]))
+    archiveRange.value = granRange(mode, new Date(archiveRange.value[0]))
+    orderRange.value = granRange(mode, new Date(orderRange.value[0]))
   }
 
   function shiftGroup(key: 'entry' | 'archive' | 'order', delta: number) {
     if (key === 'entry') {
-      ;[entryStart.value, entryEnd.value] = shiftGranRange(
-        entryStart.value,
-        entryEnd.value,
+      entryRange.value = shiftGranRange(
+        entryRange.value[0],
+        entryRange.value[1],
         timeMode.value,
         delta
       )
     } else if (key === 'archive') {
-      ;[archiveStart.value, archiveEnd.value] = shiftGranRange(
-        archiveStart.value,
-        archiveEnd.value,
+      archiveRange.value = shiftGranRange(
+        archiveRange.value[0],
+        archiveRange.value[1],
         timeMode.value,
         delta
       )
     } else {
-      ;[orderStart.value, orderEnd.value] = shiftGranRange(
-        orderStart.value,
-        orderEnd.value,
+      orderRange.value = shiftGranRange(
+        orderRange.value[0],
+        orderRange.value[1],
         timeMode.value,
         delta
       )
@@ -475,16 +454,13 @@
   }
 
   function jumpGroupNow(key: 'entry' | 'archive' | 'order') {
-    const [s, e] = granRange(timeMode.value)
+    const range = granRange(timeMode.value)
     if (key === 'entry') {
-      entryStart.value = s
-      entryEnd.value = e
+      entryRange.value = range
     } else if (key === 'archive') {
-      archiveStart.value = s
-      archiveEnd.value = e
+      archiveRange.value = range
     } else {
-      orderStart.value = s
-      orderEnd.value = e
+      orderRange.value = range
     }
   }
 
@@ -518,12 +494,12 @@
       order_no: filters.order_no || undefined,
       vehicle_category: filters.vehicle_category || undefined,
       remark: filters.remark || undefined,
-      entry_start_date: entryStart.value,
-      entry_end_date: timeMode.value === 'day' ? entryStart.value : entryEnd.value,
-      archive_start_date: archiveStart.value,
-      archive_end_date: timeMode.value === 'day' ? archiveStart.value : archiveEnd.value,
-      order_start_date: orderStart.value,
-      order_end_date: timeMode.value === 'day' ? orderStart.value : orderEnd.value,
+      entry_start_date: entryRange.value[0],
+      entry_end_date: entryRange.value[1],
+      archive_start_date: archiveRange.value[0],
+      archive_end_date: archiveRange.value[1],
+      order_start_date: orderRange.value[0],
+      order_end_date: orderRange.value[1],
       time_mode: timeMode.value,
       page: page.value,
       limit: limit.value
@@ -554,13 +530,10 @@
 
   function handleReset() {
     timeMode.value = 'month'
-    const [s, e] = granRange('month')
-    entryStart.value = s
-    entryEnd.value = e
-    archiveStart.value = s
-    archiveEnd.value = e
-    orderStart.value = s
-    orderEnd.value = e
+    const range = granRange('month')
+    entryRange.value = range
+    archiveRange.value = range
+    orderRange.value = range
     ;(Object.keys(filters) as FilterKey[]).forEach((k) => {
       filters[k] = ''
     })
@@ -571,7 +544,7 @@
   function handleExport() {
     exportReport(
       { ...buildParams(), page: 1, limit: 200 },
-      `入库日期：${entryStart.value} — ${timeMode.value === 'day' ? entryStart.value : entryEnd.value}`
+      `入库日期：${entryRange.value[0]} — ${entryRange.value[1]}`
     )
   }
 
