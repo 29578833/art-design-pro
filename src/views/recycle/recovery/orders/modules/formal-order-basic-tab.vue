@@ -72,11 +72,43 @@
         </ElCol>
         <ElCol :span="8">
           <div class="fob-item">
-            <div class="fob-label">车架号（VIN）</div>
+            <div class="fob-label">车架号</div>
             <div class="fob-value fob-value--mono">{{ currentVehicle?.vin || '—' }}</div>
           </div>
         </ElCol>
         <ElCol :span="8">
+          <div class="fob-item">
+            <div class="fob-label">车辆品牌</div>
+            <div class="fob-value">{{ currentVehicle?.brand || '—' }}</div>
+          </div>
+        </ElCol>
+        <ElCol :span="8">
+          <div class="fob-item">
+            <div class="fob-label">车辆型号</div>
+            <div class="fob-value">{{ currentVehicle?.model || '—' }}</div>
+          </div>
+        </ElCol>
+        <ElCol :span="8">
+          <div class="fob-item">
+            <div class="fob-label">车辆类型</div>
+            <div class="fob-value">
+              {{ currentVehicle?.vehicle_type || currentVehicle?.fuel_type || '—' }}
+            </div>
+          </div>
+        </ElCol>
+        <ElCol :span="8">
+          <div class="fob-item">
+            <div class="fob-label">排量国标</div>
+            <div class="fob-value">{{ currentVehicle?.emission_standard || '—' }}</div>
+          </div>
+        </ElCol>
+        <ElCol :span="8">
+          <div class="fob-item">
+            <div class="fob-label">登记日期</div>
+            <div class="fob-value">{{ currentVehicle?.reg_date || '—' }}</div>
+          </div>
+        </ElCol>
+        <!-- <ElCol :span="8">
           <div class="fob-item">
             <div class="fob-label">品牌车型</div>
             <div class="fob-value">{{ brandModel }}</div>
@@ -87,7 +119,7 @@
             <div class="fob-label">车辆年份</div>
             <div class="fob-value">{{ currentVehicle?.vehicle_year || '—' }}</div>
           </div>
-        </ElCol>
+        </ElCol> -->
         <ElCol :span="8">
           <div class="fob-item">
             <div class="fob-label">回收类型</div>
@@ -157,7 +189,7 @@
           </div>
         </ElCol>
 
-        <ElCol v-if="currentVehicle?.fuel_type" :span="8">
+        <!-- <ElCol v-if="currentVehicle?.fuel_type" :span="8">
           <div class="fob-item">
             <div class="fob-label">燃料类型</div>
             <div class="fob-value">{{ currentVehicle.fuel_type }}</div>
@@ -168,7 +200,7 @@
             <div class="fob-label">排放标准</div>
             <div class="fob-value">{{ currentVehicle.emission_standard }}</div>
           </div>
-        </ElCol>
+        </ElCol> -->
       </ElRow>
     </div>
 
@@ -353,11 +385,11 @@
     () => props.detail.vehicles?.[props.selectedVehicleIdx] ?? props.detail.vehicle
   )
 
-  const brandModel = computed(() => {
-    const v = currentVehicle.value
-    if (!v) return '—'
-    return [v.brand, v.model].filter(Boolean).join(' ') || '—'
-  })
+  // const brandModel = computed(() => {
+  //   const v = currentVehicle.value
+  //   if (!v) return '—'
+  //   return [v.brand, v.model].filter(Boolean).join(' ') || '—'
+  // })
 
   // 审核日志（to_status=2 的第一条，即审核通过）
   const reviewLog = computed<OrderStatusLog | undefined>(() =>

@@ -5,10 +5,10 @@
       <ElRow :gutter="16">
         <ElCol :span="8">
           <label class="field-label">车牌号 <span class="required">*</span></label>
-          <ElInput v-model="form.plate_no" placeholder="如：京A·12345" />
+          <ElInput v-model="form.plate_no" placeholder="如：沪A·12345" />
         </ElCol>
         <ElCol :span="8">
-          <label class="field-label">车架号(VIN)</label>
+          <label class="field-label">车架号</label>
           <ElInput v-model="form.vin" placeholder="17位车架号" maxlength="17" />
         </ElCol>
         <ElCol :span="8">
@@ -16,7 +16,7 @@
           <ElInput v-model="form.brand" placeholder="如：大众" />
         </ElCol>
         <ElCol :span="8">
-          <label class="field-label">车系/型号</label>
+          <label class="field-label">车辆型号</label>
           <ElInput v-model="form.model" placeholder="如：帕萨特2020款" />
         </ElCol>
         <ElCol :span="8">
@@ -26,6 +26,22 @@
           </ElSelect>
         </ElCol>
         <ElCol :span="8">
+          <label class="field-label">排量国标</label>
+          <ElSelect v-model="form.emission_standard" placeholder="请选择">
+            <ElOption v-for="s in emissionStandards" :key="s" :label="s" :value="s" />
+          </ElSelect>
+        </ElCol>
+        <ElCol :span="8">
+          <label class="field-label">登记日期</label>
+          <ElDatePicker
+            v-model="form.first_reg_date"
+            type="date"
+            value-format="YYYY-MM-DD"
+            placeholder="年 / 月 / 日"
+            style="width: 100%"
+          />
+        </ElCol>
+        <!-- <ElCol :span="8">
           <label class="field-label">出厂年份</label>
           <ElInput v-model="form.vehicle_year" placeholder="如：2019" />
         </ElCol>
@@ -36,17 +52,7 @@
         <ElCol :span="8">
           <label class="field-label">表显里程（万km）</label>
           <ElInput v-model="form.mileage" type="number" placeholder="0" />
-        </ElCol>
-        <ElCol :span="8">
-          <label class="field-label">初次登记日期</label>
-          <ElDatePicker
-            v-model="form.first_reg_date"
-            type="date"
-            value-format="YYYY-MM-DD"
-            placeholder="选择日期"
-            style="width: 100%"
-          />
-        </ElCol>
+        </ElCol> -->
       </ElRow>
       <div class="delivery-block">
         <div class="sub-label">送货方式</div>
@@ -207,9 +213,10 @@
     brand: string
     model: string
     vehicle_type: string
-    vehicle_year: string
-    color: string
-    mileage: string
+    emission_standard: string
+    // vehicle_year: string
+    // color: string
+    // mileage: string
     first_reg_date: string
     delivery_type: 'self' | 'tow'
     pickup_name: string
@@ -245,6 +252,7 @@
   }>()
 
   const fuelTypes = ['汽油', '柴油', '纯电动', '插电混动', '油电混动']
+  const emissionStandards = ['国一', '国二', '国三', '国四', '国五', '国六', '新能源']
   const deliveryOptions = [
     { value: 'self' as const, label: '自行送厂', desc: '自行驾驶送达' },
     { value: 'tow' as const, label: '预约拖车', desc: '上门取车' }
@@ -259,9 +267,10 @@
     brand: '',
     model: '',
     vehicle_type: '',
-    vehicle_year: '',
-    color: '',
-    mileage: '',
+    emission_standard: '',
+    // vehicle_year: '',
+    // color: '',
+    // mileage: '',
     first_reg_date: '',
     delivery_type: 'self',
     pickup_name: '',
@@ -288,13 +297,6 @@
   })
 
   const form = ref<OrderEditForm>(defaultForm())
-
-  function resolveYear(vehicle?: OrderDetail['vehicle']) {
-    if (!vehicle) return ''
-    if (vehicle.vehicle_year) return String(vehicle.vehicle_year)
-    if (vehicle.reg_date) return String(vehicle.reg_date).slice(0, 4)
-    return ''
-  }
 
   function mapOwnerType(ownerType?: string): 'personal' | 'company' {
     if (ownerType === 'company' || ownerType === 'non_personal') return 'company'
@@ -325,9 +327,10 @@
       brand: vehicle?.brand || detail.brand || '',
       model: vehicle?.model || detail.model || '',
       vehicle_type: vehicle?.vehicle_type || vehicle?.fuel_type || '',
-      vehicle_year: resolveYear(vehicle),
-      color: vehicle?.color || '',
-      mileage: vehicle?.mileage != null ? String(vehicle.mileage) : '',
+      emission_standard: vehicle?.emission_standard || '',
+      // vehicle_year: resolveYear(vehicle),
+      // color: vehicle?.color || '',
+      // mileage: vehicle?.mileage != null ? String(vehicle.mileage) : '',
       first_reg_date: vehicle?.reg_date || '',
       delivery_type: deliveryType,
       pickup_name: pickupName,
@@ -375,10 +378,11 @@
         brand: form.value.brand.trim(),
         model: form.value.model.trim(),
         vehicle_type: form.value.vehicle_type,
-        vehicle_year: form.value.vehicle_year,
-        color: form.value.color,
-        mileage: form.value.mileage,
+        emission_standard: form.value.emission_standard,
         first_reg_date: form.value.first_reg_date,
+        // vehicle_year: form.value.vehicle_year,
+        // color: form.value.color,
+        // mileage: form.value.mileage,
         delivery_type: form.value.delivery_type,
         pickup_name: form.value.pickup_name.trim(),
         pickup_phone: form.value.pickup_phone.trim()

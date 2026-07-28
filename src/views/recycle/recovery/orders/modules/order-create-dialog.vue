@@ -269,7 +269,7 @@
                 type="button"
                 class="order-type-card"
                 :class="{ active: form.is_batch === opt.value }"
-                @click="form.is_batch = opt.value"
+                @click="setOrderType(opt.value)"
               >
                 <div class="order-type-card-head">
                   <div class="radio-dot" :class="{ active: form.is_batch === opt.value }" />
@@ -368,38 +368,43 @@
                     <ArtSvgIcon icon="ri:delete-bin-line" />
                   </button>
                 </div>
-                <div class="form-grid-3">
+                <div class="form-grid-2">
                   <div>
                     <label class="field-label">车牌号<span class="required">*</span></label>
-                    <ElInput v-model="vehicle.plate_no" placeholder="如：京A·12345" />
+                    <ElInput v-model="vehicle.plate_no" placeholder="如：沪A·12345" />
+                  </div>
+                  <div>
+                    <label class="field-label">车架号</label>
+                    <ElInput v-model="vehicle.vin" placeholder="17位车架号" maxlength="17" />
+                  </div>
+                  <div>
+                    <label class="field-label">车辆品牌</label>
+                    <ElInput v-model="vehicle.brand" placeholder="如：大众" />
                   </div>
                   <div>
                     <label class="field-label">车辆型号</label>
-                    <ElInput v-model="vehicle.model" placeholder="如：大众帕萨特" />
+                    <ElInput v-model="vehicle.model" placeholder="如：帕萨特2020款" />
                   </div>
                   <div>
-                    <label class="field-label">车架号(VIN)</label>
-                    <ElInput v-model="vehicle.vin" placeholder="17位字符" maxlength="17" />
-                  </div>
-                  <div>
-                    <label class="field-label">燃料类型</label>
+                    <label class="field-label">车辆类型</label>
                     <ElSelect v-model="vehicle.vehicle_type" placeholder="请选择">
                       <ElOption v-for="t in fuelTypes" :key="t" :label="t" :value="t" />
                     </ElSelect>
                   </div>
                   <div>
-                    <label class="field-label">排放标准</label>
+                    <label class="field-label">排量国标</label>
                     <ElSelect v-model="vehicle.emission_standard" placeholder="请选择">
                       <ElOption v-for="s in emissionStandards" :key="s" :label="s" :value="s" />
                     </ElSelect>
                   </div>
                   <div>
-                    <label class="field-label">初次登记日期</label>
+                    <label class="field-label">登记日期</label>
                     <ElDatePicker
                       v-model="vehicle.registration_date"
                       type="date"
                       value-format="YYYY-MM-DD"
-                      placeholder="选择日期"
+                      placeholder="年 / 月 / 日"
+                      style="width: 100%"
                     />
                   </div>
                 </div>
@@ -422,7 +427,7 @@
                 <ElInput v-model="form.plate_no" placeholder="如：沪A·12345" />
               </div>
               <div>
-                <label class="field-label">VIN码（车架号）</label>
+                <label class="field-label">车架号</label>
                 <ElInput v-model="form.vin" placeholder="17位车架号" maxlength="17" />
               </div>
               <div>
@@ -430,22 +435,32 @@
                 <ElInput v-model="form.brand" placeholder="如：大众" />
               </div>
               <div>
-                <label class="field-label">车系/型号</label>
+                <label class="field-label">车辆型号</label>
                 <ElInput v-model="form.model" placeholder="如：帕萨特2020款" />
               </div>
               <div>
-                <label class="field-label">燃料类型</label>
-                <ElSelect v-model="form.vehicle_type">
+                <label class="field-label">车辆类型</label>
+                <ElSelect v-model="form.vehicle_type" placeholder="请选择">
                   <ElOption v-for="t in fuelTypes" :key="t" :label="t" :value="t" />
                 </ElSelect>
               </div>
               <div>
-                <label class="field-label">排放标准</label>
+                <label class="field-label">排量国标</label>
                 <ElSelect v-model="form.emission_standard" placeholder="请选择">
                   <ElOption v-for="s in emissionStandards" :key="s" :label="s" :value="s" />
                 </ElSelect>
               </div>
               <div>
+                <label class="field-label">登记日期</label>
+                <ElDatePicker
+                  v-model="form.registration_date"
+                  type="date"
+                  value-format="YYYY-MM-DD"
+                  placeholder="年 / 月 / 日"
+                  style="width: 100%"
+                />
+              </div>
+              <!-- <div>
                 <label class="field-label">车身颜色</label>
                 <ElInput v-model="form.color" placeholder="如：珍珠白" />
               </div>
@@ -456,16 +471,7 @@
               <div>
                 <label class="field-label">表显里程（万公里）</label>
                 <ElInput v-model="form.mileage" type="number" placeholder="如：12.5" />
-              </div>
-              <div>
-                <label class="field-label">初次登记日期</label>
-                <ElDatePicker
-                  v-model="form.registration_date"
-                  type="date"
-                  value-format="YYYY-MM-DD"
-                  placeholder="选择日期"
-                />
-              </div>
+              </div> -->
             </div>
           </div>
 
@@ -615,14 +621,14 @@
           </div>
 
           <!-- 保存为订单模板 -->
-          <div class="template-save-block">
+          <!-- <div class="template-save-block">
             <div class="template-save-head">
               <ArtSvgIcon icon="ri:save-line" class="template-save-icon" />
               <span class="template-save-title">保存为订单模板</span>
               <span class="template-save-hint">（下次可快速复用）</span>
             </div>
             <ElInput v-model="form.template_name" placeholder="模板名称（如留空则不保存）" />
-          </div>
+          </div> -->
         </div>
       </div>
     </template>
@@ -673,7 +679,6 @@
 
 <script setup lang="ts">
   import {
-    extractYearFromRegDate,
     parseEmissionStandardFromOcr,
     parseFuelTypeFromOcr,
     recognizeDrivingLicenseByFile
@@ -689,10 +694,11 @@
   interface VehicleFormItem {
     _id: string
     plate_no: string
+    vin: string
+    brand: string
+    model: string
     vehicle_type: string
     emission_standard: string
-    model: string
-    vin: string
     registration_date: string
   }
 
@@ -941,11 +947,6 @@
     return Number.isFinite(num) ? num : 0
   }
 
-  function vehicleManufactureYear(regDate: string, year: string) {
-    if (year.trim()) return year.trim()
-    return extractYearFromRegDate(regDate) || ''
-  }
-
   function buildVehicles() {
     if (form.value.is_batch) {
       return form.value.vehicles
@@ -953,11 +954,11 @@
         .map((item) => ({
           plate_no: item.plate_no,
           vin: item.vin,
+          brand: item.brand,
           model: item.model,
           fuel_type: item.vehicle_type,
           emission_standard: item.emission_standard,
-          reg_date: item.registration_date,
-          manufacture_year: vehicleManufactureYear(item.registration_date, '')
+          reg_date: item.registration_date
         }))
     }
 
@@ -971,10 +972,10 @@
         model: form.value.model,
         fuel_type: form.value.vehicle_type,
         emission_standard: form.value.emission_standard,
-        reg_date: form.value.registration_date,
-        color: form.value.color,
-        mileage: form.value.mileage,
-        manufacture_year: vehicleManufactureYear(form.value.registration_date, form.value.year)
+        reg_date: form.value.registration_date
+        // color: form.value.color,
+        // mileage: form.value.mileage,
+        // manufacture_year: vehicleManufactureYear(form.value.registration_date, form.value.year)
       }
     ]
   }
@@ -1100,15 +1101,63 @@
     return {
       _id: Date.now().toString(),
       plate_no: '',
-      vehicle_type: '',
-      emission_standard: '',
-      model: '',
       vin: '',
+      brand: '',
+      model: '',
+      vehicle_type: '汽油',
+      emission_standard: '',
       registration_date: ''
     }
   }
 
+  /** 单次回收表单字段 → 批次首辆车 */
+  function syncSingleToFirstVehicle() {
+    const src = {
+      plate_no: form.value.plate_no,
+      vin: form.value.vin,
+      brand: form.value.brand,
+      model: form.value.model,
+      vehicle_type: form.value.vehicle_type,
+      emission_standard: form.value.emission_standard,
+      registration_date: form.value.registration_date
+    }
+    if (!form.value.vehicles.length) {
+      const vehicle = newVehicle()
+      Object.assign(vehicle, src)
+      form.value.vehicles.push(vehicle)
+    } else {
+      Object.assign(form.value.vehicles[0], src)
+    }
+  }
+
+  /** 批次首辆车 → 单次回收表单 */
+  function syncFirstVehicleToSingle() {
+    const vehicle = form.value.vehicles[0]
+    if (!vehicle) return
+    form.value.plate_no = vehicle.plate_no
+    form.value.vin = vehicle.vin
+    form.value.brand = vehicle.brand
+    form.value.model = vehicle.model
+    form.value.vehicle_type = vehicle.vehicle_type
+    form.value.emission_standard = vehicle.emission_standard
+    form.value.registration_date = vehicle.registration_date
+  }
+
+  function setOrderType(isBatch: boolean) {
+    if (isBatch === form.value.is_batch) return
+    if (isBatch) {
+      syncSingleToFirstVehicle()
+    } else {
+      syncFirstVehicleToSingle()
+    }
+    form.value.is_batch = isBatch
+  }
+
   function addVehicle() {
+    if (!form.value.vehicles.length) {
+      syncSingleToFirstVehicle()
+      return
+    }
     form.value.vehicles.push(newVehicle())
   }
 
@@ -1177,13 +1226,14 @@
     const fuelType = parseFuelTypeFromOcr(data)
     const emissionStandard = parseEmissionStandardFromOcr(data)
     const registrationDate = data.reg_date || ''
-    const year = extractYearFromRegDate(registrationDate)
+    // const year = extractYearFromRegDate(registrationDate)
 
     if (form.value.is_batch) {
       const vehicle = form.value.vehicles[0] || newVehicle()
       if (data.plate_no) vehicle.plate_no = data.plate_no
       if (data.vin) vehicle.vin = data.vin
       if (data.model) vehicle.model = data.model
+      if (data.brand) vehicle.brand = data.brand
       if (fuelType) vehicle.vehicle_type = fuelType
       if (emissionStandard) vehicle.emission_standard = emissionStandard
       if (registrationDate) vehicle.registration_date = registrationDate
@@ -1200,7 +1250,7 @@
       if (emissionStandard) form.value.emission_standard = emissionStandard
       if (registrationDate) {
         form.value.registration_date = registrationDate
-        if (year) form.value.year = year
+        // if (year) form.value.year = year
       }
     }
 
