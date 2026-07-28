@@ -42,5 +42,13 @@ declare module 'qrcode.vue' {
   export default QrcodeVue
 }
 
+interface ImportMetaEnv {
+  readonly VITE_TENCENT_MAP_KEY?: string
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}
+
 // 全局变量声明
 declare const __APP_VERSION__: string // 版本号

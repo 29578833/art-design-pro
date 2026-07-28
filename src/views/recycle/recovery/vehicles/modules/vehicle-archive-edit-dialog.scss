@@ -567,6 +567,39 @@ $ae-sub: #8c8c8c;
   }
 }
 
+.ae-address-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+
+  :deep(.el-input) {
+    flex: 1;
+  }
+}
+
+.ae-address-map-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: $ae-primary;
+  cursor: pointer;
+  background: #eef2ff;
+  border: 1px solid #dbeafe;
+  border-radius: 6px;
+  transition: all 0.2s;
+
+  &:hover {
+    color: #fff;
+    background: $ae-primary;
+    border-color: $ae-primary;
+  }
+}
+
 .ae-auth-row {
   display: flex;
   gap: 16px;

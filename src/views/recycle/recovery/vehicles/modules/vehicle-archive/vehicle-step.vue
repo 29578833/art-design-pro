@@ -232,8 +232,23 @@
       <ElRow :gutter="16">
         <ElCol :span="24">
           <ElFormItem :label="form.delivery_method === 'tow' ? '上门取车地址' : '自送地址'">
-            <ElInput v-if="form.delivery_method === 'tow'" v-model="form.tow_pickup_address" />
-            <ElInput v-else v-model="form.self_delivery_address" />
+            <div class="ae-address-input">
+              <ElInput
+                v-if="form.delivery_method === 'tow'"
+                v-model="form.tow_pickup_address"
+                placeholder="请输入详细地址"
+              />
+              <ElInput v-else v-model="form.self_delivery_address" placeholder="请输入详细地址" />
+              <button
+                v-if="!readonly"
+                type="button"
+                class="ae-address-map-btn"
+                title="地图选点"
+                @click="openMapPicker"
+              >
+                <ArtSvgIcon icon="ri:map-pin-line" />
+              </button>
+            </div>
           </ElFormItem>
         </ElCol>
         <ElCol :span="12">
@@ -294,6 +309,12 @@
       </ElRow>
     </ElForm>
   </div>
+
+  <TencentMapPickerDialog
+    v-model="mapPickerVisible"
+    :initial-address="mapPickerInitialAddress"
+    @confirm="handleMapPickerConfirm"
+  />
 </template>
 
 <script setup lang="ts">
@@ -307,6 +328,7 @@
   import { fetchCllxCascade, fetchDataDictList } from '@/api/recycle/data-dict'
   import type { CllxCascadeNode } from '@/types/recycle/system/data-dict'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import TencentMapPickerDialog from '@/components/core/map/tencent-map-picker-dialog/index.vue'
   import type { CascaderOption } from 'element-plus'
   import { ElMessage } from 'element-plus'
   import { FALLBACK_HPZL, FALLBACK_RLZL, FALLBACK_SYXZ, VEHICLE_OCR_KEY } from './archive-constants'
@@ -349,6 +371,25 @@
   const ocrFilled = computed(
     () => !!(ocrDone.driving_front || ocrDone.driving_back || ocrDone.driving_both || ocrDone.cert)
   )
+
+  const mapPickerVisible = ref(false)
+  const mapPickerInitialAddress = computed(() =>
+    form.value.delivery_method === 'tow'
+      ? form.value.tow_pickup_address
+      : form.value.self_delivery_address
+  )
+
+  function openMapPicker() {
+    mapPickerVisible.value = true
+  }
+
+  function handleMapPickerConfirm(address: string) {
+    if (form.value.delivery_method === 'tow') {
+      form.value.tow_pickup_address = address
+      return
+    }
+    form.value.self_delivery_address = address
+  }
 
   async function loadDict(type: string, fallback: ArchiveDictOption[]) {
     try {
