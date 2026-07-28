@@ -88,6 +88,8 @@ export interface VehicleStatusCounts {
   cancellation: number
   /** 已完结 */
   completed: number
+  /** 待补关联订单（order_id=0 且已质检） */
+  no_order_qc_done?: number
   /** 各 status 计数 */
   status?: Record<number | string, number>
 }
@@ -149,6 +151,8 @@ export interface VehicleSearchParams {
   vin?: string
   status?: string
   tab?: VehicleTab
+  /** 关联订单筛选：'' 全部 / no_order 待补关联 / has_order 已关联 */
+  type?: '' | 'no_order' | 'has_order'
   page?: number
   limit?: number
   current?: number

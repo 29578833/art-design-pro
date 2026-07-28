@@ -32,9 +32,48 @@
     align-items: center;
   }
 
+  .vehicle-pending-banner {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 16px;
+    font-size: 13px;
+    background: #fff1f0;
+    border: 1px solid #ffccc7;
+    border-radius: 8px;
+  }
+
+  .vehicle-pending-banner-icon {
+    flex-shrink: 0;
+    font-size: 16px;
+    color: #ff4d4f;
+  }
+
+  .vehicle-pending-banner-text {
+    flex: 1;
+    font-weight: 500;
+    color: #cf1322;
+
+    strong {
+      font-weight: 700;
+    }
+  }
+
+  .vehicle-pending-banner-btn {
+    flex-shrink: 0;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #fff;
+    cursor: pointer;
+    background: #ff4d4f;
+    border: none;
+    border-radius: 4px;
+  }
+
   .vehicle-stats {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 12px;
   }
 
@@ -43,6 +82,20 @@
     background: #fff;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
+
+    &.is-clickable {
+      cursor: pointer;
+      transition: border-color 0.2s;
+
+      &:hover {
+        border-color: #ffccc7;
+      }
+    }
+
+    &.is-alert {
+      background: #fff1f0;
+      border-color: #ffccc7;
+    }
   }
 
   .vehicle-stat-label {
@@ -179,6 +232,60 @@
     display: flex;
     flex-wrap: wrap;
     gap: 4px;
+  }
+
+  .vehicle-order-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+
+    &.pending {
+      min-width: 120px;
+    }
+  }
+
+  .vehicle-pending-link-tag {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #ff4d4f;
+    background: #fff1f0;
+    border: 1px solid #ffccc7;
+    border-radius: 12px;
+  }
+
+  .vehicle-pending-link-icon {
+    font-size: 12px;
+  }
+
+  .vehicle-link-order-btn {
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #fff;
+    cursor: pointer;
+    background: #ff4d4f;
+    border: none;
+    border-radius: 4px;
+  }
+
+  .vehicle-order-modify-btn {
+    padding: 1px 8px;
+    font-size: 11px;
+    color: #595959;
+    cursor: pointer;
+    background: #fff;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+
+    &:hover {
+      color: #1890ff;
+      border-color: #1890ff;
+    }
   }
 }
 

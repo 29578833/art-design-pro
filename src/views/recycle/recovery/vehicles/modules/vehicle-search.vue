@@ -12,12 +12,23 @@
         <ArtSvgIcon icon="ri:search-line" class="vehicle-toolbar-search-icon" />
       </template>
     </ElInput>
+    <ElSelect
+      v-model="listType"
+      class="vehicle-toolbar-link-filter"
+      placeholder="关联订单"
+      @change="emitSearch"
+    >
+      <ElOption label="关联订单：全部" value="" />
+      <ElOption label="待补关联订单" value="no_order" />
+      <ElOption label="已关联订单" value="has_order" />
+    </ElSelect>
     <ElButton type="primary" @click="emitSearch">搜索</ElButton>
     <ElButton @click="handleReset">重置</ElButton>
   </div>
 </template>
 
 <script setup lang="ts">
+  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import type { VehicleSearchParams } from '@/types/recycle/recovery/vehicles/vehicle'
 
   interface Props {
@@ -44,12 +55,19 @@
     }
   })
 
+  const listType = computed({
+    get: () => props.modelValue.type ?? '',
+    set: (val: VehicleSearchParams['type']) => {
+      emit('update:modelValue', { ...props.modelValue, type: val })
+    }
+  })
+
   function emitSearch() {
     emit('search')
   }
 
   function handleReset() {
-    emit('update:modelValue', { ...props.modelValue, keyword: '' })
+    emit('update:modelValue', { ...props.modelValue, keyword: '', type: '' })
     emit('reset')
   }
 </script>
@@ -79,6 +97,10 @@
     :deep(.el-input__wrapper) {
       box-shadow: 0 0 0 1px var(--art-card-border) inset;
     }
+  }
+
+  .vehicle-toolbar-link-filter {
+    width: 160px;
   }
 
   .vehicle-toolbar-search-icon {

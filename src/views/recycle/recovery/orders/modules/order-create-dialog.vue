@@ -689,7 +689,11 @@
   import type { DrivingLicenseOcrData } from '@/types/recycle/recovery/vehicles/ocr'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import CustomerDialog from '@/views/recycle/customers/modules/customer-dialog.vue'
-  import type { OrderSavePayload, RecycleOrder } from '@/types/recycle/recovery/orders/order'
+  import type {
+    OrderSavePayload,
+    OrderSaveResult,
+    RecycleOrder
+  } from '@/types/recycle/recovery/orders/order'
 
   interface VehicleFormItem {
     _id: string
@@ -772,7 +776,7 @@
 
   interface Emits {
     (e: 'update:visible', value: boolean): void
-    (e: 'submit'): void
+    (e: 'submit', result?: OrderSaveResult): void
   }
 
   const props = defineProps<Props>()
@@ -787,6 +791,7 @@
   const ocrFileInputRef = ref<HTMLInputElement>()
   let ocrDoneTimer: ReturnType<typeof setTimeout> | null = null
   const mockOrderNo = ref('')
+  const lastSaveResult = ref<OrderSaveResult | null>(null)
   const customerQuery = ref('')
   const selectedCustomerGrade = ref<CustomerGrade | ''>('')
   const customerDialogVisible = ref(false)
@@ -1077,6 +1082,7 @@
     selectedCustomerGrade.value = ''
     customerSearchReadonly.value = true
     form.value = defaultForm()
+    lastSaveResult.value = null
   }
 
   function handleCustomerSearchFocus() {
@@ -1319,6 +1325,7 @@
     saving.value = true
     try {
       const res = await fetchSaveOrder(buildSavePayload(1))
+      lastSaveResult.value = res
       mockOrderNo.value = res.order_no || String(res.id || '')
       submitted.value = true
     } finally {
@@ -1328,7 +1335,7 @@
 
   function handleSuccessConfirm() {
     dialogVisible.value = false
-    emit('submit')
+    emit('submit', lastSaveResult.value || undefined)
   }
 
   watch(

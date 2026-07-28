@@ -36,7 +36,8 @@ function buildListParams(params: VehicleSearchParams) {
     plate_no: params.plate_no?.trim() || '',
     vin: params.vin?.trim() || '',
     status,
-    phase: ''
+    phase: '',
+    type: params.type || ''
   }
 }
 
@@ -79,6 +80,7 @@ export async function fetchVehicleStatusCounts(
     factory: res.factory || 0,
     cancellation: res.cancellation || 0,
     completed: res.completed || 0,
+    no_order_qc_done: res.no_order_qc_done || 0,
     status: res.status || {}
   }
 }
@@ -99,5 +101,14 @@ export async function fetchVehicleTabCounts(
 export function fetchVehicleDetail(id: number) {
   return request.get<ScrapVehicleDetail>({
     url: `/scrap/vehicle/detail/${id}`
+  })
+}
+
+/** 为车辆关联回收订单 */
+export function fetchVehicleAssociateOrder(data: { vehicle_id: number; order_id: number }) {
+  return request.post({
+    url: '/scrap/vehicle/associate_order',
+    params: data,
+    showSuccessMessage: true
   })
 }

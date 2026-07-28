@@ -10,8 +10,28 @@
       <div class="vehicle-page-actions" />
     </div>
 
+    <div v-if="pendingLinkCount > 0" class="vehicle-pending-banner">
+      <ArtSvgIcon icon="ri:error-warning-line" class="vehicle-pending-banner-icon" />
+      <span class="vehicle-pending-banner-text">
+        当前有 <strong>{{ pendingLinkCount }}</strong>
+        条车辆档案已完成质检，但尚未关联回收订单，请及时处理补充。
+      </span>
+      <button type="button" class="vehicle-pending-banner-btn" @click="handleViewPendingLink">
+        查看待处理
+      </button>
+    </div>
+
     <div class="vehicle-stats">
-      <div v-for="item in statCards" :key="item.label" class="vehicle-stat-card">
+      <div
+        v-for="item in statCards"
+        :key="item.label"
+        class="vehicle-stat-card"
+        :class="{
+          'is-alert': item.alert,
+          'is-clickable': item.type === 'no_order'
+        }"
+        @click="item.type === 'no_order' ? handleStatCardClick(item.type) : undefined"
+      >
         <div class="vehicle-stat-label">{{ item.label }}</div>
         <div class="vehicle-stat-value" :style="{ color: item.color }">{{ item.value }}</div>
       </div>
@@ -55,6 +75,19 @@
     />
 
     <FormalOrderDetailDialog v-model:visible="orderDetailVisible" :order-id="orderDetailOrderId" />
+
+    <VehicleLinkOrderDialog
+      v-model:visible="linkOrderVisible"
+      :vehicle="linkOrderVehicle"
+      @linked="handleLinkOrderSuccess"
+      @create-order="handleCreateOrderForLink"
+    />
+
+    <OrderCreateDialog
+      v-model:visible="createOrderVisible"
+      :prefill-order="createOrderPrefill"
+      @submit="handleCreateOrderSuccess"
+    />
   </div>
 </template>
 
@@ -62,7 +95,8 @@
   import {
     fetchVehicleList,
     fetchVehicleStatusCounts,
-    fetchVehicleTabCounts
+    fetchVehicleTabCounts,
+    fetchVehicleAssociateOrder
   } from '@/api/recycle/vehicle'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { useTable } from '@/hooks/core/useTable'
@@ -79,7 +113,10 @@
   import VehicleSearch from './modules/vehicle-search.vue'
   import VehicleDetailDialog from './modules/vehicle-detail/index.vue'
   import VehicleArchiveEditDialog from './modules/vehicle-archive-edit-dialog.vue'
+  import VehicleLinkOrderDialog from './modules/vehicle-link-order-dialog.vue'
   import FormalOrderDetailDialog from '../orders/modules/formal-order-detail-dialog.vue'
+  import OrderCreateDialog from '../orders/modules/order-create-dialog.vue'
+  import type { OrderSaveResult, RecycleOrder } from '@/types/recycle/recovery/orders/order'
 
   defineOptions({ name: 'RecycleVehicles' })
 
@@ -95,7 +132,8 @@
 
   const searchForm = ref<VehicleSearchParams>({
     keyword: '',
-    tab: 'all'
+    tab: 'all',
+    type: ''
   })
 
   const detailVisible = ref(false)
@@ -109,13 +147,43 @@
   const orderDetailVisible = ref(false)
   const orderDetailOrderId = ref<number | null>(null)
 
+  const linkOrderVisible = ref(false)
+  const linkOrderVehicle = ref<ScrapVehicle | null>(null)
+
+  const createOrderVisible = ref(false)
+  const createOrderPrefill = ref<RecycleOrder | null>(null)
+  const pendingLinkVehicleId = ref(0)
+
+  const pendingLinkCount = computed(() => statusCounts.value.no_order_qc_done || 0)
+
   const statCards = computed(() => [
-    { label: '档案总量', value: statusCounts.value.total, color: '#4169FF' },
-    { label: '拖车阶段', value: statusCounts.value.transport, color: '#FA8C16' },
-    { label: '入厂拆解', value: statusCounts.value.factory, color: '#722ED1' },
-    { label: '注销办证中', value: statusCounts.value.cancellation, color: '#13C2C2' },
-    { label: '已完结', value: statusCounts.value.completed, color: '#52C41A' }
+    { label: '档案总量', value: statusCounts.value.total, color: '#4169FF', type: '' as const },
+    { label: '拖车阶段', value: statusCounts.value.transport, color: '#FA8C16', type: '' as const },
+    { label: '入厂拆解', value: statusCounts.value.factory, color: '#722ED1', type: '' as const },
+    {
+      label: '注销办证中',
+      value: statusCounts.value.cancellation,
+      color: '#13C2C2',
+      type: '' as const
+    },
+    { label: '已完结', value: statusCounts.value.completed, color: '#52C41A', type: '' as const },
+    {
+      label: '待补关联订单',
+      value: statusCounts.value.no_order_qc_done || 0,
+      color: '#FF4D4F',
+      type: 'no_order' as const,
+      alert: (statusCounts.value.no_order_qc_done || 0) > 0
+    }
   ])
+
+  function isPendingLinkOrder(row: ScrapVehicle) {
+    return !row.order_id && !row.order_no
+  }
+
+  function openLinkOrderDialog(row: ScrapVehicle) {
+    linkOrderVehicle.value = row
+    linkOrderVisible.value = true
+  }
 
   function renderDimStatus(row: ScrapVehicle) {
     const dim = row.dim_status
@@ -172,6 +240,49 @@
     }
     orderDetailOrderId.value = row.order_id
     orderDetailVisible.value = true
+  }
+
+  function renderLinkedOrderCell(row: ScrapVehicle) {
+    if (row.order_no || row.order_id) {
+      return h('div', { class: 'vehicle-order-cell' }, [
+        h(
+          'a',
+          {
+            href: 'javascript:void(0)',
+            class: 'order-no',
+            onClick: () => openOrderDetailFromVehicle(row)
+          },
+          row.order_no || '—'
+        ),
+        h(
+          'button',
+          {
+            type: 'button',
+            class: 'vehicle-order-modify-btn',
+            onClick: () => openLinkOrderDialog(row)
+          },
+          '修改'
+        )
+      ])
+    }
+    if (isPendingLinkOrder(row)) {
+      return h('div', { class: 'vehicle-order-cell pending' }, [
+        h('span', { class: 'vehicle-pending-link-tag' }, [
+          h(ArtSvgIcon, { icon: 'ri:error-warning-line', class: 'vehicle-pending-link-icon' }),
+          '待补关联订单'
+        ]),
+        h(
+          'button',
+          {
+            type: 'button',
+            class: 'vehicle-link-order-btn',
+            onClick: () => openLinkOrderDialog(row)
+          },
+          '补充关联订单'
+        )
+      ])
+    }
+    return h('span', { class: 'text-gray-400' }, '—')
   }
 
   function buildColumns() {
@@ -231,19 +342,8 @@
       {
         prop: 'order_no',
         label: '关联订单',
-        minWidth: 120,
-        formatter: (row: ScrapVehicle) =>
-          row.order_no
-            ? h(
-                'a',
-                {
-                  href: 'javascript:void(0)',
-                  class: 'order-no',
-                  onClick: () => openOrderDetailFromVehicle(row)
-                },
-                row.order_no
-              )
-            : h('span', { class: 'text-gray-400' }, '—')
+        minWidth: 150,
+        formatter: (row: ScrapVehicle) => renderLinkedOrderCell(row)
       },
       {
         prop: 'update_time_text',
@@ -316,6 +416,7 @@
       apiParams: {
         ...searchForm.value,
         tab: 'all',
+        type: '',
         current: 1,
         size: 20
       },
@@ -335,6 +436,64 @@
     } catch {
       // 统计失败不阻断列表
     }
+  }
+
+  function handleLinkOrderSuccess() {
+    getData()
+    loadCounts()
+  }
+
+  function handleCreateOrderForLink() {
+    if (!linkOrderVehicle.value) return
+    const vehicle = linkOrderVehicle.value
+    pendingLinkVehicleId.value = vehicle.id
+    createOrderPrefill.value = {
+      id: 0,
+      order_type: 'staff_order',
+      status: 0,
+      plate_no: vehicle.plate_no,
+      vin: vehicle.vin,
+      brand: vehicle.brand,
+      model: vehicle.model,
+      real_name: vehicle.owner_name,
+      phone: vehicle.owner_phone
+    } as RecycleOrder
+    linkOrderVisible.value = false
+    createOrderVisible.value = true
+  }
+
+  async function handleCreateOrderSuccess(result?: OrderSaveResult) {
+    createOrderVisible.value = false
+    if (!pendingLinkVehicleId.value || !result?.id) {
+      getData()
+      loadCounts()
+      return
+    }
+    try {
+      await fetchVehicleAssociateOrder({
+        vehicle_id: pendingLinkVehicleId.value,
+        order_id: result.id
+      })
+    } finally {
+      pendingLinkVehicleId.value = 0
+      createOrderPrefill.value = null
+      getData()
+      loadCounts()
+    }
+  }
+
+  function handleStatCardClick(type: VehicleSearchParams['type']) {
+    if (type === searchForm.value.type) return
+    searchForm.value = { ...searchForm.value, type }
+    replaceSearchParams({ ...searchForm.value, tab: activeTab.value, current: 1 })
+    getData()
+  }
+
+  function handleViewPendingLink() {
+    activeTab.value = 'all'
+    searchForm.value = { ...searchForm.value, tab: 'all', type: 'no_order' }
+    replaceSearchParams({ ...searchForm.value, tab: 'all', type: 'no_order', current: 1 })
+    getData()
   }
 
   function handleEditSuccess() {
@@ -358,6 +517,7 @@
     replaceSearchParams({
       ...searchForm.value,
       tab: activeTab.value,
+      type: searchForm.value.type || '',
       current: 1
     })
     getData()
@@ -365,11 +525,12 @@
   }
 
   function handleReset() {
-    searchForm.value = { keyword: '', tab: activeTab.value }
+    searchForm.value = { keyword: '', tab: activeTab.value, type: '' }
     resetSearchParams()
     replaceSearchParams({
       keyword: '',
       tab: activeTab.value,
+      type: '',
       current: 1,
       size: 20
     })
