@@ -11,7 +11,8 @@ import type {
   AcceptSubmitResult,
   AcceptSyq
 } from '@/types/recycle/recovery/commerce/accept'
-import { fetchVehicleDetail } from '@/api/recycle/vehicle'
+import { fetchVehicleAssociateOrder, fetchVehicleDetail } from '@/api/recycle/vehicle'
+import { isLeadOrder, type RecycleOrder } from '@/types/recycle/recovery/orders/order'
 import type { ScrapVehicle } from '@/types/recycle/recovery/vehicles/vehicle'
 import { ElMessage } from 'element-plus'
 import type AgentStep from './agent-step.vue'
@@ -41,16 +42,26 @@ interface StepRefs {
 
 interface UseVehicleArchiveEditOptions {
   vehicleId: Ref<number>
+  mode?: Ref<'create' | 'edit'>
   vehicleRow?: Ref<ScrapVehicle | null | undefined>
   stepRefs: StepRefs
   onSuccess?: () => void
+  onCreated?: (id: number) => void
 }
 
 /** 车辆档案编辑弹窗主流程（步骤逻辑在各 step 组件内）。 */
 export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
-  const { vehicleId, vehicleRow, stepRefs, onSuccess } = options
+  const { vehicleId, vehicleRow, stepRefs, onSuccess, onCreated } = options
+  const mode = options.mode ?? ref<'create' | 'edit'>('edit')
+  const createdVehicleId = ref(0)
+  const selectedOrder = ref<RecycleOrder | null>(null)
+  const pendingOrderId = ref(0)
 
-  const phase = ref<'scene' | 'form'>('scene')
+  const activeVehicleId = computed(() =>
+    mode.value === 'create' ? createdVehicleId.value : vehicleId.value
+  )
+
+  const phase = ref<'order' | 'scene' | 'form'>('scene')
   const initLoading = ref(false)
   const loading = ref(false)
   const saving = ref(false)
@@ -198,7 +209,23 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     await stepRefs.vehicle.value?.loadOptions()
   }
 
+  function applySelectedOrder(order: RecycleOrder | null) {
+    selectedOrder.value = order
+    pendingOrderId.value = order?.id ? Number(order.id) : 0
+    linkInfo.order_no = order?.order_no ? str(order.order_no) : ''
+    linkInfo.tow_order_no = order?.tow_no ? str(order.tow_no) : ''
+    if (order) {
+      const leadNo = str(order.lead_no)
+      linkInfo.lead_no = leadNo || (isLeadOrder(order) ? str(order.order_no) : '')
+    } else {
+      linkInfo.lead_no = ''
+    }
+  }
+
   function resetState() {
+    createdVehicleId.value = 0
+    selectedOrder.value = null
+    pendingOrderId.value = 0
     phase.value = 'scene'
     hplx.value = 1
     syq.value = 2
@@ -284,8 +311,8 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   }
 
   async function loadVehicleData() {
-    if (!vehicleId.value) return
-    const detail = await fetchVehicleDetail(vehicleId.value)
+    if (!activeVehicleId.value) return
+    const detail = await fetchVehicleDetail(activeVehicleId.value)
     linkInfo.order_no = str(detail.order_no)
     linkInfo.archive_no = str(detail.vehicle_no || detail.archive_no)
     linkInfo.tow_order_no = str((detail as Record<string, unknown>).tow_order_no)
@@ -406,12 +433,19 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   }
 
   async function loadAcceptDataByVehicleId() {
-    if (!vehicleId.value) return
-    const sync = await fetchAcceptSyncFiles({ vehicle_id: vehicleId.value })
+    if (!activeVehicleId.value) return
+    const sync = await fetchAcceptSyncFiles({ vehicle_id: activeVehicleId.value })
     processAcceptData(sync)
   }
 
   async function openEditor() {
+    if (mode.value === 'create') {
+      createdVehicleId.value = 0
+      selectedOrder.value = null
+      pendingOrderId.value = 0
+      phase.value = 'order'
+      return
+    }
     if (!vehicleId.value) return
     if (vehicleRow?.value?.owner_sync_id) {
       existingOwnerSyncId.value = Number(vehicleRow.value.owner_sync_id)
@@ -426,7 +460,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
       let echo: { hplx?: number; syq?: number; is_submitted_commerce?: number } | null = null
       if (existingOwnerSyncId.value) {
         try {
-          const sync = await fetchAcceptSyncFiles({ vehicle_id: vehicleId.value })
+          const sync = await fetchAcceptSyncFiles({ vehicle_id: activeVehicleId.value })
           const owner = sync.owner || {}
           echo = {
             hplx: owner.hplx ? Number(owner.hplx) : undefined,
@@ -439,7 +473,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
       }
 
       try {
-        const origin = await fetchAcceptOriginFields({ vehicle_id: vehicleId.value })
+        const origin = await fetchAcceptOriginFields({ vehicle_id: activeVehicleId.value })
         if (String(origin.zcbj) === '0') hplx.value = 3
         else if (String(origin.sywd) === '1') hplx.value = 2
         else if (String(origin.sywd) === '0') hplx.value = 1
@@ -469,18 +503,66 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     }
   }
 
-  async function confirmScene() {
-    if (!vehicleId.value) {
-      ElMessage.warning('缺少车辆 ID')
+  function confirmOrderSkip() {
+    applySelectedOrder(null)
+    phase.value = 'scene'
+  }
+
+  function confirmOrderNext() {
+    if (!selectedOrder.value?.id) {
+      ElMessage.warning('请选择关联订单')
       return
     }
+    applySelectedOrder(selectedOrder.value)
+    phase.value = 'scene'
+  }
+
+  function backToOrderPicker() {
+    phase.value = 'order'
+  }
+
+  async function confirmScene() {
     initLoading.value = true
     try {
-      const res = await fetchAcceptInitForm({
+      if (mode.value === 'edit' && !vehicleId.value) {
+        ElMessage.warning('缺少车辆 ID')
+        return
+      }
+
+      const initPayload: { hplx: AcceptHplx; syq: AcceptSyq; vehicle_id?: number } = {
         hplx: hplx.value,
-        syq: syq.value,
-        vehicle_id: vehicleId.value
-      })
+        syq: syq.value
+      }
+      if (mode.value === 'edit') {
+        initPayload.vehicle_id = vehicleId.value
+      }
+
+      const res = await fetchAcceptInitForm(initPayload)
+
+      if (mode.value === 'create') {
+        createdVehicleId.value = Number(res.vehicle_id)
+        if (!createdVehicleId.value) {
+          ElMessage.error('初始化车辆档案失败')
+          return
+        }
+        existingOwnerSyncId.value = Number(res.owner_sync_id || 0)
+        onCreated?.(createdVehicleId.value)
+
+        if (pendingOrderId.value) {
+          await fetchVehicleAssociateOrder({
+            vehicle_id: createdVehicleId.value,
+            order_id: pendingOrderId.value
+          })
+        }
+
+        try {
+          const detail = await fetchVehicleDetail(createdVehicleId.value)
+          linkInfo.archive_no = str(detail.vehicle_no || detail.archive_no)
+        } catch {
+          // 档案号回显失败不阻断
+        }
+      }
+
       cjid.value = str(res.cjid)
       acceptTime.value = new Date().toLocaleString('zh-CN').replace(/\//g, '-').slice(0, 16)
       ownerForm.syq = String(syq.value)
@@ -505,7 +587,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   }
 
   async function saveCurrentStep() {
-    if (!vehicleId.value || isSubmitted.value) return
+    if (!activeVehicleId.value || isSubmitted.value) return
     if (step.value === 1) await stepRefs.owner.value?.save()
     else if (step.value === 2) await stepRefs.vehicle.value?.save()
     else if (step.value === 3) await stepRefs.agent.value?.save()
@@ -568,7 +650,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
 
   async function handleFetchArchive() {
     try {
-      await fetchAcceptArchive(vehicleId.value)
+      await fetchAcceptArchive(activeVehicleId.value)
     } catch {
       // http 层提示
     }
@@ -576,7 +658,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
 
   async function viewSubmitResult() {
     try {
-      submitResult.value = await fetchAcceptSubmitResult(vehicleId.value)
+      submitResult.value = await fetchAcceptSubmitResult(activeVehicleId.value)
       submitResultVisible.value = true
     } catch {
       // http 层提示
@@ -588,13 +670,13 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
       ElMessage.warning('请先完成实名认证')
       return
     }
-    if (!vehicleId.value) {
+    if (!activeVehicleId.value) {
       ElMessage.warning('受理记录未初始化')
       return
     }
     submitting.value = true
     try {
-      const res = await fetchAcceptSubmit(vehicleId.value)
+      const res = await fetchAcceptSubmit(activeVehicleId.value)
       submitResult.value = res
       isSubmitted.value = true
       submitResultVisible.value = true
@@ -609,6 +691,8 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   }
 
   return {
+    mode,
+    activeVehicleId,
     phase,
     initLoading,
     loading,
@@ -643,6 +727,10 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     syqOptions: SYQ_OPTIONS,
     visibleSteps: ARCHIVE_STEPS,
     openEditor,
+    confirmOrderSkip,
+    confirmOrderNext,
+    backToOrderPicker,
+    selectedOrder,
     confirmScene,
     handleSaveDraft,
     goToStep,

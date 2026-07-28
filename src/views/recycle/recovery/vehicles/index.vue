@@ -7,7 +7,12 @@
           三维并行管理：拖车 · 入厂拆解 · 注销办证，独立流转互不阻塞
         </div>
       </div>
-      <div class="vehicle-page-actions" />
+      <div class="vehicle-page-actions">
+        <ElButton type="primary" @click="openCreateArchive">
+          <ArtSvgIcon icon="ri:add-line" />
+          新建车辆档案
+        </ElButton>
+      </div>
     </div>
 
     <div v-if="pendingLinkCount > 0" class="vehicle-pending-banner">
@@ -69,9 +74,11 @@
 
     <VehicleArchiveEditDialog
       v-model:visible="editVisible"
+      :mode="archiveMode"
       :vehicle-id="editVehicleId"
       :vehicle-row="editVehicleRow"
       @success="handleEditSuccess"
+      @created="handleArchiveCreated"
     />
 
     <FormalOrderDetailDialog v-model:visible="orderDetailVisible" :order-id="orderDetailOrderId" />
@@ -139,15 +146,29 @@
     detailVisible.value = true
   }
 
-  // ----- 编辑档案弹窗 -----
+  // ----- 编辑/新建档案弹窗 -----
+  const archiveMode = ref<'create' | 'edit'>('edit')
   const editVisible = ref(false)
   const editVehicleId = ref(0)
   const editVehicleRow = ref<ScrapVehicle | null>(null)
 
+  function openCreateArchive() {
+    archiveMode.value = 'create'
+    editVehicleId.value = 0
+    editVehicleRow.value = null
+    editVisible.value = true
+  }
+
   function openEdit(row: ScrapVehicle) {
+    archiveMode.value = 'edit'
     editVehicleId.value = row.id
     editVehicleRow.value = row
     editVisible.value = true
+  }
+
+  function handleArchiveCreated() {
+    getData()
+    loadCounts()
   }
 
   // ----- 回收订单详情弹窗 -----

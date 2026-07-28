@@ -1,7 +1,7 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    :width="phase === 'scene' ? '500px' : '1100px'"
+    :width="dialogWidth"
     align-center
     destroy-on-close
     class="vehicle-archive-edit-dialog"
@@ -10,9 +10,12 @@
     @closed="handleClosed"
   >
     <template #header>
-      <div v-if="phase === 'scene'" class="ae-title">车辆受理新增</div>
+      <div v-if="phase === 'order'" class="ae-title">选择关联回收订单</div>
+      <div v-else-if="phase === 'scene'" class="ae-title">
+        {{ mode === 'create' ? '新建车辆档案' : '车辆受理新增' }}
+      </div>
       <div v-else class="ae-header">
-        <div class="ae-title">编辑车辆档案</div>
+        <div class="ae-title">{{ mode === 'create' ? '新建车辆档案' : '编辑车辆档案' }}</div>
         <div class="ae-tags">
           <span class="ae-tag blue">{{ hplxLabel }}</span>
           <span class="ae-tag" :class="isPersonal ? 'orange' : 'purple'">{{ syqLabel }}</span>
@@ -20,8 +23,10 @@
       </div>
     </template>
 
+    <OrderPicker v-if="phase === 'order'" v-model:selected="selectedOrder" />
+
     <SceneSelector
-      v-if="phase === 'scene'"
+      v-else-if="phase === 'scene'"
       v-model:hplx="hplx"
       v-model:syq="syq"
       :hplx-options="hplxOptions"
@@ -48,7 +53,7 @@
             ref="ownerStepRef"
             v-model:form="ownerForm"
             v-model:images="ownerImages"
-            :vehicle-id="vehicleId"
+            :vehicle-id="activeVehicleId"
             :hplx="hplx"
             :syq="syq"
             :vehicle-form="vehicleForm"
@@ -63,7 +68,7 @@
             v-model:form="vehicleForm"
             v-model:images="vehicleImages"
             v-model:cllx-path="cllxPath"
-            :vehicle-id="vehicleId"
+            :vehicle-id="activeVehicleId"
             :hplx="hplx"
             :owner-form="ownerForm"
             :readonly="isSubmitted"
@@ -76,7 +81,7 @@
             v-model:has-agent="hasAgent"
             v-model:form="agentForm"
             v-model:images="agentImages"
-            :vehicle-id="vehicleId"
+            :vehicle-id="activeVehicleId"
             :readonly="isSubmitted"
           />
         </div>
@@ -100,7 +105,7 @@
             v-model:vehicle-images="vehicleImages"
             v-model:agent-images="agentImages"
             v-model:material-images="materialImages"
-            :vehicle-id="vehicleId"
+            :vehicle-id="activeVehicleId"
             :is-company="isCompany"
             :readonly="isSubmitted"
           />
@@ -109,7 +114,22 @@
     </div>
 
     <template #footer>
-      <template v-if="phase === 'scene'">
+      <template v-if="phase === 'order'">
+        <div class="ae-order-footer">
+          <ElButton @click="dialogVisible = false">取消</ElButton>
+          <div class="ae-order-footer-actions">
+            <ElButton class="ae-order-skip-btn" @click="confirmOrderSkip">
+              跳过，直接新增（待补关联订单）
+            </ElButton>
+            <ElButton type="primary" :disabled="!selectedOrder" @click="confirmOrderNext">
+              下一步：车辆受理新增
+              <ArtSvgIcon icon="ri:arrow-right-s-line" class="ae-order-next-icon" />
+            </ElButton>
+          </div>
+        </div>
+      </template>
+      <template v-else-if="phase === 'scene'">
+        <ElButton v-if="mode === 'create'" @click="backToOrderPicker">上一步</ElButton>
         <ElButton @click="dialogVisible = false">取消</ElButton>
         <ElButton type="primary" :loading="initLoading" @click="confirmScene">确定</ElButton>
       </template>
@@ -123,7 +143,10 @@
           <ElButton type="primary" plain @click="viewSubmitResult">查看提交结果</ElButton>
         </div>
       </div>
-      <div v-else style="display: flex; justify-content: space-between; width: 100%">
+      <div
+        v-else-if="phase === 'form'"
+        style="display: flex; justify-content: space-between; width: 100%"
+      >
         <div class="ae-footer-left">
           <span>步骤 {{ step }} / 5</span>
           <span v-if="draftSaved" style="color: #52c41a">已暂存</span>
@@ -162,29 +185,40 @@
   import AuthenticationStep from './vehicle-archive/authentication-step.vue'
   import MaterialsStep from './vehicle-archive/materials-step.vue'
   import OwnerStep from './vehicle-archive/owner-step.vue'
+  import OrderPicker from './vehicle-archive/order-picker.vue'
   import ProgressHeader from './vehicle-archive/progress-header.vue'
   import SceneSelector from './vehicle-archive/scene-selector.vue'
   import SubmitResultDialog from './vehicle-archive/submit-result-dialog.vue'
   import VehicleStep from './vehicle-archive/vehicle-step.vue'
+  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { useVehicleArchiveEdit } from './vehicle-archive/use-vehicle-archive-edit'
   import './vehicle-archive-edit-dialog.scss'
 
   defineOptions({ name: 'VehicleArchiveEditDialog' })
 
-  const props = defineProps<{
-    /** 是否显示档案编辑弹窗。 */
-    visible: boolean
-    /** 当前车辆主键。 */
-    vehicleId: number
-    /** 列表行数据，对齐 admin archiveEdit.open(id, row) */
-    vehicleRow?: ScrapVehicle | null
-  }>()
+  const props = withDefaults(
+    defineProps<{
+      /** 是否显示档案编辑弹窗。 */
+      visible: boolean
+      /** 弹窗模式：新建 / 编辑。 */
+      mode?: 'create' | 'edit'
+      /** 当前车辆主键（编辑模式必填）。 */
+      vehicleId: number
+      /** 列表行数据，对齐 admin archiveEdit.open(id, row) */
+      vehicleRow?: ScrapVehicle | null
+    }>(),
+    {
+      mode: 'edit'
+    }
+  )
 
   const emit = defineEmits<{
     /** 更新弹窗显示状态。 */
     'update:visible': [boolean]
     /** 档案提交成功。 */
     success: []
+    /** 新建档案创建成功（返回车辆 ID）。 */
+    created: [number]
   }>()
 
   const dialogVisible = computed({
@@ -198,6 +232,8 @@
   const materialsStepRef = ref<InstanceType<typeof MaterialsStep> | null>(null)
 
   const {
+    mode,
+    activeVehicleId,
     phase,
     initLoading,
     loading,
@@ -232,6 +268,10 @@
     syqOptions,
     visibleSteps,
     openEditor,
+    confirmOrderSkip,
+    confirmOrderNext,
+    backToOrderPicker,
+    selectedOrder,
     confirmScene,
     handleSaveDraft,
     goToStep,
@@ -244,6 +284,7 @@
     loadAcceptDataByVehicleId
   } = useVehicleArchiveEdit({
     vehicleId: computed(() => props.vehicleId),
+    mode: computed(() => props.mode),
     vehicleRow: computed(() => props.vehicleRow),
     stepRefs: {
       owner: ownerStepRef,
@@ -251,7 +292,14 @@
       agent: agentStepRef,
       materials: materialsStepRef
     },
-    onSuccess: () => emit('success')
+    onSuccess: () => emit('success'),
+    onCreated: (id) => emit('created', id)
+  })
+
+  const dialogWidth = computed(() => {
+    if (phase.value === 'order') return '640px'
+    if (phase.value === 'scene') return '500px'
+    return '1100px'
   })
 
   watch(

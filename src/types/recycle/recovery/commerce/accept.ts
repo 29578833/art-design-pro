@@ -78,8 +78,8 @@ export interface AcceptInitFormParams {
   hplx: AcceptHplx
   /** 所有权 */
   syq: AcceptSyq
-  /** 车辆 ID */
-  vehicle_id: number
+  /** 车辆 ID（编辑已有档案时传入，新建不传） */
+  vehicle_id?: number
 }
 
 /** 初始化表单返回 */
