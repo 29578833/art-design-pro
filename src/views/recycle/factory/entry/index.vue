@@ -10,6 +10,10 @@
           <ArtSvgIcon icon="ri:download-line" class="mr-1" />
           导出
         </ElButton>
+        <ElButton type="primary" @click="manualVisible = true">
+          <ArtSvgIcon icon="ri:add-line" class="mr-1" />
+          手动登记入库
+        </ElButton>
       </div>
     </div>
 
@@ -56,6 +60,8 @@
       :entry-item="selectedItem"
       @success="handleConfirmSuccess"
     />
+
+    <EntryManualDialog v-model:visible="manualVisible" @success="handleManualSuccess" />
   </div>
 </template>
 
@@ -77,6 +83,7 @@
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import EntrySearch from './modules/entry-search.vue'
   import EntryConfirmDialog from './modules/entry-confirm-dialog.vue'
+  import EntryManualDialog from './modules/entry-manual-dialog.vue'
 
   defineOptions({ name: 'RecycleFactoryEntry' })
 
@@ -116,6 +123,7 @@
 
   const confirmVisible = ref(false)
   const selectedItem = ref<WarehouseEntryItem | null>(null)
+  const manualVisible = ref(false)
   const exporting = ref(false)
 
   function formatTimestamp(ts?: number): string {
@@ -132,11 +140,6 @@
     if (Number.isNaN(date.getTime())) return ''
     const pad = (n: number) => String(n).padStart(2, '0')
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`
-  }
-
-  function getArchiveNo(row: WarehouseEntryItem): string {
-    const id = row.vehicle_id ?? (row as { id?: number }).id
-    return id ? String(id) : '—'
   }
 
   function renderWeighWeight(row: WarehouseEntryItem) {
@@ -172,10 +175,11 @@
   function buildColumns() {
     const cols: ColumnOption<WarehouseEntryItem>[] = [
       {
-        prop: 'vehicle_id',
+        prop: 'archive_no',
         label: '档案号',
         minWidth: 120,
-        formatter: (row: WarehouseEntryItem) => h('span', { class: 'order-no' }, getArchiveNo(row))
+        formatter: (row: WarehouseEntryItem) =>
+          h('span', { class: 'order-no' }, row.archive_no || '—')
       },
       {
         prop: 'plate_no',
@@ -294,6 +298,12 @@
     refreshData()
   }
 
+  function handleManualSuccess() {
+    manualVisible.value = false
+    loadStats()
+    refreshData()
+  }
+
   async function handleExport() {
     exporting.value = true
     try {
@@ -304,7 +314,7 @@
       }
 
       const rows = list.map((item) => ({
-        档案号: getArchiveNo(item),
+        档案号: item.archive_no || '',
         车牌号: item.plate_no || '',
         车主: item.customer_name || item.owner_name || '',
         联系电话: item.customer_phone || item.owner_phone || '',
