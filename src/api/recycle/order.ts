@@ -89,7 +89,7 @@ function buildListParams(params: OrderSearchParams) {
     page,
     limit,
     tab: apiTab,
-    status: '',
+    status: params.orderStatusCodes ?? '',
     keyword: params.keyword?.trim() || '',
     lead_type: leadTypeMap[params.leadType || 'all'] ?? '',
     plate_no: '',

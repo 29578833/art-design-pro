@@ -6,7 +6,6 @@
     align-center
     append-to-body
     destroy-on-close
-    :close-on-click-modal="false"
     class="vehicle-link-order-dialog"
     @open="handleOpen"
   >
@@ -152,6 +151,8 @@
       const res = await fetchOrderList({
         tab: 'formal_order',
         keyword: keyword.value,
+        // 排除待审核（status=1）
+        orderStatusCodes: '0,2,3,-1',
         current: page.value,
         size: pageSize
       })
@@ -278,7 +279,6 @@
   }
 
   .vlo-order-no {
-    font-family: ui-monospace, monospace;
     font-size: 13px;
     font-weight: 600;
     color: #1890ff;
@@ -289,6 +289,7 @@
     padding: 1px 6px;
     font-size: 11px;
     font-weight: 500;
+    border: 1px solid;
     border-radius: 4px;
   }
 

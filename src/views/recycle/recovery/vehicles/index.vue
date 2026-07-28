@@ -120,102 +120,18 @@
 
   defineOptions({ name: 'RecycleVehicles' })
 
+  // ----- 公共：Tab / 搜索 -----
   const activeTab = ref<VehicleTab>('all')
-  const tabCounts = ref<VehicleTabCount[]>([])
-  const statusCounts = ref<VehicleStatusCounts>({
-    total: 0,
-    transport: 0,
-    factory: 0,
-    cancellation: 0,
-    completed: 0
-  })
-
   const searchForm = ref<VehicleSearchParams>({
     keyword: '',
     tab: 'all',
     type: ''
   })
 
+  // ----- 车辆详情弹窗 -----
   const detailVisible = ref(false)
   const detailVehicleId = ref(0)
   const detailDimStatus = ref<VehicleDimStatus | undefined>()
-
-  const editVisible = ref(false)
-  const editVehicleId = ref(0)
-  const editVehicleRow = ref<ScrapVehicle | null>(null)
-
-  const orderDetailVisible = ref(false)
-  const orderDetailOrderId = ref<number | null>(null)
-
-  const linkOrderVisible = ref(false)
-  const linkOrderVehicle = ref<ScrapVehicle | null>(null)
-
-  const createOrderVisible = ref(false)
-  const createOrderPrefill = ref<RecycleOrder | null>(null)
-  const pendingLinkVehicleId = ref(0)
-
-  const pendingLinkCount = computed(() => statusCounts.value.no_order_qc_done || 0)
-
-  const statCards = computed(() => [
-    { label: '档案总量', value: statusCounts.value.total, color: '#4169FF', type: '' as const },
-    { label: '拖车阶段', value: statusCounts.value.transport, color: '#FA8C16', type: '' as const },
-    { label: '入厂拆解', value: statusCounts.value.factory, color: '#722ED1', type: '' as const },
-    {
-      label: '注销办证中',
-      value: statusCounts.value.cancellation,
-      color: '#13C2C2',
-      type: '' as const
-    },
-    { label: '已完结', value: statusCounts.value.completed, color: '#52C41A', type: '' as const },
-    {
-      label: '待补关联订单',
-      value: statusCounts.value.no_order_qc_done || 0,
-      color: '#FF4D4F',
-      type: 'no_order' as const,
-      alert: (statusCounts.value.no_order_qc_done || 0) > 0
-    }
-  ])
-
-  function isPendingLinkOrder(row: ScrapVehicle) {
-    return !row.order_id && !row.order_no
-  }
-
-  function openLinkOrderDialog(row: ScrapVehicle) {
-    linkOrderVehicle.value = row
-    linkOrderVisible.value = true
-  }
-
-  function renderDimStatus(row: ScrapVehicle) {
-    const dim = row.dim_status
-    if (!dim) {
-      return h('span', { class: 'text-gray-400' }, row.status_text || '—')
-    }
-    const items = [
-      { key: 'tow', icon: 'ri:truck-line', data: dim.tow },
-      { key: 'factory', icon: 'ri:box-3-line', data: dim.factory },
-      { key: 'cancel', icon: 'ri:file-list-3-line', data: dim.cancel }
-    ]
-    return h(
-      'div',
-      { class: 'vehicle-dim-status' },
-      items.map((item) =>
-        h('div', { class: 'vehicle-dim-row', key: item.key }, [
-          h(ArtSvgIcon, { icon: item.icon, class: 'vehicle-dim-icon' }),
-          h(
-            'span',
-            {
-              class: 'vehicle-dim-badge',
-              style: {
-                color: item.data?.color || '#8C8C8C',
-                background: item.data?.bg || '#F5F5F5'
-              }
-            },
-            item.data?.label || '—'
-          )
-        ])
-      )
-    )
-  }
 
   function openDetail(row: ScrapVehicle) {
     detailVehicleId.value = row.id
@@ -223,15 +139,20 @@
     detailVisible.value = true
   }
 
+  // ----- 编辑档案弹窗 -----
+  const editVisible = ref(false)
+  const editVehicleId = ref(0)
+  const editVehicleRow = ref<ScrapVehicle | null>(null)
+
   function openEdit(row: ScrapVehicle) {
     editVehicleId.value = row.id
     editVehicleRow.value = row
     editVisible.value = true
   }
 
-  function handleDownloadCert(row: ScrapVehicle) {
-    window.open(`https://bfc.chexinmeng.com/hszma4?id=${row.id}`, '_blank')
-  }
+  // ----- 回收订单详情弹窗 -----
+  const orderDetailVisible = ref(false)
+  const orderDetailOrderId = ref<number | null>(null)
 
   function openOrderDetailFromVehicle(row: ScrapVehicle) {
     if (!row.order_id) {
@@ -240,6 +161,22 @@
     }
     orderDetailOrderId.value = row.order_id
     orderDetailVisible.value = true
+  }
+
+  // ----- 补充关联订单 -----
+  const linkOrderVisible = ref(false)
+  const linkOrderVehicle = ref<ScrapVehicle | null>(null)
+  const createOrderVisible = ref(false)
+  const createOrderPrefill = ref<RecycleOrder | null>(null)
+  const pendingLinkVehicleId = ref(0)
+
+  function isPendingLinkOrder(row: ScrapVehicle) {
+    return !row.order_id && !row.order_no
+  }
+
+  function openLinkOrderDialog(row: ScrapVehicle) {
+    linkOrderVehicle.value = row
+    linkOrderVisible.value = true
   }
 
   function renderLinkedOrderCell(row: ScrapVehicle) {
@@ -283,6 +220,62 @@
       ])
     }
     return h('span', { class: 'text-gray-400' }, '—')
+  }
+
+  function handleCreateOrderForLink() {
+    if (!linkOrderVehicle.value) return
+    const vehicle = linkOrderVehicle.value
+    pendingLinkVehicleId.value = vehicle.id
+    createOrderPrefill.value = {
+      id: 0,
+      order_type: 'staff_order',
+      status: 0,
+      plate_no: vehicle.plate_no,
+      vin: vehicle.vin,
+      brand: vehicle.brand,
+      model: vehicle.model,
+      real_name: vehicle.owner_name,
+      phone: vehicle.owner_phone
+    } as RecycleOrder
+    linkOrderVisible.value = false
+    createOrderVisible.value = true
+  }
+
+  // ----- 列表表格 -----
+  function renderDimStatus(row: ScrapVehicle) {
+    const dim = row.dim_status
+    if (!dim) {
+      return h('span', { class: 'text-gray-400' }, row.status_text || '—')
+    }
+    const items = [
+      { key: 'tow', icon: 'ri:truck-line', data: dim.tow },
+      { key: 'factory', icon: 'ri:box-3-line', data: dim.factory },
+      { key: 'cancel', icon: 'ri:file-list-3-line', data: dim.cancel }
+    ]
+    return h(
+      'div',
+      { class: 'vehicle-dim-status' },
+      items.map((item) =>
+        h('div', { class: 'vehicle-dim-row', key: item.key }, [
+          h(ArtSvgIcon, { icon: item.icon, class: 'vehicle-dim-icon' }),
+          h(
+            'span',
+            {
+              class: 'vehicle-dim-badge',
+              style: {
+                color: item.data?.color || '#8C8C8C',
+                background: item.data?.bg || '#F5F5F5'
+              }
+            },
+            item.data?.label || '—'
+          )
+        ])
+      )
+    )
+  }
+
+  function handleDownloadCert(row: ScrapVehicle) {
+    window.open(`https://bfc.chexinmeng.com/hszma4?id=${row.id}`, '_blank')
   }
 
   function buildColumns() {
@@ -369,7 +362,6 @@
               [h(ArtSvgIcon, { icon: 'ri:eye-line', class: 'order-action-icon' }), '查看']
             )
           ]
-          // 已提交商务部时不显示编辑（对齐 admin）
           if (Number(row.is_submitted_commerce) !== 1) {
             actions.push(
               h(
@@ -425,6 +417,38 @@
     }
   })
 
+  // ----- 统计卡片 / 待补关联横幅 -----
+  const tabCounts = ref<VehicleTabCount[]>([])
+  const statusCounts = ref<VehicleStatusCounts>({
+    total: 0,
+    transport: 0,
+    factory: 0,
+    cancellation: 0,
+    completed: 0
+  })
+
+  const pendingLinkCount = computed(() => statusCounts.value.no_order_qc_done || 0)
+
+  const statCards = computed(() => [
+    { label: '档案总量', value: statusCounts.value.total, color: '#4169FF', type: '' as const },
+    { label: '拖车阶段', value: statusCounts.value.transport, color: '#FA8C16', type: '' as const },
+    { label: '入厂拆解', value: statusCounts.value.factory, color: '#722ED1', type: '' as const },
+    {
+      label: '注销办证中',
+      value: statusCounts.value.cancellation,
+      color: '#13C2C2',
+      type: '' as const
+    },
+    { label: '已完结', value: statusCounts.value.completed, color: '#52C41A', type: '' as const },
+    {
+      label: '待补关联订单',
+      value: statusCounts.value.no_order_qc_done || 0,
+      color: '#FF4D4F',
+      type: 'no_order' as const,
+      alert: (statusCounts.value.no_order_qc_done || 0) > 0
+    }
+  ])
+
   async function loadCounts() {
     try {
       const [tabs, counts] = await Promise.all([
@@ -438,28 +462,14 @@
     }
   }
 
-  function handleLinkOrderSuccess() {
+  function handleEditSuccess() {
     getData()
     loadCounts()
   }
 
-  function handleCreateOrderForLink() {
-    if (!linkOrderVehicle.value) return
-    const vehicle = linkOrderVehicle.value
-    pendingLinkVehicleId.value = vehicle.id
-    createOrderPrefill.value = {
-      id: 0,
-      order_type: 'staff_order',
-      status: 0,
-      plate_no: vehicle.plate_no,
-      vin: vehicle.vin,
-      brand: vehicle.brand,
-      model: vehicle.model,
-      real_name: vehicle.owner_name,
-      phone: vehicle.owner_phone
-    } as RecycleOrder
-    linkOrderVisible.value = false
-    createOrderVisible.value = true
+  function handleLinkOrderSuccess() {
+    getData()
+    loadCounts()
   }
 
   async function handleCreateOrderSuccess(result?: OrderSaveResult) {
@@ -496,16 +506,7 @@
     getData()
   }
 
-  function handleEditSuccess() {
-    getData()
-    loadCounts()
-  }
-
-  // function refreshAll() {
-  //   refreshData()
-  //   loadCounts()
-  // }
-
+  // ----- Tab / 搜索交互 -----
   function handleTabChange(tab: VehicleTab) {
     activeTab.value = tab
     searchForm.value = { ...searchForm.value, tab }

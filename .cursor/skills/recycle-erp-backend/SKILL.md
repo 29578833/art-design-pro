@@ -90,6 +90,44 @@ description: >-
 - 弹窗拆到 `modules/xxx-dialog.vue`
 - 搜索拆到 `modules/xxx-search.vue`
 
+### 组合式 API 脚本组织（`<script setup>`）
+
+**禁止把所有 `ref` / `computed` 堆在文件顶部。** 按功能模块就近声明，只有跨模块共用的状态才放顶部。
+
+**放顶部的（公共状态）：**
+
+- 多个 Tab、搜索、列表、统计共用的参数，如 `searchForm`、`activeTab`
+
+**按模块分块（每块：ref → 方法 → 必要时 computed）：**
+
+```text
+// ----- 公共：Tab / 搜索 -----
+const activeTab = ref(...)
+const searchForm = ref(...)
+
+// ----- xxx 弹窗 -----
+const xxxVisible = ref(false)
+const xxxId = ref(0)
+function openXxx(row) { ... }
+
+// ----- 列表表格 -----
+function buildColumns() { ... }
+const { data, loading, getData, ... } = useTable({ ... })
+
+// ----- 统计 / 横幅（依赖 getData 的回调放在 useTable 之后）-----
+const statusCounts = ref(...)
+async function loadCounts() { ... }
+function handleXxxSuccess() { getData(); loadCounts() }
+```
+
+**规则：**
+
+1. 某个弹窗/抽屉用到的 `ref`，紧挨着该弹窗的 `open/handle` 方法
+2. 表格列 `formatter` 调用的 `openDetail`、`openEdit` 等，写在 `buildColumns` / `useTable` 之前
+3. 依赖 `getData`、`replaceSearchParams`、`loadCounts` 的成功回调，写在 `useTable`（及 `loadCounts`）**之后**
+4. 用 `// ----- 模块名 -----` 注释分隔，便于扫读
+5. 参考实现：`src/views/recycle/recovery/vehicles/index.vue`
+
 ### 弹窗布局规范（还原原型 + 本项目组件）
 
 **核心原则：布局与视觉尽量对齐原型 JSX/Tailwind，控件一律用 Element Plus + 项目 Art 组件，禁止引入 shadcn 或手写原生 input/textarea/button。**

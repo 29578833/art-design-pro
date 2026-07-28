@@ -121,6 +121,8 @@ export interface OrderSearchParams extends Api.Common.CommonSearchParams {
   towingStatus?: TowingStatusFilter
   /** 订单进度 */
   progress?: ProgressFilter
+  /** 订单状态码（逗号分隔，传给后端 status，如 2,3,-1） */
+  orderStatusCodes?: string
 }
 
 /** 分页列表响应 */
