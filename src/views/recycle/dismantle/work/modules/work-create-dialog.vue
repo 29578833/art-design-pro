@@ -47,7 +47,7 @@
                 <span v-if="item.fuel_type" class="work-vehicle-type">{{ item.fuel_type }}</span>
               </div>
               <div class="work-vehicle-sub">
-                档案号：{{ item.archive_no || '—' }} · 车主：{{ item.owner_name || '—' }} · 库位：{{
+                档案号：{{ item.vehicle_no || '—' }} · 车主：{{ item.owner_name || '—' }} · 库位：{{
                   item.warehouse_slot || '—'
                 }}
               </div>

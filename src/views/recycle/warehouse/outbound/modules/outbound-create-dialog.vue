@@ -93,6 +93,7 @@
                 filterable
                 placeholder="选择物品"
                 class="ob-item-select"
+                popper-class="ob-inventory-select-popper"
                 @change="selectInventoryItem(index)"
               >
                 <ElOption
@@ -100,7 +101,28 @@
                   :key="option.id"
                   :label="getInventoryLabel(option)"
                   :value="option.id"
-                />
+                >
+                  <div class="ob-inventory-option">
+                    <span
+                      v-if="getCategoryConfig(option)"
+                      class="ob-inventory-category"
+                      :style="{
+                        color: getCategoryConfig(option)!.color,
+                        background: getCategoryConfig(option)!.bg
+                      }"
+                    >
+                      <ArtSvgIcon :icon="getCategoryConfig(option)!.icon" />
+                      {{ getCategoryLabel(option) }}
+                    </span>
+                    <span class="ob-inventory-name">
+                      {{ option.item_name || option.item_no || '未命名物品' }}
+                    </span>
+                    <span class="ob-inventory-stock">
+                      {{ option.quantity_text ?? '' }}
+                      <!-- {{ option.quantity ?? 0 }}{{ option.quantity_unit || '件' }} -->
+                    </span>
+                  </div>
+                </ElOption>
               </ElSelect>
               <ElInput
                 v-model.number="item.quantity"
@@ -183,6 +205,8 @@
   import { fetchInventoryItemList } from '@/api/recycle/inventory-item'
   import { fetchSaleOutboundCreate } from '@/api/recycle/sale-outbound'
   import type { InventoryItem } from '@/types/recycle/warehouse/inventory/inventory-item'
+  import type { ProductStoreCategory } from '@/types/recycle/dismantle/product/product-store'
+  import { PRODUCT_STORE_CATEGORY_CONFIG } from '@/types/recycle/dismantle/product/product-store'
   import type {
     SaleOutboundCreateParams,
     SaleOutboundType
@@ -295,7 +319,7 @@
   async function loadInventoryItems() {
     loadingInventory.value = true
     try {
-      const result = await fetchInventoryItemList({ status: 0, page: 1, limit: 500 })
+      const result = await fetchInventoryItemList({ status: 2, page: 1, limit: 500 })
       inventoryItems.value = result.records.filter((item) => Number(item.quantity || 0) > 0)
     } catch {
       inventoryItems.value = []
@@ -304,8 +328,20 @@
     }
   }
 
+  function getCategoryConfig(item: InventoryItem) {
+    const cat = item.category as ProductStoreCategory | undefined
+    return cat ? PRODUCT_STORE_CATEGORY_CONFIG[cat] : null
+  }
+
+  function getCategoryLabel(item: InventoryItem) {
+    return item.category_text || getCategoryConfig(item)?.label || ''
+  }
+
   function getInventoryLabel(item: InventoryItem) {
-    return `${item.item_name || item.item_no || '未命名物品'}（${item.quantity ?? 0}${item.quantity_unit || '件'}）`
+    const name = item.item_name || item.item_no || '未命名物品'
+    const stock = `${item.quantity ?? 0}${item.quantity_unit || '件'}`
+    const category = getCategoryLabel(item)
+    return category ? `${category} · ${name}（${stock}）` : `${name}（${stock}）`
   }
 
   function addItem() {
@@ -524,6 +560,42 @@
     width: 100%;
   }
 
+  .ob-inventory-option {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+  }
+
+  .ob-inventory-category {
+    display: inline-flex;
+    flex-shrink: 0;
+    gap: 4px;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 4px;
+
+    :deep(.art-svg-icon) {
+      font-size: 12px;
+    }
+  }
+
+  .ob-inventory-name {
+    flex: 1;
+    overflow: hidden;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ob-inventory-stock {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: #9ca3af;
+  }
+
   .ob-number-input {
     :deep(input) {
       padding: 0 8px;
@@ -693,6 +765,14 @@
     .el-select__wrapper,
     .el-textarea__inner {
       border-radius: 4px;
+    }
+  }
+
+  .ob-inventory-select-popper {
+    .el-select-dropdown__item {
+      height: auto;
+      padding: 8px 12px;
+      line-height: 1.4;
     }
   }
 </style>

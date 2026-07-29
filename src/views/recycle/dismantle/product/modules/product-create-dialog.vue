@@ -1,7 +1,7 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    width="860px"
+    width="1080px"
     align-center
     destroy-on-close
     class="product-create-dialog"
@@ -61,10 +61,9 @@
             <span />
           </div>
           <div v-for="(item, index) in items" :key="index" class="product-item-row">
-            <ElInput v-model="item.item_name" placeholder="如：发动机总成" size="small" />
+            <ElInput v-model="item.item_name" placeholder="如：发动机总成" />
             <ElSelect
               v-model="item.category"
-              size="small"
               :style="{ color: getCategoryColor(item.category) }"
               @change="(val) => handleCategoryChange(index, val)"
             >
@@ -75,25 +74,18 @@
                 :value="opt.value"
               />
             </ElSelect>
-            <ElInput v-model="item.spec" placeholder="规格/型号" size="small" />
-            <ElInput v-model.number="item.quantity" type="number" min="1" size="small" />
-            <ElSelect v-model="item.unit" size="small">
+            <ElInput v-model="item.spec" placeholder="规格/型号" />
+            <ElInput v-model.number="item.quantity" type="number" min="1" />
+            <ElSelect v-model="item.unit">
               <ElOption v-for="unit in unitOptions" :key="unit" :label="unit" :value="unit" />
             </ElSelect>
-            <ElInput
-              v-model.number="item.weight"
-              type="number"
-              min="0"
-              placeholder="0.0"
-              size="small"
-            />
+            <ElInput v-model.number="item.weight" type="number" min="0" placeholder="0.0" />
             <ElSelect
               v-model="item.location"
               filterable
               allow-create
               default-first-option
               placeholder="库位"
-              size="small"
             >
               <ElOption
                 v-for="loc in locationOptions"
@@ -102,7 +94,7 @@
                 :value="loc.location_no || ''"
               />
             </ElSelect>
-            <ElInput v-model="item.remark" placeholder="备注" size="small" />
+            <ElInput v-model="item.remark" placeholder="备注" />
             <button
               type="button"
               class="product-item-remove"
@@ -394,44 +386,65 @@
 
   .product-item-table {
     overflow-x: auto;
+    background: #fafafa;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
   }
 
   .product-item-header,
   .product-item-row {
     display: grid;
-    grid-template-columns: 2fr 100px 1fr 60px 80px 80px 80px 1fr 28px;
-    gap: 8px;
+    grid-template-columns:
+      minmax(140px, 2.2fr) 116px minmax(100px, 1.2fr) 76px 76px 96px 108px minmax(90px, 1.2fr)
+      32px;
+    gap: 10px;
     align-items: center;
   }
 
   .product-item-header {
-    padding: 0 8px 4px;
-    font-size: 12px;
+    min-width: 980px;
+    padding: 10px 14px;
+    font-size: 13px;
     font-weight: 500;
-    color: var(--art-gray-400);
+    color: #6b7280;
+    background: #f3f4f6;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 8px 8px 0 0;
+
+    span:not(:last-child) {
+      white-space: nowrap;
+    }
   }
 
   .product-item-row {
-    min-width: 812px;
-    padding: 8px;
-    margin-bottom: 8px;
-    border: 1px solid #f3f4f6;
-    border-radius: 8px;
-    transition: border-color 0.2s;
+    min-width: 980px;
+    padding: 10px 14px;
+    background: #fff;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.2s;
+
+    &:last-child {
+      border-bottom: none;
+      border-radius: 0 0 8px 8px;
+    }
 
     &:hover {
-      border-color: #e5e7eb;
+      background: #fafbff;
     }
 
     :deep(.el-input__wrapper),
     :deep(.el-select__wrapper) {
-      padding-right: 8px;
-      padding-left: 8px;
-      border-radius: 4px;
+      padding-right: 10px;
+      padding-left: 10px;
+      border-radius: 6px;
     }
 
     :deep(input) {
-      font-size: 12px;
+      font-size: 13px;
+    }
+
+    :deep(.el-select__selected-item) {
+      font-size: 13px;
     }
   }
 
@@ -439,16 +452,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     padding: 0;
+    font-size: 16px;
     color: #ff4d4f;
     cursor: pointer;
     background: transparent;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background: #fff1f0;
     }
 
