@@ -13,6 +13,7 @@
             <span v-if="item.operator_name" class="vd-log-op">{{ item.operator_name }}</span>
           </div>
           <div v-if="item.time" class="vd-timeline-time">{{ item.time }}</div>
+          <div v-if="item.description" class="vd-timeline-note">{{ item.description }}</div>
         </div>
       </div>
     </div>
@@ -33,7 +34,7 @@
     detail: ScrapVehicleDetail
   }>()
 
-  const logItems = computed(() => buildLogItems(props.detail))
+  const logItems = computed(() => buildLogItems(props.detail.operation_logs))
 </script>
 
 <style scoped lang="scss">

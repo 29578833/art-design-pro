@@ -51,21 +51,21 @@
         </div>
         <div class="vd-row">
           <span class="vd-row-label">{{ ownerNameLabel }}</span
-          ><span class="vd-row-value">{{ detail.owner_name || '—' }}</span>
+          ><span class="vd-row-value">{{ archiveDetail.owner_name || '—' }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">{{ ownerIdLabel }}</span
           ><span class="vd-row-value">{{
-            maskIdCard(detail.owner_id_number || detail.owner_id_card)
+            maskIdCard(archiveDetail.owner_id_number || archiveDetail.owner_id_card)
           }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">联系电话</span
-          ><span class="vd-row-value">{{ maskPhone(detail.owner_phone) }}</span>
+          ><span class="vd-row-value">{{ maskPhone(archiveDetail.owner_phone) }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">联系地址</span
-          ><span class="vd-row-value">{{ detail.owner_address || '—' }}</span>
+          ><span class="vd-row-value">{{ archiveDetail.owner_address || '—' }}</span>
         </div>
       </div>
     </div>
@@ -93,21 +93,23 @@
       <div class="vd-section-box">
         <div class="vd-row">
           <span class="vd-row-label">车牌号</span
-          ><span class="vd-row-value">{{ detail.plate_no || '—' }}</span>
+          ><span class="vd-row-value">{{ archiveDetail.plate_no || '—' }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">号牌类型</span
-          ><span class="vd-row-value">{{ detail.plate_type || '—' }}</span>
+          ><span class="vd-row-value">{{ archiveDetail.plate_type || '—' }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">车辆类型</span
           ><span class="vd-row-value">{{
-            detail.vehicle_type_text || detail.vehicle_type || '—'
+            archiveDetail.vehicle_type_text || archiveDetail.vehicle_type || '—'
           }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">燃料性质</span
-          ><span class="vd-row-value">{{ detail.fuel_type_text || detail.fuel_type || '—' }}</span>
+          ><span class="vd-row-value">{{
+            archiveDetail.fuel_type_text || archiveDetail.fuel_type || '—'
+          }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">品牌型号</span
@@ -115,55 +117,63 @@
         </div>
         <div class="vd-row">
           <span class="vd-row-label">行驶证编号</span
-          ><span class="vd-row-value mono">{{ detail.license_no || '—' }}</span>
+          ><span class="vd-row-value mono">{{ archiveDetail.license_no || '—' }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">产证编号</span
-          ><span class="vd-row-value mono">{{ detail.cert_no || '—' }}</span>
+          ><span class="vd-row-value mono">{{ archiveDetail.cert_no || '—' }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">车辆型号</span
-          ><span class="vd-row-value">{{ detail.vehicle_model || detail.model || '—' }}</span>
+          ><span class="vd-row-value">{{
+            archiveDetail.vehicle_model || archiveDetail.model || '—'
+          }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">出厂年份</span
-          ><span class="vd-row-value">{{ detail.year || '—' }}</span>
+          ><span class="vd-row-value">{{ archiveDetail.year || '—' }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">使用性质</span
-          ><span class="vd-row-value">{{ detail.usage_type || detail.fuel_nature || '—' }}</span>
+          ><span class="vd-row-value">{{
+            archiveDetail.usage_type || archiveDetail.fuel_nature || '—'
+          }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">排量/功率</span
           ><span class="vd-row-value">{{
-            detail.displacement || detail.power_kw
-              ? `${detail.displacement || '—'}/${detail.power_kw || '—'}`
+            archiveDetail.displacement || archiveDetail.power_kw
+              ? `${archiveDetail.displacement || '—'}/${archiveDetail.power_kw || '—'}`
               : '—'
           }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">监销类型</span
-          ><span class="vd-row-value">{{ detail.monitor_type || '—' }}</span>
+          ><span class="vd-row-value">{{ archiveDetail.monitor_type || '—' }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">注册登记日期</span
-          ><span class="vd-row-value">{{ detail.register_date || detail.reg_date || '—' }}</span>
+          ><span class="vd-row-value">{{
+            archiveDetail.register_date || archiveDetail.reg_date || '—'
+          }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">VIN码（车架号）</span
-          ><span class="vd-row-value mono">{{ detail.vin || '—' }}</span>
+          ><span class="vd-row-value mono">{{ archiveDetail.vin || '—' }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">发动机号码</span
-          ><span class="vd-row-value">{{ detail.engine_no || '—' }}</span>
+          ><span class="vd-row-value">{{ archiveDetail.engine_no || '—' }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">车身颜色</span
-          ><span class="vd-row-value">{{ detail.color || '—' }}</span>
+          ><span class="vd-row-value">{{ archiveDetail.color || '—' }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">表显里程</span
-          ><span class="vd-row-value">{{ detail.mileage ? `${detail.mileage}万公里` : '—' }}</span>
+          ><span class="vd-row-value">{{
+            archiveDetail.mileage ? `${archiveDetail.mileage}万公里` : '—'
+          }}</span>
         </div>
       </div>
     </div>
@@ -177,18 +187,18 @@
         <div class="vd-row">
           <span class="vd-row-label">结算类型</span
           ><span class="vd-row-value">{{
-            detail.settlement_type_text || detail.settlement_type || '—'
+            archiveDetail.settlement_type_text || archiveDetail.settlement_type || '—'
           }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">结算方式</span
           ><span class="vd-row-value">{{
-            detail.settlement_method_text || detail.settlement_method || '—'
+            archiveDetail.settlement_method_text || archiveDetail.settlement_method || '—'
           }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">结算金额</span
-          ><span class="vd-row-value">{{ detail.settlement_amount ?? '—' }}</span>
+          ><span class="vd-row-value">{{ archiveDetail.settlement_amount ?? '—' }}</span>
         </div>
       </div>
     </div>
@@ -198,15 +208,15 @@
       <div class="vd-section-box">
         <div class="vd-row">
           <span class="vd-row-label">开户姓名/名称</span
-          ><span class="vd-row-value">{{ detail.bank_name || '—' }}</span>
+          ><span class="vd-row-value">{{ archiveDetail.bank_name || '—' }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">开户银行</span
-          ><span class="vd-row-value">{{ detail.bank_branch || '—' }}</span>
+          ><span class="vd-row-value">{{ archiveDetail.bank_branch || '—' }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">银行卡号</span
-          ><span class="vd-row-value">{{ detail.bank_card_no || '—' }}</span>
+          ><span class="vd-row-value">{{ archiveDetail.bank_card_no || '—' }}</span>
         </div>
       </div>
     </div>
@@ -235,16 +245,17 @@
         <div class="vd-row">
           <span class="vd-row-label">代理人姓名</span
           ><span class="vd-row-value">{{
-            detail.agent_name || (detail.has_agent === 0 ? '无代理人（本人办理）' : '—')
+            archiveDetail.agent_name ||
+            (archiveDetail.has_agent === 0 ? '无代理人（本人办理）' : '—')
           }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">代理人证件号</span
-          ><span class="vd-row-value">{{ maskIdCard(detail.agent_id_number) || '—' }}</span>
+          ><span class="vd-row-value">{{ maskIdCard(archiveDetail.agent_id_number) || '—' }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">代理人电话</span
-          ><span class="vd-row-value">{{ detail.agent_phone || '—' }}</span>
+          ><span class="vd-row-value">{{ archiveDetail.agent_phone || '—' }}</span>
         </div>
       </div>
     </div>
@@ -254,7 +265,7 @@
       <div class="vd-section-box">
         <div class="vd-row">
           <span class="vd-row-label">备注</span
-          ><span class="vd-row-value">{{ detail.remark || '—' }}</span>
+          ><span class="vd-row-value">{{ archiveDetail.remark || '—' }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">库位</span
@@ -309,20 +320,20 @@
             </div>
             <div class="vd-cert-preview-grid">
               <div>
-                <span class="lbl">车主名称</span><span>{{ detail.owner_name || '—' }}</span>
+                <span class="lbl">车主名称</span><span>{{ archiveDetail.owner_name || '—' }}</span>
               </div>
               <div>
                 <span class="lbl">车主证件号</span
                 ><span class="mono">{{
-                  detail.owner_id_number || detail.owner_id_card || '—'
+                  archiveDetail.owner_id_number || archiveDetail.owner_id_card || '—'
                 }}</span>
               </div>
               <div>
-                <span class="lbl">车辆牌照</span><span>{{ detail.plate_no || '—' }}</span>
+                <span class="lbl">车辆牌照</span><span>{{ archiveDetail.plate_no || '—' }}</span>
               </div>
               <div>
                 <span class="lbl">车辆识别代号(VIN)</span
-                ><span class="mono">{{ detail.vin || '—' }}</span>
+                ><span class="mono">{{ archiveDetail.vin || '—' }}</span>
               </div>
               <div>
                 <span class="lbl">车辆品牌型号</span><span>{{ brandModel }}</span>
@@ -399,7 +410,10 @@
       </div>
 
       <div
-        v-if="detail.has_agent !== 0 && (detail.agent_name || agentPhotoSlots.some((s) => s.url))"
+        v-if="
+          archiveDetail.has_agent !== 0 &&
+          (archiveDetail.agent_name || agentPhotoSlots.some((s) => s.url))
+        "
         class="vd-media-grid-section"
       >
         <div class="vd-media-grid-head">
@@ -454,6 +468,7 @@
 </template>
 
 <script setup lang="ts">
+  import type { AcceptSyncFiles } from '@/types/recycle/recovery/commerce/accept'
   import type { ScrapVehicleDetail } from '@/types/recycle/recovery/vehicles/vehicle'
   import {
     brandModelText,
@@ -466,6 +481,7 @@
     isCommercialOwner,
     maskIdCard,
     maskPhone,
+    mergeAcceptSyncPatch,
     openRecycleCert,
     previewUrls
   } from './vehicle-detail-utils'
@@ -473,25 +489,34 @@
   defineOptions({ name: 'VehicleDetailInfoTab' })
 
   const props = defineProps<{
+    /** vehicle/detail：关联单号、库位、创建信息等 */
     detail: ScrapVehicleDetail
+    /** get_scrap_files_from_sync：档案主体展示数据 */
+    acceptSyncFiles: AcceptSyncFiles | null
     scrapDjid: string
     scrapCacheFiles: Record<string, { url?: string }>
   }>()
 
-  const isCommercial = computed(() => isCommercialOwner(props.detail))
-  const brandModel = computed(() => brandModelText(props.detail))
-  const delivery = computed(() => deliveryText(props.detail))
+  /** 档案展示：sync 覆盖 vehicle/detail 同名字段 */
+  const archiveDetail = computed<ScrapVehicleDetail>(() => {
+    const patch = props.acceptSyncFiles ? mergeAcceptSyncPatch(props.acceptSyncFiles) : {}
+    return { ...props.detail, ...patch }
+  })
+
+  const isCommercial = computed(() => isCommercialOwner(archiveDetail.value))
+  const brandModel = computed(() => brandModelText(archiveDetail.value))
+  const delivery = computed(() => deliveryText(archiveDetail.value))
 
   const ownerIdType = computed(() => (isCommercial.value ? '统一社会信用代码' : '居民身份证'))
   const ownerNameLabel = computed(() => (isCommercial.value ? '企业完整名称' : '所有人姓名'))
   const ownerIdLabel = computed(() => (isCommercial.value ? '统一社会信用代码' : '身份证号码'))
 
-  const ownerPhotoSlots = computed(() => buildOwnerPhotoSlots(props.detail))
+  const ownerPhotoSlots = computed(() => buildOwnerPhotoSlots(archiveDetail.value))
   const mediaOwnerSlots = computed(() => ownerPhotoSlots.value)
-  const vehicleDocSlots = computed(() => buildVehicleDocSlots(props.detail))
+  const vehicleDocSlots = computed(() => buildVehicleDocSlots(archiveDetail.value))
   const mediaVehicleDocSlots = computed(() => vehicleDocSlots.value)
-  const agentPhotoSlots = computed(() => buildAgentPhotoSlots(props.detail))
-  const entryPhotoItems = computed(() => buildEntryPhotoItems(props.detail))
+  const agentPhotoSlots = computed(() => buildAgentPhotoSlots(archiveDetail.value))
+  const entryPhotoItems = computed(() => buildEntryPhotoItems(archiveDetail.value))
   const dismantlePhotoSlots = computed(() => buildDismantlePhotoSlots(props.scrapCacheFiles))
 
   const ownerPreviewList = computed(() => previewUrls(ownerPhotoSlots.value))

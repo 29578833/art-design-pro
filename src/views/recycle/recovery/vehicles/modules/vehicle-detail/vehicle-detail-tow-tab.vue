@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
   import type { ScrapVehicleDetail } from '@/types/recycle/recovery/vehicles/vehicle'
-  import { mapFlowSteps } from './vehicle-detail-utils'
+  import { mapTowProgressSteps } from './vehicle-detail-utils'
 
   defineOptions({ name: 'VehicleDetailTowTab' })
 
@@ -37,7 +37,7 @@
     detail: ScrapVehicleDetail
   }>()
 
-  const towSteps = computed(() => mapFlowSteps(props.detail.tow_progress))
+  const towSteps = computed(() => mapTowProgressSteps(props.detail.tow_progress))
 </script>
 
 <style scoped lang="scss">

@@ -59,6 +59,7 @@
         <VehicleDetailInfoTab
           v-if="activeTab === 'info'"
           :detail="detail"
+          :accept-sync-files="acceptSyncFiles"
           :scrap-djid="scrapDjid"
           :scrap-cache-files="scrapCacheFiles"
         />
@@ -82,6 +83,7 @@
 <script setup lang="ts">
   import { fetchAcceptFilesCache, fetchAcceptSyncFiles } from '@/api/recycle/accept'
   import { fetchVehicleDetail } from '@/api/recycle/vehicle'
+  import type { AcceptSyncFiles } from '@/types/recycle/recovery/commerce/accept'
   import type {
     ScrapVehicleDetail,
     VehicleDimStatus,
@@ -92,7 +94,7 @@
   import VehicleDetailInfoTab from './vehicle-detail-info-tab.vue'
   import VehicleDetailLogTab from './vehicle-detail-log-tab.vue'
   import VehicleDetailTowTab from './vehicle-detail-tow-tab.vue'
-  import { brandModelText, mergeAcceptSyncPatch, resolveDimStatus } from './vehicle-detail-utils'
+  import { brandModelText, resolveDimStatus } from './vehicle-detail-utils'
 
   defineOptions({ name: 'VehicleDetailDialog' })
 
@@ -131,6 +133,7 @@
   const loading = ref(false)
   const activeTab = ref<TabKey>('info')
   const detail = ref<ScrapVehicleDetail>({ id: 0, status: 0 })
+  const acceptSyncFiles = ref<AcceptSyncFiles | null>(null)
   const scrapCacheFiles = ref<Record<string, { url?: string }>>({})
   const scrapDjid = ref('')
 
@@ -171,16 +174,16 @@
   async function loadDetail() {
     if (!props.vehicleId) return
     loading.value = true
+    acceptSyncFiles.value = null
     scrapCacheFiles.value = {}
     scrapDjid.value = ''
     try {
-      detail.value = await fetchVehicleDetail(props.vehicleId)
-      try {
-        const sync = await fetchAcceptSyncFiles({ vehicle_id: props.vehicleId })
-        if (sync) Object.assign(detail.value, mergeAcceptSyncPatch(sync))
-      } catch {
-        // sync 失败不阻断详情
-      }
+      const [vehicleDetail, syncFiles] = await Promise.all([
+        fetchVehicleDetail(props.vehicleId),
+        fetchAcceptSyncFiles({ vehicle_id: props.vehicleId }).catch(() => null)
+      ])
+      detail.value = vehicleDetail
+      acceptSyncFiles.value = syncFiles
       await loadScrapFilesCache()
     } catch {
       detail.value = { id: props.vehicleId, status: 0 }
@@ -192,6 +195,7 @@
   function handleClosed() {
     activeTab.value = 'info'
     detail.value = { id: 0, status: 0 }
+    acceptSyncFiles.value = null
     scrapCacheFiles.value = {}
     scrapDjid.value = ''
   }

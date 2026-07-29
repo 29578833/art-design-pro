@@ -65,6 +65,7 @@ export interface PhotoSlot {
 export interface FlowStepView {
   label: string
   done: boolean
+  current?: boolean
   time: string
   note: string
   desc: string
@@ -74,7 +75,7 @@ export interface FactoryStepView {
   label: string
   desc: string
   time: string
-  state: 'done' | 'current' | 'pending'
+  status: 'done' | 'current' | 'pending'
   badge: string
 }
 
@@ -82,6 +83,7 @@ export interface LogItemView {
   title: string
   operator_name: string
   time: string
+  description: string
 }
 
 export const DISMANTLE_PHOTO_FIELDS = [
@@ -216,45 +218,52 @@ export function deliveryText(detail: ScrapVehicleDetail) {
   return '—'
 }
 
-export function mapFlowSteps(steps?: VehicleFlowStep[]): FlowStepView[] {
+/** 拖车进度：后端返回 done/time/operator/desc */
+export function mapTowProgressSteps(steps?: VehicleFlowStep[]): FlowStepView[] {
   return (steps || []).map((s) => ({
     label: s.label || '',
     done: !!s.done,
     time: s.time || '',
-    note: s.desc || s.operator || '',
+    note: s.operator || s.desc || '',
     desc: s.desc || ''
   }))
 }
 
-export function buildFactorySteps(detail: ScrapVehicleDetail): FactoryStepView[] {
-  const flow = detail.factory_flow || []
-  const currentIdx = flow.findIndex((s) => !s.done)
-  const idx = currentIdx === -1 ? flow.length : currentIdx
-  return flow.map((step, i) => {
-    const isDone = i < idx || (currentIdx === -1 && !!step.done)
-    const isCurrent = i === idx && currentIdx !== -1
-    let state: 'done' | 'current' | 'pending' = 'pending'
-    if (isDone) state = 'done'
-    else if (isCurrent) state = 'current'
-    let badge = '待执行'
-    if (isCurrent) badge = '当前'
-    else if (isDone) badge = '已完成'
+/** 注销办证等：后端返回 status(done/current/pending) */
+export function mapStatusTimelineSteps(steps?: VehicleFlowStep[]): FlowStepView[] {
+  return (steps || []).map((s) => {
+    const status = s.status || (s.done ? 'done' : 'pending')
     return {
-      label: step.label || '',
-      desc: step.desc || '',
-      time: step.time || '',
-      state,
-      badge
+      label: s.label || '',
+      done: status === 'done',
+      current: status === 'current',
+      time: s.time || '',
+      note: s.desc || '',
+      desc: s.desc || ''
     }
   })
 }
 
-export function buildLogItems(detail: ScrapVehicleDetail): LogItemView[] {
-  const logs = detail.operation_logs || detail.status_logs || []
-  return logs.map((log) => ({
+/** 入厂拆解：后端 factory_flow 直接使用 status 字段 */
+export function buildFactorySteps(flow?: VehicleFlowStep[]): FactoryStepView[] {
+  return (flow || []).map((step) => {
+    const status = step.status || 'pending'
+    return {
+      label: step.label || '',
+      desc: step.desc || '',
+      time: step.time || '',
+      status,
+      badge: status === 'done' ? '已完成' : status === 'current' ? '当前' : '待执行'
+    }
+  })
+}
+
+export function buildLogItems(logs?: ScrapVehicleDetail['operation_logs']): LogItemView[] {
+  return (logs || []).map((log) => ({
     title: log.title || '操作',
     operator_name: log.operator_name || '',
-    time: log.time || ''
+    time: log.time || '',
+    description: log.description || ''
   }))
 }
 

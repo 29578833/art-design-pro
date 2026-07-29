@@ -173,6 +173,7 @@ export interface VehicleStatusLog {
   time: string
   operator_name?: string
   operator_type?: string
+  description?: string
   from_status?: number
   to_status?: number
 }
@@ -181,7 +182,10 @@ export interface VehicleStatusLog {
 export interface VehicleFlowStep {
   label: string
   desc?: string
+  /** 拖车进度等使用 */
   done?: boolean
+  /** 入厂拆解/注销办证使用 */
+  status?: 'done' | 'current' | 'pending'
   time?: string
   operator?: string
   note?: string

@@ -2,17 +2,17 @@
   <div class="vd-tab-panel">
     <div class="vd-panel-label">入厂拆解 · V20 五步流转</div>
     <div v-if="factorySteps.length" class="vd-v20-list">
-      <div v-for="(step, idx) in factorySteps" :key="idx" class="vd-v20-card" :class="step.state">
+      <div v-for="(step, idx) in factorySteps" :key="idx" class="vd-v20-card" :class="step.status">
         <div class="vd-v20-left">
-          <div class="vd-v20-circle" :class="step.state">
-            {{ step.state === 'done' ? '✓' : idx + 1 }}
+          <div class="vd-v20-circle" :class="step.status">
+            {{ step.status === 'done' ? '✓' : idx + 1 }}
           </div>
           <div class="vd-v20-text">
             <div class="vd-v20-title-row">
-              <span class="vd-v20-title" :class="{ muted: step.state === 'pending' }">{{
+              <span class="vd-v20-title" :class="{ muted: step.status === 'pending' }">{{
                 step.label
               }}</span>
-              <span class="vd-v20-badge" :class="step.state">{{ step.badge }}</span>
+              <span class="vd-v20-badge" :class="step.status">{{ step.badge }}</span>
             </div>
             <div v-if="step.desc" class="vd-v20-desc">{{ step.desc }}</div>
             <div v-if="step.time" class="vd-v20-time">{{ step.time }}</div>
@@ -37,7 +37,7 @@
     detail: ScrapVehicleDetail
   }>()
 
-  const factorySteps = computed(() => buildFactorySteps(props.detail))
+  const factorySteps = computed(() => buildFactorySteps(props.detail.factory_flow))
 </script>
 
 <style scoped lang="scss">

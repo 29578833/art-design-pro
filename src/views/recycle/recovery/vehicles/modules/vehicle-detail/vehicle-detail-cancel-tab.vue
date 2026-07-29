@@ -4,7 +4,7 @@
     <div v-if="cancelSteps.length" class="vd-timeline">
       <div v-for="(step, idx) in cancelSteps" :key="idx" class="vd-timeline-item">
         <div class="vd-timeline-rail">
-          <div class="vd-timeline-dot" :class="{ done: step.done }">
+          <div class="vd-timeline-dot" :class="{ done: step.done, current: step.current }">
             <ArtSvgIcon v-if="step.done" icon="ri:check-line" class="vd-check-icon" />
           </div>
           <div
@@ -14,7 +14,9 @@
           />
         </div>
         <div class="vd-timeline-content">
-          <div class="vd-timeline-label" :class="{ muted: !step.done }">{{ step.label }}</div>
+          <div class="vd-timeline-label" :class="{ muted: !step.done && !step.current }">
+            {{ step.label }}
+          </div>
           <div v-if="step.time && step.time !== '—'" class="vd-timeline-time">{{ step.time }}</div>
           <div v-if="step.note" class="vd-timeline-note">{{ step.note }}</div>
         </div>
@@ -29,7 +31,7 @@
 
 <script setup lang="ts">
   import type { ScrapVehicleDetail } from '@/types/recycle/recovery/vehicles/vehicle'
-  import { mapFlowSteps } from './vehicle-detail-utils'
+  import { mapStatusTimelineSteps } from './vehicle-detail-utils'
 
   defineOptions({ name: 'VehicleDetailCancelTab' })
 
@@ -37,7 +39,7 @@
     detail: ScrapVehicleDetail
   }>()
 
-  const cancelSteps = computed(() => mapFlowSteps(props.detail.cancel_flow))
+  const cancelSteps = computed(() => mapStatusTimelineSteps(props.detail.cancel_flow))
 </script>
 
 <style scoped lang="scss">

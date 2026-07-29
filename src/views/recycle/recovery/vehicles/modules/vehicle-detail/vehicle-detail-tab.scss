@@ -321,6 +321,11 @@
     background: $vm-success;
     border-color: $vm-success;
   }
+
+  &.current {
+    background: #fff7e6;
+    border-color: #fa8c16;
+  }
 }
 
 .vd-check-icon {
