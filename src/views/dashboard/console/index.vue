@@ -1,48 +1,77 @@
 <!-- ERP 数据看板 -->
 <template>
-  <div class="erp-dashboard">
+  <div v-loading="loading" class="erp-dashboard">
     <!-- 页头 -->
     <div class="erp-dashboard-header erp-section">
       <div class="erp-dashboard-header-left">
         <h1 class="erp-dashboard-title">数据看板</h1>
         <p class="erp-dashboard-subtitle">鑫广汽车拆解管理系统 · 经营数据一览</p>
       </div>
-      <ElSegmented v-model="period" :options="periodOptions" />
+      <div class="erp-dashboard-period-group">
+        <span class="erp-dashboard-period is-active">本月</span>
+      </div>
     </div>
 
     <!-- KPI 卡片 -->
-    <ErpKpiCards :key="period" class="erp-section" />
+    <ErpKpiCards :kpi-list="kpiList" class="erp-section" />
 
     <!-- 趋势图表 -->
-    <ErpTrendCharts :key="period" class="erp-section" />
+    <ErpTrendCharts
+      :purchase-trend="purchaseTrend"
+      :settlement-trend="settlementTrend"
+      :month-labels="monthLabels"
+      class="erp-section"
+    />
 
     <!-- 分析面板：漏斗 + 状态分布 -->
-    <ErpAnalysisPanels :key="period" class="erp-section" />
+    <ErpAnalysisPanels
+      :funnel-steps="funnelSteps"
+      :funnel-max="funnelMax"
+      :status-items="statusItems"
+      :status-colors="statusColors"
+      :status-total="statusTotal"
+      class="erp-section"
+    />
 
     <!-- 待办 + 排行 -->
-    <ErpWorkPanels :key="period" class="erp-section" />
+    <ErpWorkPanels
+      :todos="todos"
+      :total-todos="totalTodos"
+      :salesmen="salesmen"
+      class="erp-section"
+    />
 
     <!-- 最近操作 -->
-    <ErpRecentActivity />
+    <ErpRecentActivity :activities="activities" />
   </div>
 </template>
 
 <script setup lang="ts">
-  import ErpKpiCards from './modules/erp-kpi-cards.vue'
-  import ErpTrendCharts from './modules/erp-trend-charts.vue'
   import ErpAnalysisPanels from './modules/erp-analysis-panels.vue'
-  import ErpWorkPanels from './modules/erp-work-panels.vue'
+  import ErpKpiCards from './modules/erp-kpi-cards.vue'
   import ErpRecentActivity from './modules/erp-recent-activity.vue'
+  import ErpTrendCharts from './modules/erp-trend-charts.vue'
+  import ErpWorkPanels from './modules/erp-work-panels.vue'
+  import { useDashboardData } from './use-dashboard-data'
 
   defineOptions({ name: 'Console' })
 
-  const period = ref('month')
-
-  const periodOptions = [
-    { label: '今日', value: 'today' },
-    { label: '本周', value: 'week' },
-    { label: '本月', value: 'month' }
-  ]
+  const {
+    loading,
+    kpiList,
+    funnelSteps,
+    funnelMax,
+    statusItems,
+    statusColors,
+    statusTotal,
+    todos,
+    totalTodos,
+    salesmen,
+    activities,
+    purchaseTrend,
+    settlementTrend,
+    monthLabels
+  } = useDashboardData()
 </script>
 
 <style lang="scss" scoped>
@@ -74,10 +103,24 @@
     color: var(--art-gray-500);
   }
 
-  :deep(.el-segmented) {
-    --el-border-radius-base: 8px;
-
+  .erp-dashboard-period-group {
     padding: 3px;
     background: var(--art-gray-100);
+    border-radius: 8px;
+  }
+
+  .erp-dashboard-period {
+    display: inline-block;
+    padding: 5px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--art-gray-600);
+    border-radius: 6px;
+  }
+
+  .erp-dashboard-period.is-active {
+    color: var(--el-color-primary);
+    background: var(--default-box-color);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
   }
 </style>

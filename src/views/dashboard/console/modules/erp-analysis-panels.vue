@@ -15,14 +15,16 @@
               <span class="erp-funnel-value">
                 <ArtCountTo :target="step.value" :duration="1500" />
               </span>
-              <span class="erp-funnel-pct">{{ Math.round((step.value / funnelMax) * 100) }}%</span>
+              <span class="erp-funnel-pct"
+                >{{ funnelMax ? Math.round((step.value / funnelMax) * 100) : 0 }}%</span
+              >
             </div>
             <div class="erp-funnel-track">
               <div
                 class="erp-funnel-bar erp-bar-fill"
                 :class="{ 'is-active': barReady }"
                 :style="{
-                  width: `${Math.max(8, (step.value / funnelMax) * 100)}%`,
+                  width: `${Math.max(8, funnelMax ? (step.value / funnelMax) * 100 : 0)}%`,
                   background: step.color,
                   animationDelay: `${0.2 + i * 0.12}s`
                 }"
@@ -74,7 +76,7 @@
                 <ArtCountTo :target="item.value" :duration="1500" />
               </span>
               <span class="erp-status-pct"
-                >{{ Math.round((item.value / vehicleTotal) * 100) }}%</span
+                >{{ vehicleTotal ? Math.round((item.value / vehicleTotal) * 100) : 0 }}%</span
               >
             </div>
           </div>
@@ -85,6 +87,16 @@
 </template>
 
 <script setup lang="ts">
+  import type { DashboardFunnelStep, DashboardStatusItem } from '../use-dashboard-data'
+
+  const props = defineProps<{
+    funnelSteps: DashboardFunnelStep[]
+    funnelMax: number
+    statusItems: DashboardStatusItem[]
+    statusColors: string[]
+    statusTotal: number
+  }>()
+
   const barReady = ref(false)
 
   onMounted(() => {
@@ -93,26 +105,9 @@
     })
   })
 
-  const funnelSteps = [
-    { label: '收车', value: 368, color: '#1890FF' },
-    { label: '质检完成', value: 342, color: '#722ED1' },
-    { label: '拆解完成', value: 318, color: '#FA8C16' },
-    { label: '注销完成', value: 295, color: '#52C41A' },
-    { label: '结算完成', value: 270, color: '#13C2C2' }
-  ]
-
-  const funnelMax = funnelSteps[0].value
-
-  const vehicleStatusData = [
-    { name: '拖车中', value: 8 },
-    { name: '入厂待查', value: 12 },
-    { name: '拆解中', value: 15 },
-    { name: '注销中', value: 6 },
-    { name: '已完成', value: 6 }
-  ]
-
-  const vehicleStatusColors = ['#13C2C2', '#FA8C16', '#722ED1', '#1890FF', '#52C41A']
-  const vehicleTotal = vehicleStatusData.reduce((sum, item) => sum + item.value, 0)
+  const vehicleStatusData = computed(() => props.statusItems)
+  const vehicleStatusColors = computed(() => props.statusColors)
+  const vehicleTotal = computed(() => props.statusTotal)
 </script>
 
 <style lang="scss" scoped>

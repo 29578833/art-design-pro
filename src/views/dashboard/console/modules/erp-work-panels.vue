@@ -31,6 +31,7 @@
           <span class="erp-card-extra">本月 TOP5</span>
         </div>
         <div class="erp-rank-list">
+          <div v-if="!salesmen.length" class="erp-empty-inline">暂无业务员数据</div>
           <div v-for="(s, i) in salesmen" :key="s.name" class="erp-rank-item">
             <span
               class="erp-rank-badge"
@@ -80,6 +81,14 @@
 </template>
 
 <script setup lang="ts">
+  import type { DashboardSalesmanItem, DashboardTodoItem } from '../use-dashboard-data'
+
+  const props = defineProps<{
+    todos: DashboardTodoItem[]
+    totalTodos: number
+    salesmen: DashboardSalesmanItem[]
+  }>()
+
   const barReady = ref(false)
 
   onMounted(() => {
@@ -88,25 +97,7 @@
     })
   })
 
-  const todos = [
-    { label: '待审核订单', count: 7, color: '#1890FF', bg: '#E6F7FF' },
-    { label: '待派单拖车', count: 4, color: '#FA8C16', bg: '#FFF7E6' },
-    { label: '待质检车辆', count: 9, color: '#722ED1', bg: '#F9F0FF' },
-    { label: '待结算', count: 18, color: '#52C41A', bg: '#F6FFED' },
-    { label: '商务部待受理', count: 5, color: '#13C2C2', bg: '#E6FFFB' }
-  ]
-
-  const totalTodos = todos.reduce((sum, t) => sum + t.count, 0)
-
-  const salesmen = [
-    { name: '张伟', vehicles: 32, amount: 96000, avatar: '张' },
-    { name: '李明', vehicles: 28, amount: 84000, avatar: '李' },
-    { name: '王芳', vehicles: 24, amount: 72000, avatar: '王' },
-    { name: '陈刚', vehicles: 19, amount: 57000, avatar: '陈' },
-    { name: '赵丽', vehicles: 15, amount: 45000, avatar: '赵' }
-  ]
-
-  const maxVehicles = salesmen[0].vehicles
+  const maxVehicles = computed(() => props.salesmen[0]?.vehicles || 1)
   const rankBg = ['#FAAD14', '#BFBFBF', '#CD7F32']
   const rankColor = ['#fff', '#fff', '#fff']
 </script>
@@ -250,5 +241,12 @@
   :deep(.erp-inline-count) {
     font-size: inherit;
     color: inherit;
+  }
+
+  .erp-empty-inline {
+    padding: 24px 0;
+    font-size: 13px;
+    color: var(--art-gray-500);
+    text-align: center;
   }
 </style>

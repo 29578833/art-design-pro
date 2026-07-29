@@ -5,6 +5,7 @@
       <span class="erp-card-extra">今日</span>
     </div>
     <div class="erp-activity-list">
+      <div v-if="!activities.length" class="erp-empty-inline">暂无操作记录</div>
       <div v-for="(item, i) in activities" :key="i" class="erp-activity-item">
         <div class="erp-activity-time-col">
           <span class="erp-activity-time">{{ item.time }}</span>
@@ -29,43 +30,11 @@
 </template>
 
 <script setup lang="ts">
-  const activities = [
-    {
-      time: '10:32',
-      user: '张伟',
-      action: '创建收车订单',
-      detail: '沪A·12345 大众帕萨特2020款',
-      color: '#1890FF'
-    },
-    {
-      time: '10:15',
-      user: '质检员王',
-      action: '完成质检报告',
-      detail: '沪B·67890 缺件2项 扣款¥800',
-      color: '#FA8C16'
-    },
-    {
-      time: '09:58',
-      user: '李明',
-      action: '审核通过订单',
-      detail: 'XG20260622003 ¥12,000',
-      color: '#52C41A'
-    },
-    {
-      time: '09:45',
-      user: '拖车管理员',
-      action: '派单给司机刘师傅',
-      detail: '苏C·11111 取车地址：浦东新区',
-      color: '#13C2C2'
-    },
-    {
-      time: '09:20',
-      user: '财务王',
-      action: '完成结算付款',
-      detail: 'XG20260618001 ¥8,500 微信转账',
-      color: '#722ED1'
-    }
-  ]
+  import type { DashboardActivityItem } from '../use-dashboard-data'
+
+  defineProps<{
+    activities: DashboardActivityItem[]
+  }>()
 </script>
 
 <style lang="scss" scoped>
@@ -146,5 +115,12 @@
     font-size: 12px;
     line-height: 1.5;
     color: var(--art-gray-500);
+  }
+
+  .erp-empty-inline {
+    padding: 24px 0;
+    font-size: 13px;
+    color: var(--art-gray-500);
+    text-align: center;
   }
 </style>
