@@ -64,6 +64,7 @@ export interface PlateStats {
 
 /** 新建拆解工单参数 */
 export interface PlateCreateParams {
+  vehicle_id?: number
   archive_no?: string
   order_id?: number
   plate_no?: string
@@ -81,6 +82,29 @@ export interface PlateCreateParams {
   person_in_charge?: string
   person_in_charge_id?: number
   remark?: string
+}
+
+/** 待创建拆解工单的车辆（pending_vehicles 接口） */
+export interface PlatePendingVehicle {
+  /** 车辆ID */
+  id: number
+  /** 车牌号 */
+  plate_no?: string
+  /** 品牌 */
+  brand?: string
+  /** 车型 */
+  model?: string
+  /** 车主姓名 */
+  owner_name?: string
+  /** 库位 */
+  warehouse_slot?: string
+  /** 燃料类型 */
+  fuel_type?: string
+  /** 车型描述（brand + model） */
+  vehicle_model?: string
+  /** 车辆类型：1汽油 2纯电动 3插电混动 */
+  vehicle_type?: PlateVehicleType
+  [key: string]: unknown
 }
 
 /** 预处理步骤（接口返回） */

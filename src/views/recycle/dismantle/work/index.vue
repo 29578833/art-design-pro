@@ -220,6 +220,8 @@
         {
           type: 'button',
           class: 'order-action-btn primary',
+          disabled: !preprocessDone,
+          title: preprocessDone ? undefined : '请先完成预处理工序',
           onClick: () => openDetail(row)
         },
         '拆解工单'

@@ -5,6 +5,7 @@ import type {
   DismantleSaveParams,
   PlateCreateParams,
   PlateItem,
+  PlatePendingVehicle,
   PlateSearchParams,
   PlateStats,
   PlateStatus,
@@ -87,6 +88,17 @@ export function fetchPlateDetail(id: number) {
   return request.get<PlateItem>({
     url: `/scrap/plate/detail/${id}`
   })
+}
+
+/** 待创建拆解工单的车辆列表 */
+export async function fetchPlatePendingVehicles(params?: { keyword?: string }) {
+  const res = await request.get<PlatePendingVehicle[]>({
+    url: '/scrap/plate/pending_vehicles',
+    params: {
+      keyword: params?.keyword?.trim() || ''
+    }
+  })
+  return Array.isArray(res) ? res : []
 }
 
 /** 新建拆解工单 */

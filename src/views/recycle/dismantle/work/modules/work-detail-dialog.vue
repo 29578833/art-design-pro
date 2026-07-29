@@ -194,7 +194,7 @@
         <div class="work-footer-progress">照片进度：{{ uploadedPhotoCount }}/9 张已上传</div>
         <div class="work-footer-actions">
           <ElButton @click="dialogVisible = false">关闭</ElButton>
-          <ElButton v-if="!isCompleted" :loading="saving" @click="handleSave">保存</ElButton>
+          <!-- <ElButton v-if="!isCompleted" :loading="saving" @click="handleSave">保存</ElButton> -->
           <ElButton
             v-if="!isCompleted"
             type="success"
@@ -251,7 +251,7 @@
   })
 
   const initializing = ref(false)
-  const saving = ref(false)
+  // const saving = ref(false)
   const completing = ref(false)
   const uploadingIndex = ref<number>()
   const activeTab = ref<'photos' | 'log'>('photos')
@@ -449,20 +449,20 @@
     }
   }
 
-  async function handleSave() {
-    if (!props.plateId) return
-    if (!timeFieldsFilled.value) {
-      ElMessage.warning('请先填写三项必填拆解时间')
-      return
-    }
-    saving.value = true
-    try {
-      await fetchDismantleSave(props.plateId, buildSavePayload(false))
-      await loadDetail()
-    } finally {
-      saving.value = false
-    }
-  }
+  // async function handleSave() {
+  //   if (!props.plateId) return
+  //   if (!timeFieldsFilled.value) {
+  //     ElMessage.warning('请先填写三项必填拆解时间')
+  //     return
+  //   }
+  //   saving.value = true
+  //   try {
+  //     await fetchDismantleSave(props.plateId, buildSavePayload(false))
+  //     await loadDetail()
+  //   } finally {
+  //     saving.value = false
+  //   }
+  // }
 
   async function handleComplete() {
     if (!props.plateId) return

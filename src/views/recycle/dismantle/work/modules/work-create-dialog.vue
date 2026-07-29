@@ -43,14 +43,12 @@
             <div class="work-vehicle-main">
               <div class="work-vehicle-row">
                 <span class="work-vehicle-plate">{{ item.plate_no || '—' }}</span>
-                <span class="work-vehicle-model">{{ item.brand_name }} {{ item.model_name }}</span>
-                <span v-if="item.fuel_type_text" class="work-vehicle-type">{{
-                  item.fuel_type_text
-                }}</span>
+                <span class="work-vehicle-model">{{ item.brand }} {{ item.model }}</span>
+                <span v-if="item.fuel_type" class="work-vehicle-type">{{ item.fuel_type }}</span>
               </div>
               <div class="work-vehicle-sub">
                 档案号：{{ item.archive_no || '—' }} · 车主：{{ item.owner_name || '—' }} · 库位：{{
-                  item.location_name || '—'
+                  item.warehouse_slot || '—'
                 }}
               </div>
             </div>
@@ -65,12 +63,12 @@
 
       <div v-if="selectedVehicle" class="work-selected-summary">
         <div>
-          <span class="label">净重：</span>
-          <span>{{ selectedVehicle.net_weight || '—' }}kg</span>
+          <span class="label">车型：</span>
+          <span>{{ selectedVehicle.vehicle_model || '—' }}</span>
         </div>
         <div>
           <span class="label">库位：</span>
-          <span>{{ selectedVehicle.location_name || '—' }}</span>
+          <span>{{ selectedVehicle.warehouse_slot || '—' }}</span>
         </div>
         <div>
           <span class="label">车主：</span>
@@ -113,13 +111,10 @@
 
 <script setup lang="ts">
   import { ElMessage } from 'element-plus'
-  import { fetchMaterialList, fetchMaterialStaffList } from '@/api/recycle/material'
-  import { fetchPlateCreate } from '@/api/recycle/plate'
-  import type {
-    MaterialItem,
-    MaterialStaffOption
-  } from '@/types/recycle/dismantle/product/material'
-  import type { PlateVehicleType } from '@/types/recycle/dismantle/work/plate'
+  import { fetchMaterialStaffList } from '@/api/recycle/material'
+  import { fetchPlateCreate, fetchPlatePendingVehicles } from '@/api/recycle/plate'
+  import type { MaterialStaffOption } from '@/types/recycle/dismantle/product/material'
+  import type { PlatePendingVehicle } from '@/types/recycle/dismantle/work/plate'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {
@@ -145,7 +140,7 @@
   const searchKeyword = ref('')
   const selectedId = ref<number>()
   const leaderId = ref<number>()
-  const vehicles = ref<MaterialItem[]>([])
+  const vehicles = ref<PlatePendingVehicle[]>([])
   const staffList = ref<MaterialStaffOption[]>([])
 
   const filteredVehicles = computed(() => {
@@ -154,10 +149,11 @@
     return vehicles.value.filter((item) => {
       const text = [
         item.plate_no,
-        item.archive_no,
         item.owner_name,
-        item.brand_name,
-        item.model_name
+        item.brand,
+        item.model,
+        item.warehouse_slot,
+        item.archive_no
       ]
         .filter(Boolean)
         .join(' ')
@@ -172,18 +168,10 @@
 
   const canSubmit = computed(() => Boolean(selectedId.value && leaderId.value))
 
-  function mapFuelTypeToVehicleType(fuel?: string): PlateVehicleType {
-    if (!fuel) return 1
-    if (fuel.includes('纯电') && !fuel.includes('混')) return 2
-    if (fuel.includes('混')) return 3
-    return 1
-  }
-
   async function loadVehicles() {
     loadingList.value = true
     try {
-      const res = await fetchMaterialList({ status: 2, page: 1, limit: 200 })
-      vehicles.value = res.records || []
+      vehicles.value = await fetchPlatePendingVehicles()
     } finally {
       loadingList.value = false
     }
@@ -206,19 +194,7 @@
     submitting.value = true
     try {
       await fetchPlateCreate({
-        archive_no: vehicle.archive_no,
-        order_id: vehicle.order_id,
-        plate_no: vehicle.plate_no,
-        vehicle_model: `${vehicle.brand_name || ''} ${vehicle.model_name || ''}`.trim(),
-        vehicle_type: mapFuelTypeToVehicleType(vehicle.fuel_type_text),
-        owner_name: vehicle.owner_name,
-        is_normal_weigh: 1,
-        net_weight: Number(vehicle.net_weight) || 0,
-        unit: 'kg',
-        parking_spot: vehicle.location_name,
-        priority: '普通',
-        status: 0,
-        progress: 0,
+        vehicle_id: vehicle.id,
         person_in_charge: staff.nickname,
         person_in_charge_id: staff.uid
       })
