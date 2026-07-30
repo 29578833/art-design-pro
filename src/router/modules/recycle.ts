@@ -274,19 +274,6 @@ export const recycleDecisionRoutes: AppRouteRecord = {
   ]
 }
 
-/** 车信盟域 */
-export const recycleCxmRoutes: AppRouteRecord = {
-  path: '/recycle/cxm',
-  name: 'RecycleCxm',
-  component: '/index/index',
-  meta: {
-    title: 'menus.recycle.cxm',
-    icon: 'ri:car-line',
-    menuId: 3542
-  },
-  children: []
-}
-
 /** 回收模块全部路由 */
 export const recycleRoutes: AppRouteRecord[] = [
   recycleRecoveryRoutes,
@@ -294,6 +281,5 @@ export const recycleRoutes: AppRouteRecord[] = [
   recycleDismantleRoutes,
   recycleWarehouseRoutes,
   recycleFinanceRoutes,
-  recycleDecisionRoutes,
-  recycleCxmRoutes
+  recycleDecisionRoutes
 ]

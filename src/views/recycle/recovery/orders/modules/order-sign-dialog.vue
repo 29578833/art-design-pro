@@ -58,15 +58,15 @@
               <div class="osd-attach-name">{{ att.name || `附件 ${att.id}` }}</div>
             </div>
             <span class="osd-attach-badge">待签名</span>
-            <button
+            <ElButton
               v-if="att.download_url"
-              type="button"
+              size="small"
+              plain
               class="osd-view-btn"
-              @click.stop="handlePreview(att.download_url!)"
+              @click.stop="openAttachPreview(att)"
             >
-              <ArtSvgIcon icon="ri:eye-line" class="osd-view-icon" />
-              查看
-            </button>
+              <ArtSvgIcon icon="ri:eye-line" class="osd-view-icon" />查看
+            </ElButton>
           </div>
         </div>
       </div>
@@ -91,11 +91,14 @@
     @signed="handleSigned"
   />
 
-  <ElDialog v-model="previewVisible" width="80vw" align-center destroy-on-close title="文件预览">
-    <div class="osd-preview-wrap">
-      <iframe v-if="previewUrl" :src="previewUrl" class="osd-preview-frame" />
-    </div>
-  </ElDialog>
+  <OrderAttachmentPreviewDialog
+    v-model="attachPreviewVisible"
+    :attachments="attachments"
+    :initial-index="attachPreviewInitialIndex"
+    :order-id="props.orderId ?? undefined"
+    ref="attachPreviewRef"
+    @signed="handlePreviewSigned"
+  />
 </template>
 
 <script setup lang="ts">
@@ -106,6 +109,7 @@
     type OrderAttachment
   } from '@/types/recycle/recovery/orders/order'
   import SignCanvasDialog from './sign-canvas-dialog.vue'
+  import OrderAttachmentPreviewDialog from './order-attachment-preview-dialog.vue'
 
   interface Props {
     visible: boolean
@@ -194,12 +198,19 @@
     dialogVisible.value = false
   }
 
-  const previewVisible = ref(false)
-  const previewUrl = ref('')
+  const attachPreviewVisible = ref(false)
+  const attachPreviewInitialIndex = ref(0)
+  const attachPreviewRef = ref<InstanceType<typeof OrderAttachmentPreviewDialog> | null>(null)
 
-  function handlePreview(url: string) {
-    previewUrl.value = url
-    previewVisible.value = true
+  function openAttachPreview(att: OrderAttachment) {
+    const idx = attachments.value.findIndex((a) => a.id === att.id)
+    attachPreviewInitialIndex.value = idx >= 0 ? idx : 0
+    attachPreviewVisible.value = true
+  }
+
+  function handlePreviewSigned() {
+    loadAttachments()
+    attachPreviewRef.value?.refreshCurrentPreview()
   }
 </script>
 
@@ -365,41 +376,25 @@
   }
 
   .osd-view-btn {
-    display: inline-flex;
-    gap: 4px;
-    align-items: center;
     height: 28px;
     padding: 0 10px;
+    margin-left: 0;
     font-size: 12px;
-    line-height: 1;
-    color: var(--art-gray-700);
-    white-space: nowrap;
-    cursor: pointer;
-    background: #fff;
-    border: 1px solid transparent;
-    border-color: var(--art-card-border);
-    border-radius: 6px;
-    transition: all 0.2s;
+    color: #1890ff;
+    border-color: #91d5ff;
+    border-radius: 4px;
 
-    &:hover {
-      color: #1677ff;
-      background: #f0f7ff;
-      border-color: #91caff;
+    &:hover,
+    &:focus {
+      color: #1890ff;
+      background: #e6f7ff;
+      border-color: #69c0ff;
     }
   }
 
   .osd-view-icon {
+    margin-right: 4px;
     font-size: 14px;
-  }
-
-  .osd-preview-wrap {
-    height: 70vh;
-  }
-
-  .osd-preview-frame {
-    width: 100%;
-    height: 100%;
-    border: none;
   }
 
   .osd-footer {

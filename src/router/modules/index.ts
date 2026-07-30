@@ -7,8 +7,7 @@ import {
   recycleDismantleRoutes,
   recycleWarehouseRoutes,
   recycleFinanceRoutes,
-  recycleDecisionRoutes,
-  recycleCxmRoutes
+  recycleDecisionRoutes
 } from './recycle'
 import { systemRoutes } from './system'
 import { resultRoutes } from './result'
@@ -31,6 +30,5 @@ export {
   recycleDismantleRoutes,
   recycleWarehouseRoutes,
   recycleFinanceRoutes,
-  recycleDecisionRoutes,
-  recycleCxmRoutes
+  recycleDecisionRoutes
 }

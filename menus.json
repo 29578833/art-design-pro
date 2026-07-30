@@ -408,40 +408,5 @@
         "auth": ["hidden"]
       }
     ]
-  },
-  {
-    "id": 3542,
-    "pid": 0,
-    "path": "\/admin\/system",
-    "title": "车信盟",
-    "icon": "message-solid",
-    "header": "setting",
-    "is_header": 1,
-    "is_show": 1,
-    "auth": ["hidden"],
-    "children": [
-      {
-        "id": 3543,
-        "pid": 3542,
-        "path": "\/admin\/scrap\/accept",
-        "title": "报废车受理",
-        "icon": "",
-        "header": "",
-        "is_header": 0,
-        "is_show": 1,
-        "auth": ["hidden"]
-      },
-      {
-        "id": 3544,
-        "pid": 3542,
-        "path": "\/admin\/scrap\/bfdj",
-        "title": "报废车登记",
-        "icon": "",
-        "header": "",
-        "is_header": 0,
-        "is_show": 1,
-        "auth": ["hidden"]
-      }
-    ]
   }
 ]
