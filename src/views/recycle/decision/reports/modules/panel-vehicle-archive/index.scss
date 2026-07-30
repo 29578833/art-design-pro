@@ -1,98 +1,98 @@
 // ========== 车辆档案汇总表 vxe-grid ==========
 .va-vxe-grid {
   .vxe-header--column {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 500;
   }
 
   .vxe-body--column {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   // 汽车 — 分组表头（深色）
   .va-group-biz {
     font-weight: 700 !important;
     color: #096dd9 !important;
-    background: #bae7ff !important;
+    background-color: #bae7ff !important;
   }
 
   .va-group-vehicle {
     font-weight: 700 !important;
     color: #389e0d !important;
-    background: #d9f7be !important;
+    background-color: #d9f7be !important;
   }
 
   .va-group-weight {
     font-weight: 700 !important;
     color: #874d00 !important;
-    background: #ffe7ba !important;
+    background-color: #ffe7ba !important;
   }
 
   .va-group-scrap {
     font-weight: 700 !important;
     color: #9e1068 !important;
-    background: #ffd6e7 !important;
+    background-color: #ffd6e7 !important;
   }
 
   .va-group-progress {
     font-weight: 700 !important;
     color: #531dab !important;
-    background: #f9f0ff !important;
+    background-color: #f9f0ff !important;
   }
 
   // 汽车 — 叶子表头（浅色）
   .va-leaf-seq {
     color: #4b5563 !important;
-    background: #e6f7ff !important;
+    background-color: #e6f7ff !important;
   }
 
   .va-leaf-biz {
     color: #4b5563 !important;
-    background: #e6f4ff !important;
+    background-color: #e6f4ff !important;
   }
 
   .va-leaf-vehicle {
     color: #4b5563 !important;
-    background: #f6ffe6 !important;
+    background-color: #f6ffe6 !important;
   }
 
   .va-leaf-weight {
     color: #4b5563 !important;
-    background: #fff7e6 !important;
+    background-color: #fff7e6 !important;
   }
 
   .va-leaf-scrap {
     color: #4b5563 !important;
-    background: #fff0f6 !important;
+    background-color: #fff0f6 !important;
   }
 
   .va-leaf-progress {
     color: #4b5563 !important;
-    background: #faf0ff !important;
+    background-color: #faf0ff !important;
   }
 
   // 摩托车 — 单行表头
   .va-moto-sticky {
     color: #4b5563 !important;
-    background: #f0e6ff !important;
+    background-color: #f0e6ff !important;
   }
 
   .va-moto-weight {
     font-weight: 600 !important;
     color: #874d00 !important;
-    background: #fff7e6 !important;
+    background-color: #fff7e6 !important;
   }
 
   .va-moto-vehicle {
     font-weight: 600 !important;
     color: #389e0d !important;
-    background: #d9f7be !important;
+    background-color: #d9f7be !important;
   }
 
   .va-moto-flow {
     font-weight: 600 !important;
     color: #006d75 !important;
-    background: #e6fffb !important;
+    background-color: #e6fffb !important;
   }
 
   // 固定列阴影
@@ -101,7 +101,7 @@
   }
 
   .vxe-body--row.row--hover {
-    background: rgb(24 144 255 / 4%);
+    background-color: rgb(24 144 255 / 4%);
   }
 }
 
@@ -115,7 +115,7 @@
 
 .va-toolbar {
   overflow: hidden;
-  background: #fff;
+  background-color: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
 }
@@ -136,7 +136,7 @@
   font-weight: 500;
   color: #8c8c8c;
   cursor: pointer;
-  background: transparent;
+  background-color: transparent;
   border: none;
   border-bottom: 2px solid transparent;
   transition: all 0.2s;
@@ -161,12 +161,12 @@
   font-size: 11px;
   font-weight: 600;
   color: #8c8c8c;
-  background: #f5f5f5;
+  background-color: #f5f5f5;
   border-radius: 9px;
 
   .is-active & {
     color: #1890ff;
-    background: #e6f7ff;
+    background-color: #e6f7ff;
   }
 }
 
@@ -207,7 +207,7 @@
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  background: #fff;
+  background-color: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
 }
@@ -281,32 +281,32 @@
 
   &.is-passenger {
     color: #1890ff;
-    background: #e6f7ff;
+    background-color: #e6f7ff;
   }
 
   &.is-commercial {
     color: #fa8c16;
-    background: #fff7e6;
+    background-color: #fff7e6;
   }
 
   &.is-supervision {
     color: #cf1322;
-    background: #fff1f0;
+    background-color: #fff1f0;
   }
 
   &.is-normal-scrap {
     color: #389e0d;
-    background: #f6ffed;
+    background-color: #f6ffed;
   }
 
   &.is-ok {
     color: #389e0d;
-    background: #f6ffed;
+    background-color: #f6ffed;
   }
 
   &.is-abnormal {
     color: #fa8c16;
-    background: #fff7e6;
+    background-color: #fff7e6;
   }
 }
 
@@ -319,7 +319,8 @@
 }
 
 .va-progress-mark {
-  font-size: 10px;
+  height: 15px;
+  font-size: 15px;
   font-weight: 500;
 
   &.is-done {
@@ -332,7 +333,7 @@
 }
 
 .va-progress-sub {
-  font-size: 9px;
+  font-size: 12px;
 
   &.is-date {
     color: #8c8c8c;
@@ -354,7 +355,7 @@
   padding: 1px 6px;
   font-size: 11px;
   color: #52c41a;
-  background: #f6ffed;
+  background-color: #f6ffed;
   border-radius: 3px;
 }
 

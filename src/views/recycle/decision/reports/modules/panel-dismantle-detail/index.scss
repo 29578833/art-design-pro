@@ -14,7 +14,7 @@
 
 .dd-kpi-card {
   padding: 12px 16px;
-  background: #fff;
+  background-color: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
 }
@@ -38,7 +38,7 @@
 
 .dd-filter-bar {
   padding: 12px 16px;
-  background: #fff;
+  background-color: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
 }
@@ -95,7 +95,7 @@
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  background: #fff;
+  background-color: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
 }
@@ -114,7 +114,7 @@
   font-weight: 500;
   color: #6b7280;
   cursor: pointer;
-  background: transparent;
+  background-color: transparent;
   border: none;
   border-bottom: 2px solid transparent;
 
@@ -136,7 +136,7 @@
   font-weight: 700;
   color: #1890ff;
   text-align: center;
-  background: #f0f5ff;
+  background-color: #f0f5ff;
   border-bottom: 1px solid #bae0ff;
 }
 
@@ -180,14 +180,14 @@
   }
 
   .vxe-header--column {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     line-height: 1.3;
     border-color: #d1d5db !important;
   }
 
   .vxe-body--column {
-    font-size: 11px;
+    font-size: 12px;
     border-color: #e5e7eb !important;
   }
 
@@ -199,56 +199,56 @@
 
   .dd-head-base {
     color: #4b5563 !important;
-    background: #f9fafb !important;
+    background-color: #f9fafb !important;
   }
 
   .dd-head-leaf {
     color: #4b5563 !important;
-    background: #f9fafb !important;
+    background-color: #f9fafb !important;
   }
 
   .dd-group-prev {
     color: #096dd9 !important;
-    background: #e6f7ff !important;
+    background-color: #e6f7ff !important;
   }
 
   .dd-group-today-in {
     color: #d46b08 !important;
-    background: #fff7e6 !important;
+    background-color: #fff7e6 !important;
   }
 
   .dd-group-month-in {
     color: #ad8b00 !important;
-    background: #fffbe6 !important;
+    background-color: #fffbe6 !important;
   }
 
   .dd-group-today-out {
     color: #237804 !important;
-    background: #f6ffed !important;
+    background-color: #f6ffed !important;
   }
 
   .dd-group-month-out {
     color: #2e7d32 !important;
-    background: #e8f5e9 !important;
+    background-color: #e8f5e9 !important;
   }
 
   .dd-group-wip {
     color: #531dab !important;
-    background: #f9f0ff !important;
+    background-color: #f9f0ff !important;
   }
 
   .dd-unit-today-in {
     font-size: 10px !important;
     font-weight: 500 !important;
     color: #8c8c8c !important;
-    background: #fffef5 !important;
+    background-color: #fffef5 !important;
   }
 
   .dd-unit-today-out {
     font-size: 10px !important;
     font-weight: 500 !important;
     color: #8c8c8c !important;
-    background: #f6fff8 !important;
+    background-color: #f6fff8 !important;
   }
 
   .dd-cell-seq {
@@ -270,23 +270,23 @@
   }
 
   .vxe-body--column.dd-col-today-in-wt {
-    background: #fffef5 !important;
+    background-color: #fffef5 !important;
   }
 
   .vxe-body--column.dd-col-month-in-wt {
-    background: #fffffb !important;
+    background-color: #fffffb !important;
   }
 
   .vxe-body--column.dd-col-today-out-wt {
-    background: #f6fff8 !important;
+    background-color: #f6fff8 !important;
   }
 
   .vxe-body--column.dd-col-month-out-wt {
-    background: #f0fff4 !important;
+    background-color: #f0fff4 !important;
   }
 
   .vxe-body--column.dd-col-wip-wt {
-    background: #faf0ff !important;
+    background-color: #faf0ff !important;
   }
 
   .dd-val-prev {
@@ -329,11 +329,11 @@
   }
 
   .vxe-footer--row.dd-footer-row {
-    background: #e6f7ff;
+    background-color: #e6f7ff;
     border-top: 2px solid #91d5ff;
 
     .vxe-footer--column {
-      background: #e6f7ff !important;
+      background-color: #e6f7ff !important;
     }
 
     .vxe-footer--column.col--seq,

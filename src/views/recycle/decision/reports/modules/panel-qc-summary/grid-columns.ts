@@ -112,7 +112,7 @@ export function buildQcColumns() {
     },
     {
       field: 'emission_standard',
-      title: '排量（排放标准）',
+      title: '排量\n（排放标准）',
       width: 100,
       headerClassName: 'qc-leaf-base',
       slots: { default: 'emission_standard' },
@@ -127,7 +127,7 @@ export function buildQcColumns() {
     },
     {
       field: 'plate_status',
-      title: '号牌（牌照）',
+      title: '号牌\n（牌照）',
       width: 100,
       headerClassName: 'qc-leaf-base',
       slots: { default: 'plate_status' },

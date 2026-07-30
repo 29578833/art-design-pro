@@ -96,8 +96,8 @@ export function buildDismantleVehicleColumns() {
       field: 'name',
       title: '车型',
       minWidth: 128,
-      align: 'left' as const,
-      headerAlign: 'left' as const,
+      align: 'center' as const,
+      headerAlign: 'center' as const,
       headerClassName: 'dd-head-base',
       className: 'dd-cell-name',
       slots: { default: 'name' }

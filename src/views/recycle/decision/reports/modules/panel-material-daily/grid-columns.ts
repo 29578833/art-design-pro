@@ -84,7 +84,6 @@ export function buildMaterialDailyColumns() {
       field: 'name',
       title: '名称',
       minWidth: 180,
-      align: 'left' as const,
       headerClassName: 'md-head-base',
       slots: { default: 'name' },
       ...th

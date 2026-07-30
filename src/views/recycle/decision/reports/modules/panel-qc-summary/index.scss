@@ -12,7 +12,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: #fff;
+  background-color: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
 }
@@ -40,7 +40,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: #fff;
+  background-color: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
 }
@@ -60,7 +60,7 @@
   flex-direction: column;
   gap: 10px;
   padding: 12px 16px;
-  background: #fff;
+  background-color: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
 }
@@ -102,7 +102,7 @@
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  background: #fff;
+  background-color: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
 }
@@ -133,7 +133,7 @@
 }
 
 .qc-archive-no {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   color: #1890ff;
 }
@@ -212,82 +212,82 @@
 
   &.is-completed {
     color: #52c41a;
-    background: #f6ffed;
+    background-color: #f6ffed;
   }
 
   &.is-progress {
     color: #13c2c2;
-    background: #e6fffb;
+    background-color: #e6fffb;
   }
 
   &.is-failed {
     color: #ff4d4f;
-    background: #fff1f0;
+    background-color: #fff1f0;
   }
 
   &.is-pending-materials {
     color: #722ed1;
-    background: #f9f0ff;
+    background-color: #f9f0ff;
   }
 
   &.is-default {
     color: #8c8c8c;
-    background: #f5f5f5;
+    background-color: #f5f5f5;
   }
 
   &.is-personal {
     color: #1890ff;
-    background: #e6f7ff;
+    background-color: #e6f7ff;
   }
 
   &.is-corporate {
     color: #8c8c8c;
-    background: #f5f5f5;
+    background-color: #f5f5f5;
   }
 
   &.is-emission {
     color: #d46b08;
-    background: #fff7e6;
+    background-color: #fff7e6;
   }
 
   &.is-plate-ok {
     color: #52c41a;
-    background: #f6ffed;
+    background-color: #f6ffed;
   }
 
   &.is-plate-none {
     color: #ff4d4f;
-    background: #fff1f0;
+    background-color: #fff1f0;
   }
 
   &.is-plate-partial {
     color: #fa8c16;
-    background: #fff7e6;
+    background-color: #fff7e6;
   }
 
   &.is-tow {
     color: #722ed1;
-    background: #f9f0ff;
+    background-color: #f9f0ff;
   }
 
   &.is-self {
     color: #52c41a;
-    background: #f6ffed;
+    background-color: #f6ffed;
   }
 
   &.is-ev {
     color: #52c41a;
-    background: #f6ffed;
+    background-color: #f6ffed;
   }
 
   &.is-hybrid {
     color: #722ed1;
-    background: #f9f0ff;
+    background-color: #f9f0ff;
   }
 
   &.is-fuel-default {
     color: #595959;
-    background: #f5f5f5;
+    background-color: #f5f5f5;
   }
 }
 
@@ -300,30 +300,30 @@
   .qc-group-result {
     font-weight: 700 !important;
     color: #d48806 !important;
-    background: #fffbe6 !important;
+    background-color: #fffbe6 !important;
   }
 
   .qc-leaf-result {
     color: #8c6914 !important;
-    background: #fffbe6 !important;
+    background-color: #fffbe6 !important;
   }
 
   .qc-leaf-archive {
     color: #096dd9 !important;
-    background: #e6f7ff !important;
+    background-color: #e6f7ff !important;
   }
 
   .qc-leaf-base {
     color: #4b5563 !important;
-    background: #f9fafb !important;
+    background-color: #f9fafb !important;
   }
 
   .vxe-header--column {
-    font-size: 11px;
+    // font-size: 11px;
   }
 
   .vxe-body--column {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .qc-cell-seq {
@@ -335,7 +335,7 @@
   }
 
   .qc-cell-result {
-    background: #fffef0 !important;
+    background-color: #fffef0 !important;
   }
 
   .qc-cell-deduction {
@@ -349,19 +349,19 @@
   }
 
   .vxe-footer--row.qc-footer-row {
-    background: #e6f7ff;
+    background-color: #e6f7ff;
     border-top: 2px solid #91d5ff;
 
     .vxe-footer--column {
       font-size: 12px;
       font-weight: 700;
       color: #1890ff;
-      background: #e6f7ff !important;
+      background-color: #e6f7ff !important;
     }
 
     .vxe-footer--column.col--weight {
       color: #d48806 !important;
-      background: #fffef0 !important;
+      background-color: #fffef0 !important;
     }
   }
 
@@ -381,7 +381,7 @@
   }
 
   .vxe-body--row.row--hover {
-    background: rgb(24 144 255 / 4%);
+    background-color: rgb(24 144 255 / 4%);
   }
 }
 
