@@ -305,12 +305,12 @@
   }
 
   .vd-dim-label {
-    font-size: 12px;
+    font-size: 14px;
     color: $vm-text-sub;
   }
 
   .vd-dim-value {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
   }
 
@@ -327,7 +327,7 @@
     gap: 4px;
     align-items: center;
     padding: 8px 12px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
     color: $vm-text-sub;
     cursor: pointer;
@@ -352,7 +352,7 @@
 
   .vd-body {
     flex: 1;
-    padding: 20px;
+    padding: 20px 36px;
     overflow-y: auto;
   }
 

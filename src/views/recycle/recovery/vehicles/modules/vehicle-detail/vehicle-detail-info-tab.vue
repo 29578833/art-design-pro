@@ -310,7 +310,7 @@
           </div>
         </div>
         <div class="vd-cert-body">
-          <div class="vd-cert-preview">
+          <div class="vd-cert-preview" v-show="false">
             <div class="vd-cert-preview-title">报废机动车回收证明</div>
             <div class="vd-cert-preview-meta">
               <span>回收企业：<em>鑫广再生资源（上海）有限公司</em></span>

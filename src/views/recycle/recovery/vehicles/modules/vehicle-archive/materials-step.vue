@@ -1,5 +1,5 @@
 <template>
-  <div class="ae-readonly-box">
+  <div class="ae-readonly-box" v-show="false">
     <div class="ae-readonly-head">
       <span>
         报废机动车回收证明
