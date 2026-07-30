@@ -214,7 +214,7 @@
     levelId: [
       {
         validator: (_rule, value, callback) => {
-          if (!value) {
+          if (!value && value !== 0) {
             callback(new Error('请选择客户分级'))
             return
           }

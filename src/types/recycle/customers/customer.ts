@@ -105,9 +105,48 @@ export interface UserVehicleRecord {
   plateNo: string
   brand: string
   model: string
+  /** 车辆状态码（与 scrap vehicle status 一致） */
+  status?: number
   statusText: string
   amount: number
   date: string
+}
+
+/** 交车记录状态配色 */
+export const VEHICLE_RECORD_STATUS_STYLE: Record<number, { color: string; bgColor: string }> = {
+  0: { color: '#FA8C16', bgColor: '#FFF7E6' },
+  1: { color: '#1890FF', bgColor: '#E6F7FF' },
+  2: { color: '#722ED1', bgColor: '#F9F0FF' },
+  3: { color: '#1890FF', bgColor: '#E6F7FF' },
+  4: { color: '#FA8C16', bgColor: '#FFF7E6' },
+  5: { color: '#D4380D', bgColor: '#FFF2E8' },
+  6: { color: '#52C41A', bgColor: '#F6FFED' },
+  [-1]: { color: '#FF4D4F', bgColor: '#FFF1F0' }
+}
+
+/** 交车记录状态标签样式 */
+export function resolveVehicleRecordStatusStyle(
+  record: Pick<UserVehicleRecord, 'status' | 'statusText'>
+) {
+  if (record.status !== undefined && VEHICLE_RECORD_STATUS_STYLE[record.status]) {
+    return VEHICLE_RECORD_STATUS_STYLE[record.status]
+  }
+
+  const text = record.statusText || ''
+  const textStyleMap: Array<{ keywords: string[]; color: string; bgColor: string }> = [
+    { keywords: ['完成'], color: '#52C41A', bgColor: '#F6FFED' },
+    { keywords: ['拒绝', '驳回'], color: '#FF4D4F', bgColor: '#FFF1F0' },
+    { keywords: ['待审核', '待入厂', '线索'], color: '#1890FF', bgColor: '#E6F7FF' },
+    { keywords: ['待查验'], color: '#722ED1', bgColor: '#F9F0FF' },
+    { keywords: ['待领料', '待缴库'], color: '#FA8C16', bgColor: '#FFF7E6' }
+  ]
+
+  return (
+    textStyleMap.find((item) => item.keywords.some((keyword) => text.includes(keyword))) || {
+      color: '#8C8C8C',
+      bgColor: '#F5F5F5'
+    }
+  )
 }
 
 /** 等级展示样式 */

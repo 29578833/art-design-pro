@@ -1,5 +1,11 @@
 <template>
-  <ElDrawer v-model="drawerVisible" :size="520" destroy-on-close class="partner-detail-drawer">
+  <ElDrawer
+    v-model="drawerVisible"
+    direction="ltr"
+    :size="520"
+    destroy-on-close
+    class="partner-detail-drawer"
+  >
     <template #header>
       <div v-if="partner" class="detail-profile">
         <div class="detail-profile-main">
@@ -78,7 +84,9 @@
           <div v-for="order in vehicleRecords" :key="order.id" class="order-card">
             <div class="order-card-top">
               <span class="order-id">{{ order.orderNo }}</span>
-              <ElTag type="success" size="small" effect="light" round>{{ order.statusText }}</ElTag>
+              <ElTag size="small" effect="light" round :style="getOrderStatusTagStyle(order)">
+                {{ order.statusText }}
+              </ElTag>
             </div>
             <div class="order-plate">{{ order.plateNo }} · {{ order.brand }} {{ order.model }}</div>
             <div class="order-card-bottom">
@@ -113,7 +121,8 @@
   import {
     COOPERATION_TYPE_CONFIG,
     PARTNER_CATEGORY_CONFIG,
-    resolveLevelStyle
+    resolveLevelStyle,
+    resolveVehicleRecordStatusStyle
   } from '@/types/recycle/customers/customer'
 
   interface Props {
@@ -152,6 +161,16 @@
     if (!props.partner) return ''
     return PARTNER_CATEGORY_CONFIG[props.partner.category].label
   })
+
+  /** 交车记录状态标签样式 */
+  function getOrderStatusTagStyle(order: UserVehicleRecord) {
+    const style = resolveVehicleRecordStatusStyle(order)
+    return {
+      color: style.color,
+      background: style.bgColor,
+      border: 'none'
+    }
+  }
 
   const statCards = computed(() => {
     if (!props.partner) return []
@@ -498,5 +517,12 @@
     margin-top: 2px;
     font-size: 12px;
     color: var(--art-gray-400);
+  }
+</style>
+<style lang="scss">
+  .partner-detail-drawer {
+    .el-drawer__header {
+      margin-bottom: 0 !important;
+    }
   }
 </style>

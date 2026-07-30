@@ -306,7 +306,7 @@
 
   .vd-dim-label {
     font-size: 14px;
-    color: $vm-text-sub;
+    color: #333;
   }
 
   .vd-dim-value {

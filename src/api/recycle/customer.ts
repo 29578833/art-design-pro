@@ -218,6 +218,7 @@ export async function fetchUserVehicles(
     plateNo: String(item.plate_no || '—'),
     brand: String(item.brand || ''),
     model: String(item.model || ''),
+    status: item.status !== undefined ? Number(item.status) : undefined,
     statusText: String(item.status_text || ''),
     amount: Number(item.recycle_price || item.price || 0),
     date: formatTimestamp(item.add_time || item.update_time)
