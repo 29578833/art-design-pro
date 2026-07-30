@@ -386,6 +386,24 @@
     refreshData()
   }
 
+  /** 导出：收费类型（导出接口无 charge_type_text，需前端兜底） */
+  function getExportChargeType(row: SettlementBillItem): string {
+    if (row.charge_type_text) return row.charge_type_text
+    if (row.charge_type) return row.charge_type
+    return row.settlement_type === 'service_fee' ? '报废服务费' : '残值回收'
+  }
+
+  /** 导出：申请时间（导出接口返回 add_time 时间戳） */
+  function getExportApplyTime(row: SettlementBillItem): string {
+    if (row.apply_time) return row.apply_time
+    const ts = Number(row.add_time)
+    if (!ts) return ''
+    const date = new Date(ts * 1000)
+    if (Number.isNaN(date.getTime())) return ''
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+  }
+
   /** 导出 Excel */
   const exporting = ref(false)
   async function handleExport() {
@@ -399,7 +417,29 @@
         ElMessage.warning('暂无数据可导出')
         return
       }
-      const sheet = XLSX.utils.json_to_sheet(list)
+      const rows = list.map((item, index) => {
+        const row = item as SettlementBillItem
+        return {
+          序号: index + 1,
+          合同编号: row.contract_no || '',
+          结算单类型:
+            row.settlement_type_text ||
+            SETTLEMENT_BILL_TYPE_CONFIG[row.settlement_type]?.label ||
+            '',
+          收费类型: getExportChargeType(row),
+          申请人: row.settlement_user_name || row.applicant || '',
+          申请时间: getExportApplyTime(row),
+          结算状态:
+            row.settlement_status_text ||
+            SETTLEMENT_BILL_STATUS_CONFIG[row.settlement_status]?.label ||
+            '',
+          审核人: row.audit_user_name || '',
+          审核时间: row.audit_time || '',
+          财务备注: row.audit_remark || '',
+          '结算金额(元)': Number(row.final_price || 0)
+        }
+      })
+      const sheet = XLSX.utils.json_to_sheet(rows)
       const book = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(book, sheet, '结算单')
       XLSX.writeFile(book, `结算单_${new Date().toISOString().slice(0, 10)}.xlsx`)
