@@ -1,17 +1,29 @@
 /** 报废车拆解报表 vxe-grid 列配置（对齐原型三级/四级表头） */
 
 export const DD_VEHICLE_SUM_FIELDS = [
+  // 前期在制品数量
   'prev_wip_count',
+  // 前期在制品重量
   'prev_wip_weight',
+  // 当日入厂数量
   'today_receive_count',
+  // 当日入厂重量
   'today_receive_weight',
+  // 本月累计入厂数量
   'month_receive_count',
+  // 本月累计入厂重量
   'month_receive_weight',
+  // 当日拆解数量
   'today_dismantle_count',
+  // 当日拆解重量
   'today_dismantle_weight',
+  // 本月累计拆解数量
   'month_dismantle_count',
+  // 本月累计拆解重量
   'month_dismantle_weight',
+  // 当日在制品数量
   'today_wip_count',
+  // 当日在制品重量
   'today_wip_weight'
 ] as const
 
