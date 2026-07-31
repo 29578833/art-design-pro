@@ -243,6 +243,10 @@
   import type { OrderAttachment } from '@/types/recycle/recovery/orders/order'
   import SignCanvasDialog from './sign-canvas-dialog.vue'
 
+  defineOptions({ name: 'OrderAttachmentPreviewDialog' })
+
+  type PreviewMode = 'sign' | 'upload' // 电子签名预览模式 / 上传签名预览模式
+
   const props = withDefaults(
     defineProps<{
       modelValue: boolean
@@ -258,50 +262,45 @@
     (e: 'signed'): void
   }>()
 
+  // ----- 公共：弹窗可见性 -----
   const dialogVisible = computed({
     get: () => props.modelValue,
     set: (v) => emit('update:modelValue', v)
   })
 
-  type PreviewMode = 'sign' | 'upload'
-
-  const currentPreviewIndex = ref(0)
-  const previewMode = ref<PreviewMode>('sign')
-  const previewDocUrl = ref('')
-  const previewLoading = ref(false)
-  const isDialogFullscreen = ref(false)
-  const canvasDialogVisible = ref(false)
-  const uploadingAttachId = ref<number | null>(null)
-
-  const currentPreviewAtt = computed(() => props.attachments[currentPreviewIndex.value] ?? null)
-
-  const showEsignAction = computed(
-    () =>
-      previewMode.value === 'sign' && currentPreviewAtt.value && !isSigned(currentPreviewAtt.value)
-  )
-
-  const showUploadAction = computed(
-    () => previewMode.value === 'upload' && !!currentPreviewAtt.value
-  )
-
-  const esignAttachName = computed(
-    () => currentPreviewAtt.value?.name || `附件 ${currentPreviewAtt.value?.id ?? ''}`
-  )
-
-  const currentPreviewUrl = computed(() => {
-    const att = currentPreviewAtt.value
-    if (!att) return ''
-    if (previewMode.value === 'upload') return att.upload_url || ''
-    return previewDocUrl.value
-  })
-
-  function toggleDialogFullscreen() {
-    isDialogFullscreen.value = !isDialogFullscreen.value
-  }
-
   function isSigned(att: OrderAttachment) {
     return att.sign_status === 1 || att.signed === true
   }
+
+  // ----- 附件列表导航 -----
+  const currentPreviewIndex = ref(0)
+
+  function goToPreview(index: number) {
+    if (index < 0 || index >= props.attachments.length) return
+    currentPreviewIndex.value = index
+    if (previewMode.value === 'sign') loadPreviewDoc()
+  }
+
+  function prevAttach() {
+    if (currentPreviewIndex.value > 0) {
+      currentPreviewIndex.value--
+      if (previewMode.value === 'sign') loadPreviewDoc()
+    }
+  }
+
+  function nextAttach() {
+    if (currentPreviewIndex.value < props.attachments.length - 1) {
+      currentPreviewIndex.value++
+      if (previewMode.value === 'sign') loadPreviewDoc()
+    }
+  }
+
+  const currentPreviewAtt = computed(() => props.attachments[currentPreviewIndex.value] ?? null)
+
+  // ----- 预览模式与文档加载 -----
+  const previewMode = ref<PreviewMode>('sign')
+  const previewDocUrl = ref('')
+  const previewLoading = ref(false)
 
   function isPdf(url: string) {
     if (!url) return false
@@ -330,30 +329,27 @@
     }
   }
 
-  function goToPreview(index: number) {
-    if (index < 0 || index >= props.attachments.length) return
-    currentPreviewIndex.value = index
-    if (previewMode.value === 'sign') loadPreviewDoc()
-  }
-
-  function prevAttach() {
-    if (currentPreviewIndex.value > 0) {
-      currentPreviewIndex.value--
-      if (previewMode.value === 'sign') loadPreviewDoc()
-    }
-  }
-
-  function nextAttach() {
-    if (currentPreviewIndex.value < props.attachments.length - 1) {
-      currentPreviewIndex.value++
-      if (previewMode.value === 'sign') loadPreviewDoc()
-    }
-  }
-
   function switchPreviewMode(mode: PreviewMode) {
     previewMode.value = mode
     if (mode === 'sign') loadPreviewDoc()
   }
+
+  const currentPreviewUrl = computed(() => {
+    const att = currentPreviewAtt.value
+    if (!att) return ''
+    if (previewMode.value === 'upload') return att.upload_url || ''
+    return previewDocUrl.value
+  })
+
+  // ----- 全屏 -----
+  const isDialogFullscreen = ref(false)
+
+  function toggleDialogFullscreen() {
+    isDialogFullscreen.value = !isDialogFullscreen.value
+  }
+
+  // ----- 电子签名 -----
+  const canvasDialogVisible = ref(false)
 
   function openEsignDialog() {
     const att = currentPreviewAtt.value
@@ -368,6 +364,18 @@
     emit('signed')
     loadPreviewDoc()
   }
+
+  const showEsignAction = computed(
+    () =>
+      previewMode.value === 'sign' && currentPreviewAtt.value && !isSigned(currentPreviewAtt.value)
+  )
+
+  const esignAttachName = computed(
+    () => currentPreviewAtt.value?.name || `附件 ${currentPreviewAtt.value?.id ?? ''}`
+  )
+
+  // ----- 上传签名附件 -----
+  const uploadingAttachId = ref<number | null>(null)
 
   function triggerUploadAttach() {
     const input = document.createElement('input')
@@ -398,6 +406,11 @@
     }
   }
 
+  const showUploadAction = computed(
+    () => previewMode.value === 'upload' && !!currentPreviewAtt.value
+  )
+
+  // ----- 弹窗生命周期 -----
   function onOpened() {
     const idx = Math.min(Math.max(props.initialIndex, 0), Math.max(props.attachments.length - 1, 0))
     currentPreviewIndex.value = idx
