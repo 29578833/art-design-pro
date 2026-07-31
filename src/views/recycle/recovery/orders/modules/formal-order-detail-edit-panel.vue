@@ -132,8 +132,8 @@
           <label class="field-label">结算方式</label>
           <ElSelect v-model="form.settlement_method" placeholder="请选择">
             <ElOption label="重量结算" value="weight" />
-            <ElOption label="整备质量结算" value="gross_weight" />
-            <ElOption label="整车结算" value="whole_vehicle" />
+            <ElOption label="整备质量结算" value="curb_weight" />
+            <ElOption label="整车结算" value="unit" />
           </ElSelect>
         </ElCol>
         <ElCol :span="8">

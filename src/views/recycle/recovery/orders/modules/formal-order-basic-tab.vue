@@ -242,7 +242,7 @@
         <ElCol :span="8">
           <div class="fob-item">
             <div class="fob-label">结算方式</div>
-            <div class="fob-value">{{ detail.settlement_method || '—' }}</div>
+            <div class="fob-value">{{ settlementMethodLabel }}</div>
           </div>
         </ElCol>
         <ElCol :span="8">
@@ -461,6 +461,14 @@
     const t = props.detail.owner_type
     if (t === 'personal') return '个人结算'
     if (t === 'company') return '非个人结算'
+    return '个人结算'
+  })
+
+  const settlementMethodLabel = computed(() => {
+    const m = props.detail.settlement_method
+    if (m === 'weight') return '重量结算'
+    if (m === 'curb_weight') return '整备质量结算'
+    if (m === 'unit') return '整车结算'
     return '—'
   })
 </script>

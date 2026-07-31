@@ -6,7 +6,7 @@
     destroy-on-close
     :show-close="false"
     class="order-create-dialog"
-    style="padding: 0 0 16px !important"
+    style="padding: 0 !important"
   >
     <!-- 提交成功 -->
     <template v-if="submitted">
@@ -732,7 +732,7 @@
     /** 当前选中客户地址（接口 addres → address） */
     contact_address: string
     delivery_type: 'self' | 'tow'
-    settlement_method: 'weight' | 'gross_weight' | 'whole_vehicle'
+    settlement_method: 'weight' | 'curb_weight' | 'unit'
     residual_value: string
     self_delivery_subsidy: string
     no_deduct_missing: boolean
@@ -867,8 +867,8 @@
 
   const settlementMethodOptions = [
     { value: 'weight' as const, label: '重量结算', desc: '按净重（吨）计算' },
-    { value: 'gross_weight' as const, label: '整备质量结算', desc: '按整备质量（辆）计算' },
-    { value: 'whole_vehicle' as const, label: '整车结算', desc: '按整车固定价格计算' }
+    { value: 'curb_weight' as const, label: '整备质量结算', desc: '按整备质量（辆）计算' },
+    { value: 'unit' as const, label: '整车结算', desc: '按整车固定价格计算' }
   ]
 
   const isIntentOrder = computed(() => form.value.is_deal === false)

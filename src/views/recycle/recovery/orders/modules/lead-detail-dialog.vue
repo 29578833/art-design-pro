@@ -351,7 +351,7 @@
 
 <style lang="scss">
   .lead-detail-dialog {
-    padding: 0 0 16px !important;
+    padding: 0 !important;
 
     .el-dialog__header {
       padding: 0;
