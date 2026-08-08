@@ -52,10 +52,10 @@
   }
 
   .sys-notify-card {
+    // 不能用 overflow:hidden，否则内部 sticky 相对 .sys-notify-scroll 失效
     background: #fff;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-    overflow: hidden;
   }
 
   // 搜索栏
@@ -66,6 +66,7 @@
     justify-content: space-between;
     padding: 14px 16px;
     border-bottom: 1px solid #f3f4f6;
+    border-radius: 8px 8px 0 0;
   }
 
   .sys-notify-search-input {
@@ -88,6 +89,15 @@
     overflow: visible;
   }
 
+  // 吸顶层级高度：列头 → 平台头 → 角色头
+  --notify-cols-h: 37px;
+  --notify-platform-h: 37px;
+
+  .sys-notify-platform,
+  .sys-notify-group {
+    overflow: visible;
+  }
+
   .sys-notify-empty {
     padding: 64px 0;
     font-size: 13px;
@@ -106,10 +116,11 @@
   .sys-notify-cols {
     position: sticky;
     top: 0;
-    z-index: 2;
+    z-index: 3;
     padding: 0 8px;
     background: #f9fafb;
     border-bottom: 1px solid #e5e7eb;
+    z-index: 101;
 
     >div {
       padding: 10px 8px;
@@ -125,16 +136,16 @@
     }
   }
 
-  // 平台分区头
+  // 平台分区头（贴在列头下方）
   .platform-header {
     display: flex;
     position: sticky;
-    top: 37px;
-    z-index: 1;
+    top: var(--notify-cols-h);
     gap: 8px;
     align-items: center;
     padding: 10px 16px;
     border-bottom: 1px solid #e5e7eb;
+    z-index: 100;
 
     &.mini_program {
       color: #1d4ed8;
@@ -170,9 +181,12 @@
     font-size: 12px;
   }
 
-  // 角色分组头
+  // 角色分组头（贴在平台头下方）
   .group-header {
     display: flex;
+    position: sticky;
+    top: calc(var(--notify-cols-h) + var(--notify-platform-h));
+    z-index: 99;
     gap: 10px;
     align-items: center;
     width: 100%;
