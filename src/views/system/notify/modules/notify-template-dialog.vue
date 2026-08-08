@@ -4,7 +4,7 @@
     width="720px"
     align-center
     destroy-on-close
-    :close-on-click-modal="false"
+    style="padding: 0 !important;"
     class="sys-notify-template-dialog"
   >
     <template #header>
@@ -372,7 +372,9 @@
     }
 
     .variable-tag {
-      padding: 4px 10px;
+      padding: 0px 10px;
+      height: 34px;
+      line-height: 34px;
       font-size: 12px;
       color: #4169ff;
       cursor: pointer;
