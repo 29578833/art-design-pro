@@ -112,7 +112,7 @@ export const recycleFactoryRoutes: AppRouteRecord = {
       meta: {
         title: 'menus.recycle.factoryEntry',
         keepAlive: true,
-        menuId: 3522
+        menuId: 3516  // 原料入库
       }
     }
   ]
@@ -146,7 +146,7 @@ export const recycleDismantleRoutes: AppRouteRecord = {
       meta: {
         title: 'menus.recycle.dismantleWork',
         keepAlive: true,
-        menuId: 3550
+        menuId: 3522  // 拆解管理
       }
     },
     {

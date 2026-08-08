@@ -75,7 +75,7 @@ export class MenuProcessor {
       const menuId = item.meta?.menuId
       const hasMenuId = menuId != null
       const selfAllowed = hasMenuId && allowedIds.has(Number(menuId))
-      const hasVisibleChildren = Boolean(children?.length)
+      const hasVisibleChildren = Boolean(children?.some((child) => !child.meta?.isHide))
 
       // 隐藏路由、全屏异常页等无 menuId 的叶子节点仍注册
       if (!hasMenuId && !item.children?.length) {
@@ -85,7 +85,12 @@ export class MenuProcessor {
         return acc
       }
 
-      if (selfAllowed || hasVisibleChildren) {
+      // 父级保留条件：
+      // 1. 自身有权限；或
+      // 2. 存在非隐藏子节点（真正显示在菜单里）；或
+      // 3. 无 menuId 的目录型父级（如异常页容器）只要有被保留的子节点即可（用于注册隐藏页）
+      const hasAnyChildren = Boolean(children?.length)
+      if (selfAllowed || hasVisibleChildren || (!hasMenuId && hasAnyChildren)) {
         acc.push({ ...item, children })
       }
 

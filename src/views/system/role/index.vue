@@ -28,7 +28,8 @@
             <div class="role-item-name">{{ role.role_name || '—' }}</div>
             <div class="role-item-meta">
               {{ role.user_count ?? 0 }}人 ·
-              {{ truncateDesc(role.role_desc) }}
+              <!-- {{ truncateDesc(role.role_desc) }} -->
+              {{ truncateDesc(role.rules) }}
             </div>
           </div>
           <div v-if="!roleList.length" class="role-empty">暂无角色</div>
