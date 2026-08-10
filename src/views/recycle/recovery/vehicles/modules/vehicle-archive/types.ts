@@ -114,12 +114,16 @@ export interface ArchiveVehicleForm {
   delivery_method: string
   /** 拖车上门取车地址。 */
   tow_pickup_address: string
+  /** 拖车上门取车经纬度，格式 lat,lng。 */
+  tow_pickup_latlng: string
   /** 拖车取车联系人。 */
   tow_pickup_contact: string
   /** 拖车取车联系电话。 */
   tow_pickup_phone: string
   /** 自行送车地址。 */
   self_delivery_address: string
+  /** 自行送车经纬度，格式 lat,lng。 */
+  self_delivery_latlng: string
   /** 自行送车联系人。 */
   self_delivery_name: string
   /** 自行送车联系电话。 */

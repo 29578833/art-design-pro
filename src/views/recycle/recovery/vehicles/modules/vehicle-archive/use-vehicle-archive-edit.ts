@@ -143,9 +143,11 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     csys: '', // 车身颜色
     delivery_method: 'self', // 送货方式，tow 为拖车，self 为自送
     tow_pickup_address: '', // 拖车上门取车地址
+    tow_pickup_latlng: '', // 拖车上门取车经纬度
     tow_pickup_contact: '', // 拖车取车联系人
     tow_pickup_phone: '', // 拖车取车联系电话
     self_delivery_address: '', // 自行送车地址
+    self_delivery_latlng: '', // 自行送车经纬度
     self_delivery_name: '', // 自行送车联系人
     self_delivery_phone: '', // 自行送车联系电话
     settlement_type: 'personal', // 结算类型
@@ -278,9 +280,11 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
       csys: '',
       delivery_method: 'self',
       tow_pickup_address: '',
+      tow_pickup_latlng: '',
       tow_pickup_contact: '',
       tow_pickup_phone: '',
       self_delivery_address: '',
+      self_delivery_latlng: '',
       self_delivery_name: '',
       self_delivery_phone: '',
       settlement_type: 'personal',
@@ -335,9 +339,11 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     vehicleForm.ccdjrq = str(detail.reg_date)
     vehicleForm.delivery_method = str(detail.delivery_method) || 'self'
     vehicleForm.tow_pickup_address = str(detail.tow_pickup_address)
+    vehicleForm.tow_pickup_latlng = str(detail.tow_pickup_latlng)
     vehicleForm.tow_pickup_contact = str(detail.tow_pickup_contact)
     vehicleForm.tow_pickup_phone = str(detail.tow_pickup_phone)
     vehicleForm.self_delivery_address = str(detail.self_delivery_address)
+    vehicleForm.self_delivery_latlng = str(detail.self_delivery_latlng)
     vehicleForm.self_delivery_name = str(detail.self_delivery_name)
     vehicleForm.self_delivery_phone = str(detail.self_delivery_phone)
     vehicleForm.settlement_type = str(detail.settlement_type) || 'personal'

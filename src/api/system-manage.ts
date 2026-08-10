@@ -23,3 +23,10 @@ export function fetchGetMenuList() {
     url: '/api/v3/system/menus/simple'
   })
 }
+
+/** 获取腾讯地图 key（门店地址配置，对齐 admin 选择上门取车地址实现） */
+export function fetchTencentMapKey() {
+  return request.get<{ key?: string }>({
+    url: '/merchant/store/address'
+  })
+}

@@ -249,6 +249,16 @@
                 <ArtSvgIcon icon="ri:map-pin-line" />
               </button>
             </div>
+            <div
+              v-if="
+                form.delivery_method === 'tow' ? form.tow_pickup_latlng : form.self_delivery_latlng
+              "
+              class="ae-address-latlng"
+            >
+              经纬度：{{
+                form.delivery_method === 'tow' ? form.tow_pickup_latlng : form.self_delivery_latlng
+              }}
+            </div>
           </ElFormItem>
         </ElCol>
         <ElCol :span="12">
@@ -312,7 +322,7 @@
 
   <TencentMapPickerDialog
     v-model="mapPickerVisible"
-    :initial-address="mapPickerInitialAddress"
+    :initial-latlng="mapPickerInitialLatLng"
     @confirm="handleMapPickerConfirm"
   />
 </template>
@@ -373,22 +383,24 @@
   )
 
   const mapPickerVisible = ref(false)
-  const mapPickerInitialAddress = computed(() =>
+  const mapPickerInitialLatLng = computed(() =>
     form.value.delivery_method === 'tow'
-      ? form.value.tow_pickup_address
-      : form.value.self_delivery_address
+      ? form.value.tow_pickup_latlng
+      : form.value.self_delivery_latlng
   )
 
   function openMapPicker() {
     mapPickerVisible.value = true
   }
 
-  function handleMapPickerConfirm(address: string) {
+  function handleMapPickerConfirm(result: { address: string; latlng: string }) {
     if (form.value.delivery_method === 'tow') {
-      form.value.tow_pickup_address = address
+      form.value.tow_pickup_address = result.address
+      form.value.tow_pickup_latlng = result.latlng
       return
     }
-    form.value.self_delivery_address = address
+    form.value.self_delivery_address = result.address
+    form.value.self_delivery_latlng = result.latlng
   }
 
   async function loadDict(type: string, fallback: ArchiveDictOption[]) {

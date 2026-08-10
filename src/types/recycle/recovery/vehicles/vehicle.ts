@@ -216,12 +216,16 @@ export interface ScrapVehicleDetail extends ScrapVehicle {
   delivery_method_text?: string
   /** 拖车取车地址 */
   tow_pickup_address?: string
+  /** 拖车取车经纬度 */
+  tow_pickup_latlng?: string
   /** 拖车联系人 */
   tow_pickup_contact?: string
   /** 拖车电话 */
   tow_pickup_phone?: string
   /** 自送地址 */
   self_delivery_address?: string
+  /** 自送经纬度 */
+  self_delivery_latlng?: string
   /** 自送联系人 */
   self_delivery_name?: string
   /** 自送电话 */

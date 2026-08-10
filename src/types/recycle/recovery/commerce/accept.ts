@@ -154,9 +154,11 @@ export interface AcceptVehicleData {
   csys?: string
   delivery_method?: string
   tow_pickup_address?: string
+  tow_pickup_latlng?: string
   tow_pickup_contact?: string
   tow_pickup_phone?: string
   self_delivery_address?: string
+  self_delivery_latlng?: string
   self_delivery_name?: string
   self_delivery_phone?: string
   settlement_type?: string

@@ -600,6 +600,13 @@ $ae-sub: #8c8c8c;
   }
 }
 
+.ae-address-latlng {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: $ae-sub;
+}
+
 .ae-auth-row {
   display: flex;
   gap: 16px;

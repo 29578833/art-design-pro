@@ -77,7 +77,7 @@
       <ElRow :gutter="16">
         <ElCol :span="12">
           <ElFormItem label="证件类型" required>
-            <ElSelect v-model="form.sfzmmc" placeholder="请选择" style="width: 100%">
+            <ElSelect v-model="form.sfzmmc" placeholder="请选择" style="width: 100%" disabled>
               <ElOption
                 v-for="option in idTypeOptions"
                 :key="option.value"
