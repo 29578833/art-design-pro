@@ -177,42 +177,27 @@ export function buildDismantleStorageColumns() {
     groupClass: string,
     countField: string,
     weightField: string,
-    unitClass: string,
-    countCell: string,
     weightCell: string
   ) => ({
     title: groupTitle,
     headerClassName: groupClass,
     children: [
       {
+        field: countField,
         title: '数量',
+        minWidth: 72,
         headerClassName: 'dd-head-leaf',
-        children: [
-          {
-            field: countField,
-            title: '件',
-            minWidth: 72,
-            headerClassName: unitClass,
-            className: countCell,
-            slots: { default: countField },
-            ...th
-          }
-        ]
+        slots: { default: countField },
+        ...th
       },
       {
+        field: weightField,
         title: '重量',
+        minWidth: 80,
         headerClassName: 'dd-head-leaf',
-        children: [
-          {
-            field: weightField,
-            title: '吨',
-            minWidth: 80,
-            headerClassName: unitClass,
-            className: weightCell,
-            slots: { default: weightField },
-            ...th
-          }
-        ]
+        className: weightCell,
+        slots: { default: weightField },
+        ...th
       }
     ]
   })
@@ -221,7 +206,7 @@ export function buildDismantleStorageColumns() {
     {
       field: 'category',
       title: '类别',
-      width: 88,
+      width: 100,
       headerClassName: 'dd-head-base',
       className: 'dd-col-category',
       slots: { default: 'category' },
@@ -242,8 +227,6 @@ export function buildDismantleStorageColumns() {
       'dd-group-today-in',
       'today_storage_count',
       'today_storage_weight',
-      'dd-unit-today-in',
-      '',
       'dd-col-today-in-wt'
     ),
     metric(
@@ -251,8 +234,6 @@ export function buildDismantleStorageColumns() {
       'dd-group-today-out',
       'month_storage_count',
       'month_storage_weight',
-      'dd-unit-today-out',
-      '',
       'dd-col-today-out-wt'
     )
   ]

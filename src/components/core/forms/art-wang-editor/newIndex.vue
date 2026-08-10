@@ -53,11 +53,14 @@
     }
   }
 
+  /** 默认排除：字体 + 视频相关 */
+  const DEFAULT_EXCLUDE_KEYS = ['fontFamily', 'group-video', 'insertVideo', 'uploadVideo']
+
   const props = withDefaults(defineProps<Props>(), {
     height: '500px',
     mode: 'default',
     placeholder: '请输入内容...',
-    excludeKeys: () => ['fontFamily']
+    excludeKeys: () => []
   })
 
   const modelValue = defineModel<string>({ required: true })
@@ -94,10 +97,8 @@
       config.insertKeys = props.insertKeys
     }
 
-    // 排除工具
-    if (props.excludeKeys && props.excludeKeys.length > 0) {
-      config.excludeKeys = props.excludeKeys
-    }
+    // 默认去掉视频工具，并合并外部 excludeKeys
+    config.excludeKeys = [...new Set([...DEFAULT_EXCLUDE_KEYS, ...(props.excludeKeys || [])])]
 
     return config
   })

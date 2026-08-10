@@ -127,13 +127,7 @@
           <template v-for="field in DD_STORAGE_SUM_FIELDS" :key="field" #[field]="{ row }">
             <span :class="storageCellClass(field, row[field])">
               {{
-                field.includes('weight')
-                  ? field.startsWith('today_')
-                    ? fmtDdNumber(row[field], 3)
-                    : parseDdNumber(row[field]).toFixed(3)
-                  : field.startsWith('today_')
-                    ? fmtDdNumber(row[field], 0)
-                    : String(parseDdNumber(row[field]) || 0)
+                field.includes('weight') ? fmtDdNumber(row[field], 3) : fmtDdNumber(row[field], 0)
               }}
             </span>
           </template>
@@ -308,6 +302,9 @@
   const storageFooterTotals = computed(() => {
     const list = storageList.value
     return {
+      today_storage_count: String(
+        list.reduce((s, r) => s + parseDdNumber(r.today_storage_count), 0)
+      ),
       today_storage_weight: list
         .reduce((s, r) => s + parseDdNumber(r.today_storage_weight), 0)
         .toFixed(3),
@@ -349,15 +346,15 @@
   }
 
   function vehicleFooterSpanMethod({
-    columnIndex,
-    rowIndex
+    rowIndex,
+    column
   }: {
-    columnIndex: number
     rowIndex: number
+    column: { field?: string; type?: string }
   }) {
     if (rowIndex !== 0) return { rowspan: 1, colspan: 1 }
-    if (columnIndex === 0) return { rowspan: 1, colspan: 2 }
-    if (columnIndex === 1) return { rowspan: 0, colspan: 0 }
+    if (column?.type === 'seq') return { rowspan: 1, colspan: 2 }
+    if (column?.field === 'name') return { rowspan: 0, colspan: 0 }
     return { rowspan: 1, colspan: 1 }
   }
 
@@ -365,6 +362,8 @@
     return [
       columns.map((col) => {
         if (col.field === 'category') return '合计'
+        if (col.field === 'today_storage_count')
+          return storageFooterTotals.value.today_storage_count
         if (col.field === 'today_storage_weight')
           return storageFooterTotals.value.today_storage_weight
         if (col.field === 'month_storage_count')
@@ -377,15 +376,15 @@
   }
 
   function storageFooterSpanMethod({
-    columnIndex,
-    rowIndex
+    rowIndex,
+    column
   }: {
-    columnIndex: number
     rowIndex: number
+    column: { field?: string }
   }) {
     if (rowIndex !== 0) return { rowspan: 1, colspan: 1 }
-    if (columnIndex === 0) return { rowspan: 1, colspan: 3 }
-    if (columnIndex === 1 || columnIndex === 2) return { rowspan: 0, colspan: 0 }
+    if (column?.field === 'category') return { rowspan: 1, colspan: 2 }
+    if (column?.field === 'product_name') return { rowspan: 0, colspan: 0 }
     return { rowspan: 1, colspan: 1 }
   }
 
