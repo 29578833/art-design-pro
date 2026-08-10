@@ -54,7 +54,6 @@
 
 /* 图表从左向右揭示填充 */
 .erp-chart-reveal {
-  overflow: hidden;
   clip-path: inset(0 100% 0 0);
   animation-name: erp-reveal-ltr;
   animation-duration: 1.4s;

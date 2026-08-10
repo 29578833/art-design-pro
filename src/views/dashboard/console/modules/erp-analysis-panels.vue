@@ -58,6 +58,7 @@
               :colors="vehicleStatusColors"
               :radius="['50%', '70%']"
               :show-legend="false"
+              :show-tooltip="false"
             />
             <div class="erp-status-center">
               <ArtCountTo class="erp-status-center-num" :target="vehicleTotal" :duration="1500" />
