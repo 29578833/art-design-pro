@@ -17,8 +17,7 @@
         class="quality-toolbar-search"
         :placeholder="searchPlaceholder"
         clearable
-        @keyup.enter="emitSearch"
-        @clear="emitSearch"
+        @input="debouncedEmitSearch"
       >
         <template #prefix>
           <ArtSvgIcon icon="ri:search-line" class="quality-toolbar-search-icon" />
@@ -163,6 +162,8 @@
     emit('update:reportForm', form)
     emit('search', form)
   }
+
+  const debouncedEmitSearch = useDebounceFn(emitSearch, 300)
 
   function handleFilterChange() {
     emitSearch()

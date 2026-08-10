@@ -158,14 +158,8 @@
           <ElButton v-if="step < 5" type="primary" :loading="saving" @click="goNext"
             >下一步</ElButton
           >
-          <ElButton
-            v-else
-            type="primary"
-            :loading="submitting"
-            :disabled="!authCompleted"
-            @click="handleSubmit"
-          >
-            {{ authCompleted ? '提交至商务部' : '请先完成实名认证' }}
+          <ElButton v-else type="primary" :loading="submitting" @click="handleSubmit">
+            提交至商务部
           </ElButton>
         </div>
       </div>
@@ -264,7 +258,6 @@
     materialImages,
     agentForm,
     agentImages,
-    authCompleted,
     stepComplete,
     hplxOptions,
     syqOptions,

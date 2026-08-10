@@ -9,8 +9,7 @@
         v-model="keyword"
         clearable
         placeholder="搜索回收订单号 / 拖车订单号 / 车牌号 / 车主"
-        @keyup.enter="loadOrders(1)"
-        @clear="loadOrders(1)"
+        @input="debouncedLoadOrders"
       >
         <template #prefix>
           <ArtSvgIcon icon="ri:search-line" />
@@ -120,6 +119,8 @@
       loading.value = false
     }
   }
+
+  const debouncedLoadOrders = useDebounceFn(() => loadOrders(1), 300)
 
   function reset() {
     keyword.value = ''

@@ -54,8 +54,7 @@
             v-model="searchQuery"
             placeholder="搜索车牌号 / 档案号 / 车主姓名"
             clearable
-            @keyup.enter="loadVehicles"
-            @clear="loadVehicles"
+            @input="debouncedLoadVehicles"
           />
         </div>
 
@@ -329,6 +328,8 @@
       loadingVehicles.value = false
     }
   }
+
+  const debouncedLoadVehicles = useDebounceFn(loadVehicles, 300)
 
   async function loadWarehouseAreas() {
     try {

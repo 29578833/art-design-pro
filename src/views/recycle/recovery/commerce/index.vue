@@ -32,7 +32,7 @@
                 v-model="searchForm.clsbdh"
                 clearable
                 placeholder="输入车架号或号牌"
-                @keyup.enter="handleSearch"
+                @input="debouncedHandleSearch"
               />
             </ElFormItem>
             <ElFormItem label="受理人" class="commerce-filter-item">
@@ -490,6 +490,8 @@
     replaceSearchParams({ ...queryParams(), current: 1 })
     getData()
   }
+
+  const debouncedHandleSearch = useDebounceFn(handleSearch, 300)
 
   function handleReset() {
     searchForm.value = {

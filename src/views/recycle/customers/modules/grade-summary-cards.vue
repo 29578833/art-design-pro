@@ -62,7 +62,7 @@
 
   .grade-card {
     padding: 16px;
-    margin-bottom: 12px;
+    // margin-bottom: 12px;
     text-align: left;
     cursor: pointer;
     background: var(--default-box-color);

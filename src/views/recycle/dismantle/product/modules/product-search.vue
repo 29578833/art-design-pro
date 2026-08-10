@@ -20,8 +20,7 @@
         class="product-toolbar-search"
         placeholder="搜索物品名称 / 入库单号 / 库位"
         clearable
-        @keyup.enter="emitSearch"
-        @clear="emitSearch"
+        @input="debouncedEmitSearch"
       >
         <template #prefix>
           <ArtSvgIcon icon="ri:search-line" class="product-toolbar-search-icon" />
@@ -125,6 +124,8 @@
     emit('update:searchForm', form)
     emit('search', form)
   }
+
+  const debouncedEmitSearch = useDebounceFn(emitSearch, 300)
 
   function handleCategoryChange(value: ProductStoreCategory | '') {
     localCategory.value = value

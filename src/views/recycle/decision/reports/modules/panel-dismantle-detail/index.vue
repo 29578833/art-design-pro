@@ -40,7 +40,7 @@
           placeholder="搜索产物名称"
           clearable
           class="dd-search-input"
-          @keyup.enter="handleSearch"
+          @input="debouncedHandleSearch"
         >
           <template #prefix>
             <ArtSvgIcon icon="ri:search-line" class="dd-search-icon" />
@@ -188,7 +188,7 @@
   const { exporting, exportReport } = useDismantleExport()
 
   const defaultRange = defaultTodayRange()
-  const dateRange = ref<[string, string]>([...defaultRange])
+  const dateRange = ref<[string, string] | null>([...defaultRange])
   const queryRange = ref<[string, string]>([...defaultRange])
   const vehicleCategory = ref('')
   const productKeyword = ref('')
@@ -224,7 +224,10 @@
 
   const todayStr = computed(() => defaultTodayRange()[0])
   const isToday = computed(
-    () => dateRange.value[0] === todayStr.value && dateRange.value[1] === todayStr.value
+    () =>
+      !!dateRange.value &&
+      dateRange.value[0] === todayStr.value &&
+      dateRange.value[1] === todayStr.value
   )
   const dateTitleText = computed(() => formatCnDateRange(queryRange.value[0], queryRange.value[1]))
 
@@ -425,6 +428,7 @@
   }
 
   function shiftDate(delta: number) {
+    if (!dateRange.value) return
     const [s, e] = shiftDayRange(dateRange.value[0], dateRange.value[1], delta)
     dateRange.value = [s, e]
   }
@@ -438,6 +442,10 @@
   }
 
   async function loadData() {
+    if (!dateRange.value) {
+      ElMessage.warning('请选择日期范围')
+      return
+    }
     loading.value = true
     try {
       result.value = await fetchDismantleReport({
@@ -457,9 +465,15 @@
   }
 
   function handleSearch() {
+    if (!dateRange.value || dateRange.value.length !== 2) {
+      ElMessage.warning('请选择日期范围')
+      return
+    }
     page.value = 1
     loadData()
   }
+
+  const debouncedHandleSearch = useDebounceFn(handleSearch, 300)
 
   function handleReset() {
     dateRange.value = defaultTodayRange()

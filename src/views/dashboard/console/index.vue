@@ -79,6 +79,7 @@
 
   .erp-dashboard {
     min-height: 100%;
+    padding-bottom: 16px;
   }
 
   .erp-dashboard-header {

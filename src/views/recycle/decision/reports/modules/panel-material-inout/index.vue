@@ -24,7 +24,7 @@
           :placeholder="item.placeholder"
           clearable
           :class="['rmi-search-input', item.widthClass]"
-          @keyup.enter="handleSearch"
+          @input="debouncedHandleSearch"
         >
           <template #prefix>
             <ArtSvgIcon icon="ri:search-line" class="rmi-search-icon" />
@@ -264,7 +264,7 @@
   const { exporting, exportReport } = useMaterialInOutExport()
 
   const defaultRange = defaultReportDateRange()
-  const inboundRange = ref<[string, string]>([...defaultRange])
+  const inboundRange = ref<[string, string] | null>([...defaultRange])
   const queryRange = ref<[string, string]>([...defaultRange])
   const materialRange = ref<[string, string] | null>(null)
 
@@ -415,7 +415,7 @@
   }
 
   function handleSearch() {
-    if (!inboundRange.value[0] || !inboundRange.value[1]) {
+    if (!inboundRange.value || inboundRange.value.length !== 2) {
       ElMessage.warning('请选择入库日期范围')
       return
     }
@@ -423,6 +423,8 @@
     page.value = 1
     loadData()
   }
+
+  const debouncedHandleSearch = useDebounceFn(handleSearch, 300)
 
   function handleReset() {
     const range = defaultReportDateRange()
@@ -449,7 +451,7 @@
   }
 
   function shiftInboundDate(days: number) {
-    if (!inboundRange.value[0] || !inboundRange.value[1]) return
+    if (!inboundRange.value) return
     const shift = (dateStr: string) => {
       const d = new Date(dateStr)
       d.setDate(d.getDate() + days)

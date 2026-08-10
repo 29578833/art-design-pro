@@ -171,4 +171,35 @@ declare namespace Api {
         }
     >
   }
+  /** 系统通知（消息提醒） */
+  namespace SystemNotice {
+    /** 通知类型：1=订单通知 2=拖车通知 */
+    type NoticeType = number | string
+
+    /** 通知列表项（/jnotice 返回） */
+    interface SystemNoticeItem {
+      /** 主键 ID */
+      id: number | string
+      /** 标题 */
+      title: string
+      /** 内容 */
+      content?: string
+      /** 类型：1=订单通知 2=拖车通知 */
+      type?: NoticeType
+      /** 是否已读：0 未读 1 已读 */
+      read?: number
+      /** 时间（Unix 秒） */
+      time?: number | string
+      /** 分类 */
+      category?: number | string
+      /** 通知标识 */
+      mark?: string
+      /** 跳转链接 */
+      url?: string
+      /** 图标（后端兼容字段） */
+      icon?: string
+      /** 图标颜色（后端兼容字段） */
+      iconColor?: string
+    }
+  }
 }

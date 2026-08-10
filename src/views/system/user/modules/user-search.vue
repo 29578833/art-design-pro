@@ -6,8 +6,7 @@
         class="user-toolbar-search"
         placeholder="搜索用户名 / 真实姓名 / 手机号"
         clearable
-        @keyup.enter="emitSearch"
-        @clear="emitSearch"
+        @input="debouncedEmitSearch"
       >
         <template #prefix>
           <ArtSvgIcon icon="ri:search-line" class="user-toolbar-search-icon" />
@@ -52,6 +51,8 @@
     emit('update:searchForm', form)
     emit('search', form)
   }
+
+  const debouncedEmitSearch = useDebounceFn(emitSearch, 300)
 
   function handleReset() {
     emit('reset')

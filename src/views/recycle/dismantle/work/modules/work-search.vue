@@ -6,8 +6,7 @@
         class="work-toolbar-search"
         placeholder="搜索车牌号 / 档案号 / 车主姓名"
         clearable
-        @keyup.enter="emitSearch"
-        @clear="emitSearch"
+        @input="debouncedEmitSearch"
       >
         <template #prefix>
           <ArtSvgIcon icon="ri:search-line" class="work-toolbar-search-icon" />
@@ -76,6 +75,8 @@
     emit('update:searchForm', form)
     emit('search', form)
   }
+
+  const debouncedEmitSearch = useDebounceFn(emitSearch, 300)
 
   function handleTabChange(value: PlateStatusFilter) {
     localStatus.value = value

@@ -183,12 +183,6 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     jbrzp: '' // 委托说明图片
   })
 
-  const authCompleted = computed(() => {
-    if (ownerForm.syrsmrz !== '1') return false
-    if (hasAgent.value && agentForm.jbrsmrz !== '1') return false
-    return true
-  })
-
   const validationCtx = computed(() => ({
     isPersonal: isPersonal.value,
     hasAgent: hasAgent.value,
@@ -671,10 +665,6 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   }
 
   async function handleSubmit() {
-    if (!authCompleted.value) {
-      ElMessage.warning('请先完成实名认证')
-      return
-    }
     if (!activeVehicleId.value) {
       ElMessage.warning('受理记录未初始化')
       return
@@ -726,7 +716,6 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     materialImages,
     agentForm,
     agentImages,
-    authCompleted,
     stepComplete,
     hplxOptions: HPLX_OPTIONS,
     syqOptions: SYQ_OPTIONS,

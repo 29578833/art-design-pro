@@ -5,8 +5,7 @@
       class="partner-toolbar-search"
       placeholder="搜索客户姓名 / 手机号 / 企业名称 / 客户编号"
       clearable
-      @keyup.enter="emitSearch"
-      @clear="emitSearch"
+      @input="debouncedEmitSearch"
     >
       <template #prefix>
         <ArtSvgIcon icon="ri:search-line" class="partner-toolbar-search-icon" />
@@ -100,6 +99,8 @@
     syncForm()
     emit('search')
   }
+
+  const debouncedEmitSearch = useDebounceFn(emitSearch, 300)
 
   function handleFilterChange() {
     syncForm()

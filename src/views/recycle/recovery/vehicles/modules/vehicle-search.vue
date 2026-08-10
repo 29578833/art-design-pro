@@ -5,8 +5,7 @@
       class="vehicle-toolbar-search"
       placeholder="搜索车牌号 / VIN / 车主 / 档案号 / 关联订单"
       clearable
-      @keyup.enter="emitSearch"
-      @clear="emitSearch"
+      @input="debouncedEmitSearch"
     >
       <template #prefix>
         <ArtSvgIcon icon="ri:search-line" class="vehicle-toolbar-search-icon" />
@@ -65,6 +64,8 @@
   function emitSearch() {
     emit('search')
   }
+
+  const debouncedEmitSearch = useDebounceFn(emitSearch, 300)
 
   function handleReset() {
     emit('update:modelValue', { ...props.modelValue, keyword: '', type: '' })

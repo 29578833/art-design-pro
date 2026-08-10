@@ -28,7 +28,7 @@
           placeholder="质检单号 / 车辆档案号 / 自编号 / 车牌 / 车主 / 业务员 / 代理人"
           clearable
           class="qc-search-input"
-          @keyup.enter="handleSearch"
+          @input="debouncedHandleSearch"
         >
           <template #prefix>
             <ArtSvgIcon icon="ri:search-line" class="qc-search-icon" />
@@ -464,6 +464,8 @@
     page.value = 1
     loadData()
   }
+
+  const debouncedHandleSearch = useDebounceFn(handleSearch, 300)
 
   function handleReset() {
     dateRange.value = defaultReportDateRange()

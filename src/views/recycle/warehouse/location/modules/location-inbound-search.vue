@@ -6,8 +6,7 @@
         class="loc-toolbar-search"
         placeholder="搜索车牌号 / 档案号 / 订单号"
         clearable
-        @keyup.enter="emitSearch"
-        @clear="emitSearch"
+        @input="debouncedEmitSearch"
       >
         <template #prefix>
           <ArtSvgIcon icon="ri:search-line" class="loc-toolbar-search-icon" />
@@ -19,8 +18,7 @@
         class="loc-toolbar-input"
         placeholder="VIN"
         clearable
-        @keyup.enter="emitSearch"
-        @clear="emitSearch"
+        @input="debouncedEmitSearch"
       />
 
       <ElSelect
@@ -88,6 +86,8 @@
     emit('update:searchForm', form)
     emit('search', form)
   }
+
+  const debouncedEmitSearch = useDebounceFn(emitSearch, 300)
 
   function handleReset() {
     emit('reset')

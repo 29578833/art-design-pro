@@ -5,8 +5,7 @@
       class="order-toolbar-search"
       :placeholder="searchPlaceholder"
       clearable
-      @keyup.enter="emitSearch"
-      @clear="emitSearch"
+      @input="debouncedEmitSearch"
     >
       <template #prefix>
         <ArtSvgIcon icon="ri:search-line" class="order-toolbar-search-icon" />
@@ -241,6 +240,8 @@
     syncForm()
     emit('search')
   }
+
+  const debouncedEmitSearch = useDebounceFn(emitSearch, 300)
 
   function handleFilterChange() {
     syncForm()

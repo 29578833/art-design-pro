@@ -43,7 +43,7 @@
           "
           clearable
           class="va-search-input"
-          @keyup.enter="handleSearch"
+          @input="debouncedHandleSearch"
         >
           <template #prefix>
             <ArtSvgIcon icon="ri:search-line" class="va-search-icon" />
@@ -259,6 +259,8 @@
     page.value = 1
     loadData()
   }
+
+  const debouncedHandleSearch = useDebounceFn(handleSearch, 300)
 
   function handleReset() {
     dateRange.value = defaultReportDateRange()

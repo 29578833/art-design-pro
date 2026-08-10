@@ -9,9 +9,7 @@
       <ElTag :type="ownerAuthed ? 'success' : 'warning'" size="small">
         {{ ownerAuthed ? '已认证' : '待认证' }}
       </ElTag>
-      <ElButton size="small" type="primary" :disabled="readonly" @click="openAuth('syr')">
-        去认证
-      </ElButton>
+      <ElButton size="small" type="primary" @click="openAuth('syr')"> 去认证 </ElButton>
     </div>
     <div class="ae-auth-meta">
       <span>证件号：{{ ownerForm.sfzmhm || '—' }}</span>
@@ -23,9 +21,7 @@
       <ElTag :type="agentAuthed ? 'success' : 'warning'" size="small">
         {{ agentAuthed ? '已认证' : '待认证' }}
       </ElTag>
-      <ElButton size="small" type="primary" :disabled="readonly" @click="openAuth('dlr')">
-        去认证
-      </ElButton>
+      <ElButton size="small" type="primary" @click="openAuth('dlr')"> 去认证 </ElButton>
     </div>
     <div class="ae-auth-meta">
       <span>证件号：{{ agentForm.jbrsfzmhm || '—' }}</span>
@@ -148,7 +144,6 @@
   )
 
   function openAuth(type: 'syr' | 'dlr') {
-    if (props.isSubmitted) return
     const person = type === 'syr' ? props.ownerForm.syr : props.agentForm.jbr
     if (!person) {
       ElMessage.warning('请先填写认证人信息')

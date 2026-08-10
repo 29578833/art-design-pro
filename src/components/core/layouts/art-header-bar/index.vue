@@ -111,7 +111,10 @@
           class="notice-button relative"
           @click="visibleNotice"
         >
-          <div class="absolute top-2 right-2 size-1.5 !bg-danger rounded-full"></div>
+          <div
+            v-if="unreadCount > 0"
+            class="absolute top-2 right-2 size-1.5 !bg-danger rounded-full"
+          ></div>
         </ArtIconButton>
 
         <!-- 设置按钮 -->
@@ -123,8 +126,8 @@
               </div>
             </template>
             <template #default>
-              <p
-                >{{ $t('topBar.guide.title')
+              <p>
+                {{ $t('topBar.guide.title')
                 }}<span :style="{ color: systemThemeColor }"> {{ $t('topBar.guide.theme') }} </span
                 >、 <span :style="{ color: systemThemeColor }"> {{ $t('topBar.guide.menu') }} </span
                 >{{ $t('topBar.guide.description') }}
@@ -142,7 +145,7 @@
     <ArtWorkTab />
 
     <!-- 通知 -->
-    <ArtNotification v-model:value="showNotice" ref="notice" />
+    <ArtNotification v-model:value="showNotice" ref="notice" @unread-change="handleUnreadChange" />
   </div>
 </template>
 
@@ -193,6 +196,7 @@
   const { menuList } = storeToRefs(menuStore)
 
   const showNotice = ref(false)
+  const unreadCount = ref(0)
   const notice = ref(null)
 
   // 菜单类型判断
@@ -306,6 +310,14 @@
    */
   const visibleNotice = (): void => {
     showNotice.value = !showNotice.value
+  }
+
+  /**
+   * 更新未读通知数量
+   * @param count 未读数量
+   */
+  const handleUnreadChange = (count: number): void => {
+    unreadCount.value = count
   }
 </script>
 

@@ -19,14 +19,16 @@
             type="button"
             class="md-gran-btn"
             :class="{ 'is-active': timeMode === item.value }"
-            @click="timeMode = item.value"
+            @click="switchTimeMode(item.value)"
           >
             {{ item.label }}
           </button>
         </div>
 
         <div class="md-date-group">
-          <ElButton size="small" class="md-shift-btn" @click="shiftDate(-1)">‹ 前一天</ElButton>
+          <ElButton size="small" class="md-shift-btn" @click="shiftDate(-1)"
+            >‹ {{ shiftLabel(-1) }}</ElButton
+          >
           <ElDatePicker
             v-model="dateRange"
             type="daterange"
@@ -36,7 +38,9 @@
             end-placeholder="结束"
             class="md-date-single"
           />
-          <ElButton size="small" class="md-shift-btn" @click="shiftDate(1)">后一天 ›</ElButton>
+          <ElButton size="small" class="md-shift-btn" @click="shiftDate(1)"
+            >{{ shiftLabel(1) }} ›</ElButton
+          >
           <ElButton v-if="!isToday" link type="primary" @click="goToday">今天</ElButton>
         </div>
 
@@ -55,7 +59,7 @@
           placeholder="搜索车型名称"
           clearable
           class="md-search-input"
-          @keyup.enter="handleSearch"
+          @input="debouncedHandleSearch"
         >
           <template #prefix>
             <ArtSvgIcon icon="ri:search-line" class="md-search-icon" />
@@ -150,7 +154,7 @@
     MaterialDailyResult
   } from '@/types/recycle/decision/reports/report'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
-  import { defaultTodayRange } from '../../utils'
+  import { defaultTodayRange, granRange, shiftGranRange, type ReportTimeMode } from '../../utils'
   import {
     buildMaterialDailyColumns,
     flattenMdColumns,
@@ -173,7 +177,7 @@
   const { exporting, exportReport } = useMaterialDailyExport()
 
   const defaultRange = defaultTodayRange()
-  const dateRange = ref<[string, string]>([...defaultRange])
+  const dateRange = ref<[string, string] | null>([...defaultRange])
   const queryRange = ref<[string, string]>([...defaultRange])
   const timeMode = ref<'day' | 'week' | 'month'>('day')
   const keyword = ref('')
@@ -203,7 +207,10 @@
   })
 
   const isToday = computed(
-    () => dateRange.value[0] === todayStr.value && dateRange.value[1] === todayStr.value
+    () =>
+      !!dateRange.value &&
+      dateRange.value[0] === todayStr.value &&
+      dateRange.value[1] === todayStr.value
   )
 
   const dateTitleText = computed(() => {
@@ -338,7 +345,7 @@
   }
 
   function handleSearch() {
-    if (!dateRange.value[0] || !dateRange.value[1]) {
+    if (!dateRange.value || dateRange.value.length !== 2) {
       ElMessage.warning('请选择日期范围')
       return
     }
@@ -346,6 +353,8 @@
     page.value = 1
     loadData()
   }
+
+  const debouncedHandleSearch = useDebounceFn(handleSearch, 300)
 
   function handleReset() {
     const range = defaultTodayRange()
@@ -362,19 +371,36 @@
     page.value = 1
   }
 
-  function shiftDate(days: number) {
-    if (!dateRange.value[0] || !dateRange.value[1]) return
-    const shift = (dateStr: string) => {
-      const d = new Date(dateStr)
-      d.setDate(d.getDate() + days)
-      const pad = (n: number) => String(n).padStart(2, '0')
-      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+  function shiftLabel(dir: -1 | 1) {
+    const map = {
+      day: dir < 0 ? '前一天' : '后一天',
+      week: dir < 0 ? '前一周' : '后一周',
+      month: dir < 0 ? '前一月' : '后一月'
     }
-    dateRange.value = [shift(dateRange.value[0]), shift(dateRange.value[1])]
+    return map[timeMode.value]
+  }
+
+  function switchTimeMode(mode: ReportTimeMode) {
+    timeMode.value = mode
+    const range = granRange(mode, dateRange.value ? new Date(dateRange.value[0]) : new Date())
+    dateRange.value = [...range]
+    queryRange.value = [...range]
+    page.value = 1
+    loadData()
+  }
+
+  function shiftDate(delta: number) {
+    if (!dateRange.value) return
+    const [s, e] = shiftGranRange(dateRange.value[0], dateRange.value[1], timeMode.value, delta)
+    dateRange.value = [s, e]
   }
 
   function goToday() {
-    dateRange.value = defaultTodayRange()
+    const range = granRange(timeMode.value)
+    dateRange.value = [...range]
+    queryRange.value = [...range]
+    page.value = 1
+    loadData()
   }
 
   function handleExport() {

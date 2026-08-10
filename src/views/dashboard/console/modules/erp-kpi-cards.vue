@@ -104,10 +104,10 @@
       transform 0.25s;
   }
 
-  .erp-kpi-card:hover {
-    box-shadow: 0 4px 16px rgb(0 0 0 / 6%);
-    transform: translateY(-2px);
-  }
+  // .erp-kpi-card:hover {
+    // box-shadow: 0 4px 16px rgb(0 0 0 / 6%);
+    // transform: translateY(-2px);
+  // }
 
   .erp-kpi-left {
     display: flex;

@@ -15,8 +15,7 @@
         class="order-toolbar-search"
         placeholder="搜索订单号 / 车主姓名 / 车牌号"
         clearable
-        @keyup.enter="handleSearch"
-        @clear="handleSearch"
+        @input="debouncedHandleSearch"
       >
         <template #prefix>
           <ArtSvgIcon icon="ri:search-line" class="order-toolbar-search-icon" />
@@ -304,6 +303,8 @@
     })
     getData()
   }
+
+  const debouncedHandleSearch = useDebounceFn(handleSearch, 300)
 
   function handleSelectionChange(rows: RecycleOrder[]) {
     selectedRows.value = rows

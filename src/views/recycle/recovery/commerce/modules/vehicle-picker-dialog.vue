@@ -13,8 +13,7 @@
         v-model="keyword"
         clearable
         placeholder="搜索订单号、档案号、车牌号、VIN 或车主"
-        @keyup.enter="loadVehicles(1)"
-        @clear="loadVehicles(1)"
+        @input="debouncedLoadVehicles"
       >
         <template #prefix><ArtSvgIcon icon="ri:search-line" /></template>
       </ElInput>
@@ -118,6 +117,8 @@
       loading.value = false
     }
   }
+
+  const debouncedLoadVehicles = useDebounceFn(() => loadVehicles(1), 300)
 
   function handleOpen() {
     keyword.value = ''

@@ -108,7 +108,7 @@
             v-model="filters[f.key]"
             :placeholder="f.ph"
             clearable
-            @keyup.enter="handleSearch"
+            @input="debouncedHandleSearch"
           />
         </div>
       </div>
@@ -315,9 +315,9 @@
 
   const initRange = granRange('month')
   const timeMode = ref<ReportTimeMode>('month')
-  const entryRange = ref<[string, string]>([...initRange])
-  const archiveRange = ref<[string, string]>([...initRange])
-  const orderRange = ref<[string, string]>([...initRange])
+  const entryRange = ref<[string, string] | null>([...initRange])
+  const archiveRange = ref<[string, string] | null>([...initRange])
+  const orderRange = ref<[string, string] | null>([...initRange])
   const page = ref(1)
   const limit = ref(20)
 
@@ -423,13 +423,14 @@
 
   function switchTimeMode(mode: ReportTimeMode) {
     timeMode.value = mode
-    entryRange.value = granRange(mode, new Date(entryRange.value[0]))
-    archiveRange.value = granRange(mode, new Date(archiveRange.value[0]))
-    orderRange.value = granRange(mode, new Date(orderRange.value[0]))
+    if (entryRange.value) entryRange.value = granRange(mode, new Date(entryRange.value[0]))
+    if (archiveRange.value) archiveRange.value = granRange(mode, new Date(archiveRange.value[0]))
+    if (orderRange.value) orderRange.value = granRange(mode, new Date(orderRange.value[0]))
   }
 
   function shiftGroup(key: 'entry' | 'archive' | 'order', delta: number) {
     if (key === 'entry') {
+      if (!entryRange.value) return
       entryRange.value = shiftGranRange(
         entryRange.value[0],
         entryRange.value[1],
@@ -437,6 +438,7 @@
         delta
       )
     } else if (key === 'archive') {
+      if (!archiveRange.value) return
       archiveRange.value = shiftGranRange(
         archiveRange.value[0],
         archiveRange.value[1],
@@ -444,6 +446,7 @@
         delta
       )
     } else {
+      if (!orderRange.value) return
       orderRange.value = shiftGranRange(
         orderRange.value[0],
         orderRange.value[1],
@@ -546,6 +549,8 @@
     loadData()
   }
 
+  const debouncedHandleSearch = useDebounceFn(handleSearch, 300)
+
   function handleReset() {
     timeMode.value = 'month'
     const range = granRange('month')
@@ -562,7 +567,7 @@
   function handleExport() {
     exportReport(
       { ...buildParams(), page: 1, limit: 200 },
-      `入库日期：${entryRange.value[0]} — ${entryRange.value[1]}`
+      `入库日期：${entryRange.value?.[0] ?? ''} — ${entryRange.value?.[1] ?? ''}`
     )
   }
 
