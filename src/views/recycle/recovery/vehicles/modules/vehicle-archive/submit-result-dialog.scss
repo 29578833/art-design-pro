@@ -126,67 +126,6 @@
     word-break: break-all;
   }
 
-  .certificate-section {
-    margin-bottom: 12px;
-    overflow: hidden;
-    border: 1px solid #e8e8e8;
-    border-radius: 8px;
-  }
-
-  .certificate-section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 20px;
-    background: #fafbfc;
-    border-bottom: 1px solid #f0f0f0;
-  }
-
-  .certificate-section-title-wrap {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .certificate-section-icon {
-    font-size: 16px;
-    color: #1890ff;
-  }
-
-  .certificate-section-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #101828;
-  }
-
-  .certificate-preview {
-    padding: 16px;
-    background: #fff;
-  }
-
-  .certificate-loading,
-  .certificate-empty {
-    padding: 20px;
-    font-size: 13px;
-    color: #8c8c8c;
-    text-align: center;
-  }
-
-  .certificate-loading .is-loading {
-    margin-right: 6px;
-    animation: submit-result-spin 1s linear infinite;
-  }
-
-  @keyframes submit-result-spin {
-    from {
-      transform: rotate(0deg);
-    }
-
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
   .footer-tip {
     margin-bottom: 0;
     font-size: 12px;

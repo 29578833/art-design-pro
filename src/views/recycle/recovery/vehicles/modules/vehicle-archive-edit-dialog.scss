@@ -707,47 +707,6 @@ $ae-sub: #8c8c8c;
   border-radius: 8px;
 }
 
-.ae-cert-actions {
-  display: inline-flex;
-  gap: 8px;
-}
-
-.ae-cert-preview {
-  padding: 16px;
-  background: #fff;
-}
-
-.ae-cert-empty {
-  padding: 20px;
-  font-size: 13px;
-  color: #8c8c8c;
-  text-align: center;
-
-  .is-loading {
-    margin-right: 6px;
-    vertical-align: -2px;
-    animation: ae-cert-spin 1s linear infinite;
-  }
-}
-
-.ae-cert-footer {
-  display: flex;
-  justify-content: flex-end;
-  padding: 10px 16px 12px;
-  background: #fff;
-  border-top: 1px solid #f0f0f0;
-}
-
-@keyframes ae-cert-spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .ae-receipt-card {
   cursor: pointer;
   transition: border-color 0.2s;

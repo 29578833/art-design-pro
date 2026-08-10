@@ -175,7 +175,8 @@
   <SubmitResultDialog
     v-model:visible="submitResultVisible"
     :result="submitResult"
-    @fetch-archive="handleFetchArchive"
+    :fetching="fetchArchiveLoading"
+    @fetch-archive="handleFetchArchiveWithLoading"
   />
 </template>
 
@@ -230,6 +231,7 @@
   const vehicleStepRef = ref<InstanceType<typeof VehicleStep> | null>(null)
   const agentStepRef = ref<InstanceType<typeof AgentStep> | null>(null)
   const materialsStepRef = ref<InstanceType<typeof MaterialsStep> | null>(null)
+  const fetchArchiveLoading = ref(false)
 
   const {
     mode,
@@ -295,6 +297,15 @@
     onSuccess: () => emit('success'),
     onCreated: (id) => emit('created', id)
   })
+
+  async function handleFetchArchiveWithLoading() {
+    fetchArchiveLoading.value = true
+    try {
+      await handleFetchArchive()
+    } finally {
+      fetchArchiveLoading.value = false
+    }
+  }
 
   const dialogWidth = computed(() => {
     if (phase.value === 'order') return '640px'

@@ -1,32 +1,5 @@
 <template>
-  <div class="ae-readonly-box">
-    <div class="ae-readonly-head">
-      <span>
-        报废机动车回收证明
-        <span class="ae-readonly-badge">商务部同步 · 只读</span>
-      </span>
-      <span class="ae-cert-actions">
-        <ElButton size="small" @click="handleCertificateAction">查看</ElButton>
-        <ElButton size="small" type="primary" @click="handleCertificateAction">下载</ElButton>
-      </span>
-    </div>
-    <div class="ae-cert-preview">
-      <div v-if="scrapFilesLoading || certLoading" class="ae-cert-empty">
-        <ArtSvgIcon icon="ri:loader-4-line" class="is-loading" />
-        加载回收证明数据...
-      </div>
-      <CertificateTable
-        v-else-if="certData && certData.hszmbh"
-        :cert-data="certData"
-        :qr-link="certQrLink"
-        :cllx-options="certCllxOptions"
-      />
-      <div v-else class="ae-cert-empty">暂无回收证明数据</div>
-    </div>
-    <div v-if="certData && certData.hszmbh" class="ae-cert-footer">
-      <ElButton size="small" @click="handleCertificateAction">打开完整版（含六联）</ElButton>
-    </div>
-  </div>
+  <RecycleCertificate :djid="scrapDjid" :loading="scrapFilesLoading" />
 
   <div v-if="readonly" class="ae-material-tip warn">
     <ArtSvgIcon icon="ri:error-warning-line" class="ae-material-tip-icon" />
@@ -238,8 +211,6 @@
 
 <script setup lang="ts">
   import { fetchAcceptFilesCache, fetchAcceptUploadImage } from '@/api/recycle/accept'
-  import { fetchBfdjPrintHszm } from '@/api/recycle/bfdj'
-  import { fetchDataDictList } from '@/api/recycle/data-dict'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { ElMessage } from 'element-plus'
   import {
@@ -248,10 +219,9 @@
     TOW_READONLY_ITEMS
   } from './archive-constants'
   import { str } from './archive-utils'
-  import CertificateTable from './certificate-table.vue'
   import ReadonlyPhoto from './readonly-photo.vue'
+  import RecycleCertificate from './recycle-certificate.vue'
   import UploadSlot from './upload-slot.vue'
-  import type { BfdjHszmData } from '@/types/recycle/recovery/vehicles/bfdj'
   import type {
     ArchiveAgentImages,
     ArchiveCacheFile,
@@ -279,14 +249,6 @@
   const scrapDjid = ref('')
   const scrapFilesLoading = ref(false)
   const scrapCacheFiles = ref<Record<string, ArchiveCacheFile>>({})
-  const certData = ref<BfdjHszmData | null>(null)
-  const certLoading = ref(false)
-  const certCllxOptions = ref<{ label: string; value: string }[]>([])
-
-  const certQrLink = computed(() => {
-    const carid = certData.value?.carid
-    return carid ? `https://bfc.chexinmeng.com/carInfo.html?id=${carid}` : ''
-  })
 
   function getScrapFileUrl(field: string) {
     const fileData = scrapCacheFiles.value[field]
@@ -298,8 +260,6 @@
   function clearScrapFiles() {
     scrapCacheFiles.value = {}
     scrapDjid.value = ''
-    certData.value = null
-    certCllxOptions.value = []
   }
 
   async function loadScrapFiles() {
@@ -364,30 +324,6 @@
   function handleMaterialRemove(field: keyof ArchiveMaterialImages) {
     materialImages.value[field] = ''
   }
-
-  async function loadCertificateData(djid: string) {
-    if (!djid || certLoading.value) return
-    certLoading.value = true
-    try {
-      const [hszmRes, cllxRes] = await Promise.all([
-        fetchBfdjPrintHszm(djid).catch(() => null),
-        fetchDataDictList({ dict_type: 'car_cllx_ga', status: 1, limit: 1000 }).catch(() => ({
-          list: []
-        }))
-      ])
-      certData.value = hszmRes
-      certCllxOptions.value = (cllxRes?.list || []).map((item) => ({
-        label: item.dict_label ?? '',
-        value: item.dict_value ?? ''
-      }))
-    } finally {
-      certLoading.value = false
-    }
-  }
-
-  watch(scrapDjid, (val) => {
-    if (val) loadCertificateData(val)
-  })
 
   function handleCertificateAction() {
     if (!scrapDjid.value) {

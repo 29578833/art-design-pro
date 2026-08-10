@@ -260,6 +260,7 @@
   }
 
   .table-border td {
+    padding: 5px;
     border: 0.5pt solid #000;
   }
 

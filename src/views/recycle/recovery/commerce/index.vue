@@ -182,6 +182,7 @@
     <SubmitResultDialog
       v-model:visible="submitResultVisible"
       :result="submitResult"
+      :fetching="fetchArchiveLoading"
       @fetch-archive="handleFetchArchive"
     />
   </div>
@@ -243,6 +244,7 @@
   const selectedVehicleRow = ref<ScrapVehicle | null>(null)
   const submitRow = ref<AcceptListItem | null>(null)
   const submitResult = ref<AcceptSubmitResult | null>(null)
+  const fetchArchiveLoading = ref(false)
   const missingData = ref<CommerceMissingData>({
     owner: { fields: [], images: [] },
     vehicle: { fields: [], images: [] },
@@ -560,7 +562,12 @@
       ElMessage.warning('缺少车辆ID')
       return
     }
-    await fetchAcceptArchive(vehicleId)
+    fetchArchiveLoading.value = true
+    try {
+      await fetchAcceptArchive(vehicleId)
+    } finally {
+      fetchArchiveLoading.value = false
+    }
   }
 
   function handleEditorSuccess() {
