@@ -128,7 +128,7 @@ export function fetchAcceptSaveOwner(data: AcceptSaveOwnerParams) {
   return request.post({
     url: '/scrap/accept/save_owner',
     params: data,
-    showSuccessMessage: true
+    showSuccessMessage: false
   })
 }
 
@@ -137,7 +137,7 @@ export function fetchAcceptSaveVehicle(data: AcceptSaveVehicleParams) {
   return request.post({
     url: '/scrap/accept/save_vehicle',
     params: data,
-    showSuccessMessage: true
+    showSuccessMessage: false
   })
 }
 
@@ -146,7 +146,7 @@ export function fetchAcceptSaveAgent(data: AcceptSaveAgentParams) {
   return request.post({
     url: '/scrap/accept/save_agent',
     params: data,
-    showSuccessMessage: true
+    showSuccessMessage: false
   })
 }
 

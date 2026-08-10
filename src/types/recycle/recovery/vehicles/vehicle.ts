@@ -69,6 +69,8 @@ export interface ScrapVehicle {
   owner_sync_id?: number
   /** 是否已提交商务部 */
   is_submitted_commerce?: number
+  /** 报废登记单 ID（下载回收证明用，接口返回 djid） */
+  djid?: string | number
   /** 创建时间文案 */
   add_time_text?: string
   /** 更新时间文案 */

@@ -608,7 +608,6 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     try {
       await saveCurrentStep()
       draftSaved.value = true
-      ElMessage.success('暂存成功')
     } finally {
       saving.value = false
     }

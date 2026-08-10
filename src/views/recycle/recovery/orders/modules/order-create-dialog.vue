@@ -678,11 +678,9 @@
 </template>
 
 <script setup lang="ts">
-  import {
-    parseEmissionStandardFromOcr,
-    parseFuelTypeFromOcr,
-    recognizeDrivingLicenseByFile
-  } from '@/api/recycle/ocr'
+  import { parseEmissionStandardFromOcr, parseFuelTypeFromOcr } from '@/api/recycle/ocr'
+  import { fetchAcceptRecognizeDrivingLicense } from '@/api/recycle/accept'
+  import { uploadFile } from '@/api/upload'
   import { fetchPartnerList } from '@/api/recycle/customer'
   import { fetchSaveOrder } from '@/api/recycle/order'
   import type { CustomerGrade } from '@/types/recycle/customers/customer'
@@ -1283,8 +1281,9 @@
 
     ocrLoading.value = true
     try {
-      const result = await recognizeDrivingLicenseByFile(file)
-      applyOcrResult(result.data!)
+      const { url } = await uploadFile(file, { showSuccessMessage: false })
+      const data = await fetchAcceptRecognizeDrivingLicense(url)
+      applyOcrResult(data)
       ocrDone.value = true
       if (ocrDoneTimer) clearTimeout(ocrDoneTimer)
       ocrDoneTimer = setTimeout(() => {

@@ -296,7 +296,7 @@
   }
 
   function handleDownloadCert(row: ScrapVehicle) {
-    window.open(`https://bfc.chexinmeng.com/hszma4?id=${row.id}`, '_blank')
+    window.open(`https://bfc.chexinmeng.com/hszma4?id=${row.djid || row.id}`, '_blank')
   }
 
   function buildColumns() {
