@@ -110,8 +110,8 @@
   const systemName = AppConfig.systemInfo.name
 
   const formData = reactive({
-    account: 'admin',
-    pwd: '123456'
+    account: '',
+    pwd: ''
   })
 
   const rules: FormRules = {
