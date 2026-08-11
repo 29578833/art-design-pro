@@ -243,7 +243,13 @@ export function buildCreateStep2Columns(isService: boolean): SettlementGridColum
 /** 详情弹窗列 */
 export function buildDetailColumns(isService: boolean): SettlementGridColumn[] {
   const cols: SettlementGridColumn[] = [
-    { field: 'entry_date', title: '入库日期', width: 130, ...thBase },
+    {
+      field: 'entry_date',
+      title: '入库日期',
+      width: 130,
+      slots: { default: 'entry_date' },
+      ...thBase
+    },
     { field: 'vehicle_no', title: '自编号', width: 130, ...thBase },
     { field: 'plate_no', title: '车牌号', width: 90, slots: { default: 'plate_no' }, ...thBase },
     {

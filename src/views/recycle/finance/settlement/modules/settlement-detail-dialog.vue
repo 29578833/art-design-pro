@@ -85,6 +85,7 @@
             :footer-method="detailFooterMethod"
             :footer-span-method="detailFooterSpanMethod"
           >
+            <template #entry_date="{ row }">{{ formatEntryDate(row.entry_date) }}</template>
             <template #plate_no="{ row }">
               <span class="fs-plate">{{ row.plate_no }}</span>
             </template>
@@ -291,6 +292,21 @@
     return 'is-none'
   }
 
+  /** 入库日期：时间戳（秒）转日期 */
+  function formatEntryDate(value?: string | number) {
+    if (value === undefined || value === null || value === '') return '—'
+    // 已是日期字符串（如 2026-08-09）则直接返回日期部分
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+      return value.slice(0, 10)
+    }
+    const ts = Number(value)
+    if (!Number.isFinite(ts)) return String(value)
+    const date = new Date(ts * 1000)
+    if (Number.isNaN(date.getTime())) return String(value)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+  }
+
   /** 表尾合计行 */
   function detailFooterMethod({ columns }: { columns: { field?: string }[] }) {
     if (!filteredItems.value.length) return []
@@ -364,13 +380,73 @@
     attachVisible.value = true
   }
 
-  /** 导出当前明细车辆 */
+  /** 导出当前明细车辆（中文表头，字段与表格列一致） */
   function showExportDemo() {
     if (!filteredItems.value.length) {
       ElMessage.warning('暂无数据可导出')
       return
     }
-    const sheet = XLSX.utils.json_to_sheet(filteredItems.value)
+    const isSvc = isService.value
+    const header = ['序号', '入库日期', '自编号', '车牌号', '入库单号']
+    const filterVal = ['index', 'entry_date', 'vehicle_no', 'plate_no', 'warehouse_no']
+    if (!isSvc) {
+      header.push('车辆类型')
+      filterVal.push('vehicle_type')
+    }
+    header.push(
+      '结算类型',
+      '整备质量(吨)',
+      '实际重量(吨)',
+      '自送费补贴(元)',
+      '缺补件吨位(吨)',
+      '残值单价(元)',
+      '缺件(元)',
+      '质检缺件免扣款',
+      '实际支付残值金额(元)',
+      '服务费(元/吨)',
+      '服务费合计(元)'
+    )
+    filterVal.push(
+      'settlement_method_text',
+      'prepared_weight_ton',
+      'actual_weight_ton',
+      'self_delivery_subsidy',
+      'missing_compensation_pos_ton',
+      'residual_unit_price',
+      'missing_parts',
+      'missing_deduction',
+      'actual_pay_amount',
+      'service_fee_unit_price',
+      'service_fee_total'
+    )
+    if (isSvc) {
+      header.push('修改说明')
+      filterVal.push('modify_remark')
+    }
+    header.push('单车总金额(元)')
+    filterVal.push('total_amount')
+    if (!isSvc) {
+      header.push('修改说明')
+      filterVal.push('modify_remark')
+    }
+    header.push('质检缺件备注', '审核状态', '驳回原因', '审核人', '审核时间', '申请备注')
+    filterVal.push(
+      'remark',
+      'audit_status_text',
+      'reject_reason',
+      'audit_user_name',
+      'audit_time',
+      'apply_remark'
+    )
+    const data = filteredItems.value.map((row, i) =>
+      filterVal.map((key) => {
+        if (key === 'index') return i + 1
+        if (key === 'entry_date') return formatEntryDate(row.entry_date)
+        const val = row[key]
+        return val === undefined || val === null || val === '' ? '' : val
+      })
+    )
+    const sheet = XLSX.utils.aoa_to_sheet([header, ...data])
     const book = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(book, sheet, '结算车辆')
     XLSX.writeFile(book, `结算车辆_${detail.value?.settlement_no || props.billId}.xlsx`)

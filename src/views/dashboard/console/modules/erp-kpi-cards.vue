@@ -92,7 +92,7 @@
     justify-content: space-between;
     min-height: 118px;
     padding: 16px 18px;
-    margin-bottom: 16px;
+    // margin-bottom: 16px;
     overflow: hidden;
     background: var(--default-box-color);
     border: 1px solid var(--art-card-border);
