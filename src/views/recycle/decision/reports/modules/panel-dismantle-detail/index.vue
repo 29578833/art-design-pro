@@ -47,14 +47,7 @@
           </template>
         </ElInput>
 
-        <ElButton type="primary" @click="handleSearch">
-          <ArtSvgIcon icon="ri:filter-3-line" class="mr-1" />
-          查询
-        </ElButton>
-        <ElButton @click="handleReset">
-          <ArtSvgIcon icon="ri:close-line" class="mr-1" />
-          重置
-        </ElButton>
+        <ElButton type="text" @click="handleReset"> 重置 </ElButton>
 
         <div class="dd-filter-actions">
           <ElButton :loading="exporting" @click="handleExport">
@@ -275,10 +268,9 @@
     headerAlign: 'center' as const,
     showOverflow: 'tooltip' as const,
     autoResize: true,
-    height: '100%',
     width: '100%',
     scrollX: { enabled: false },
-    scrollY: { enabled: true, gt: 0 },
+    scrollY: { enabled: false },
     columnConfig: { resizable: false },
     rowConfig: { isHover: true, height: 36 },
     showFooter: true,
@@ -474,6 +466,7 @@
   }
 
   const debouncedHandleSearch = useDebounceFn(handleSearch, 300)
+  watch([dateRange, vehicleCategory], debouncedHandleSearch, { deep: true })
 
   function handleReset() {
     dateRange.value = defaultTodayRange()

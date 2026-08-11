@@ -60,7 +60,7 @@
           </li>
         </ul>
 
-        <div v-else class="relative top-25 h-full text-g-500 text-center !bg-transparent">
+        <div v-else class="relative flex-cc h-full text-g-500 text-center !bg-transparent">
           <ArtSvgIcon icon="system-uicons:inbox" class="text-5xl" />
           <p class="mt-3.5 text-xs !bg-transparent">
             {{ $t('notice.text[0]') }}{{ $t('notice.title') }}

@@ -93,14 +93,7 @@
           />
         </div>
 
-        <ElButton type="primary" @click="handleSearch">
-          <ArtSvgIcon icon="ri:filter-3-line" class="mr-1" />
-          查询
-        </ElButton>
-        <ElButton @click="handleReset">
-          <ArtSvgIcon icon="ri:close-line" class="mr-1" />
-          重置
-        </ElButton>
+        <ElButton type="text" @click="handleReset"> 重置 </ElButton>
         <div class="rmi-filter-actions">
           <ElButton :loading="exporting" @click="handleExport">
             <ArtSvgIcon icon="ri:download-line" class="mr-1" />
@@ -425,6 +418,11 @@
   }
 
   const debouncedHandleSearch = useDebounceFn(handleSearch, 300)
+  watch(
+    [inboundRange, materialRange, vehicleCategory, vehicleModel, driveType, supervision],
+    debouncedHandleSearch,
+    { deep: true }
+  )
 
   function handleReset() {
     const range = defaultReportDateRange()

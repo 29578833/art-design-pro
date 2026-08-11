@@ -24,7 +24,7 @@
         </div>
 
         <div class="pc-date-group">
-          <ElButton size="small" @click="shiftDate(-1)">‹ 前一天</ElButton>
+          <ElButton size="small" @click="shiftDate(-1)">‹ {{ shiftLabel(-1) }}</ElButton>
           <ElDatePicker
             v-model="dateRange"
             type="daterange"
@@ -34,7 +34,7 @@
             end-placeholder="结束"
             class="pc-date-single"
           />
-          <ElButton size="small" @click="shiftDate(1)">后一天 ›</ElButton>
+          <ElButton size="small" @click="shiftDate(1)">{{ shiftLabel(1) }} ›</ElButton>
           <ElButton link type="primary" @click="goToday">今天</ElButton>
         </div>
 
@@ -50,14 +50,7 @@
           </template>
         </ElInput>
 
-        <ElButton type="primary" @click="handleSearch">
-          <ArtSvgIcon icon="ri:filter-3-line" class="mr-1" />
-          查询
-        </ElButton>
-        <ElButton @click="handleReset">
-          <ArtSvgIcon icon="ri:close-line" class="mr-1" />
-          重置
-        </ElButton>
+        <ElButton type="text" @click="handleReset"> 重置 </ElButton>
 
         <div class="pc-filter-actions">
           <ElButton :loading="exporting" @click="handleExport">
@@ -103,6 +96,7 @@
               v-if="row[col.key]"
               :src="row[col.key]"
               :preview-src-list="[row[col.key]]"
+              preview-teleported
               fit="cover"
               class="pc-thumb"
               :style="{ background: col.color }"
@@ -155,9 +149,8 @@
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import {
     defaultReportDateRange,
-    defaultTodayRange,
     granRange,
-    shiftDayRange,
+    shiftGranRange,
     type ReportTimeMode
   } from '../../utils'
   import { buildPhotoChecklistColumns, PHOTO_COLS } from './grid-columns'
@@ -273,6 +266,14 @@
     }
   }
 
+  function shiftLabel(dir: -1 | 1) {
+    const map = {
+      day: dir < 0 ? '前一天' : '后一天',
+      week: dir < 0 ? '前一周' : '后一周',
+      month: dir < 0 ? '前一月' : '后一月'
+    }
+    return map[timeMode.value]
+  }
   function switchTimeMode(mode: ReportTimeMode) {
     timeMode.value = mode
     if (!dateRange.value) return
@@ -282,12 +283,15 @@
 
   function shiftDate(delta: number) {
     if (!dateRange.value) return
-    const [s, e] = shiftDayRange(dateRange.value[0], dateRange.value[1], delta)
+    const [s, e] = shiftGranRange(dateRange.value[0], dateRange.value[1], timeMode.value, delta)
     dateRange.value = [s, e]
   }
 
   function goToday() {
-    dateRange.value = defaultTodayRange()
+    const range = granRange(timeMode.value)
+    dateRange.value = [...range]
+    queryRange.value = [...range]
+    page.value = 1
   }
 
   function onPageSizeChange() {
@@ -318,6 +322,7 @@
   }
 
   const debouncedHandleSearch = useDebounceFn(handleSearch, 300)
+  watch([dateRange, timeMode], debouncedHandleSearch, { deep: true })
 
   function handleReset() {
     timeMode.value = 'month'

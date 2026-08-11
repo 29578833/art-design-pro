@@ -65,14 +65,7 @@
           />
         </ElSelect>
 
-        <ElButton type="primary" @click="handleSearch">
-          <ArtSvgIcon icon="ri:filter-3-line" class="mr-1" />
-          查询
-        </ElButton>
-        <ElButton @click="handleReset">
-          <ArtSvgIcon icon="ri:close-line" class="mr-1" />
-          重置
-        </ElButton>
+        <ElButton type="text" @click="handleReset"> 重置 </ElButton>
 
         <div class="va-filter-actions">
           <ElButton :loading="exporting" @click="handleExport">
@@ -261,6 +254,7 @@
   }
 
   const debouncedHandleSearch = useDebounceFn(handleSearch, 300)
+  watch([dateRange, progressStatus], debouncedHandleSearch, { deep: true })
 
   function handleReset() {
     dateRange.value = defaultReportDateRange()

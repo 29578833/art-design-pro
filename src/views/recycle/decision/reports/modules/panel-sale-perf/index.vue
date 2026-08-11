@@ -10,7 +10,7 @@
         :unlink-panels="true"
         class="report-filter-date"
       />
-      <ElButton type="primary" @click="handleQuery">查询</ElButton>
+      <ElButton type="text" @click="handleReset">重置</ElButton>
       <ElButton :loading="exporting" @click="exportExcel">
         <ArtSvgIcon icon="ri:download-line" class="mr-1" />
         导出Excel
@@ -23,7 +23,7 @@
         height="220px"
         :data="chartData"
         :x-axis-data="chartLabels"
-        bar-width="40%"
+        :bar-width="36"
         :colors="['#1890FF']"
       />
     </div>
@@ -140,14 +140,16 @@
     }
   }
 
-  function handleQuery() {
-    if (!dateRange.value || dateRange.value.length !== 2) {
-      ElMessage.warning('请选择日期范围')
-      return
-    }
-    queryRange.value = [...dateRange.value]
-    loadData()
+  function handleReset() {
+    dateRange.value = defaultReportDateRange()
   }
+
+  watch(dateRange, (range) => {
+    if (range && range.length === 2) {
+      queryRange.value = [...range]
+      loadData()
+    }
+  })
 
   function exportExcel() {
     exporting.value = true

@@ -106,14 +106,7 @@
           <ElOption v-for="name in inspectorOptions" :key="name" :label="name" :value="name" />
         </ElSelect>
         <div class="qc-filter-actions">
-          <ElButton @click="handleReset">
-            <ArtSvgIcon icon="ri:close-line" class="mr-1" />
-            重置
-          </ElButton>
-          <ElButton type="primary" @click="handleSearch">
-            <ArtSvgIcon icon="ri:filter-3-line" class="mr-1" />
-            查询
-          </ElButton>
+          <ElButton type="text" @click="handleReset"> 重置 </ElButton>
         </div>
       </div>
     </div>
@@ -466,6 +459,11 @@
   }
 
   const debouncedHandleSearch = useDebounceFn(handleSearch, 300)
+  watch(
+    [dateRange, qcStatus, ownerType, emissionStandard, fuelType, agentName, inspectorName],
+    debouncedHandleSearch,
+    { deep: true }
+  )
 
   function handleReset() {
     dateRange.value = defaultReportDateRange()

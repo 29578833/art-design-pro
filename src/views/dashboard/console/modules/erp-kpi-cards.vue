@@ -15,12 +15,9 @@
           <div class="erp-kpi-sub">
             <template v-if="item.subNum !== undefined">
               {{ item.subPrefix }}
-              <ArtCountTo
-                :target="item.subNum"
-                :duration="1500"
-                :suffix="item.subSuffix"
-                class="erp-kpi-sub-num"
-              />
+              <span class="erp-kpi-sub-num">
+                {{ formatKpiNumber(item.subNum) }}{{ item.subSuffix }}
+              </span>
             </template>
             <template v-else>{{ item.sub }}</template>
           </div>
@@ -29,13 +26,9 @@
               :icon="item.up ? 'ri:arrow-up-line' : 'ri:arrow-down-line'"
               class="text-xs"
             />
-            <ArtCountTo
-              v-if="item.trendNum !== undefined"
-              :target="item.trendNum"
-              :duration="1200"
-              :decimals="item.trendDecimals ?? 0"
-              :suffix="item.trendSuffix"
-            />
+            <span v-if="item.trendNum !== undefined" class="text-g-900 tabular-nums">
+              {{ formatKpiNumber(item.trendNum, item.trendDecimals ?? 0) }}{{ item.trendSuffix }}
+            </span>
             <template v-else>{{ item.trend }}</template>
           </span>
         </div>
@@ -71,6 +64,11 @@
   defineProps<{
     kpiList: DashboardKpiItem[]
   }>()
+
+  const formatKpiNumber = (value: number, decimals = 0): string => {
+    if (!Number.isFinite(value)) return '0'
+    return decimals > 0 ? value.toFixed(decimals) : Math.floor(value).toString()
+  }
 
   const getSparkLine = (data: number[]) => {
     if (!data.length) return '0,20 200,20'
@@ -163,7 +161,7 @@
     display: inline-flex;
     gap: 2px;
     align-items: center;
-    padding-top: 8px;
+    padding-top: 18px;
     margin-top: auto;
     font-size: 12px;
     font-weight: 500;

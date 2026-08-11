@@ -80,3 +80,20 @@ export function formatCnDate(d: string) {
 export function formatCnDateRange(start: string, end: string) {
   return start === end ? formatCnDate(start) : `${formatCnDate(start)} — ${formatCnDate(end)}`
 }
+
+/** 收车汇总报表默认日期范围：近半年（含本月共 6 个自然月，取每月1日） */
+export function defaultSixMonthsRange(): [string, string] {
+  const now = new Date()
+  const start = new Date(now.getFullYear(), now.getMonth() - 5, 1)
+  const end = new Date(now.getFullYear(), now.getMonth(), 1)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const fmt = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+  return [fmt(start), fmt(end)]
+}
+
+/** 取 YYYY-MM-DD 所在月的最后一天（YYYY-MM-DD） */
+export function lastDayOfMonth(dateStr: string): string {
+  const [y, m] = dateStr.split('-').map(Number)
+  const last = new Date(y, m, 0).getDate()
+  return `${y}-${String(m).padStart(2, '0')}-${String(last).padStart(2, '0')}`
+}

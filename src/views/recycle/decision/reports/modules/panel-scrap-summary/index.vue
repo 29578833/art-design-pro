@@ -3,14 +3,15 @@
     <div class="report-filter-bar">
       <ElDatePicker
         v-model="dateRange"
-        type="daterange"
+        type="monthrange"
+        format="YYYY-MM"
         value-format="YYYY-MM-DD"
-        start-placeholder="开始日期"
-        end-placeholder="结束日期"
+        start-placeholder="开始月份"
+        end-placeholder="结束月份"
         :unlink-panels="true"
         class="report-filter-date"
       />
-      <ElButton type="primary" @click="handleQuery">查询</ElButton>
+      <ElButton type="text" @click="handleReset">重置</ElButton>
       <ElButton :loading="exporting" @click="exportExcel">
         <ArtSvgIcon icon="ri:download-line" class="mr-1" />
         导出Excel
@@ -64,10 +65,10 @@
   } from '@/types/recycle/decision/reports/report'
   import ArtLineChart from '@/components/core/charts/art-line-chart/index.vue'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
-  import { defaultReportDateRange } from '../../utils'
+  import { defaultSixMonthsRange, lastDayOfMonth } from '../../utils'
 
-  const dateRange = ref<[string, string]>(defaultReportDateRange())
-  const queryRange = ref<[string, string]>(defaultReportDateRange())
+  const dateRange = ref<[string, string]>(defaultSixMonthsRange())
+  const queryRange = ref<[string, string]>(defaultSixMonthsRange())
   const exporting = ref(false)
 
   const loading = ref(false)
@@ -163,21 +164,23 @@
     try {
       summary.value = await fetchScrapSummary({
         start_date: queryRange.value[0],
-        end_date: queryRange.value[1]
+        end_date: lastDayOfMonth(queryRange.value[1])
       })
     } finally {
       loading.value = false
     }
   }
 
-  function handleQuery() {
-    if (!dateRange.value || dateRange.value.length !== 2) {
-      ElMessage.warning('请选择日期范围')
-      return
-    }
-    queryRange.value = [...dateRange.value]
-    loadData()
+  function handleReset() {
+    dateRange.value = defaultSixMonthsRange()
   }
+
+  watch(dateRange, (range) => {
+    if (range && range.length === 2) {
+      queryRange.value = [...range]
+      loadData()
+    }
+  })
 
   function exportExcel() {
     exporting.value = true
