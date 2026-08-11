@@ -95,8 +95,9 @@
     await loadList()
   }
 
-  async function handleSort(row: MiniFaqItem, direction: 1 | -1) {
-    await fetchFaqSort(row.id, direction)
+  async function handleSort(row: MiniFaqItem, direction: 'up' | 'down') {
+    // 后端 faq_sort 按 sort 升序展示：-1 与前一项（sort 更小）交换 = 上移；1 与后一项交换 = 下移
+    await fetchFaqSort(row.id, direction === 'up' ? -1 : 1)
     await loadList()
   }
 
@@ -145,7 +146,7 @@
               type: 'button',
               class: 'mini-faq-sort-btn',
               disabled: isFirst,
-              onClick: () => handleSort(row, 1)
+              onClick: () => handleSort(row, 'up')
             },
             [h(ArtSvgIcon, { icon: 'ri:arrow-up-s-line' })]
           ),
@@ -156,7 +157,7 @@
               type: 'button',
               class: 'mini-faq-sort-btn',
               disabled: isLast,
-              onClick: () => handleSort(row, -1)
+              onClick: () => handleSort(row, 'down')
             },
             [h(ArtSvgIcon, { icon: 'ri:arrow-down-s-line' })]
           )

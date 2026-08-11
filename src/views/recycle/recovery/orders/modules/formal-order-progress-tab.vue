@@ -178,7 +178,7 @@
 
   /**
    * 将订单/车辆状态映射为步骤索引（0-based）
-   * 步骤序列：订单提交 → 审核通过 → 待入厂 → 入厂查验 → 拆解处理 → 注销办理 → 注销完成 → 结算完成
+   * 步骤序列：创建回收订单 → 订单审核 → 入厂查验 → 原料入厂 → 领料管理 → 拆解管理 → 完结
    */
   const currentIdx = computed<number>(() => {
     const orderStatus = Number(props.detail.status)
@@ -208,12 +208,11 @@
     5: 4,
     6: 5,
     7: 6,
-    8: 7,
     [-1]: 0
   }
 
   const logsPerStep = computed<OrderStatusLog[][]>(() => {
-    const result: OrderStatusLog[][] = Array.from({ length: 8 }, () => [])
+    const result: OrderStatusLog[][] = Array.from({ length: STEP_META.length }, () => [])
     const logs = props.detail.status_logs ?? []
     const sorted = [...logs].sort((a, b) => Number(a.change_time ?? 0) - Number(b.change_time ?? 0))
     for (const log of sorted) {
@@ -221,7 +220,7 @@
       if (stepIdx !== undefined) {
         result[stepIdx].push(log)
       } else {
-        result[Math.min(currentIdx.value, 7)].push(log)
+        result[Math.min(currentIdx.value, STEP_META.length - 1)].push(log)
       }
     }
     return result
@@ -270,14 +269,17 @@
   }
 
   const STEP_META = [
-    { key: 'pending_review', label: '订单提交', desc: '客户提交报废回收申请' },
-    { key: 'approved', label: '审核通过', desc: '管理员完成资质审核，订单进入回收流程' },
-    { key: 'pending_entry', label: '待入厂', desc: '等待车辆到达回收厂' },
-    { key: 'inspecting', label: '入厂查验', desc: '专业人员对车辆进行现场查验与定价' },
-    { key: 'dismantling', label: '拆解处理', desc: '按规范对车辆进行拆解' },
-    { key: 'canceling', label: '注销办理', desc: '向交管部门提交注销申请材料' },
-    { key: 'canceled', label: '注销完成', desc: '车辆登记信息已注销' },
-    { key: 'completed', label: '结算完成', desc: '完成打款，全部回收流程结束' }
+    { key: 'created', label: '创建回收订单', desc: '业务员或客户发起回收申请，生成回收订单' },
+    { key: 'approved', label: '订单审核', desc: '管理员审核订单资质，通过后进入回收流程' },
+    {
+      key: 'inspecting',
+      label: '入厂查验',
+      desc: '车辆到厂后由质检员现场查验，确认车辆状态与合规性'
+    },
+    { key: 'entry', label: '原料入厂', desc: '车辆完成入厂手续，过磅称重并分配存放库位' },
+    { key: 'material_receive', label: '领料管理', desc: '拆解组领取待拆解车辆，完成领料登记' },
+    { key: 'dismantling', label: '拆解管理', desc: '按规范对车辆进行拆解，登记五大总成及产物信息' },
+    { key: 'finished', label: '完结', desc: '拆解流程全部完成，订单进入完结状态' }
   ]
 
   const STEPS = computed<StepDef[]>(() =>
@@ -306,7 +308,8 @@
 
   const trackFillStyle = computed(() => {
     const total = STEPS.value.length - 1
-    const pct = currentIdx.value > 0 ? (currentIdx.value / total) * 92 : 0
+    const idx = Math.min(currentIdx.value, total)
+    const pct = idx > 0 ? (idx / total) * 92 : 0
     return { width: `${pct}%` }
   })
 </script>

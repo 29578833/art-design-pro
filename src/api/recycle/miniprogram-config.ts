@@ -131,7 +131,7 @@ export function fetchFaqDelete(id: number) {
   })
 }
 
-/** FAQ 排序：direction 1 上移 / -1 下移 */
+/** FAQ 排序：direction -1 上移（与前一项交换）/ 1 下移（与后一项交换） */
 export function fetchFaqSort(id: number, direction: 1 | -1) {
   return request.post({
     url: `/scrap/config/faq_sort/${id}`,

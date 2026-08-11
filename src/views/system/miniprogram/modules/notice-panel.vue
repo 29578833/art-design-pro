@@ -52,6 +52,11 @@
     total: 0
   })
 
+  function stripHtml(html?: string) {
+    if (!html) return ''
+    return html.replace(/<[^>]+>/g, '').trim()
+  }
+
   function openCreate() {
     current.value = null
     dialogVisible.value = true
@@ -85,6 +90,14 @@
     await loadList()
   }
 
+  function handleCopyAddress(row: MiniNoticeItem) {
+    const address = `/pages/common/article-detail?id=${row.id}`
+    navigator.clipboard
+      .writeText(address)
+      .then(() => ElMessage.success('地址已复制'))
+      .catch(() => ElMessage.error('复制失败，请手动复制'))
+  }
+
   function handleSizeChange(size: number) {
     pagination.size = size
     pagination.current = 1
@@ -100,25 +113,26 @@
     {
       prop: 'title',
       label: '标题',
-      minWidth: 180,
+      minWidth: 160,
       formatter: (row) => row.title || '—'
     },
     {
       prop: 'content',
       label: '内容',
-      minWidth: 260,
-      formatter: (row) => h('span', { class: 'mini-ellipsis' }, row.content || '—')
+      minWidth: 160,
+      formatter: (row) => h('span', { class: 'mini-ellipsis' }, stripHtml(row.content) || '—')
     },
     {
       prop: 'sort',
       label: '排序',
-      width: 80,
+      minWidth: 160,
+      align: 'center',
       formatter: (row) => row.sort ?? 0
     },
     {
       prop: 'is_show',
       label: '启用',
-      width: 90,
+      width: 160,
       formatter: (row) =>
         h(ElSwitch, {
           modelValue: Number(row.is_show) === 1 ? 1 : 0,
@@ -130,7 +144,7 @@
     {
       prop: 'operation',
       label: '操作',
-      width: 180,
+      minWidth: 160,
       align: 'center',
       fixed: 'right',
       formatter: (row) =>
@@ -143,6 +157,15 @@
               onClick: () => openEdit(row)
             },
             [h(ArtSvgIcon, { icon: 'ri:pencil-line', class: 'order-action-icon' }), '编辑']
+          ),
+          h(
+            'button',
+            {
+              type: 'button',
+              class: 'order-action-btn ghost',
+              onClick: () => handleCopyAddress(row)
+            },
+            [h(ArtSvgIcon, { icon: 'ri:links-line', class: 'order-action-icon' }), '复制地址']
           ),
           h(
             'button',

@@ -21,9 +21,9 @@
 
     <ElDialog
       v-model="dialogVisible"
+      class="agreement-dialog-full"
       :title="`编辑 — ${editingLabel}`"
       width="860px"
-      align-center
       destroy-on-close
     >
       <ElForm ref="formRef" :model="form" :rules="rules" label-position="top">
@@ -44,11 +44,11 @@
             />
           </ElFormItem>
         </div>
-        <ElFormItem label="协议内容" prop="content">
+        <ElFormItem label="协议内容" prop="content" class="el-form-item--fill">
           <ArtWangEditor
             v-if="dialogVisible"
             v-model="form.content"
-            height="420px"
+            fill
             placeholder="请输入协议内容"
           />
         </ElFormItem>
@@ -174,3 +174,62 @@
 
   onMounted(loadAll)
 </script>
+
+<style lang="scss">
+  .agreement-dialog-full {
+    --el-dialog-margin-top: 0;
+
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-height: 100vh;
+    padding: 0 !important;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 0 !important;
+
+    .el-dialog__header {
+      flex-shrink: 0;
+      padding: 16px 56px 16px 24px;
+      margin-right: 0;
+      border-bottom: 1px solid var(--art-gray-300);
+    }
+
+    .el-dialog__body {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      min-height: 0;
+      padding: 20px 24px;
+      overflow-y: auto;
+
+      > .el-form {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+
+        .el-form-item--fill {
+          display: flex;
+          flex: 1;
+          flex-direction: column;
+          min-height: 0;
+
+          .el-form-item__content {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            min-height: 0;
+          }
+        }
+      }
+    }
+
+    .el-dialog__footer {
+      flex-shrink: 0;
+      padding: 16px 24px;
+      background: #f9fafb;
+      border-top: 1px solid var(--art-gray-300);
+    }
+  }
+</style>

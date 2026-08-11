@@ -271,3 +271,19 @@ $box-radius: calc(var(--custom-radius) / 3 + 2px);
     }
   }
 }
+
+/* 填充模式：自动撑满父容器剩余高度 */
+.editor-wrapper.editor-fill {
+  display: flex;
+  flex-direction: column;
+  min-height: 240px;
+
+  .editor-toolbar {
+    flex-shrink: 0;
+  }
+
+  .editor-body {
+    flex: 1 1 0%;
+    min-height: 0;
+  }
+}

@@ -1,6 +1,6 @@
 <!-- WangEditor 富文本编辑器 插件地址：https://www.wangeditor.com/ -->
 <template>
-  <div class="editor-wrapper">
+  <div class="editor-wrapper" :class="{ 'editor-fill': fill }">
     <Toolbar
       class="editor-toolbar"
       :editor="editorRef"
@@ -8,7 +8,8 @@
       :defaultConfig="toolbarConfig"
     />
     <Editor
-      :style="{ height: height, overflowY: 'hidden' }"
+      class="editor-body"
+      :style="{ height: fill ? '100%' : height, overflowY: 'hidden' }"
       v-model="modelValue"
       :mode="mode"
       :defaultConfig="editorConfig"
@@ -46,6 +47,8 @@
     mode?: 'default' | 'simple'
     /** 占位符文本 */
     placeholder?: string
+    /** 是否自动撑满父容器剩余高度 */
+    fill?: boolean
     /** 上传配置 */
     uploadConfig?: {
       maxFileSize?: number
@@ -60,7 +63,8 @@
     height: '500px',
     mode: 'default',
     placeholder: '请输入内容...',
-    excludeKeys: () => []
+    excludeKeys: () => [],
+    fill: false
   })
 
   const modelValue = defineModel<string>({ required: true })
