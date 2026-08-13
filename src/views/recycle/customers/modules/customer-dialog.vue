@@ -38,7 +38,7 @@
             </ElFormItem>
           </ElCol>
           <ElCol v-if="!isEnterprise" :span="12">
-            <ElFormItem label="身份证号" prop="idCard" required>
+            <ElFormItem label="身份证号" prop="idCard">
               <ElInput v-model="formData.idCard" placeholder="18位身份证号码" />
             </ElFormItem>
           </ElCol>
@@ -59,7 +59,7 @@
             </ElFormItem>
           </ElCol>
           <ElCol :span="12">
-            <ElFormItem label="统一社会信用代码" prop="creditCode" required>
+            <ElFormItem label="统一社会信用代码" prop="creditCode">
               <ElInput v-model="formData.creditCode" placeholder="18位统一社会信用代码" />
             </ElFormItem>
           </ElCol>
@@ -223,18 +223,6 @@
         trigger: 'change'
       }
     ],
-    idCard: [
-      {
-        validator: (_rule, value, callback) => {
-          if (!isEnterprise.value && !value) {
-            callback(new Error('请输入身份证号'))
-            return
-          }
-          callback()
-        },
-        trigger: 'blur'
-      }
-    ],
     enterprise: [
       {
         validator: (_rule, value, callback) => {
@@ -247,18 +235,6 @@
         trigger: 'blur'
       }
     ],
-    creditCode: [
-      {
-        validator: (_rule, value, callback) => {
-          if (isEnterprise.value && !value) {
-            callback(new Error('请输入统一社会信用代码'))
-            return
-          }
-          callback()
-        },
-        trigger: 'blur'
-      }
-    ]
   }
 
   async function loadOptions() {

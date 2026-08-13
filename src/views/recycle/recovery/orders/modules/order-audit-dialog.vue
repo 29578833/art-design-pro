@@ -141,16 +141,8 @@
           </ElCol>
           <ElCol :span="8">
             <div class="info-item">
-              <div class="info-label">预估残值/结算金额</div>
-              <div class="info-value info-value--price">
-                {{
-                  detail.settlement_amount != null && detail.settlement_amount !== ''
-                    ? `¥${detail.settlement_amount}`
-                    : detail.unit_price != null && detail.unit_price !== ''
-                      ? `¥${detail.unit_price}`
-                      : '待评估'
-                }}
-              </div>
+              <div class="info-label">预估残值</div>
+              <div class="info-value info-value--price">{{ estimatedPriceText }}</div>
             </div>
           </ElCol>
         </ElRow>
@@ -212,6 +204,25 @@
       return detail.value.vehicles[selectedVehicleIdx.value]
     }
     return detail.value.vehicles?.[0] || detail.value.vehicle
+  })
+
+  /**
+   * 预估残值：优先取残值金额，其次回收单价，最后结算金额。
+   * 跳过 0 / 空值，避免把「待结算」的 0.00 误渲染成残值。
+   */
+  const estimatedPriceText = computed(() => {
+    const candidates = [
+      detail.value.residual_value,
+      detail.value.unit_price,
+      detail.value.settlement_amount
+    ]
+    for (const val of candidates) {
+      if (val === undefined || val === null || val === '') continue
+      const num = Number(val)
+      if (Number.isNaN(num) || num <= 0) continue
+      return `¥${val}`
+    }
+    return '待评估'
   })
 
   async function loadDetail() {

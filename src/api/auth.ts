@@ -51,3 +51,44 @@ export function fetchGetUserInfo() {
     url: '/api/user/info'
   })
 }
+
+/**
+ * 发送密码重置验证码
+ * @param params 管理员账号与注册手机号
+ * @returns 发送结果
+ */
+export function fetchSendResetCode(params: Api.Auth.SendResetCodeParams) {
+  return request.post<null>({
+    url: '/send_reset_code',
+    params,
+    showErrorMessage: false,
+    showSuccessMessage: true
+  })
+}
+
+/**
+ * 验证密码重置验证码
+ * @param params 管理员账号、注册手机号与验证码
+ * @returns 验证结果
+ */
+export function fetchVerifyResetCode(params: Api.Auth.VerifyResetCodeParams) {
+  return request.post<null>({
+    url: '/verify_reset_code',
+    params,
+    showErrorMessage: false
+  })
+}
+
+/**
+ * 重置管理员密码
+ * @param params 管理员账号、手机号、验证码与新密码
+ * @returns 重置结果
+ */
+export function fetchResetPassword(params: Api.Auth.ResetPasswordParams) {
+  return request.post<null>({
+    url: '/reset_password',
+    params,
+    showErrorMessage: false,
+    showSuccessMessage: true
+  })
+}

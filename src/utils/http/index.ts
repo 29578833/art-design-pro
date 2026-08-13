@@ -68,8 +68,13 @@ axiosInstance.interceptors.request.use(
     const { accessToken } = userStore
 
     if (accessToken && userStore.isTokenExpired()) {
-      const isLoginRequest = request.url?.includes('/login')
-      if (!isLoginRequest) {
+      // 无需登录的公开接口：登录、忘记密码（发送/验证验证码、重置密码）
+      const isPublicEndpoint =
+        request.url?.includes('/login') ||
+        request.url?.includes('/send_reset_code') ||
+        request.url?.includes('/verify_reset_code') ||
+        request.url?.includes('/reset_password')
+      if (!isPublicEndpoint) {
         userStore.logOut()
         return Promise.reject(createHttpError($t('httpMsg.unauthorized'), ApiStatus.unauthorized))
       }

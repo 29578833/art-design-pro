@@ -67,6 +67,10 @@ export interface RecycleOrder {
   delivery_type?: string
   /** 结算金额/预估残值 */
   settlement_amount?: number | string
+  /** 残值金额（提交/创建时填写的预估残值） */
+  residual_value?: number | string
+  /** 回收单价/残值 */
+  unit_price?: number | string
   /** 创建人 */
   creator_name?: string
   /** 跟进业务员 ID */

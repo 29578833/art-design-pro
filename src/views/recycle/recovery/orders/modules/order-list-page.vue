@@ -357,8 +357,12 @@
   }
 
   function renderEstimatedAmount(row: RecycleOrder) {
-    if (row.settlement_amount) {
-      return h('span', { class: 'order-price' }, `¥${row.settlement_amount}`)
+    const candidates = [row.residual_value, row.unit_price, row.settlement_amount]
+    for (const val of candidates) {
+      if (val === undefined || val === null || val === '') continue
+      const num = Number(val)
+      if (Number.isNaN(num) || num <= 0) continue
+      return h('span', { class: 'order-price' }, `¥${val}`)
     }
     return h('span', { class: 'order-muted' }, '待评估')
   }

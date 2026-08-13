@@ -69,13 +69,23 @@
               class="erp-forgot-input flex-1"
               placeholder="请输入验证码"
             />
-            <ElButton class="erp-forgot-code-btn" :disabled="countdown > 0" @click="sendCode">
+            <ElButton
+              class="erp-forgot-code-btn"
+              :disabled="countdown > 0 || sending"
+              :loading="sending"
+              @click="sendCode"
+            >
               {{ countdown > 0 ? `${countdown}s` : '获取验证码' }}
             </ElButton>
           </div>
         </div>
         <div v-if="error" class="erp-forgot-error">{{ error }}</div>
-        <ElButton class="erp-forgot-submit-btn" type="primary" @click="handleVerify">
+        <ElButton
+          class="erp-forgot-submit-btn"
+          type="primary"
+          :loading="verifying"
+          @click="handleVerify"
+        >
           下一步
           <ArtSvgIcon icon="ri:arrow-right-line" class="ml-1" />
         </ElButton>
@@ -112,7 +122,12 @@
           </ElInput>
         </div>
         <div v-if="error" class="erp-forgot-error">{{ error }}</div>
-        <ElButton class="erp-forgot-submit-btn" type="primary" @click="handleReset">
+        <ElButton
+          class="erp-forgot-submit-btn"
+          type="primary"
+          :loading="resetting"
+          @click="handleReset"
+        >
           确认修改
           <ArtSvgIcon icon="ri:arrow-right-line" class="ml-1" />
         </ElButton>
@@ -131,11 +146,14 @@
       </div>
     </div>
 
-    <div class="erp-forgot-footer"> © 2026 鑫广智能回收 · ERP v1.0.0 </div>
+    <div class="erp-forgot-footer">© 2026 鑫广智能回收 · ERP v1.0.0</div>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { HttpError } from '@/utils/http/error'
+  import { fetchSendResetCode, fetchVerifyResetCode, fetchResetPassword } from '@/api/auth'
+
   defineOptions({ name: 'ForgetPassword' })
 
   type ForgotStep = 'account' | 'newpwd' | 'done'
@@ -150,6 +168,9 @@
   const newPwd = ref('')
   const confirmPwd = ref('')
   const error = ref('')
+  const sending = ref(false)
+  const verifying = ref(false)
+  const resetting = ref(false)
 
   const steps = [
     { key: 'account', label: '验证身份' },
@@ -161,7 +182,7 @@
 
   let countdownTimer: ReturnType<typeof setInterval> | null = null
 
-  const sendCode = () => {
+  const startCountdown = () => {
     countdown.value = 60
     countdownTimer = setInterval(() => {
       countdown.value -= 1
@@ -172,16 +193,57 @@
     }, 1000)
   }
 
-  const handleVerify = () => {
+  const sendCode = async () => {
+    if (sending.value) return
+    error.value = ''
+    if (!account.value) {
+      error.value = '请填写账号'
+      return
+    }
+    if (!phone.value) {
+      error.value = '请填写注册手机号'
+      return
+    }
+    if (!/^1\d{10}$/.test(phone.value)) {
+      error.value = '请输入正确的手机号'
+      return
+    }
+    sending.value = true
+    try {
+      await fetchSendResetCode({ account: account.value, phone: phone.value })
+      startCountdown()
+    } catch (e) {
+      error.value = e instanceof HttpError ? e.message : '验证码发送失败，请稍后重试'
+    } finally {
+      sending.value = false
+    }
+  }
+
+  const handleVerify = async () => {
+    if (verifying.value) return
+    error.value = ''
     if (!account.value || !phone.value || !code.value) {
       error.value = '请填写账号、手机号及验证码'
       return
     }
-    error.value = ''
-    step.value = 'newpwd'
+    verifying.value = true
+    try {
+      await fetchVerifyResetCode({
+        account: account.value,
+        phone: phone.value,
+        code: code.value
+      })
+      step.value = 'newpwd'
+    } catch (e) {
+      error.value = e instanceof HttpError ? e.message : '验证失败，请重试'
+    } finally {
+      verifying.value = false
+    }
   }
 
-  const handleReset = () => {
+  const handleReset = async () => {
+    if (resetting.value) return
+    error.value = ''
     if (!newPwd.value || !confirmPwd.value) {
       error.value = '请填写新密码'
       return
@@ -194,8 +256,21 @@
       error.value = '密码不能少于6位'
       return
     }
-    error.value = ''
-    step.value = 'done'
+    resetting.value = true
+    try {
+      await fetchResetPassword({
+        account: account.value,
+        phone: phone.value,
+        code: code.value,
+        new_password: newPwd.value,
+        confirm_password: confirmPwd.value
+      })
+      step.value = 'done'
+    } catch (e) {
+      error.value = e instanceof HttpError ? e.message : '密码重置失败，请重试'
+    } finally {
+      resetting.value = false
+    }
   }
 
   const toLogin = () => {

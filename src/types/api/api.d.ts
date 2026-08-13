@@ -107,6 +107,37 @@ declare namespace Api {
       userInfo: UserInfo
     }
 
+    /** 发送密码重置验证码参数 */
+    interface SendResetCodeParams {
+      /** 管理员账号/邮箱/手机号 */
+      account: string
+      /** 注册手机号 */
+      phone: string
+    }
+
+    /** 验证密码重置验证码参数 */
+    interface VerifyResetCodeParams {
+      /** 管理员账号/邮箱/手机号 */
+      account: string
+      /** 注册手机号 */
+      phone: string
+      /** 短信验证码 */
+      code: string
+    }
+
+    /** 重置管理员密码参数 */
+    interface ResetPasswordParams {
+      /** 管理员账号/邮箱/手机号 */
+      account: string
+      /** 注册手机号 */
+      phone: string
+      /** 短信验证码 */
+      code: string
+      /** 新密码 */
+      new_password: string
+      /** 确认新密码 */
+      confirm_password: string
+    }
     /** 用户信息 */
     interface UserInfo {
       buttons: string[]
