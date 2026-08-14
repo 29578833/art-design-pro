@@ -133,10 +133,10 @@
       return actions
     }
 
-    // 正式回收订单：仅审核通过（status=2）可编辑
+    // 正式回收订单：审核通过（status=2）或审核驳回（status=-1）可编辑
     if (
       (row.order_type === 'customer_order' || row.order_type === 'staff_order') &&
-      row.status === 2
+      (row.status === 2 || row.status === -1)
     ) {
       actions.push({
         key: 'edit',

@@ -427,7 +427,7 @@
     { immediate: true, deep: true }
   )
 
-  async function submit() {
+  async function submit(options: { resubmit?: boolean } = {}) {
     if (!form.value.plate_no.trim() || !form.value.real_name.trim() || !form.value.phone.trim()) {
       ElMessage.warning('请填写必填项')
       return false
@@ -439,7 +439,11 @@
 
     saving.value = true
     try {
-      await fetchUpdateOrder(buildUpdatePayload())
+      const payload = buildUpdatePayload()
+      if (options.resubmit) {
+        payload.status = 1
+      }
+      await fetchUpdateOrder(payload)
       emit('saved')
       return true
     } finally {

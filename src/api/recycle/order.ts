@@ -188,7 +188,7 @@ export function fetchBatchAudit(data: { ids: number[]; approved: boolean; remark
   })
 }
 
-/** 编辑订单详情 */
+/** 编辑订单详情（驳回订单可传 status=1 重新提交审核） */
 export function fetchUpdateOrder(data: OrderUpdatePayload) {
   return request.post({
     url: '/scrap/order/update',

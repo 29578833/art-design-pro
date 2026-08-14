@@ -353,6 +353,8 @@ export interface OrderDetail extends RecycleOrder {
   address?: string
   /** 客户 UID */
   uid?: number
+  /** 审核驳回原因（驳回订单详情展示） */
+  admin_remark?: string
   /** 取车联系人 */
   pickup_contact_name?: string
   /** 取车联系电话 */
@@ -604,6 +606,8 @@ export interface OrderUpdateBankPayload {
 export interface OrderUpdatePayload {
   /** 订单 ID */
   id: number
+  /** 状态码（驳回订单重新提交审核时传 1，仅驳回订单可用） */
+  status?: number
   /** 当前编辑的车辆 ID */
   vehicle_id?: number
   /** 车辆字段 */

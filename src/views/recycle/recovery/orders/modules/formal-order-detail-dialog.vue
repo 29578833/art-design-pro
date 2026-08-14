@@ -72,9 +72,14 @@
       <template v-if="activeTab === 'basic'">
         <div class="fo-basic-stack">
           <FormalOrderDetailOrderSummary :detail="detail" />
+          <div v-if="isRejectedOrder && detail.admin_remark" class="fo-reject-banner">
+            <span class="fo-reject-banner-dot" />
+            <span>驳回原因：{{ detail.admin_remark }}</span>
+          </div>
           <div v-if="isEditing" class="fo-edit-banner">
             <span class="fo-edit-banner-dot" />
-            <span>编辑模式 — 修改下方字段后点击「保存修改」生效</span>
+            <span v-if="isRejectedOrder">编辑模式 — 修改后点击「保存并重新提交」重新进入审核</span>
+            <span v-else>编辑模式 — 修改下方字段后点击「保存修改」生效</span>
           </div>
           <FormalOrderDetailEditPanel
             v-if="isEditing"
@@ -123,6 +128,14 @@
             <ElButton size="large" :disabled="editSubmitting" @click="cancelEdit">取消</ElButton>
             <ElButton size="large" type="success" :loading="editSubmitting" @click="saveEdit"
               >保存修改</ElButton
+            >
+            <ElButton
+              v-if="isRejectedOrder"
+              size="large"
+              type="primary"
+              :loading="editSubmitting"
+              @click="saveEditAndResubmit"
+              >保存并重新提交</ElButton
             >
           </template>
           <template v-else>
@@ -204,8 +217,10 @@
   const editPanelRef = ref<InstanceType<typeof FormalOrderDetailEditPanel> | null>(null)
   const editSubmitting = ref(false)
   const isBatch = computed(() => Number(detail.value.is_batch) === 1)
-  /** 仅审核通过（status=2）允许编辑 */
-  const canEditOrder = computed(() => detail.value.status === 2)
+  /** 审核通过（status=2）或审核驳回（status=-1）允许编辑 */
+  const canEditOrder = computed(() => detail.value.status === 2 || detail.value.status === -1)
+  /** 是否审核驳回订单（驳回后可编辑并重新提交审核） */
+  const isRejectedOrder = computed(() => detail.value.status === -1)
 
   async function loadDetail() {
     if (!props.orderId) return
@@ -230,7 +245,7 @@
         if (canEditOrder.value) {
           isEditing.value = true
         } else {
-          ElMessage.warning('仅审核通过的订单可编辑')
+          ElMessage.warning('仅审核通过或审核驳回的订单可编辑')
         }
       }
     },
@@ -239,7 +254,7 @@
 
   function startEdit() {
     if (!canEditOrder.value) {
-      ElMessage.warning('仅审核通过的订单可编辑')
+      ElMessage.warning('仅审核通过或审核驳回的订单可编辑')
       return
     }
     activeTab.value = 'basic'
@@ -248,6 +263,21 @@
 
   function cancelEdit() {
     isEditing.value = false
+  }
+
+  async function saveEditAndResubmit() {
+    editSubmitting.value = true
+    try {
+      const ok = await editPanelRef.value?.submit({ resubmit: true })
+      if (ok) {
+        ElMessage.success('修改已保存，订单已重新提交审核')
+        isEditing.value = false
+        await loadDetail()
+        emit('refresh')
+      }
+    } finally {
+      editSubmitting.value = false
+    }
   }
 
   async function saveEdit() {
@@ -743,6 +773,28 @@
     width: 6px;
     height: 6px;
     background: #1890ff;
+    border-radius: 50%;
+  }
+
+  .fo-reject-banner {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #ff4d4f;
+    background: #fff1f0;
+    border: 1px solid #ffa39e;
+    border-radius: 8px;
+  }
+
+  .fo-reject-banner-dot {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    background: #ff4d4f;
     border-radius: 50%;
   }
 
