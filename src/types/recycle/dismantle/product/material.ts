@@ -119,8 +119,8 @@ export interface MaterialBatchOutboundResult {
 export interface MaterialReturnParams {
   /** 入库记录ID */
   id: number
-  /** 退库库位ID */
-  location_id: number
+  /** 退库库位ID（非必填） */
+  location_id?: number
 }
 
 /** 状态选项 */

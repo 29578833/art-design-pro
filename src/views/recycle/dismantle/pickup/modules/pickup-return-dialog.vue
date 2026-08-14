@@ -114,7 +114,7 @@
   })
 
   const rules: FormRules = {
-    location_id: [{ required: true, message: '请选择退库库位', trigger: 'change' }]
+    // 退库库位（库位编码）非必填（需求：可选）
   }
 
   const dialogVisible = computed({
@@ -165,7 +165,7 @@
   async function handleSubmit() {
     if (!props.materialItem?.id) return
     const valid = await formRef.value?.validate().catch(() => false)
-    if (!valid || !formData.location_id) return
+    if (!valid) return
 
     submitting.value = true
     try {

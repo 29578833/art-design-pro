@@ -198,8 +198,8 @@
   })
 
   const rules: FormRules = {
-    warehouse_area_id: [{ required: true, message: '请选择入库仓库', trigger: 'change' }],
-    location_id: [{ required: true, message: '请选择库位编码', trigger: 'change' }]
+    warehouse_area_id: [{ required: true, message: '请选择入库仓库', trigger: 'change' }]
+    // 库位编码非必填（需求：可选）
   }
 
   const dialogVisible = computed({
@@ -325,7 +325,7 @@
         vehicle_id: props.entryItem.vehicle_id,
         warehouse_area_id: formData.warehouse_area_id,
         warehouse_area: formData.warehouse_area,
-        location: String(formData.location_id),
+        location: formData.location_id ? String(formData.location_id) : '',
         location_code: formData.location_code,
         images: photoList.value.join(',')
       })

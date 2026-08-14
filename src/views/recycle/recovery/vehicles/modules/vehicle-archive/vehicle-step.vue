@@ -283,7 +283,7 @@
       <ElRow :gutter="16">
         <ElCol :span="8">
           <ElFormItem label="结算类型">
-            <ElSelect v-model="form.settlement_type" clearable>
+            <ElSelect v-model="form.settlement_type" disabled>
               <ElOption label="个人报废车" value="personal" />
               <ElOption label="非个人报废车" value="non_personal" />
             </ElSelect>
@@ -291,7 +291,7 @@
         </ElCol>
         <ElCol :span="8">
           <ElFormItem label="结算方式">
-            <ElSelect v-model="form.settlement_method" clearable>
+            <ElSelect v-model="form.settlement_method" disabled>
               <ElOption label="重量结算" value="weight" />
               <ElOption label="整备质量结算" value="curb_weight" />
               <ElOption label="整车结算" value="unit" />
@@ -300,7 +300,7 @@
         </ElCol>
         <ElCol :span="8"
           ><ElFormItem label="结算金额（元）"
-            ><ElInput v-model="form.settlement_amount" type="number" /></ElFormItem
+            ><ElInput v-model="form.settlement_amount" type="number" disabled /></ElFormItem
         ></ElCol>
         <ElCol :span="8"
           ><ElFormItem label="开户姓名/名称"><ElInput v-model="form.bank_name" /></ElFormItem
