@@ -54,6 +54,20 @@
           </div>
         </div>
 
+        <div class="sys-notify-msg-type">
+          <span class="sys-notify-msg-type-label">消息类型：</span>
+          <ElButton
+            v-for="item in MSG_TYPE_CONFIG"
+            :key="item.value"
+            :type="filterMsgType === item.value ? 'primary' : 'default'"
+            size="small"
+            round
+            @click="handleMsgTypeFilter(item.value)"
+          >
+            {{ item.label }}
+          </ElButton>
+        </div>
+
         <div class="sys-notify-list-wrap">
           <div class="sys-notify-cols">
             <div class="col-code">编号</div>
@@ -287,6 +301,17 @@
 
   const ROLE_ORDER = ['C', 'S', 'R', 'A', 'D', 'PS', 'PR', 'PF', 'PA', 'PM']
 
+  /** 消息类型（对应后端 msg_type 字段，用于分类筛选） */
+  const MSG_TYPE_CONFIG = [
+    { label: '线索消息', value: 'lead' },
+    { label: '订单消息', value: 'order' },
+    { label: '拖车消息', value: 'tow' },
+    { label: '质检消息', value: 'qc' },
+    { label: '结算消息', value: 'settlement' },
+    { label: '证明文件', value: 'certificate' },
+    { label: '系统通知', value: 'system' }
+  ]
+
   const PLATFORM_META = {
     mini_program: {
       label: '小程序端',
@@ -324,6 +349,7 @@
   const keyword = ref('')
   const filterRole = ref('')
   const filterPlatform = ref('')
+  const filterMsgType = ref('')
   const groups = ref<SystemNotificationGroup[]>([])
 
   /** 角色下拉（带平台前缀，避免同名角色冲突） */
@@ -341,7 +367,8 @@
       groups.value = await fetchNotificationCategoryList({
         keyword: keyword.value,
         role: filterRole.value,
-        platform: filterPlatform.value
+        platform: filterPlatform.value,
+        msg_type: filterMsgType.value
       })
     } finally {
       loading.value = false
@@ -352,10 +379,17 @@
     loadData()
   }
 
+  /** 消息类型筛选（再点一次取消选中） */
+  function handleMsgTypeFilter(value: string) {
+    filterMsgType.value = filterMsgType.value === value ? '' : value
+    loadData()
+  }
+
   function handleResetSearch() {
     keyword.value = ''
     filterRole.value = ''
     filterPlatform.value = ''
+    filterMsgType.value = ''
     loadData()
   }
 

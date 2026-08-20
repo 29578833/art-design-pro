@@ -116,6 +116,7 @@
 
       <div class="fs-create-body">
         <vxe-grid
+          ref="step2GridRef"
           class="fs-create-vxe"
           v-bind="step2GridOptions"
           :data="selectedVehicles"
@@ -345,6 +346,7 @@
   /** 勾选车辆 + Step1 表格勾选同步 */
   const selectedIds = ref(new Set<number>())
   const step1GridRef = ref<VxeGridInstance>()
+  const step2GridRef = ref<{ updateFooter?: () => void } | null>(null)
   const selectedVehicles = computed(() =>
     candidates.value.filter((v) => selectedIds.value.has(v.id))
   )
@@ -446,6 +448,13 @@
   }
   const grandTotal = computed(() =>
     selectedVehicles.value.reduce((s, v) => s + getVehicleTotal(v), 0)
+  )
+  watch(
+    edits,
+    () => {
+      nextTick(() => step2GridRef.value?.updateFooter?.())
+    },
+    { deep: true }
   )
 
   /** 表格列与配置 */

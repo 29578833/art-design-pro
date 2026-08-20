@@ -14,13 +14,16 @@ export function fetchNotificationCategoryList(params?: {
   role?: string
   /** 平台：mini_program / pc_admin */
   platform?: string
+  /** 消息类型：lead/order/tow/qc/settlement/certificate/system */
+  msg_type?: string
 }) {
   return request.get<SystemNotificationGroup[]>({
     url: '/setting/notification/category_list',
     params: {
       keyword: params?.keyword || '',
       role: params?.role || '',
-      platform: params?.platform || ''
+      platform: params?.platform || '',
+      msg_type: params?.msg_type || ''
     }
   })
 }
