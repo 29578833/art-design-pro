@@ -201,11 +201,11 @@ export function fetchUpdatePartner(id: string | number, data: PartnerFormData, g
 
 /** 设置客户/供应商密码 */
 export function fetchPartnerResetPassword(id: string | number, data: PartnerResetPwdParams) {
-  return request.put({
+  return request.post({
     url: `/user/reset_password/${id}`,
     params: {
-      pwd: data.pwd,
-      conf_pwd: data.conf_pwd
+      password: data.pwd,
+      confirm_password: data.conf_pwd
     },
     showSuccessMessage: true
   })
