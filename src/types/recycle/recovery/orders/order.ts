@@ -432,9 +432,7 @@ export interface OrderDetail extends RecycleOrder {
   /** 送达地址/目的厂区地址（拖车订单） */
   delivery_address?: string
   /** 到达照片列表（拖车订单，司机在小程序上传） */
-  completion_photos?: string[] | string
-  /** 到达照片列表（后端实际字段 images） */
-  images?: string[] | string
+  images?: string[]
   /** 司机电子签名图片 URL（拖车订单） */
   driver_signature?: string
   /** 拖车操作日志（后端 tow/detail 合并日志） */

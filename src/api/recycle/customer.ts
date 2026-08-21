@@ -3,6 +3,7 @@ import type {
   GradeStatItem,
   PartnerFormData,
   PartnerList,
+  PartnerResetPwdParams,
   PartnerSearchParams,
   RecyclePartner,
   UserGroupOption,
@@ -194,6 +195,18 @@ export function fetchUpdatePartner(id: string | number, data: PartnerFormData, g
   return request.put({
     url: `/user/user/${id}`,
     params: buildSavePayload(data, groupName),
+    showSuccessMessage: true
+  })
+}
+
+/** 设置客户/供应商密码 */
+export function fetchPartnerResetPassword(id: string | number, data: PartnerResetPwdParams) {
+  return request.put({
+    url: `/user/reset_password/${id}`,
+    params: {
+      pwd: data.pwd,
+      conf_pwd: data.conf_pwd
+    },
     showSuccessMessage: true
   })
 }

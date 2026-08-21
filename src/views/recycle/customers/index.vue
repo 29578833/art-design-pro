@@ -57,6 +57,12 @@
     />
 
     <CustomerDetailDrawer v-model:visible="drawerVisible" :partner="detailPartner" />
+
+    <PartnerResetPwdDialog
+      v-model:visible="resetPwdVisible"
+      :user-id="resetPwdUserId"
+      @success="refreshAll"
+    />
   </div>
 </template>
 
@@ -85,12 +91,15 @@
   import CustomerDialog from './modules/customer-dialog.vue'
   import CustomerDetailDrawer from './modules/customer-detail-drawer.vue'
   import GradeSummaryCards from './modules/grade-summary-cards.vue'
+  import PartnerResetPwdDialog from './modules/partner-reset-pwd-dialog.vue'
 
   defineOptions({ name: 'RecycleCustomers' })
 
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
   const drawerVisible = ref(false)
+  const resetPwdVisible = ref(false)
+  const resetPwdUserId = ref<string | number | null>(null)
   const exporting = ref(false)
   const currentPartner = ref<Partial<RecyclePartner>>({})
   const detailPartner = ref<RecyclePartner | null>(null)
@@ -212,7 +221,7 @@
         {
           prop: 'operation',
           label: '操作',
-          width: 168,
+          width: 220,
           fixed: 'right',
           align: 'center',
           formatter: (row) =>
@@ -224,6 +233,11 @@
               h(ArtButtonTable, {
                 type: 'edit',
                 onClick: () => showDialog('edit', row)
+              }),
+              h(ArtButtonTable, {
+                icon: 'ri:lock-password-line',
+                iconClass: 'bg-warning/12 text-warning',
+                onClick: () => openResetPassword(row)
               })
             ])
         }
@@ -289,6 +303,11 @@
   function showDetail(row: RecyclePartner) {
     detailPartner.value = row
     drawerVisible.value = true
+  }
+
+  function openResetPassword(row: RecyclePartner) {
+    resetPwdUserId.value = row.id
+    resetPwdVisible.value = true
   }
 
   function handleDialogSubmit() {

@@ -76,6 +76,14 @@ export interface PartnerSearchParams extends Api.Common.CommonSearchParams {
 /** 分页列表响应 */
 export type PartnerList = Api.Common.PaginatedResponse<RecyclePartner>
 
+/** 设置密码参数 */
+export interface PartnerResetPwdParams {
+  /** 新密码 */
+  pwd: string
+  /** 确认密码 */
+  conf_pwd: string
+}
+
 /** 表单提交数据 */
 export interface PartnerFormData {
   name: string

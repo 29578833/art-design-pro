@@ -369,7 +369,7 @@
             </div>
             <div class="td-signature-box">
               <img
-                v-if="driverSignature !== '—'"
+                v-if="driverSignature"
                 :src="driverSignature"
                 alt="司机电子签名"
                 class="td-signature-img"
@@ -503,8 +503,6 @@
     finish_time_text?: string
     /** 出发时间 */
     depart_time?: number | string
-    /** 到达照片 */
-    images?: string[] | string
     /** 关联订单客户姓名 */
     order_real_name?: string
     /** 关联订单客户电话 */
@@ -531,16 +529,6 @@
     assigned_driver_name?: string
     /** 派单人姓名 */
     dispatcher_name?: string
-    /** 司机签名 */
-    sign_url?: string
-    /** 司机签名 */
-    signature_url?: string
-    /** 到达照片 */
-    photos?: string[] | string
-    /** 到达照片 */
-    arrival_photos?: string[] | string
-    /** 到达照片 */
-    finish_photos?: string[] | string
     /** 关联订单 */
     order?: Partial<OrderDetail> & { customer_name?: string; customer_phone?: string }
     /** 关联车辆 */
@@ -1005,25 +993,10 @@
 
   // ========== 照片 & 签名 ==========
   const completionPhotos = computed<string[]>(() => {
-    const raw = firstValue(
-      detail.value.completion_photos,
-      detail.value.images,
-      detail.value.arrival_photos,
-      detail.value.finish_photos,
-      detail.value.photos
-    )
-    if (!raw) return []
-    if (Array.isArray(raw)) return raw
-    try {
-      const parsed = JSON.parse(raw as string)
-      return Array.isArray(parsed) ? parsed : []
-    } catch {
-      return (raw as string).split(',').filter(Boolean)
-    }
+    const images = detail.value.images
+    return Array.isArray(images) ? images.filter(Boolean) : []
   })
-  const driverSignature = computed(() =>
-    textValue(detail.value.driver_signature, detail.value.sign_url, detail.value.signature_url)
-  )
+  const driverSignature = computed(() => detail.value.driver_signature || '')
 
   const previewVisible = ref(false)
   const previewList = ref<string[]>([])
