@@ -301,22 +301,6 @@
     )
   }
 
-  /** 订单来源展示：优先按 source 字段（staff_order / customer_order），其余订单类型回退原展示 */
-  function renderOrderSourceCell(row: RecycleOrder) {
-    const src = resolveOrderSourceTag(row.source)
-    if (src) {
-      return h(
-        'span',
-        {
-          class: 'order-type-tag',
-          style: { color: src.color, background: src.bgColor }
-        },
-        src.label
-      )
-    }
-    return renderTypeTag(row)
-  }
-
   function renderStatusTag(row: RecycleOrder) {
     const cfg = resolveOrderStatusStyle(row)
     return h(
@@ -415,7 +399,7 @@
 
     cols.push({
       prop: 'order_no',
-      width: 200,
+      width: 220,
       label: isLead ? '线索编号' : '订单编号',
       formatter: (row: RecycleOrder) =>
         h(
@@ -429,7 +413,7 @@
       cols.push({
         prop: 'order_type_text',
         label: '订单类型',
-        width: 150,
+        width: 160,
         formatter: (row: RecycleOrder) => renderTypeTag(row)
       })
     }
@@ -438,7 +422,7 @@
       cols.push({
         prop: 'lead_type_text',
         label: '线索类型',
-        width: 150,
+        width: 160,
         formatter: (row: RecycleOrder) => renderTypeTag(row)
       })
     }
