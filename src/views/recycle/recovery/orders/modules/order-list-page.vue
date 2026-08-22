@@ -412,6 +412,7 @@
       cols.push({
         prop: 'order_type_text',
         label: '订单类型',
+        width: 150,
         formatter: (row: RecycleOrder) => renderTypeTag(row)
       })
     }
@@ -420,6 +421,7 @@
       cols.push({
         prop: 'lead_type_text',
         label: '线索类型',
+        width: 150,
         formatter: (row: RecycleOrder) => renderTypeTag(row)
       })
     }

@@ -52,6 +52,7 @@
 
 <script setup lang="ts">
   import type { OrderDetail, OrderStatusLog } from '@/types/recycle/recovery/orders/order'
+  import { resolveOrderSourceTag } from '@/types/recycle/recovery/orders/order'
 
   defineOptions({ name: 'FormalOrderDetailOrderSummary' })
 
@@ -78,16 +79,13 @@
 
   const addTimeText = computed(() => formatTime(props.detail.add_time))
 
-  const sourceLabel = computed(() => {
-    const src = props.detail.source || ''
-    return ['miniapp', 'mini_program'].includes(src) ? '客户申请' : '员工创建'
-  })
+  const sourceLabel = computed(() => resolveOrderSourceTag(props.detail.source)?.label ?? '—')
 
   const sourceStyle = computed(() => {
-    const src = props.detail.source || ''
-    return ['miniapp', 'mini_program'].includes(src)
-      ? { background: '#F9F0FF', color: '#722ED1' }
-      : { background: '#E6F7FF', color: '#1677ff' }
+    const tag = resolveOrderSourceTag(props.detail.source)
+    return tag
+      ? { background: tag.bgColor, color: tag.color }
+      : { background: '#F5F5F5', color: '#8C8C8C' }
   })
 
   const ORDER_STATUS: Record<number, { label: string; color: string; bg: string }> = {
