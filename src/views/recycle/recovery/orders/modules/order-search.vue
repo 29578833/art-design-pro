@@ -34,8 +34,8 @@
           @change="handleFilterChange"
         >
           <ElOption label="全部来源" value="all" />
-          <ElOption label="客户申请" value="customer" />
-          <ElOption label="员工创建" value="staff" />
+          <ElOption label="客户订单" value="customer_order" />
+          <ElOption label="员工订单" value="staff_order" />
         </ElSelect>
       </div>
       <div class="order-filter-item">
@@ -131,8 +131,8 @@
           @change="handleFilterChange"
         >
           <ElOption label="全部来源" value="all" />
-          <ElOption label="客户申请" value="customer" />
-          <ElOption label="员工创建" value="staff" />
+          <ElOption label="客户订单" value="customer_order" />
+          <ElOption label="员工订单" value="staff_order" />
         </ElSelect>
       </div>
       <div class="order-filter-item">

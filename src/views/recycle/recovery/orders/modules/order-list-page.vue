@@ -143,6 +143,7 @@
     isLeadOrder,
     isPendingFormalReview,
     isTowOrder,
+    resolveOrderSourceTag,
     resolveOrderTypeStyle
   } from '@/types/recycle/recovery/orders/order'
   import * as XLSX from 'xlsx'
@@ -300,6 +301,22 @@
     )
   }
 
+  /** 订单来源展示：优先按 source 字段（staff_order / customer_order），其余订单类型回退原展示 */
+  function renderOrderSourceCell(row: RecycleOrder) {
+    const src = resolveOrderSourceTag(row.source)
+    if (src) {
+      return h(
+        'span',
+        {
+          class: 'order-type-tag',
+          style: { color: src.color, background: src.bgColor }
+        },
+        src.label
+      )
+    }
+    return renderTypeTag(row)
+  }
+
   function renderStatusTag(row: RecycleOrder) {
     const cfg = resolveOrderStatusStyle(row)
     return h(
@@ -410,9 +427,9 @@
 
     if (!isPendingReview && !isLead) {
       cols.push({
-        prop: 'order_type_text',
-        label: '订单类型',
-        formatter: (row: RecycleOrder) => renderTypeTag(row)
+        prop: 'source',
+        label: '订单来源',
+        formatter: (row: RecycleOrder) => renderOrderSourceCell(row)
       })
     }
 
@@ -728,7 +745,7 @@
 
       const rows = list.map((item) => ({
         订单编号: getOrderDisplayNo(item),
-        订单类型: getOrderTypeDisplayLabel(item),
+        订单来源: resolveOrderSourceTag(item.source)?.label ?? getOrderTypeDisplayLabel(item),
         客户姓名: item.real_name || '',
         联系电话: item.phone || '',
         车牌号: item.plate_no || '',

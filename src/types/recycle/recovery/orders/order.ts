@@ -1,8 +1,8 @@
 /** 列表 Tab */
 export type OrderTab = 'all' | 'lead' | 'formal_order' | 'towing' | 'pending_review'
 
-/** 正式回收订单筛选 */
-export type FormalOrderSource = 'all' | 'customer' | 'staff'
+/** 正式回收订单筛选（source 直传后端：customer_order / staff_order） */
+export type FormalOrderSource = 'all' | 'customer_order' | 'staff_order'
 export type FormalOrderStatusFilter =
   'all' | 'pending_review' | 'approved' | 'rejected' | 'completed'
 export type SignFilter = 'all' | 'pending_sign' | 'signed'
@@ -146,6 +146,20 @@ export const ORDER_TYPE_STYLE: Record<string, { color: string; bgColor: string }
   customer_order: { color: '#722ED1', bgColor: '#F9F0FF' },
   staff_order: { color: '#1890FF', bgColor: '#E6F7FF' },
   tow: { color: '#13C2C2', bgColor: '#E6FFFB' }
+}
+
+/** 订单来源展示样式（按接口 source：staff_order / customer_order） */
+export const ORDER_SOURCE_STYLE: Record<string, { label: string; color: string; bgColor: string }> =
+  {
+    customer_order: { label: '客户订单', color: '#722ED1', bgColor: '#F9F0FF' },
+    staff_order: { label: '员工订单', color: '#1890FF', bgColor: '#E6F7FF' }
+  }
+
+/** 根据订单来源解析展示标签；未知来源返回 null（调用方可回退到订单类型展示） */
+export function resolveOrderSourceTag(source?: string) {
+  const cfg = source ? ORDER_SOURCE_STYLE[source] : undefined
+  if (!cfg) return null
+  return { label: cfg.label, color: cfg.color, bgColor: cfg.bgColor }
 }
 
 /** Tab 配置 */

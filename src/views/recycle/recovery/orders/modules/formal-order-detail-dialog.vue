@@ -174,6 +174,7 @@
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchAuditOrder, fetchOrderDetail } from '@/api/recycle/order'
   import type { OrderDetail, OrderVehicle } from '@/types/recycle/recovery/orders/order'
+  import { resolveOrderSourceTag } from '@/types/recycle/recovery/orders/order'
   import FormalOrderDetailOrderSummary from './formal-order-detail-order-summary.vue'
   import FormalOrderDetailViewPanel from './formal-order-detail-view-panel.vue'
   import FormalOrderDetailEditPanel from './formal-order-detail-edit-panel.vue'
@@ -304,16 +305,13 @@
   }
 
   // ========== 标签样式 ==========
-  const orderTypeLabel = computed(() => {
-    const src = detail.value.source || ''
-    return ['miniapp', 'mini_program'].includes(src) ? '客户申请' : '员工创建'
-  })
+  const orderTypeLabel = computed(() => resolveOrderSourceTag(detail.value.source)?.label ?? '—')
 
   const orderTypeStyle = computed(() => {
-    const src = detail.value.source || ''
-    return ['miniapp', 'mini_program'].includes(src)
-      ? { background: '#F9F0FF', color: '#722ED1' }
-      : { background: '#E6F7FF', color: '#1677ff' }
+    const tag = resolveOrderSourceTag(detail.value.source)
+    return tag
+      ? { background: tag.bgColor, color: tag.color }
+      : { background: '#F5F5F5', color: '#8C8C8C' }
   })
 
   const ORDER_STATUS_MAP: Record<number, { label: string; color: string; bg: string }> = {

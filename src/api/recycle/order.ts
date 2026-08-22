@@ -43,8 +43,8 @@ function buildListParams(params: OrderSearchParams) {
 
   const sourceMap: Record<string, string> = {
     all: '',
-    customer: 'miniapp',
-    staff: 'admin'
+    customer_order: 'customer_order',
+    staff_order: 'staff_order'
   }
 
   const signStatusMap: Record<string, number | ''> = {
