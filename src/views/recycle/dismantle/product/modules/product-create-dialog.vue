@@ -15,7 +15,7 @@
       </div>
     </template>
 
-    <div v-loading="loadingOperators || loadingLocations" class="product-create-body">
+    <div v-loading="loadingOperators" class="product-create-body">
       <div class="product-section">
         <div class="product-section-title">操作信息</div>
         <div class="product-operator-grid">
@@ -80,20 +80,7 @@
               <ElOption v-for="unit in unitOptions" :key="unit" :label="unit" :value="unit" />
             </ElSelect>
             <ElInput v-model.number="item.weight" type="number" min="0" placeholder="0.0" />
-            <ElSelect
-              v-model="item.location"
-              filterable
-              allow-create
-              default-first-option
-              placeholder="库位"
-            >
-              <ElOption
-                v-for="loc in locationOptions"
-                :key="loc.id"
-                :label="getLocationLabel(loc)"
-                :value="loc.location_no || ''"
-              />
-            </ElSelect>
+            <ElInput v-model="item.location" placeholder="库位" clearable />
             <ElInput v-model="item.remark" placeholder="备注" />
             <button
               type="button"
@@ -146,14 +133,12 @@
     fetchProductStoreCreate,
     fetchProductStoreOperatorList
   } from '@/api/recycle/product-store'
-  import { fetchAllWarehouseLocations } from '@/api/recycle/warehouse'
   import type {
     ProductStoreCategory,
     ProductStoreCreateItem,
     ProductStoreOperator
   } from '@/types/recycle/dismantle/product/product-store'
   import { PRODUCT_STORE_CATEGORY_CONFIG } from '@/types/recycle/dismantle/product/product-store'
-  import type { WarehouseLocationOption } from '@/types/recycle/warehouse/warehouse'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {
@@ -174,11 +159,9 @@
   })
 
   const loadingOperators = ref(false)
-  const loadingLocations = ref(false)
   const submitting = ref(false)
   const operatorId = ref<number>()
   const operatorList = ref<ProductStoreOperator[]>([])
-  const locationOptions = ref<WarehouseLocationOption[]>([])
   const items = ref<ProductStoreCreateItem[]>([createEmptyItem()])
 
   const categoryOptions = Object.entries(PRODUCT_STORE_CATEGORY_CONFIG).map(([value, cfg]) => ({
@@ -204,12 +187,6 @@
         item.location?.trim()
     )
   })
-
-  function getLocationLabel(loc: WarehouseLocationOption): string {
-    const code = loc.location_no || '—'
-    if (loc.area) return `${loc.area}-${code}`
-    return code
-  }
 
   function getCategoryColor(category: ProductStoreCategory) {
     return PRODUCT_STORE_CATEGORY_CONFIG[category]?.color || '#262626'
@@ -253,15 +230,6 @@
     }
   }
 
-  async function loadLocations() {
-    loadingLocations.value = true
-    try {
-      locationOptions.value = (await fetchAllWarehouseLocations()) || []
-    } finally {
-      loadingLocations.value = false
-    }
-  }
-
   async function handleSubmit() {
     if (!operatorId.value) return
     submitting.value = true
@@ -298,7 +266,6 @@
     (val) => {
       if (val) {
         loadOperators()
-        loadLocations()
       }
     }
   )

@@ -217,6 +217,7 @@
   } from './commerce-submit-validation'
   import CommerceValidationDialog from './modules/commerce-validation-dialog.vue'
   import CxmLoginDialog from './modules/cxm-login-dialog.vue'
+  import { useCxmTokenCheck } from './modules/use-cxm-token-check'
   import './commerce.scss'
 
   defineOptions({ name: 'RecycleCommerce' })
@@ -235,7 +236,7 @@
     zt: '4'
   })
   const dateRange = ref<[string, string] | null>(null)
-  const loginVisible = ref(false)
+  const { cxmLoginVisible: loginVisible, ensureCxmToken } = useCxmTokenCheck()
   const editorVisible = ref(false)
   const validationVisible = ref(false)
   const submitResultVisible = ref(false)
@@ -521,6 +522,9 @@
       return
     }
 
+    // 车信盟 Token 无效时弹出登录框，中止本次提交
+    if (!(await ensureCxmToken())) return
+
     if (Number(row.is_submitted_commerce) === 1) {
       submitLoading.value = true
       try {
@@ -564,6 +568,8 @@
       ElMessage.warning('缺少车辆ID')
       return
     }
+    // 车信盟 Token 无效时弹出登录框，中止本次抓取
+    if (!(await ensureCxmToken())) return
     fetchArchiveLoading.value = true
     try {
       await fetchAcceptArchive(vehicleId)

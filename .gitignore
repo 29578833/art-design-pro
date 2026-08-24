@@ -13,3 +13,6 @@ src/types/import/components.d.ts
 
 /回收拆车项目
 /xinguang_api/
+
+/.pnpm-store
+/debug.log

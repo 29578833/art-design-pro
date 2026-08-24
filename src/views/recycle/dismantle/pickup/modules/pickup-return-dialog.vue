@@ -63,7 +63,6 @@
               :key="loc.id"
               :label="getLocationLabel(loc)"
               :value="loc.id"
-              :disabled="isLocationFull(loc)"
             />
           </ElSelect>
         </ElFormItem>

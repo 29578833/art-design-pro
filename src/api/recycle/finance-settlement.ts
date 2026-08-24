@@ -3,7 +3,8 @@ import type {
   SettlementBillDetail,
   SettlementBillItem,
   SettlementBillSearchParams,
-  SettlementBillStats
+  SettlementBillStats,
+  SettlementBillType
 } from '@/types/recycle/finance/settlement/finance-settlement'
 import type {
   SettlementBillCreatePayload,
@@ -61,8 +62,9 @@ export function fetchSettlementBillDetail(id: number, params?: { tab?: string; k
   })
 }
 
-/** 可结算车辆列表 */
+/** 可结算车辆列表（residual：无服务费车辆；service_fee：有服务费车辆） */
 export function fetchSettlementVehicleCandidates(params: {
+  settlement_type: SettlementBillType
   keyword?: string
   page?: number
   limit?: number

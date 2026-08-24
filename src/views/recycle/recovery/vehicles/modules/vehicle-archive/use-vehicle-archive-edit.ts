@@ -45,13 +45,15 @@ interface UseVehicleArchiveEditOptions {
   mode?: Ref<'create' | 'edit'>
   vehicleRow?: Ref<ScrapVehicle | null | undefined>
   stepRefs: StepRefs
+  /** 车信盟 Token 检测：无效时返回 false（登录框由调用方弹出），提交/抓取前调用 */
+  checkCxmToken?: () => Promise<boolean>
   onSuccess?: () => void
   onCreated?: (id: number) => void
 }
 
 /** 车辆档案编辑弹窗主流程（步骤逻辑在各 step 组件内）。 */
 export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
-  const { vehicleId, vehicleRow, stepRefs, onSuccess, onCreated } = options
+  const { vehicleId, vehicleRow, stepRefs, checkCxmToken, onSuccess, onCreated } = options
   const mode = options.mode ?? ref<'create' | 'edit'>('edit')
   const createdVehicleId = ref(0)
   const selectedOrder = ref<RecycleOrder | null>(null)
@@ -648,6 +650,8 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   }
 
   async function handleFetchArchive() {
+    // 车信盟 Token 无效时弹出登录框，中止本次抓取
+    if (checkCxmToken && !(await checkCxmToken())) return
     try {
       await fetchAcceptArchive(activeVehicleId.value)
     } catch {
@@ -669,6 +673,8 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
       ElMessage.warning('受理记录未初始化')
       return
     }
+    // 车信盟 Token 无效时弹出登录框，中止本次提交
+    if (checkCxmToken && !(await checkCxmToken())) return
     submitting.value = true
     try {
       const res = await fetchAcceptSubmit(activeVehicleId.value)

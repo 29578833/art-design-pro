@@ -223,7 +223,7 @@
         minWidth: 120,
         formatter: (row: MaterialItem) =>
           row.location_name
-            ? h('span', { class: 'order-location-tag' }, row.location_name)
+            ? h('span', { class: 'order-location-tag' }, row.location_name + ' ' + row.location_no)
             : h('span', { class: 'order-muted' }, '—')
       },
       {

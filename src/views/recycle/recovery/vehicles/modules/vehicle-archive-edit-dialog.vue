@@ -172,6 +172,7 @@
     :fetching="fetchArchiveLoading"
     @fetch-archive="handleFetchArchiveWithLoading"
   />
+  <CxmLoginDialog v-model:visible="cxmLoginVisible" />
 </template>
 
 <script setup lang="ts">
@@ -186,6 +187,8 @@
   import SubmitResultDialog from './vehicle-archive/submit-result-dialog.vue'
   import VehicleStep from './vehicle-archive/vehicle-step.vue'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import CxmLoginDialog from '../../commerce/modules/cxm-login-dialog.vue'
+  import { useCxmTokenCheck } from '../../commerce/modules/use-cxm-token-check'
   import { useVehicleArchiveEdit } from './vehicle-archive/use-vehicle-archive-edit'
   import './vehicle-archive-edit-dialog.scss'
 
@@ -226,6 +229,7 @@
   const agentStepRef = ref<InstanceType<typeof AgentStep> | null>(null)
   const materialsStepRef = ref<InstanceType<typeof MaterialsStep> | null>(null)
   const fetchArchiveLoading = ref(false)
+  const { cxmLoginVisible, ensureCxmToken } = useCxmTokenCheck()
 
   const {
     mode,
@@ -287,6 +291,7 @@
       agent: agentStepRef,
       materials: materialsStepRef
     },
+    checkCxmToken: ensureCxmToken,
     onSuccess: () => emit('success'),
     onCreated: (id) => emit('created', id)
   })

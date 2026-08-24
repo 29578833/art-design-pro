@@ -543,7 +543,7 @@
   }
 
   .fs-detail-dialog .el-dialog__body {
-    height: 600px;
+    min-height: 600px;
     padding: 0;
   }
 </style>

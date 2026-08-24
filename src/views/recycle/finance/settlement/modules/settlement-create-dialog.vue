@@ -326,7 +326,9 @@
   const search = ref('')
   const candidates = ref<SettlementVehicleCandidate[]>([])
   async function loadCandidates() {
+    if (!props.billType) return
     const res = await fetchSettlementVehicleCandidates({
+      settlement_type: props.billType,
       keyword: search.value.trim(),
       page: 1,
       limit: 200

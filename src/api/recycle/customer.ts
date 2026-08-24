@@ -39,6 +39,7 @@ function mapPartnerItem(raw: Record<string, unknown>): RecyclePartner {
   const groupName = String(raw.group_id || '无')
   const normalizedGroupName = groupName === '无' ? '' : groupName
   const statusText = String(raw.status || '')
+  const type = resolvePartnerTypeFromGroup(normalizedGroupName)
 
   return {
     id: String(uid),
@@ -50,11 +51,15 @@ function mapPartnerItem(raw: Record<string, unknown>): RecyclePartner {
     groupId: Number(raw.group_id_num || 0),
     groupName: normalizedGroupName,
     category: 'customer',
-    type: resolvePartnerTypeFromGroup(normalizedGroupName),
+    type,
     grade: resolveGradeKey(levelName),
     cooperationType: 'individual',
     idCard: String(raw.card_id || ''),
     address: String(raw.addres || ''),
+    enterprise:
+      type === 'enterprise' ? String(raw.company_name || raw.real_name || raw.nickname || '') : '',
+    creditCode: type === 'enterprise' ? String(raw.company_code || '') : '',
+    contactPerson: type === 'enterprise' ? String(raw.company_contact || '') : '',
     totalTradeAmount: Number(raw.pay_count_money || raw.now_money || 0),
     totalVehicles: Number(raw.pay_count || 0),
     lastDealDate: formatTimestamp(raw.last_time || raw.add_time),
@@ -105,7 +110,10 @@ function buildSavePayload(data: PartnerFormData, groupName = '') {
     mark: data.remark || '',
     level: data.levelId || 0,
     group_id: data.groupId || 0,
-    status: data.status === 'active' ? 1 : 0
+    status: data.status === 'active' ? 1 : 0,
+    company_name: isIndividual ? '' : data.enterprise || data.name || '',
+    company_code: isIndividual ? '' : data.creditCode || '',
+    company_contact: isIndividual ? '' : data.contactPerson || ''
   }
 }
 

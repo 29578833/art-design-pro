@@ -5,7 +5,6 @@
     width="440px"
     align-center
     destroy-on-close
-    @open="loadLocations"
     @closed="handleClosed"
   >
     <div v-if="record" class="inv-transfer-info">
@@ -19,22 +18,12 @@
 
     <ElForm ref="formRef" :model="form" :rules="rules" label-position="top">
       <ElFormItem label="目标库位" prop="target_location">
-        <ElSelect
+        <ElInput
           v-model="form.target_location"
-          filterable
-          allow-create
-          default-first-option
-          :loading="loadingLocations"
-          placeholder="请选择或输入目标库位"
+          placeholder="请输入目标库位"
+          clearable
           class="w-full"
-        >
-          <ElOption
-            v-for="loc in locationOptions"
-            :key="loc.id"
-            :label="getLocationLabel(loc)"
-            :value="loc.location_no || ''"
-          />
-        </ElSelect>
+        />
       </ElFormItem>
       <ElFormItem label="调拨原因" prop="reason">
         <ElInput
@@ -57,9 +46,7 @@
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchInventoryTransfer } from '@/api/recycle/inventory-item'
-  import { fetchAllWarehouseLocations } from '@/api/recycle/warehouse'
   import type { InventoryItem } from '@/types/recycle/warehouse/inventory/inventory-item'
-  import type { WarehouseLocationOption } from '@/types/recycle/warehouse/warehouse'
 
   interface Props {
     visible: boolean
@@ -81,32 +68,13 @@
 
   const formRef = ref<FormInstance>()
   const submitting = ref(false)
-  const loadingLocations = ref(false)
-  const locationOptions = ref<WarehouseLocationOption[]>([])
   const form = reactive({
     target_location: '',
     reason: ''
   })
 
   const rules: FormRules = {
-    target_location: [{ required: true, message: '请选择目标库位', trigger: 'change' }]
-  }
-
-  function getLocationLabel(loc: WarehouseLocationOption) {
-    const code = loc.location_no || '—'
-    if (loc.area) return `${loc.area}-${code}`
-    return code
-  }
-
-  async function loadLocations() {
-    loadingLocations.value = true
-    try {
-      locationOptions.value = (await fetchAllWarehouseLocations()) || []
-    } catch {
-      locationOptions.value = []
-    } finally {
-      loadingLocations.value = false
-    }
+    target_location: [{ required: true, message: '请输入目标库位', trigger: 'blur' }]
   }
 
   async function handleSubmit() {

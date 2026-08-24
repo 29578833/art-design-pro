@@ -253,8 +253,10 @@
       attachments: OrderAttachment[]
       initialIndex?: number
       orderId?: number
+      /** 为 true 时隐藏签名/上传签名操作（仅保留预览），如订单被驳回时 */
+      disableSign?: boolean
     }>(),
-    { initialIndex: 0 }
+    { initialIndex: 0, disableSign: false }
   )
 
   const emit = defineEmits<{
@@ -367,7 +369,10 @@
 
   const showEsignAction = computed(
     () =>
-      previewMode.value === 'sign' && currentPreviewAtt.value && !isSigned(currentPreviewAtt.value)
+      !props.disableSign &&
+      previewMode.value === 'sign' &&
+      currentPreviewAtt.value &&
+      !isSigned(currentPreviewAtt.value)
   )
 
   const esignAttachName = computed(
@@ -407,7 +412,7 @@
   }
 
   const showUploadAction = computed(
-    () => previewMode.value === 'upload' && !!currentPreviewAtt.value
+    () => !props.disableSign && previewMode.value === 'upload' && !!currentPreviewAtt.value
   )
 
   // ----- 弹窗生命周期 -----

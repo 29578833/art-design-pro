@@ -61,26 +61,16 @@
           </ElSelect>
         </ElFormItem>
 
-        <ElFormItem prop="location_id">
+        <ElFormItem prop="location_code">
           <template #label>
             <span class="entry-field-label">库位编码</span>
           </template>
-          <ElSelect
-            v-model="formData.location_id"
-            :placeholder="locationPlaceholder"
-            :disabled="!formData.warehouse_area_id || loadingLocations"
-            :loading="loadingLocations"
+          <ElInput
+            v-model="formData.location_code"
+            placeholder="请输入库位编码"
+            clearable
             class="entry-field-control"
-            @change="handleLocationChange"
-          >
-            <ElOption
-              v-for="loc in locationOptions"
-              :key="loc.id"
-              :label="getLocationLabel(loc)"
-              :value="loc.id"
-              :disabled="loc.status === 1"
-            />
-          </ElSelect>
+          />
         </ElFormItem>
 
         <ElFormItem>
@@ -155,17 +145,9 @@
 
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
-  import {
-    confirmWarehouseEntry,
-    fetchWarehouseAreas,
-    fetchWarehouseLocations
-  } from '@/api/recycle/warehouse'
+  import { confirmWarehouseEntry, fetchWarehouseAreas } from '@/api/recycle/warehouse'
   import { uploadFileGetUrl } from '@/api/upload'
-  import type {
-    WarehouseAreaOption,
-    WarehouseEntryItem,
-    WarehouseLocationOption
-  } from '@/types/recycle/warehouse/warehouse'
+  import type { WarehouseAreaOption, WarehouseEntryItem } from '@/types/recycle/warehouse/warehouse'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {
@@ -183,8 +165,6 @@
 
   const formRef = ref<FormInstance>()
   const warehouseAreas = ref<WarehouseAreaOption[]>([])
-  const locationOptions = ref<WarehouseLocationOption[]>([])
-  const loadingLocations = ref(false)
   const submitting = ref(false)
   const uploadingPhoto = ref(false)
   const photoInputRef = ref<HTMLInputElement>()
@@ -193,7 +173,6 @@
   const formData = reactive({
     warehouse_area_id: undefined as number | undefined,
     warehouse_area: '',
-    location_id: undefined as number | undefined,
     location_code: ''
   })
 
@@ -221,20 +200,6 @@
     return `RK${date}${String(Date.now()).slice(-4)}`
   })
 
-  const locationPlaceholder = computed(() => {
-    if (!formData.warehouse_area_id) return '请先选择入库仓库'
-    if (loadingLocations.value) return '加载库位中…'
-    if (!locationOptions.value.length) return '该仓库暂无可用库位'
-    return '请选择库位编码'
-  })
-
-  function getLocationLabel(loc: WarehouseLocationOption): string {
-    const code = loc.location_no || '—'
-    const suffix = loc.status === 1 ? '（已占用）' : ''
-    if (loc.area) return `${loc.area}-${code}${suffix}`
-    return `${code}${suffix}`
-  }
-
   async function loadWarehouseAreas() {
     try {
       warehouseAreas.value = (await fetchWarehouseAreas()) || []
@@ -243,47 +208,15 @@
     }
   }
 
-  async function loadLocations(areaId: number) {
-    loadingLocations.value = true
-    locationOptions.value = []
-    try {
-      locationOptions.value = await fetchWarehouseLocations(areaId)
-    } catch {
-      locationOptions.value = []
-    } finally {
-      loadingLocations.value = false
-    }
-  }
-
-  async function handleAreaChange(areaId: number) {
+  function handleAreaChange(areaId: number) {
     const area = warehouseAreas.value.find((item) => item.id === areaId)
     formData.warehouse_area = area?.area_name || ''
-    formData.location_id = undefined
-    formData.location_code = ''
-    if (areaId) {
-      await loadLocations(areaId)
-    } else {
-      locationOptions.value = []
-    }
-  }
-
-  function handleLocationChange(locationId: number) {
-    const loc = locationOptions.value.find((item) => item.id === locationId)
-    if (!loc) {
-      formData.location_code = ''
-      return
-    }
-    formData.location_code = loc.area
-      ? `${loc.area}-${loc.location_no || ''}`
-      : loc.location_no || ''
   }
 
   function resetForm() {
     formData.warehouse_area_id = undefined
     formData.warehouse_area = ''
-    formData.location_id = undefined
     formData.location_code = ''
-    locationOptions.value = []
     photoList.value = []
     formRef.value?.clearValidate()
   }
@@ -321,12 +254,13 @@
 
     submitting.value = true
     try {
+      const locationCode = formData.location_code.trim()
       await confirmWarehouseEntry({
         vehicle_id: props.entryItem.vehicle_id,
         warehouse_area_id: formData.warehouse_area_id,
         warehouse_area: formData.warehouse_area,
-        location: formData.location_id ? String(formData.location_id) : '',
-        location_code: formData.location_code,
+        location: locationCode || undefined,
+        location_code: locationCode,
         images: photoList.value.join(',')
       })
       emit('success')

@@ -108,7 +108,9 @@
                   }}</span>
                 </div>
                 <div class="pickup-vehicle-sub">
-                  <span>库位：{{ item.location_name || '—' }}</span>
+                  <span>
+                    库位：{{ `${item.location_name || '—'} ${item.location_no || '—'}` }}
+                  </span>
                   <span>档案：{{ item.archive_no || '—' }}</span>
                   <span>入库：{{ item.entry_no || '—' }}</span>
                 </div>
@@ -130,7 +132,7 @@
         <div v-for="item in checkedList" :key="item.id" class="pickup-summary-row">
           <span>{{ item.plate_no }}</span>
           <span>{{ item.brand_name }} {{ item.model_name }}</span>
-          <span>{{ item.location_name || '—' }}</span>
+          <span>{{ `${item.location_name || '—'} ${item.location_no || '—'}` }}</span>
         </div>
       </div>
 

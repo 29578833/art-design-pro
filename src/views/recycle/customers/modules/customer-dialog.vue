@@ -260,9 +260,11 @@
       levelId: Number(user.level || 0),
       idCard: String(user.card_id || ''),
       address: String(user.addres || ''),
-      enterprise: enterpriseType ? String(user.real_name || user.nickname || '') : '',
-      creditCode: '',
-      contactPerson: '',
+      enterprise: enterpriseType
+        ? String(user.company_name || user.real_name || user.nickname || '')
+        : '',
+      creditCode: enterpriseType ? String(user.company_code || '') : '',
+      contactPerson: enterpriseType ? String(user.company_contact || '') : '',
       status: user.status === 1 || user.status === '1' ? 'active' : 'inactive',
       remark: String(user.mark || '')
     }

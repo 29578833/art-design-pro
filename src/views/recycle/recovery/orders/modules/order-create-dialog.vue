@@ -1309,18 +1309,6 @@
         return
       }
     }
-    if (form.value.delivery_type === 'tow') {
-      const pickup = resolvePickupFromContact()
-      if (!pickup.phone) {
-        ElMessage.warning('预约拖车请先在第一步选择客户并确认联系电话')
-        return
-      }
-      if (!pickup.address) {
-        ElMessage.warning('当前客户未维护地址，请在客户档案中补充地址后再提交')
-        return
-      }
-    }
-
     saving.value = true
     try {
       const res = await fetchSaveOrder(buildSavePayload(1))

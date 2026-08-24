@@ -124,7 +124,7 @@
         >
           <ElFormItem prop="warehouse_area_id">
             <template #label>
-              <span class="entry-field-label">入库仓库 <span class="entry-required">*</span></span>
+              <span class="entry-field-label">入库仓库</span>
             </template>
             <ElSelect
               v-model="formData.warehouse_area_id"
@@ -157,7 +157,6 @@
                 :key="loc.id"
                 :label="getLocationLabel(loc)"
                 :value="loc.id"
-                :disabled="loc.status === 1"
               />
             </ElSelect>
           </ElFormItem>

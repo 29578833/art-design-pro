@@ -1,7 +1,7 @@
 <template>
   <div class="foa-root">
-    <!-- 电子签名进度卡 -->
-    <div class="foa-progress-card">
+    <!-- 电子签名进度卡（订单被驳回时隐藏签名功能） -->
+    <div v-if="!isRejectedOrder" class="foa-progress-card">
       <div class="foa-progress-header">
         <div class="foa-progress-title">
           <ArtSvgIcon icon="ri:pen-nib-line" class="foa-progress-title-icon" />
@@ -25,7 +25,7 @@
     <!-- 列表区标题行 -->
     <div class="foa-list-header">
       <span class="foa-list-title"> 订单附件（{{ totalCount }} 种类型） </span>
-      <div class="foa-list-actions">
+      <div v-if="!isRejectedOrder" class="foa-list-actions">
         <!-- 管理模板 -->
         <ElButton @click="templateManagerVisible = true">
           <ArtSvgIcon icon="ri:star-line" class="mr-1" />
@@ -94,7 +94,7 @@
               <ArtSvgIcon icon="ri:eye-line" class="foa-act-icon" />查看
             </ElButton>
             <ElButton
-              v-if="isTemplateAtt(att)"
+              v-if="!isRejectedOrder && isTemplateAtt(att)"
               size="small"
               plain
               class="foa-act-btn foa-act-btn--neutral"
@@ -104,6 +104,7 @@
               <ArtSvgIcon icon="ri:download-line" class="foa-act-icon" />下载模板
             </ElButton>
             <ElButton
+              v-if="!isRejectedOrder"
               size="small"
               plain
               type="primary"
@@ -114,6 +115,7 @@
               <ArtSvgIcon icon="ri:upload-2-line" class="foa-act-icon" />上传签名附件
             </ElButton>
             <ElButton
+              v-if="!isRejectedOrder"
               size="small"
               type="warning"
               class="foa-act-btn foa-act-btn--esign"
@@ -162,6 +164,7 @@
       :attachments="attachmentList"
       :initial-index="attachPreviewInitialIndex"
       :order-id="props.orderId"
+      :disable-sign="isRejectedOrder"
       ref="attachPreviewRef"
       @signed="handlePreviewSigned"
     />
@@ -191,6 +194,9 @@
   const emit = defineEmits<{
     (e: 'signed'): void
   }>()
+
+  /** 订单被驳回（status=-1）时隐藏签名功能，仅保留附件查看 */
+  const isRejectedOrder = computed(() => props.detail.status === -1)
 
   const attachmentList = computed(() =>
     resolveVehicleAttachments(props.detail, props.selectedVehicleIdx ?? 0)

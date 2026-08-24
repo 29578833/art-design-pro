@@ -176,6 +176,14 @@ export function fetchAcceptSubmitResult(vehicleId: number) {
   })
 }
 
+/** 检测车信盟 Token 是否有效（无效时前端需弹出车信盟登录框） */
+export function fetchAcceptCheckToken() {
+  return request.get<boolean | { valid?: boolean; token_valid?: boolean }>({
+    url: '/scrap/bfdj/check_token',
+    showErrorMessage: false
+  })
+}
+
 /** 抓取车辆档案 */
 export function fetchAcceptArchive(vehicleId: number) {
   return request.get({
