@@ -139,9 +139,8 @@
 
   function getLocationLabel(loc: WarehouseLocationOption): string {
     const code = loc.location_no || '—'
-    const suffix = isLocationFull(loc) ? '（已满）' : ''
-    if (loc.area) return `${loc.area}-${code}${suffix}`
-    return `${code}${suffix}`
+    if (loc.area) return `${loc.area}-${code}`
+    return `${code}`
   }
 
   async function loadAllLocations() {

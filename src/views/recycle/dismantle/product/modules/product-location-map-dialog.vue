@@ -26,7 +26,7 @@
             {{ areaItem.area }}
           </div>
           <div class="product-location-slots">
-            <ElTooltip
+            <!-- <ElTooltip
               v-for="slot in areaItem.slots"
               :key="slot.id"
               :content="getSlotTooltip(slot)"
@@ -35,7 +35,12 @@
               <div class="product-location-slot" :style="getSlotStyle(areaItem.area, slot)">
                 {{ getSlotLabel(slot) }}
               </div>
-            </ElTooltip>
+            </ElTooltip> -->
+            <template v-for="slot in areaItem.slots" :key="slot.id">
+              <div class="product-location-slot" :style="getSlotStyle(areaItem.area, slot)">
+                {{ getSlotLabel(slot) }}
+              </div>
+            </template>
           </div>
         </div>
       </div>

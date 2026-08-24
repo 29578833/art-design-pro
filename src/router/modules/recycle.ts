@@ -199,7 +199,7 @@ export const recycleWarehouseRoutes: AppRouteRecord = {
       component: '/recycle/warehouse/location',
       meta: {
         title: 'menus.recycle.warehouseLocation',
-        keepAlive: true,
+        keepAlive: false,
         menuId: 3519
       }
     }
