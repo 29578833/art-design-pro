@@ -1100,6 +1100,15 @@
     border-radius: 12px;
   }
 
+  .step-error-hint {
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #ff4d4f;
+    background: #fff1f0;
+    border-radius: 4px;
+  }
+
   .footer-actions {
     display: flex;
     gap: 12px;

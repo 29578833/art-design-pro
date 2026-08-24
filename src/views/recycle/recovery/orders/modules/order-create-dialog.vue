@@ -638,6 +638,7 @@
         <div class="footer-step-hint">
           <span>步骤 {{ currentStep + 1 }} / {{ stepLabels.length }}</span>
           <span v-if="isIntentOrder" class="intent-order-tag">意向订单（非必填）</span>
+          <span v-else-if="stepError" class="step-error-hint">{{ stepError }}</span>
         </div>
         <div class="footer-actions">
           <button type="button" class="btn-cancel" @click="dialogVisible = false">取消</button>
@@ -874,7 +875,7 @@
   const defaultForm = (): OrderCreateForm => ({
     is_deal: null,
     is_batch: false,
-    batch_vehicle_count: '',
+    batch_vehicle_count: '2',
     plate_no: '',
     vin: '',
     brand: '',
@@ -1056,18 +1057,59 @@
     form.value.settlement_method === 'weight' ? '元/吨' : '元/辆'
   )
 
-  const canNext = computed(() => {
-    if (currentStep.value === 0) {
-      return form.value.is_deal !== null
+  /**
+   * 校验指定步骤的必填项，返回错误提示；通过返回 null。
+   * 意向订单（is_deal === false）所有字段均非必填。
+   */
+  function validateStep(step: number): string | null {
+    if (form.value.is_deal === false) return null
+
+    if (step === 0) {
+      return form.value.is_deal === null ? '请先选择是否成交' : null
     }
-    if (currentStep.value === 1) {
-      if (form.value.is_deal === false) return true
-      return !!(form.value.is_batch || form.value.plate_no.trim())
+
+    if (step === 1) {
+      if (form.value.is_batch) {
+        const count = toNumber(form.value.batch_vehicle_count)
+        if (!form.value.batch_vehicle_count.trim() || !Number.isInteger(count) || count < 2) {
+          return '批量订单车辆数至少为 2 辆'
+        }
+        const emptyIndex = form.value.vehicles.findIndex((vehicle) => !vehicle.plate_no.trim())
+        if (emptyIndex >= 0) {
+          return `请填写车辆 ${emptyIndex + 1} 的车牌号`
+        }
+      } else if (!form.value.plate_no.trim()) {
+        return '请填写车牌号'
+      }
+      return null
     }
-    if (currentStep.value === 2) {
-      return !!form.value.settlement_method
+
+    if (step === 2) {
+      if (!form.value.settlement_method) return '请选择结算方式'
+      const residual = toNumber(form.value.residual_value)
+      if (!form.value.residual_value.trim() || !Number.isFinite(residual) || residual < 0) {
+        return '请填写残值金额'
+      }
+      if (form.value.has_agent) {
+        if (!form.value.agent_name.trim()) return '请填写代理人姓名'
+        if (!form.value.agent_phone.trim()) return '请填写代理人手机'
+        const agentFee = toNumber(form.value.agent_fee)
+        if (!form.value.agent_fee.trim() || !Number.isFinite(agentFee) || agentFee < 0) {
+          return '请填写代理服务费'
+        }
+      }
+      return null
     }
-    return true
+
+    return null
+  }
+
+  const canNext = computed(() => validateStep(currentStep.value) === null)
+
+  /** 当前步骤未通过校验时的提示文案，用于底栏内联展示 */
+  const stepError = computed(() => {
+    if (isIntentOrder.value) return ''
+    return validateStep(currentStep.value) || ''
   })
 
   function resetState() {
@@ -1098,6 +1140,10 @@
     form.value.brand = order.brand || ''
     form.value.model = order.model || ''
     form.value.is_batch = order.is_batch === 1
+    form.value.batch_vehicle_count =
+      order.batch_vehicle_count && order.batch_vehicle_count >= 2
+        ? String(order.batch_vehicle_count)
+        : '2'
     form.value.owner_address = String(order.address || '')
   }
 
@@ -1151,6 +1197,9 @@
     if (isBatch === form.value.is_batch) return
     if (isBatch) {
       syncSingleToFirstVehicle()
+      if (!form.value.batch_vehicle_count.trim()) {
+        form.value.batch_vehicle_count = '2'
+      }
     } else {
       syncFirstVehicleToSingle()
     }
@@ -1297,6 +1346,11 @@
   }
 
   async function handleSubmit() {
+    const error = validateStep(2)
+    if (error) {
+      ElMessage.warning(error)
+      return
+    }
     const phone = form.value.phone.trim() || form.value.owner_phone.trim()
     if (!phone) {
       ElMessage.warning('请填写联系电话')
