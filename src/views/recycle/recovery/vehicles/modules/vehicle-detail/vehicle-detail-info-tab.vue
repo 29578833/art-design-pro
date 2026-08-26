@@ -293,55 +293,7 @@
     <div class="vd-media-block">
       <div class="vd-media-title">影像材料</div>
 
-      <div v-if="scrapDjid" class="vd-cert-card">
-        <div class="vd-cert-head">
-          <div class="vd-cert-head-left">
-            <ArtSvgIcon icon="ri:file-text-line" class="vd-cert-icon" />
-            <span class="vd-cert-head-title">报废车机动车回收证明</span>
-            <span class="vd-cert-tag">商务部同步 · 只读</span>
-          </div>
-          <div class="vd-cert-actions">
-            <button type="button" class="vd-cert-btn outline" @click="handleOpenCert">
-              <ArtSvgIcon icon="ri:zoom-in-line" />查看
-            </button>
-            <button type="button" class="vd-cert-btn primary" @click="handleOpenCert">
-              <ArtSvgIcon icon="ri:download-line" />下载
-            </button>
-          </div>
-        </div>
-        <div class="vd-cert-body">
-          <div class="vd-cert-preview" v-show="false">
-            <div class="vd-cert-preview-title">报废机动车回收证明</div>
-            <div class="vd-cert-preview-meta">
-              <span>回收企业：<em>鑫广再生资源（上海）有限公司</em></span>
-              <span
-                >证明编号：<em class="mono">{{ scrapDjid }}</em></span
-              >
-            </div>
-            <div class="vd-cert-preview-grid">
-              <div>
-                <span class="lbl">车主名称</span><span>{{ archiveDetail.owner_name || '—' }}</span>
-              </div>
-              <div>
-                <span class="lbl">车主证件号</span
-                ><span class="mono">{{
-                  archiveDetail.owner_id_number || archiveDetail.owner_id_card || '—'
-                }}</span>
-              </div>
-              <div>
-                <span class="lbl">车辆牌照</span><span>{{ archiveDetail.plate_no || '—' }}</span>
-              </div>
-              <div>
-                <span class="lbl">车辆识别代号(VIN)</span
-                ><span class="mono">{{ archiveDetail.vin || '—' }}</span>
-              </div>
-              <div>
-                <span class="lbl">车辆品牌型号</span><span>{{ brandModel }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <RecycleCertificate :djid="scrapDjid" />
 
       <div class="vd-media-grid-section">
         <div class="vd-media-grid-head">
@@ -470,6 +422,7 @@
 <script setup lang="ts">
   import type { AcceptSyncFiles } from '@/types/recycle/recovery/commerce/accept'
   import type { ScrapVehicleDetail } from '@/types/recycle/recovery/vehicles/vehicle'
+  import RecycleCertificate from '../vehicle-archive/recycle-certificate.vue'
   import {
     brandModelText,
     buildAgentPhotoSlots,
@@ -482,7 +435,6 @@
     maskIdCard,
     maskPhone,
     mergeAcceptSyncPatch,
-    openRecycleCert,
     previewUrls
   } from './vehicle-detail-utils'
 
@@ -524,10 +476,6 @@
   const agentPreviewList = computed(() => previewUrls(agentPhotoSlots.value))
   const entryPhotoPreviewList = computed(() => previewUrls(entryPhotoItems.value))
   const dismantlePreviewList = computed(() => previewUrls(dismantlePhotoSlots.value))
-
-  function handleOpenCert() {
-    openRecycleCert(props.scrapDjid, props.detail.id)
-  }
 </script>
 
 <style scoped lang="scss">

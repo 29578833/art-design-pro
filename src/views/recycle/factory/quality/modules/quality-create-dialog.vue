@@ -381,10 +381,6 @@
                 <span class="qc-deduct-value total">¥{{ totalDeduction.toFixed(2) }}</span>
               </div>
             </div>
-            <label class="qc-no-deduct">
-              <ElCheckbox v-model="noDeductMissing" />
-              <span>缺件免扣款</span>
-            </label>
           </div>
         </div>
 
@@ -678,7 +674,6 @@
 
   const loadingItems = ref(false)
   const inspectionCategories = ref<InspectionCategory[]>([])
-  const noDeductMissing = ref(false)
   const itemResults = reactive<Record<string, ItemStatus | null>>({})
   const itemBatteryCount = reactive<Record<string, number>>({})
   const itemTireMaterial = reactive<Record<string, string>>({})
@@ -761,7 +756,6 @@
   const damagedCount = computed(() => Object.values(itemResults).filter((v) => v === 3).length)
 
   const totalDeduction = computed(() => {
-    if (noDeductMissing.value) return 0
     let total = 0
     for (const cat of inspectionCategories.value) {
       for (const item of cat.items || []) {
@@ -1197,7 +1191,6 @@
     pendingPhotoField.value = ''
     uploadingDeductPhoto.value = false
     inspectionCategories.value = []
-    noDeductMissing.value = false
     Object.keys(itemResults).forEach((k) => delete itemResults[k])
     Object.keys(itemBatteryCount).forEach((k) => delete itemBatteryCount[k])
     Object.keys(itemTireMaterial).forEach((k) => delete itemTireMaterial[k])
@@ -1799,15 +1792,6 @@
       font-size: 18px;
       color: #ff4d4f;
     }
-  }
-
-  .qc-no-deduct {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    font-size: 14px;
-    color: #4b5563;
-    cursor: pointer;
   }
 
   .qc-summary-grid {

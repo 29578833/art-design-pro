@@ -1,4 +1,4 @@
-@use '../../vehicles-dialog' as *;
+@use '../../vehicles-dialog'as *;
 
 .vd-info {
   display: flex;
@@ -94,7 +94,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 16 / 9;
+  // aspect-ratio: 16 / 9;
+  height: 140px;
   overflow: hidden;
   background: $vm-gray-100;
   border: 1px dashed $vm-border;

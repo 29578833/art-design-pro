@@ -170,10 +170,17 @@
   function handleCreateSuccess() {
     createVisible.value = false
     selectedQueueItem.value = null
-    loadStats()
-    queuePageRef.value?.refreshData?.()
+    // 队列与统计由 createVisible 的 watcher 统一刷新，这里只处理成功提交后才会变化的数据
     reportPageRef.value?.refreshData?.()
   }
+
+  // 质检弹窗关闭（成功提交/取消/关闭）后重新请求下列表，保证队列状态及时更新
+  watch(createVisible, (visible) => {
+    if (!visible) {
+      loadStats()
+      queuePageRef.value?.refreshData?.()
+    }
+  })
 
   onMounted(() => {
     loadStats()

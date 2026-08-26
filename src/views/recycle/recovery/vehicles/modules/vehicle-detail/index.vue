@@ -164,10 +164,10 @@
     try {
       const res = await fetchAcceptFilesCache(props.vehicleId)
       scrapCacheFiles.value = (res.bfcj || {}) as Record<string, { url?: string }>
-      scrapDjid.value = String(res.djid || props.vehicleId)
+      scrapDjid.value = String(res.djid || '')
     } catch {
       scrapCacheFiles.value = {}
-      scrapDjid.value = props.vehicleId ? String(props.vehicleId) : ''
+      scrapDjid.value = ''
     }
   }
 
