@@ -125,7 +125,7 @@
   const selectedId = ref<number | null>(null)
   const selectedRole = ref<SystemRoleItem | null>(null)
   const menuTree = ref<SystemRoleMenuNode[]>([])
-  /** rules 中的菜单 id 列表 */
+  /** rules 中的菜单 id + 按钮 action id（menuId*10+offset） */
   const checkedRuleIds = ref<number[]>([])
   const miniRoles = ref<string[]>([])
   const scrapRoleOptions = ref<ScrapRoleOption[]>([])
@@ -157,34 +157,10 @@
     return []
   }
 
-  /** 将 rules 规范为菜单 id（兼容历史按钮权限 id：menuId*10+1~4） */
-  function normalizeMenuRuleIds(
-    rules: SystemRoleItem['rules'],
-    menus: SystemRoleMenuNode[]
-  ): number[] {
-    const raw = parseRuleIds(rules)
-    const menuIdSet = new Set<number>()
-    const walk = (nodes: SystemRoleMenuNode[]) => {
-      for (const node of nodes) {
-        menuIdSet.add(Number(node.id))
-        if (node.children?.length) walk(node.children)
-      }
-    }
-    walk(menus)
-
-    const result = new Set<number>()
-    for (const id of raw) {
-      if (menuIdSet.has(id)) {
-        result.add(id)
-      } else if (id > 10 && id % 10 >= 1 && id % 10 <= 4) {
-        const menuId = Math.floor(id / 10)
-        if (menuIdSet.has(menuId)) result.add(menuId)
-      }
-    }
-    return [...result]
-  }
-
-  /** 保存时补齐祖先菜单 id，保证侧栏菜单路径完整 */
+  /**
+   * 保存时补齐祖先菜单 id，保证侧栏菜单路径完整。
+   * checked 中已含功能菜单 id 与按钮 action id（menuId*10+1~4）。
+   */
   function collectSaveRuleIds(menus: SystemRoleMenuNode[], checked: number[]): number[] {
     const selected = new Set(checked.map(Number))
     const result = new Set(selected)
@@ -195,7 +171,8 @@
         const mid = Number(node.id)
         const childAny = node.children?.length ? walk(node.children) : false
         const selfOn = selected.has(mid)
-        if (selfOn || childAny) {
+        const actionOn = [1, 2, 3, 4].some((o) => selected.has(mid * 10 + o))
+        if (selfOn || childAny || actionOn) {
           result.add(mid)
           any = true
         }
@@ -246,7 +223,7 @@
       const detail = await fetchSystemRoleEdit(id)
       selectedRole.value = detail.role
       menuTree.value = detail.menus || []
-      checkedRuleIds.value = normalizeMenuRuleIds(detail.role.rules, menuTree.value)
+      checkedRuleIds.value = parseRuleIds(detail.role.rules)
       // mini_program_roles 存的是小程序角色 id，如 "3,2,1"
       const mini = detail.role.mini_program_roles
       if (Array.isArray(mini)) {

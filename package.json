@@ -19,8 +19,12 @@
     "prepare": "husky",
     "commit": "git-cz",
     "clean:dev": "tsx scripts/clean-dev.ts",
-    "deploy": "gulp deploy",
-    "build:deploy": "vite build && gulp deploy"
+    "deploy": "gulp deploy --env prod",
+    "deploy:prod": "gulp deploy --env prod",
+    "deploy:test": "gulp deploy --env test",
+    "build:deploy": "vite build && gulp deploy --env prod",
+    "build:deploy:prod": "vite build && gulp deploy --env prod",
+    "build:deploy:test": "vite build && gulp deploy --env test"
   },
   "config": {
     "commitizen": {
