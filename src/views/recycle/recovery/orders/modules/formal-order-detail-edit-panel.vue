@@ -21,9 +21,7 @@
         </ElCol>
         <ElCol :span="8">
           <label class="field-label">车辆类型</label>
-          <ElSelect v-model="form.vehicle_type" placeholder="请选择">
-            <ElOption v-for="t in fuelTypes" :key="t" :label="t" :value="t" />
-          </ElSelect>
+          <CllxCascader v-model="form.vehicle_type" />
         </ElCol>
         <ElCol :span="8">
           <label class="field-label">排量国标</label>
@@ -204,6 +202,7 @@
 <script setup lang="ts">
   import { fetchUpdateOrder } from '@/api/recycle/order'
   import type { OrderDetail, OrderUpdatePayload } from '@/types/recycle/recovery/orders/order'
+  import CllxCascader from '@/views/recycle/recovery/shared/cllx-cascader.vue'
 
   defineOptions({ name: 'FormalOrderDetailEditPanel' })
 
@@ -251,7 +250,6 @@
     (e: 'saved'): void
   }>()
 
-  const fuelTypes = ['汽油', '柴油', '纯电动', '插电混动', '油电混动']
   const emissionStandards = ['国一', '国二', '国三', '国四', '国五', '国六', '新能源']
   const deliveryOptions = [
     { value: 'self' as const, label: '自行送厂', desc: '自行驾驶送达' },

@@ -458,7 +458,7 @@
   const ownerTypeLabel = computed(() => {
     const t = props.detail.owner_type
     if (t === 'personal') return '个人结算'
-    if (t === 'company') return '非个人结算'
+    if (t === 'company') return '企业结算'
     return '个人结算'
   })
 

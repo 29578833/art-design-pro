@@ -392,10 +392,10 @@ npx vue-tsc --noEmit src/views/recycle/recovery/orders/index.vue
 
 订单管理、详情、审核、创建/编辑弹窗必须覆盖这些字段与交互：
 
-- 结算类型：个人结算 / 企业结算（旧文档或接口可能写“非个人结算”，展示文案以后端 `*_text` 或最新 PRD 为准）
+- 结算类型：个人结算 / 企业结算（旧文档或接口可能写“企业结算”，展示文案以后端 `*_text` 或最新 PRD 为准）
 - 结算方式：重量结算 / 整备质量结算 / 整车结算
 - 结算字段：是否质检缺件免扣款、自送费补贴、残值/回收单价、结算金额
-- 非个人结算：显示并提交发票金额、发票号码
+- 企业结算：显示并提交发票金额、发票号码
 - 代理人：有代理人时显示代理人姓名、电话、服务费、服务费发票号码
 - 订单详情 Tab：基本信息、流程/日志、附件与签署；批量回收订单要支持切换车辆，车辆物流状态独立展示
 - 附件签署：参考 `FormalOrderDetailModal.tsx`、`OrderSignature.tsx`，Vue 已有 `formal-order-attachments-tab.vue`、`sign-canvas-dialog.vue`、`sign-template-manager-dialog.vue`

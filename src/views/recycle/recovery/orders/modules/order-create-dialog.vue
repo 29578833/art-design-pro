@@ -387,9 +387,7 @@
                   </div>
                   <div>
                     <label class="field-label">车辆类型</label>
-                    <ElSelect v-model="vehicle.vehicle_type" placeholder="请选择">
-                      <ElOption v-for="t in fuelTypes" :key="t" :label="t" :value="t" />
-                    </ElSelect>
+                    <CllxCascader v-model="vehicle.vehicle_type" />
                   </div>
                   <div>
                     <label class="field-label">排量国标</label>
@@ -440,9 +438,7 @@
               </div>
               <div>
                 <label class="field-label">车辆类型</label>
-                <ElSelect v-model="form.vehicle_type" placeholder="请选择">
-                  <ElOption v-for="t in fuelTypes" :key="t" :label="t" :value="t" />
-                </ElSelect>
+                <CllxCascader v-model="form.vehicle_type" />
               </div>
               <div>
                 <label class="field-label">排量国标</label>
@@ -679,7 +675,7 @@
 </template>
 
 <script setup lang="ts">
-  import { parseEmissionStandardFromOcr, parseFuelTypeFromOcr } from '@/api/recycle/ocr'
+  import { parseEmissionStandardFromOcr } from '@/api/recycle/ocr'
   import { fetchAcceptRecognizeDrivingLicense } from '@/api/recycle/accept'
   import { uploadFile } from '@/api/upload'
   import { fetchPartnerList } from '@/api/recycle/customer'
@@ -688,6 +684,7 @@
   import type { DrivingLicenseOcrData } from '@/types/recycle/recovery/vehicles/ocr'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import CustomerDialog from '@/views/recycle/customers/modules/customer-dialog.vue'
+  import CllxCascader from '@/views/recycle/recovery/shared/cllx-cascader.vue'
   import type {
     OrderSavePayload,
     OrderSaveResult,
@@ -814,7 +811,6 @@
     form.value.real_name ? form.value.real_name.slice(0, 1) : '客'
   )
 
-  const fuelTypes = ['汽油', '柴油', '纯电动', '插电混动', '油电混动']
   const emissionStandards = ['国一', '国二', '国三', '国四', '国五', '国六', '新能源']
 
   const gradeColor: Record<string, string> = {
@@ -880,7 +876,7 @@
     vin: '',
     brand: '',
     model: '',
-    vehicle_type: '汽油',
+    vehicle_type: '',
     emission_standard: '',
     color: '',
     year: '',
@@ -960,7 +956,7 @@
           vin: item.vin,
           brand: item.brand,
           model: item.model,
-          fuel_type: item.vehicle_type,
+          vehicle_type: item.vehicle_type,
           emission_standard: item.emission_standard,
           reg_date: item.registration_date
         }))
@@ -974,7 +970,7 @@
         vin: form.value.vin,
         brand: form.value.brand,
         model: form.value.model,
-        fuel_type: form.value.vehicle_type,
+        vehicle_type: form.value.vehicle_type,
         emission_standard: form.value.emission_standard,
         reg_date: form.value.registration_date
         // color: form.value.color,
@@ -1154,7 +1150,7 @@
       vin: '',
       brand: '',
       model: '',
-      vehicle_type: '汽油',
+      vehicle_type: '',
       emission_standard: '',
       registration_date: ''
     }
@@ -1276,7 +1272,7 @@
   }
 
   function applyOcrResult(data: DrivingLicenseOcrData) {
-    const fuelType = parseFuelTypeFromOcr(data)
+    const vehicleType = data.vehicle_type || ''
     const emissionStandard = parseEmissionStandardFromOcr(data)
     const registrationDate = data.reg_date || ''
     // const year = extractYearFromRegDate(registrationDate)
@@ -1287,7 +1283,7 @@
       if (data.vin) vehicle.vin = data.vin
       if (data.model) vehicle.model = data.model
       if (data.brand) vehicle.brand = data.brand
-      if (fuelType) vehicle.vehicle_type = fuelType
+      if (vehicleType) vehicle.vehicle_type = vehicleType
       if (emissionStandard) vehicle.emission_standard = emissionStandard
       if (registrationDate) vehicle.registration_date = registrationDate
 
@@ -1299,7 +1295,7 @@
       if (data.vin) form.value.vin = data.vin
       if (data.model) form.value.model = data.model
       if (data.brand) form.value.brand = data.brand
-      if (fuelType) form.value.vehicle_type = fuelType
+      if (vehicleType) form.value.vehicle_type = vehicleType
       if (emissionStandard) form.value.emission_standard = emissionStandard
       if (registrationDate) {
         form.value.registration_date = registrationDate
