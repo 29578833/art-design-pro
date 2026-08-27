@@ -147,12 +147,7 @@
     PhotoChecklistResult
   } from '@/types/recycle/decision/reports/report'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
-  import {
-    defaultReportDateRange,
-    granRange,
-    shiftGranRange,
-    type ReportTimeMode
-  } from '../../utils'
+  import { granRange, parseYmd, shiftGranRange, type ReportTimeMode } from '../../utils'
   import { buildPhotoChecklistColumns, PHOTO_COLS } from './grid-columns'
   import { PC_REPORT_TITLE, usePhotoChecklistExport } from './grid-export'
 
@@ -168,7 +163,7 @@
   const result = ref<PhotoChecklistResult | null>(null)
   const { exporting, downloading, exportExcel, downloadPhotos } = usePhotoChecklistExport()
 
-  const defaultRange = defaultReportDateRange()
+  const defaultRange = granRange('month')
   const dateRange = ref<[string, string] | null>([...defaultRange])
   const queryRange = ref<[string, string]>([...defaultRange])
   const timeMode = ref<ReportTimeMode>('month')
@@ -258,8 +253,8 @@
   function buildParams() {
     return {
       plate_no: plateNo.value || undefined,
-      start_date: dateRange.value?.[0],
-      end_date: dateRange.value?.[1],
+      start_date: queryRange.value[0],
+      end_date: queryRange.value[1],
       time_mode: timeMode.value,
       page: page.value,
       limit: limit.value
@@ -276,9 +271,12 @@
   }
   function switchTimeMode(mode: ReportTimeMode) {
     timeMode.value = mode
-    if (!dateRange.value) return
-    const [s, e] = granRange(mode, new Date(dateRange.value[0]))
-    dateRange.value = [s, e]
+    const refDate = dateRange.value?.[0] ? parseYmd(dateRange.value[0]) : new Date()
+    const range = granRange(mode, refDate)
+    dateRange.value = [...range]
+    queryRange.value = [...range]
+    page.value = 1
+    loadData()
   }
 
   function shiftDate(delta: number) {
@@ -292,6 +290,7 @@
     dateRange.value = [...range]
     queryRange.value = [...range]
     page.value = 1
+    loadData()
   }
 
   function onPageSizeChange() {
@@ -303,7 +302,6 @@
     loading.value = true
     try {
       result.value = await fetchPhotoChecklist(buildParams())
-      if (dateRange.value) queryRange.value = [...dateRange.value]
     } catch {
       result.value = null
       ElMessage.error('加载照片清单失败')
@@ -317,6 +315,7 @@
       ElMessage.warning('请选择日期范围')
       return
     }
+    queryRange.value = [...dateRange.value]
     page.value = 1
     loadData()
   }
@@ -326,7 +325,9 @@
 
   function handleReset() {
     timeMode.value = 'month'
-    dateRange.value = defaultReportDateRange()
+    const range = granRange('month')
+    dateRange.value = [...range]
+    queryRange.value = [...range]
     plateNo.value = ''
     page.value = 1
     loadData()

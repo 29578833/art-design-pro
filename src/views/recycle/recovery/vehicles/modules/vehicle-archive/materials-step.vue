@@ -171,49 +171,19 @@
     <div class="vd-cert-head">
       <div class="vd-cert-head-left">
         <span class="vd-cert-head-title">拖车进场照片</span>
+        <span class="vd-cert-tag">质检同步 · 只读</span>
       </div>
-      <UploadBatchTrigger
-        v-if="!readonly"
-        :loading="materialBatchUploading"
-        @select="(files) => handleMaterialBatchUpload(files)"
-      />
     </div>
     <div class="vd-cert-body">
-      <div v-if="readonly" class="vd-photo-grid cols-4">
-    <ReadonlyPhoto
-      v-for="item in TOW_READONLY_ITEMS"
-      :key="item.field"
-      :item="item"
-      :url="getScrapFileUrl(item.field)"
-    />
-      </div>
-      <div v-else class="ae-ocr-grid cols-4">
-    <UploadSlot
-      label="拖车单"
-      required
-      :url="materialImages.photo_front"
-      @upload="(file) => handleMaterialUpload('photo_front', file)"
-      @remove="handleMaterialRemove('photo_front')"
-    />
-    <UploadSlot
-      label="整车照"
-      required
-      :url="materialImages.photo_side"
-      @upload="(file) => handleMaterialUpload('photo_side', file)"
-      @remove="handleMaterialRemove('photo_side')"
-    />
-    <UploadSlot
-      label="车架拓印照"
-      :url="materialImages.photo_back"
-      @upload="(file) => handleMaterialUpload('photo_back', file)"
-      @remove="handleMaterialRemove('photo_back')"
-    />
-    <UploadSlot
-      label="车架号照"
-      :url="materialImages.photo_interior"
-      @upload="(file) => handleMaterialUpload('photo_interior', file)"
-      @remove="handleMaterialRemove('photo_interior')"
-    />
+      <div class="vd-photo-grid cols-4">
+        <ReadonlyPhoto
+          v-for="(item, index) in ENTRY_PHOTO_ITEMS"
+          :key="item.field"
+          :item="item"
+          :url="getEntryPhotoUrl(item.field)"
+          :preview-src-list="entryPreviewList"
+          :initial-index="previewIndexAt(entryPhotoUrls, index)"
+        />
       </div>
     </div>
   </div>
@@ -277,12 +247,13 @@
 
 <script setup lang="ts">
   import { fetchAcceptFilesCache, fetchAcceptUploadImage } from '@/api/recycle/accept'
+  import { fetchQualityByOrder } from '@/api/recycle/quality'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { ElMessage } from 'element-plus'
   import {
     CANCEL_PHOTO_ITEMS,
     DISMANTLE_PHOTO_ITEMS,
-    TOW_READONLY_ITEMS
+    ENTRY_PHOTO_ITEMS
   } from './archive-constants'
   import { previewIndexAt, resolveDismantlePhotoUrl, str, batchFillUploadSlots } from './archive-utils'
   import ReadonlyPhoto from './readonly-photo.vue'
@@ -302,6 +273,8 @@
   const props = defineProps<{
     /** 车辆 ID。 */
     vehicleId: number
+    /** 关联订单 ID，用于拉取质检入场照片。 */
+    orderId?: number
     /** 是否为企业或单位所有人。 */
     isCompany: boolean
     /** 是否只读。 */
@@ -318,9 +291,9 @@
   const scrapDjid = ref('')
   const scrapFilesLoading = ref(false)
   const scrapCacheFiles = ref<Record<string, ArchiveCacheFile>>({})
+  const entryPhotos = ref<Record<string, string>>({})
   const ownerBatchUploading = ref(false)
   const vehicleBatchUploading = ref(false)
-  const materialBatchUploading = ref(false)
   const agentBatchUploading = ref(false)
 
   const ownerUploadFields = computed((): (keyof ArchiveOwnerImages)[] =>
@@ -333,13 +306,6 @@
     'xszbmzp',
     'czzp',
     'blpzzp'
-  ]
-
-  const materialUploadFields: (keyof ArchiveMaterialImages)[] = [
-    'photo_front',
-    'photo_side',
-    'photo_back',
-    'photo_interior'
   ]
 
   const agentUploadFields: (keyof ArchiveAgentImages)[] = ['jbrsfz1zp', 'jbrsfz2zp', 'jbrzp']
@@ -355,6 +321,15 @@
     return resolveDismantlePhotoUrl(field, scrapCacheFiles.value, props.dismantlePhotos)
   }
 
+  function getEntryPhotoUrl(field: string) {
+    return entryPhotos.value[field] || ''
+  }
+
+  const entryPhotoUrls = computed(() =>
+    ENTRY_PHOTO_ITEMS.map((item) => getEntryPhotoUrl(item.field))
+  )
+  const entryPreviewList = computed(() => entryPhotoUrls.value.filter(Boolean))
+
   const dismantlePhotoUrls = computed(() =>
     DISMANTLE_PHOTO_ITEMS.map((item) => getDismantlePhotoUrl(item.field))
   )
@@ -368,6 +343,31 @@
   function clearScrapFiles() {
     scrapCacheFiles.value = {}
     scrapDjid.value = ''
+    entryPhotos.value = {}
+  }
+
+  async function loadEntryPhotos() {
+    const orderId = Number(props.orderId || 0)
+    if (!orderId) {
+      entryPhotos.value = {}
+      return
+    }
+    try {
+      const res = await fetchQualityByOrder(orderId, props.vehicleId)
+      if (res) {
+        entryPhotos.value = {
+          full_image: str(res.full_image),
+          vin_rub_image: str(res.vin_rub_image),
+          vin_image: str(res.vin_image),
+          engine_image: str(res.engine_image),
+          other_image: str(res.other_image)
+        }
+      } else {
+        entryPhotos.value = {}
+      }
+    } catch {
+      entryPhotos.value = {}
+    }
   }
 
   async function loadScrapFiles() {
@@ -377,9 +377,11 @@
       const res = await fetchAcceptFilesCache(props.vehicleId)
       scrapCacheFiles.value = (res.bfcj || {}) as Record<string, ArchiveCacheFile>
       scrapDjid.value = str(res.djid)
+      await loadEntryPhotos()
     } catch {
       scrapCacheFiles.value = {}
       scrapDjid.value = ''
+      entryPhotos.value = {}
     } finally {
       scrapFilesLoading.value = false
     }
@@ -424,15 +426,6 @@
     agentImages.value[field] = ''
   }
 
-  async function handleMaterialUpload(field: keyof ArchiveMaterialImages, file: File) {
-    const url = await uploadImage(field, file)
-    if (url) materialImages.value[field] = url
-  }
-
-  function handleMaterialRemove(field: keyof ArchiveMaterialImages) {
-    materialImages.value[field] = ''
-  }
-
   async function runBatchUpload<T extends string>(
     loading: Ref<boolean>,
     fields: readonly T[],
@@ -475,15 +468,6 @@
       vehicleBatchUploading,
       vehicleUploadFields,
       handleVehicleFieldUpload,
-      files
-    )
-  }
-
-  function handleMaterialBatchUpload(files: File[]) {
-    return runBatchUpload(
-      materialBatchUploading,
-      materialUploadFields,
-      handleMaterialUpload,
       files
     )
   }

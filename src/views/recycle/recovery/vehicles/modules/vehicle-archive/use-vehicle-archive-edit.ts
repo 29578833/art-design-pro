@@ -58,6 +58,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   const createdVehicleId = ref(0)
   const selectedOrder = ref<RecycleOrder | null>(null)
   const pendingOrderId = ref(0)
+  const linkedOrderId = ref(0)
 
   const activeVehicleId = computed(() =>
     mode.value === 'create' ? createdVehicleId.value : vehicleId.value
@@ -211,6 +212,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   function applySelectedOrder(order: RecycleOrder | null) {
     selectedOrder.value = order
     pendingOrderId.value = order?.id ? Number(order.id) : 0
+    if (order?.id) linkedOrderId.value = Number(order.id)
     linkInfo.order_no = order?.order_no ? str(order.order_no) : ''
     linkInfo.tow_order_no = order?.tow_no ? str(order.tow_no) : ''
     if (order) {
@@ -225,6 +227,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     createdVehicleId.value = 0
     selectedOrder.value = null
     pendingOrderId.value = 0
+    linkedOrderId.value = 0
     phase.value = 'scene'
     hplx.value = 1
     syq.value = 2
@@ -315,6 +318,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   async function loadVehicleData() {
     if (!activeVehicleId.value) return
     const detail = await fetchVehicleDetail(activeVehicleId.value)
+    linkedOrderId.value = Number(detail.order_id || vehicleRow?.value?.order_id || pendingOrderId.value || 0)
     linkInfo.order_no = str(detail.order_no)
     linkInfo.archive_no = str(detail.vehicle_no || detail.archive_no)
     linkInfo.tow_order_no = str((detail as Record<string, unknown>).tow_order_no)
@@ -354,10 +358,6 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     if (detail.has_agent === 0) hasAgent.value = false
     agentForm.jbr = str(detail.agent_name)
     agentForm.jbrdh = str(detail.agent_phone)
-    materialImages.photo_front = str((detail as Record<string, unknown>).photo_front)
-    materialImages.photo_side = str((detail as Record<string, unknown>).photo_side)
-    materialImages.photo_back = str((detail as Record<string, unknown>).photo_back)
-    materialImages.photo_interior = str((detail as Record<string, unknown>).photo_interior)
     dismantlePhotos.value = (detail.dismantle_photos || {}) as Record<string, string>
   }
 
@@ -448,6 +448,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
       createdVehicleId.value = 0
       selectedOrder.value = null
       pendingOrderId.value = 0
+      linkedOrderId.value = 0
       phase.value = 'order'
       return
     }
@@ -726,6 +727,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     agentForm,
     agentImages,
     dismantlePhotos,
+    linkedOrderId,
     stepComplete,
     hplxOptions: HPLX_OPTIONS,
     syqOptions: SYQ_OPTIONS,

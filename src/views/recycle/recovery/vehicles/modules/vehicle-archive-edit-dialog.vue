@@ -106,6 +106,7 @@
             v-model:agent-images="agentImages"
             v-model:material-images="materialImages"
             :vehicle-id="activeVehicleId"
+            :order-id="linkedOrderId"
             :is-company="isCompany"
             :readonly="isSubmitted"
             :dismantle-photos="dismantlePhotos"
@@ -264,6 +265,7 @@
     agentForm,
     agentImages,
     dismantlePhotos,
+    linkedOrderId,
     stepComplete,
     hplxOptions,
     syqOptions,

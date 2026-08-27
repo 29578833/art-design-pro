@@ -25,6 +25,12 @@ export function formatDateYmd(d: Date): string {
   return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
 }
 
+/** 解析 YYYY-MM-DD 为本地日期（避免 new Date('YYYY-MM-DD') 的 UTC 偏移） */
+export function parseYmd(dateStr: string): Date {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
+
 /** 按粒度计算区间（以 ref 所在天/周/月为基准） */
 export function granRange(mode: ReportTimeMode, ref: Date = new Date()): [string, string] {
   const d = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate())
@@ -52,7 +58,7 @@ export function shiftGranRange(
   mode: ReportTimeMode,
   delta: number
 ): [string, string] {
-  const s = new Date(start)
+  const s = parseYmd(start)
   if (mode === 'day') {
     s.setDate(s.getDate() + delta)
   } else if (mode === 'week') {

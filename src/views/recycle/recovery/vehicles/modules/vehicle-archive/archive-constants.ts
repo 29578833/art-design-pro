@@ -99,13 +99,13 @@ export const CANCEL_PHOTO_ITEMS: ArchivePhotoItem[] = [
   { label: '领取人', field: 'lqrsfz1zp' }
 ]
 
-/** 拖车只读照片配置。 */
-export const TOW_READONLY_ITEMS: ArchivePhotoItem[] = [
-  { label: '拖车单', field: 'tcjczp' },
-  { label: '整车照', field: 'zczp' },
-  { label: '车架拓印照', field: 'gyzp' },
-  { label: '车架号照', field: 'cjhzp' },
-  { label: '发动机照', field: 'fdjhzp' }
+/** 拖车进场照片展示槽位（scrap/quality/get_by_order）。 */
+export const ENTRY_PHOTO_ITEMS: ArchivePhotoItem[] = [
+  { label: '整车全貌照片', field: 'full_image' },
+  { label: '车架拓号照片', field: 'vin_rub_image' },
+  { label: '车架号照片', field: 'vin_image' },
+  { label: '发动机舱照片', field: 'engine_image' },
+  { label: '其他补充照片', field: 'other_image' }
 ]
 
 /** 所有人证件 OCR 字段映射。 */

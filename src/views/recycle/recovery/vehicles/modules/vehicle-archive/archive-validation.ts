@@ -125,8 +125,7 @@ export function isAuthStepComplete(
 
 /** 步骤 5：影像材料。 */
 export function isMaterialsStepComplete(ctx: StepValidationContext) {
-  const { isPersonal, hasAgent, ownerImages, vehicleImages, agentImages, materialImages } = ctx
-  if (!hasVal(materialImages.photo_front) || !hasVal(materialImages.photo_side)) return false
+  const { isPersonal, hasAgent, ownerImages, vehicleImages, agentImages } = ctx
   if (isPersonal) {
     if (!hasVal(ownerImages.sfz1zp || ownerImages.syrzp) || !hasVal(ownerImages.sfz2zp))
       return false

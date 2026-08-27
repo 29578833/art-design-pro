@@ -62,6 +62,7 @@
           :accept-sync-files="acceptSyncFiles"
           :scrap-djid="scrapDjid"
           :scrap-cache-files="scrapCacheFiles"
+          :entry-quality-photos="entryQualityPhotos"
         />
         <!-- 拖车进度 -->
         <VehicleDetailTowTab v-else-if="activeTab === 'tow'" :detail="detail" />
@@ -82,6 +83,7 @@
 
 <script setup lang="ts">
   import { fetchAcceptFilesCache, fetchAcceptSyncFiles } from '@/api/recycle/accept'
+  import { fetchQualityByOrder } from '@/api/recycle/quality'
   import { fetchVehicleDetail } from '@/api/recycle/vehicle'
   import type { AcceptSyncFiles } from '@/types/recycle/recovery/commerce/accept'
   import type {
@@ -136,6 +138,7 @@
   const acceptSyncFiles = ref<AcceptSyncFiles | null>(null)
   const scrapCacheFiles = ref<Record<string, { url?: string }>>({})
   const scrapDjid = ref('')
+  const entryQualityPhotos = ref<Record<string, string>>({})
 
   const headerBrandModel = computed(() => brandModelText(detail.value))
 
@@ -159,6 +162,29 @@
     ]
   })
 
+  async function loadEntryQualityPhotos(orderId?: number, vehicleId?: number) {
+    if (!orderId) {
+      entryQualityPhotos.value = {}
+      return
+    }
+    try {
+      const res = await fetchQualityByOrder(orderId, vehicleId)
+      if (res) {
+        entryQualityPhotos.value = {
+          full_image: String(res.full_image || ''),
+          vin_rub_image: String(res.vin_rub_image || ''),
+          vin_image: String(res.vin_image || ''),
+          engine_image: String(res.engine_image || ''),
+          other_image: String(res.other_image || '')
+        }
+      } else {
+        entryQualityPhotos.value = {}
+      }
+    } catch {
+      entryQualityPhotos.value = {}
+    }
+  }
+
   async function loadScrapFilesCache() {
     if (!props.vehicleId) return
     try {
@@ -177,6 +203,7 @@
     acceptSyncFiles.value = null
     scrapCacheFiles.value = {}
     scrapDjid.value = ''
+    entryQualityPhotos.value = {}
     try {
       const [vehicleDetail, syncFiles] = await Promise.all([
         fetchVehicleDetail(props.vehicleId),
@@ -184,7 +211,10 @@
       ])
       detail.value = vehicleDetail
       acceptSyncFiles.value = syncFiles
-      await loadScrapFilesCache()
+      await Promise.all([
+        loadScrapFilesCache(),
+        loadEntryQualityPhotos(vehicleDetail.order_id, props.vehicleId)
+      ])
     } catch {
       detail.value = { id: props.vehicleId, status: 0 }
     } finally {
@@ -198,6 +228,7 @@
     acceptSyncFiles.value = null
     scrapCacheFiles.value = {}
     scrapDjid.value = ''
+    entryQualityPhotos.value = {}
   }
 
   watch(

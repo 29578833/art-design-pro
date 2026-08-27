@@ -220,7 +220,13 @@
           </div>
 
           <div class="qc-section">
-            <div class="qc-section-title">入场照片（5张）</div>
+            <div class="qc-section-head">
+              <div class="qc-section-title">入场照片（5张）</div>
+              <UploadBatchTrigger
+                :loading="entryBatchUploading"
+                @select="handleEntryBatchUpload"
+              />
+            </div>
             <input
               ref="photoInputRef"
               type="file"
@@ -555,6 +561,8 @@
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import SignCanvasDialog from '@/views/recycle/recovery/orders/modules/sign-canvas-dialog.vue'
+  import UploadBatchTrigger from '@/views/recycle/recovery/vehicles/modules/vehicle-archive/upload-batch-trigger.vue'
+  import { batchFillUploadSlots } from '@/views/recycle/recovery/vehicles/modules/vehicle-archive/archive-utils'
   import { uploadFileGetUrl } from '@/api/upload'
   import { fetchDataDictList } from '@/api/recycle/data-dict'
   import { fetchUserRoleList } from '@/api/recycle/role'
@@ -617,6 +625,7 @@
   const deductPhotoInputRef = ref<HTMLInputElement>()
   const pendingPhotoField = ref<QcEntryPhotoField | ''>('')
   const uploadingPhotoField = ref<QcEntryPhotoField | ''>('')
+  const entryBatchUploading = ref(false)
   const uploadingDeductPhoto = ref(false)
   const entryPhotos = reactive(createEmptyEntryPhotos())
   const deductionImages = ref<string[]>([])
@@ -835,6 +844,28 @@
       // 错误已由 http 拦截器处理
     } finally {
       uploadingPhotoField.value = ''
+    }
+  }
+
+  async function handleEntryBatchUpload(files: File[]) {
+    if (entryBatchUploading.value || uploadingPhotoField.value || !files.length) return
+    entryBatchUploading.value = true
+    try {
+      const fields = QC_ENTRY_PHOTO_CONFIG.map((item) => item.field)
+      const { filled, excess } = await batchFillUploadSlots(fields, files, async (field, file) => {
+        entryPhotos[field] = await uploadFileGetUrl(file, { showSuccessMessage: false })
+      })
+      if (!filled) {
+        ElMessage.warning('未能上传图片，请重试')
+      } else if (excess > 0) {
+        ElMessage.warning(`已按顺序填入 ${filled} 张，还有 ${excess} 张超出槽位`)
+      } else {
+        ElMessage.success(`已按顺序上传 ${filled} 张图片`)
+      }
+    } catch {
+      // 错误已由 http 拦截器处理
+    } finally {
+      entryBatchUploading.value = false
     }
   }
 
@@ -1189,6 +1220,7 @@
     signatures.owner_signature = ''
     uploadingPhotoField.value = ''
     pendingPhotoField.value = ''
+    entryBatchUploading.value = false
     uploadingDeductPhoto.value = false
     inspectionCategories.value = []
     Object.keys(itemResults).forEach((k) => delete itemResults[k])
@@ -1370,6 +1402,22 @@
     color: #6b7280;
     text-transform: uppercase;
     border-bottom: 1px solid #f3f4f6;
+  }
+
+  .qc-section-head {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .qc-section-head .qc-section-title {
+    flex: 1;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: 0;
   }
 
   .qc-readonly-grid {

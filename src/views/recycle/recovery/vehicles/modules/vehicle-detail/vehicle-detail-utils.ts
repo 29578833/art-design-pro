@@ -4,7 +4,7 @@ import type {
   VehicleDimStatus,
   VehicleFlowStep
 } from '@/types/recycle/recovery/vehicles/vehicle'
-import { previewIndexAt as previewIndexAtUrls, resolveDismantlePhotoUrl } from '../vehicle-archive/archive-utils'
+import { previewIndexAt as previewIndexAtUrls, resolveDismantlePhotoUrl, buildEntryPhotoSlots } from '../vehicle-archive/archive-utils'
 
 /** 对齐 xinguang_api ScrapVehicleServices 状态常量 */
 const VEHICLE_STATUS = {
@@ -315,13 +315,10 @@ export function buildAgentPhotoSlots(detail: ScrapVehicleDetail): PhotoSlot[] {
   ]
 }
 
-export function buildEntryPhotoItems(detail: ScrapVehicleDetail): PhotoSlot[] {
-  return [
-    { key: 'tow', label: '拖车单', url: detail.photo_front || '' },
-    { key: 'whole', label: '整车照', url: detail.photo_side || '' },
-    { key: 'rubbing', label: '车架拓印照', url: detail.photo_back || '' },
-    { key: 'vin', label: '车架号照', url: detail.photo_interior || '' }
-  ]
+export function buildEntryPhotoItems(
+  qualityPhotos?: Record<string, unknown> | null
+): PhotoSlot[] {
+  return buildEntryPhotoSlots(qualityPhotos)
 }
 
 export function buildDismantlePhotoSlots(

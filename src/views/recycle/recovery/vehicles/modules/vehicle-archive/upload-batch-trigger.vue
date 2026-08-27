@@ -52,3 +52,52 @@
     input.value = ''
   }
 </script>
+
+<style scoped lang="scss">
+  .ae-batch-upload-btn {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #1890ff;
+    cursor: pointer;
+    background: #fff;
+    border: 1px solid #1890ff;
+    border-radius: 4px;
+    transition:
+      background 0.2s,
+      border-color 0.2s,
+      color 0.2s;
+
+    &:hover:not(:disabled) {
+      background: #e6f7ff;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    &.is-loading {
+      color: #9ca3af;
+      border-color: #d1d5db;
+    }
+  }
+
+  .ae-batch-upload-spin {
+    width: 12px;
+    height: 12px;
+    border: 2px solid #d1d5db;
+    border-top-color: #1890ff;
+    border-radius: 50%;
+    animation: ae-batch-spin 0.8s linear infinite;
+  }
+
+  @keyframes ae-batch-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>

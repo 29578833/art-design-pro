@@ -389,6 +389,7 @@
         <div class="vd-cert-head">
           <div class="vd-cert-head-left">
             <span class="vd-cert-head-title">拖车进场照片</span>
+            <span class="vd-cert-tag">质检同步 · 只读</span>
           </div>
           <span class="vd-photo-count">{{ entryPhotoItems.length }}张</span>
         </div>
@@ -511,6 +512,8 @@
     acceptSyncFiles: AcceptSyncFiles | null
     scrapDjid: string
     scrapCacheFiles: Record<string, { url?: string }>
+    /** scrap/quality/get_by_order 入场照片 */
+    entryQualityPhotos: Record<string, string>
   }>()
 
   /** 档案展示：sync 覆盖 vehicle/detail 同名字段 */
@@ -532,7 +535,7 @@
   const vehicleDocSlots = computed(() => buildVehicleDocSlots(archiveDetail.value))
   const mediaVehicleDocSlots = computed(() => vehicleDocSlots.value)
   const agentPhotoSlots = computed(() => buildAgentPhotoSlots(archiveDetail.value))
-  const entryPhotoItems = computed(() => buildEntryPhotoItems(archiveDetail.value))
+  const entryPhotoItems = computed(() => buildEntryPhotoItems(props.entryQualityPhotos))
   const dismantlePhotoSlots = computed(() =>
     buildDismantlePhotoSlots(props.scrapCacheFiles, props.detail.dismantle_photos)
   )

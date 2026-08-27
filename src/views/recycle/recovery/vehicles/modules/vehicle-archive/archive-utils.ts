@@ -1,4 +1,4 @@
-import { DISMANTLE_PHOTO_FALLBACK_KEYS } from './archive-constants'
+import { DISMANTLE_PHOTO_FALLBACK_KEYS, ENTRY_PHOTO_ITEMS } from './archive-constants'
 
 /** 将未知值转为字符串，空值返回空串。 */
 export function str(v: unknown) {
@@ -52,6 +52,23 @@ export function resolveDismantlePhotoUrl(
     if (url) return url
   }
   return ''
+}
+
+export interface EntryPhotoSlot {
+  key: string
+  label: string
+  url: string
+}
+
+/** 拖车进场照片槽位（scrap/quality/get_by_order）。 */
+export function buildEntryPhotoSlots(
+  qualityPhotos?: Record<string, unknown> | null
+): EntryPhotoSlot[] {
+  return ENTRY_PHOTO_ITEMS.map((item) => ({
+    key: item.field,
+    label: item.label,
+    url: imgUrl(qualityPhotos?.[item.field])
+  }))
 }
 
 /** 批量上传结果。 */

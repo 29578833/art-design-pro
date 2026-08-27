@@ -113,7 +113,15 @@
 
           <div class="work-photos-head">
             <div class="work-panel-title">报废拆解照片（工序二）</div>
-            <span class="work-photos-count">{{ uploadedPhotoCount }}/9 已上传</span>
+            <div class="work-photos-head-actions">
+              <UploadBatchTrigger
+                v-if="!isCompleted"
+                :disabled="!timeFieldsFilled"
+                :loading="batchUploading"
+                @select="handleBatchUpload"
+              />
+              <span class="work-photos-count">{{ uploadedPhotoCount }}/9 已上传</span>
+            </div>
           </div>
           <div class="work-photos-tip">
             <ArtSvgIcon icon="ri:information-line" />
@@ -231,6 +239,8 @@
   } from '@/types/recycle/dismantle/work/plate'
   import { DISMANTLE_PHOTO_FIELDS, PLATE_STATUS_CONFIG } from '@/types/recycle/dismantle/work/plate'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import UploadBatchTrigger from '@/views/recycle/recovery/vehicles/modules/vehicle-archive/upload-batch-trigger.vue'
+  import { batchFillUploadSlots } from '@/views/recycle/recovery/vehicles/modules/vehicle-archive/archive-utils'
 
   interface Props {
     visible: boolean
@@ -254,6 +264,7 @@
   // const saving = ref(false)
   const completing = ref(false)
   const uploadingIndex = ref<number>()
+  const batchUploading = ref(false)
   const activeTab = ref<'photos' | 'log'>('photos')
   const plateItem = ref<PlateItem | null>(null)
   const logs = ref<
@@ -415,6 +426,39 @@
       ElMessage.error('照片上传失败')
     } finally {
       uploadingIndex.value = undefined
+    }
+  }
+
+  async function uploadPhotoAtIndex(index: number, file: File) {
+    const { url } = await uploadFile(file, { showSuccessMessage: false })
+    photoList.value[index] = { ...photoList.value[index], url }
+  }
+
+  async function handleBatchUpload(files: File[]) {
+    if (!timeFieldsFilled.value || isCompleted.value || batchUploading.value || !files.length) {
+      if (!timeFieldsFilled.value && files.length) {
+        ElMessage.warning('请先填写三项必填拆解时间')
+      }
+      return
+    }
+    batchUploading.value = true
+    try {
+      const fields = photoList.value.map((item) => item.field)
+      const { filled, excess } = await batchFillUploadSlots(fields, files, async (field, file) => {
+        const index = photoList.value.findIndex((item) => item.field === field)
+        if (index >= 0) await uploadPhotoAtIndex(index, file)
+      })
+      if (!filled) {
+        ElMessage.warning('未能上传图片，请重试')
+      } else if (excess > 0) {
+        ElMessage.warning(`已按顺序填入 ${filled} 张，还有 ${excess} 张超出槽位`)
+      } else {
+        ElMessage.success(`已按顺序上传 ${filled} 张图片`)
+      }
+    } catch {
+      ElMessage.error('批量上传失败')
+    } finally {
+      batchUploading.value = false
     }
   }
 
@@ -708,6 +752,12 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 8px;
+    }
+
+    .work-photos-head-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
     }
 
     .work-panel-title {
