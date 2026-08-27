@@ -21,3 +21,159 @@ $vm-text-sub: #8c8c8c;
     outline: none;
   }
 }
+
+// 影像材料卡片（编辑/详情共用）
+.vd-cert-card {
+  margin-bottom: 16px;
+  overflow: hidden;
+  border: 1px solid $vm-border;
+  border-radius: 8px;
+}
+
+.vd-cert-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: $vm-gray-50;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.vd-cert-head-left {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.vd-cert-head-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #434343;
+}
+
+.vd-cert-tag {
+  padding: 2px 6px;
+  font-size: 10px;
+  color: $vm-text-sub;
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.vd-cert-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.vd-cert-body {
+  padding: 12px 16px;
+  background: #fff;
+
+  .ae-ocr-grid {
+    gap: 8px;
+    padding: 0;
+  }
+}
+
+.vd-cert-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 16px 12px;
+  background: #fff;
+  border-top: 1px solid #f0f0f0;
+}
+
+.vd-photo-count {
+  font-size: 12px;
+  color: $vm-text-sub;
+}
+
+.vd-photo-grid {
+  display: grid;
+  gap: 8px;
+
+  &.cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  &.cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  &.cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.vd-photo-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 140px;
+  overflow: hidden;
+  background: $vm-gray-100;
+  border: 1px dashed $vm-border;
+  border-radius: 6px;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: $vm-primary;
+  }
+}
+
+.vd-photo-img {
+  width: 100%;
+  height: 100%;
+}
+
+.vd-photo-camera {
+  font-size: 14px;
+  color: #d9d9d9;
+}
+
+.vd-photo-label-top {
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: $vm-text-sub;
+}
+
+.vd-photo-name {
+  display: block;
+  margin-top: 8px;
+  overflow: hidden;
+  font-size: 12px;
+  color: $vm-text-sub;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vd-receipt-card {
+  flex-direction: column;
+  cursor: pointer;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: $vm-primary;
+  }
+
+  &__link {
+    font-size: 12px;
+    font-weight: 500;
+    color: $vm-primary;
+  }
+
+  &__status {
+    margin-top: 4px;
+    font-size: 10px;
+    color: #fa8c16;
+
+    em {
+      font-style: normal;
+      color: $vm-primary;
+
+      &.done {
+        color: $vm-success;
+      }
+    }
+  }
+}

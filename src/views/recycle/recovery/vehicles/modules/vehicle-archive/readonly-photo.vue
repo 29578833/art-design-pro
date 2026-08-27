@@ -1,19 +1,17 @@
 <template>
-  <div class="ae-readonly-photo">
-    <div class="ae-readonly-photo-label">{{ item.label }}</div>
-    <div class="ae-readonly-slot">
+  <div class="vd-photo-slot">
+    <div class="vd-photo-label-top">{{ item.label }}</div>
+    <div class="vd-photo-box">
       <ElImage
         v-if="url"
         :src="url"
         fit="cover"
-        class="ae-readonly-img"
-        :preview-src-list="[url]"
+        class="vd-photo-img"
+        :preview-src-list="previewList"
+        :initial-index="previewInitialIndex"
         preview-teleported
       />
-      <template v-else>
-        <ArtSvgIcon icon="ri:camera-line" style="margin-bottom: 4px; font-size: 20px" />
-        暂无图片
-      </template>
+      <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
     </div>
   </div>
 </template>
@@ -29,7 +27,22 @@
     item: ArchivePhotoItem
     /** 图片访问地址。 */
     url: string
+    /** 同组预览 URL 列表，不传则仅预览当前图。 */
+    previewSrcList?: string[]
+    /** 当前图在 previewSrcList 中的索引。 */
+    initialIndex?: number
   }
 
-  defineProps<Props>()
+  const props = defineProps<Props>()
+
+  const previewList = computed(() =>
+    props.previewSrcList?.length ? props.previewSrcList : props.url ? [props.url] : []
+  )
+  const previewInitialIndex = computed(() =>
+    props.previewSrcList?.length ? (props.initialIndex ?? 0) : 0
+  )
 </script>
+
+<style scoped lang="scss">
+  @use '../../vehicles-dialog' as *;
+</style>

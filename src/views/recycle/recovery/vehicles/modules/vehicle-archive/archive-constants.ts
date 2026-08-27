@@ -71,6 +71,7 @@ export const FALLBACK_RLZL: ArchiveDictOption[] = [
 /** 拆解只读照片配置。 */
 export const DISMANTLE_PHOTO_ITEMS: ArchivePhotoItem[] = [
   { label: '车架照', field: 'cjzp' },
+  { label: '车架照2', field: 'photo_frame2' },
   { label: '发动机照', field: 'fdjzp' },
   { label: '变速箱照', field: 'bsqzp' },
   { label: '方向器照', field: 'fxjzp' },
@@ -78,6 +79,18 @@ export const DISMANTLE_PHOTO_ITEMS: ArchivePhotoItem[] = [
   { label: '后桥照', field: 'hqzp' },
   { label: '钢印部照片', field: 'gybwzp' }
 ]
+
+/** bfcj 无值时回退 vehicle/detail.dismantle_photos 的字段映射。 */
+export const DISMANTLE_PHOTO_FALLBACK_KEYS: Record<string, readonly string[]> = {
+  cjzp: ['photo_frame1'],
+  photo_frame2: ['photo_frame2'],
+  fdjzp: ['photo_engine'],
+  bsqzp: ['photo_transmission'],
+  fxjzp: ['photo_steering'],
+  qqzp: ['photo_front_axle'],
+  hqzp: ['photo_rear_axle'],
+  gybwzp: ['photo_stamp']
+}
 
 /** 注销只读照片配置。 */
 export const CANCEL_PHOTO_ITEMS: ArchivePhotoItem[] = [

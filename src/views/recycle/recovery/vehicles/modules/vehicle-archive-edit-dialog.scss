@@ -1,3 +1,5 @@
+@use '../vehicles-dialog' as *;
+
 $ae-primary: #1677ff;
 $ae-primary-old: #1890ff;
 $ae-success: #52c41a;
@@ -244,6 +246,65 @@ $ae-sub: #8c8c8c;
   color: #4b5563;
   background: #f9fafb;
   border-bottom: 1px solid #f3f4f6;
+
+  .ae-batch-upload {
+    margin-left: auto;
+  }
+}
+
+.ae-section-head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+
+  .ae-section-title {
+    flex: 1;
+    margin-bottom: 0;
+    border-bottom: 0;
+  }
+}
+
+.ae-batch-upload-btn {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #1890ff;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid #1890ff;
+  border-radius: 4px;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+
+  &:hover:not(:disabled) {
+    background: #e6f7ff;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  &.is-loading {
+    color: #9ca3af;
+    border-color: #d1d5db;
+  }
+}
+
+.ae-batch-upload-spin {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #d1d5db;
+  border-top-color: #1890ff;
+  border-radius: 50%;
+  animation: ae-spin 0.8s linear infinite;
 }
 
 .ae-ocr-tip {
@@ -657,88 +718,6 @@ $ae-sub: #8c8c8c;
   height: 14px;
   margin-top: 2px;
   font-size: 14px;
-}
-
-.ae-readonly-box {
-  margin-bottom: 16px;
-  overflow: hidden;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-}
-
-.ae-readonly-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  font-size: 12px;
-  font-weight: 600;
-  background: #f9fafb;
-  border-bottom: 1px solid #f3f4f6;
-}
-
-.ae-readonly-badge {
-  padding: 2px 6px;
-  margin-left: 8px;
-  font-size: 10px;
-  font-weight: 500;
-  color: $ae-sub;
-  background: #f0f0f0;
-  border-radius: 4px;
-}
-
-.ae-readonly-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  padding: 16px;
-}
-
-.ae-readonly-slot {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 80px;
-  font-size: 10px;
-  color: #d1d5db;
-  background: #fafafa;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-}
-
-.ae-receipt-card {
-  cursor: pointer;
-  transition: border-color 0.2s;
-
-  &:hover {
-    border-color: #1890ff;
-  }
-
-  &__link {
-    font-size: 12px;
-    font-weight: 500;
-    color: #1890ff;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  &__status {
-    margin-top: 4px;
-    font-size: 10px;
-    color: #fa8c16;
-
-    em {
-      font-style: normal;
-      color: #1890ff;
-
-      &.done {
-        color: #52c41a;
-      }
-    }
-  }
 }
 
 .ae-order-picker {

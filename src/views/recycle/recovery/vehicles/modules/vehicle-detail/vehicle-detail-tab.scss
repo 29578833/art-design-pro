@@ -67,65 +67,8 @@
   }
 }
 
-.vd-photo-count {
-  font-size: 12px;
-  color: $vm-text-sub;
-}
-
 .vd-photo-grid {
-  display: grid;
-  gap: 8px;
   margin-bottom: 12px;
-
-  &.cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  &.cols-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  &.cols-4 {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-.vd-photo-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  // aspect-ratio: 16 / 9;
-  height: 140px;
-  overflow: hidden;
-  background: $vm-gray-100;
-  border: 1px dashed $vm-border;
-  border-radius: 6px;
-  transition: border-color 0.2s;
-
-  &:hover {
-    border-color: $vm-primary;
-  }
-}
-
-.vd-photo-img {
-  width: 100%;
-  height: 100%;
-}
-
-.vd-photo-camera {
-  font-size: 14px;
-  color: #d9d9d9;
-}
-
-.vd-photo-name {
-  display: block;
-  margin-top: 8px;
-  overflow: hidden;
-  font-size: 12px;
-  color: $vm-text-sub;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .vd-media-block {
@@ -140,78 +83,14 @@
   color: #434343;
 }
 
-.vd-media-grid-section {
-  margin-bottom: 16px;
-}
-
-.vd-media-grid-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 6px;
-  margin-bottom: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  color: $vm-text-sub;
-  text-transform: uppercase;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.vd-photo-label-top {
-  margin-bottom: 8px;
-  font-size: 12px;
-  color: $vm-text-sub;
-}
-
-.vd-cert-card {
-  margin-bottom: 16px;
-  overflow: hidden;
-  border: 1px solid $vm-border;
-  border-radius: 8px;
-}
-
-.vd-cert-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  background: $vm-gray-50;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.vd-cert-head-left {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
 .vd-cert-icon {
   font-size: 14px;
   color: $vm-primary;
 }
 
-.vd-cert-head-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: #434343;
-}
-
-.vd-cert-tag {
-  padding: 2px 6px;
-  font-size: 10px;
-  color: $vm-text-sub;
-  background: #f0f0f0;
-  border-radius: 4px;
-}
-
 .vd-cert-source {
   font-size: 12px;
   color: $vm-text-sub;
-}
-
-.vd-cert-actions {
-  display: flex;
-  gap: 8px;
 }
 
 .vd-cert-btn {
@@ -234,11 +113,6 @@
     background: $vm-primary;
     border: 1px solid $vm-primary;
   }
-}
-
-.vd-cert-body {
-  padding: 12px 16px;
-  background: #fff;
 }
 
 .vd-cert-preview {

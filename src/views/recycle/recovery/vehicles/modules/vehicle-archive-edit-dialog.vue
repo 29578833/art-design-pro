@@ -108,6 +108,7 @@
             :vehicle-id="activeVehicleId"
             :is-company="isCompany"
             :readonly="isSubmitted"
+            :dismantle-photos="dismantlePhotos"
           />
         </div>
       </div>
@@ -262,6 +263,7 @@
     materialImages,
     agentForm,
     agentImages,
+    dismantlePhotos,
     stepComplete,
     hplxOptions,
     syqOptions,

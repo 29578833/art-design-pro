@@ -9,8 +9,19 @@
     所有材料支持上传、预览、删除；核心材料均支持上传"缺失情况说明图片"作为替代凭证。
   </div>
 
-  <div class="ae-section-title">所有人证件材料</div>
-  <div class="ae-ocr-grid" :class="isCompany ? '' : 'cols-3'">
+  <div class="vd-cert-card">
+    <div class="vd-cert-head">
+      <div class="vd-cert-head-left">
+        <span class="vd-cert-head-title">所有人证件材料</span>
+      </div>
+      <UploadBatchTrigger
+        v-if="!readonly"
+        :loading="ownerBatchUploading"
+        @select="(files) => handleOwnerBatchUpload(files)"
+      />
+    </div>
+    <div class="vd-cert-body">
+      <div class="ae-ocr-grid" :class="isCompany ? '' : 'cols-3'">
     <template v-if="isCompany">
       <UploadSlot
         label="营业执照原件"
@@ -52,11 +63,24 @@
         @upload="(file) => handleOwnerUpload('qksmzp', file)"
         @remove="handleOwnerRemove('qksmzp')"
       />
-    </template>
+      </template>
+      </div>
+    </div>
   </div>
 
-  <div class="ae-section-title">车辆证件材料</div>
-  <div class="ae-ocr-grid cols-4">
+  <div class="vd-cert-card">
+    <div class="vd-cert-head">
+      <div class="vd-cert-head-left">
+        <span class="vd-cert-head-title">车辆证件材料</span>
+      </div>
+      <UploadBatchTrigger
+        v-if="!readonly"
+        :loading="vehicleBatchUploading"
+        @select="(files) => handleVehicleBatchUpload(files)"
+      />
+    </div>
+    <div class="vd-cert-body">
+      <div class="ae-ocr-grid cols-4">
     <UploadSlot
       label="行驶证正页"
       required
@@ -89,27 +113,81 @@
       @upload="(file) => handleVehicleUpload('czzp', file)"
       @remove="handleVehicleRemove('czzp')"
     />
-  </div>
-  <div class="ae-ocr-grid cols-4" style="margin-top: 12px">
-    <UploadSlot
-      label="产权变更页（如有）"
-      :url="ownerImages.blpzzp"
-      :readonly="readonly"
-      @upload="(file) => handleOwnerUpload('blpzzp', file)"
-      @remove="handleOwnerRemove('blpzzp')"
-    />
+      </div>
+      <div class="ae-ocr-grid cols-4" style="margin-top: 12px">
+        <UploadSlot
+          label="产权变更页（如有）"
+          :url="ownerImages.blpzzp"
+          :readonly="readonly"
+          @upload="(file) => handleOwnerUpload('blpzzp', file)"
+          @remove="handleOwnerRemove('blpzzp')"
+        />
+      </div>
+    </div>
   </div>
 
-  <div class="ae-section-title">拖车进场照片</div>
-  <div v-if="readonly" class="ae-ocr-grid cols-4">
+  <div class="vd-cert-card">
+    <div class="vd-cert-head">
+      <div class="vd-cert-head-left">
+        <span class="vd-cert-head-title">代理人证件材料</span>
+      </div>
+      <UploadBatchTrigger
+        v-if="!readonly"
+        :loading="agentBatchUploading"
+        @select="(files) => handleAgentBatchUpload(files)"
+      />
+    </div>
+    <div class="vd-cert-body">
+      <div class="ae-ocr-grid">
+    <UploadSlot
+      label="代理人身份证正面"
+      required
+      :url="agentImages.jbrsfz1zp"
+      :readonly="readonly"
+      @upload="(file) => handleAgentUpload('jbrsfz1zp', file)"
+      @remove="handleAgentRemove('jbrsfz1zp')"
+    />
+    <UploadSlot
+      label="代理人身份证反面"
+      required
+      :url="agentImages.jbrsfz2zp"
+      :readonly="readonly"
+      @upload="(file) => handleAgentUpload('jbrsfz2zp', file)"
+      @remove="handleAgentRemove('jbrsfz2zp')"
+    />
+    <UploadSlot
+      label="委托说明"
+      required
+      :url="agentImages.jbrzp"
+      :readonly="readonly"
+      @upload="(file) => handleAgentUpload('jbrzp', file)"
+      @remove="handleAgentRemove('jbrzp')"
+    />
+      </div>
+    </div>
+  </div>
+
+  <div class="vd-cert-card">
+    <div class="vd-cert-head">
+      <div class="vd-cert-head-left">
+        <span class="vd-cert-head-title">拖车进场照片</span>
+      </div>
+      <UploadBatchTrigger
+        v-if="!readonly"
+        :loading="materialBatchUploading"
+        @select="(files) => handleMaterialBatchUpload(files)"
+      />
+    </div>
+    <div class="vd-cert-body">
+      <div v-if="readonly" class="vd-photo-grid cols-4">
     <ReadonlyPhoto
       v-for="item in TOW_READONLY_ITEMS"
       :key="item.field"
       :item="item"
       :url="getScrapFileUrl(item.field)"
     />
-  </div>
-  <div v-else class="ae-ocr-grid cols-4">
+      </div>
+      <div v-else class="ae-ocr-grid cols-4">
     <UploadSlot
       label="拖车单"
       required
@@ -136,34 +214,8 @@
       @upload="(file) => handleMaterialUpload('photo_interior', file)"
       @remove="handleMaterialRemove('photo_interior')"
     />
-  </div>
-
-  <div class="ae-section-title">代理人证件材料</div>
-  <div class="ae-ocr-grid">
-    <UploadSlot
-      label="代理人身份证正面"
-      required
-      :url="agentImages.jbrsfz1zp"
-      :readonly="readonly"
-      @upload="(file) => handleAgentUpload('jbrsfz1zp', file)"
-      @remove="handleAgentRemove('jbrsfz1zp')"
-    />
-    <UploadSlot
-      label="代理人身份证反面"
-      required
-      :url="agentImages.jbrsfz2zp"
-      :readonly="readonly"
-      @upload="(file) => handleAgentUpload('jbrsfz2zp', file)"
-      @remove="handleAgentRemove('jbrsfz2zp')"
-    />
-    <UploadSlot
-      label="委托说明"
-      required
-      :url="agentImages.jbrzp"
-      :readonly="readonly"
-      @upload="(file) => handleAgentUpload('jbrzp', file)"
-      @remove="handleAgentRemove('jbrzp')"
-    />
+      </div>
+    </div>
   </div>
 
   <div class="ae-material-tip warn">
@@ -171,40 +223,54 @@
     <span>以下照片是从商务部系统同步的，数据不可在本系统修改。</span>
   </div>
 
-  <div class="ae-readonly-box">
-    <div class="ae-readonly-head">
-      <span>报废车拆解照片 <span class="ae-readonly-badge">本地缓存 · 只读</span></span>
+  <div class="vd-cert-card">
+    <div class="vd-cert-head">
+      <div class="vd-cert-head-left">
+        <span class="vd-cert-head-title">报废车拆解照片</span>
+        <span class="vd-cert-tag">本地缓存 · 只读</span>
+      </div>
     </div>
-    <div class="ae-readonly-grid">
-      <ReadonlyPhoto
-        v-for="item in DISMANTLE_PHOTO_ITEMS"
-        :key="item.field"
-        :item="item"
-        :url="getScrapFileUrl(item.field)"
-      />
+    <div class="vd-cert-body">
+      <div class="vd-photo-grid cols-4">
+        <ReadonlyPhoto
+          v-for="(item, index) in DISMANTLE_PHOTO_ITEMS"
+          :key="item.field"
+          :item="item"
+          :url="getDismantlePhotoUrl(item.field)"
+          :preview-src-list="dismantlePreviewList"
+          :initial-index="previewIndexAt(dismantlePhotoUrls, index)"
+        />
+      </div>
     </div>
   </div>
 
-  <div class="ae-readonly-box">
-    <div class="ae-readonly-head">
-      <span>办证注销 <span class="ae-readonly-badge">商务部同步 · 只读</span></span>
-    </div>
-    <div class="ae-readonly-grid">
-      <div class="ae-readonly-photo">
-        <div class="ae-readonly-photo-label">回收证明</div>
-        <div class="ae-readonly-slot ae-receipt-card" @click="handleCertificateAction">
-          <span class="ae-receipt-card__link">点击查看</span>
-          <span class="ae-receipt-card__status">
-            拍摄情况：<em :class="{ done: !!scrapDjid }">{{ scrapDjid ? '已领取' : '未领取' }}</em>
-          </span>
-        </div>
+  <div class="vd-cert-card">
+    <div class="vd-cert-head">
+      <div class="vd-cert-head-left">
+        <span class="vd-cert-head-title">办证注销</span>
+        <span class="vd-cert-tag">商务部同步 · 只读</span>
       </div>
-      <ReadonlyPhoto
-        v-for="item in CANCEL_PHOTO_ITEMS"
-        :key="item.field"
-        :item="item"
-        :url="getScrapFileUrl(item.field)"
-      />
+    </div>
+    <div class="vd-cert-body">
+      <div class="vd-photo-grid cols-4">
+        <div class="vd-photo-slot">
+          <div class="vd-photo-label-top">回收证明</div>
+          <div class="vd-photo-box vd-receipt-card" @click="handleCertificateAction">
+            <span class="vd-receipt-card__link">点击查看</span>
+            <span class="vd-receipt-card__status">
+              拍摄情况：<em :class="{ done: !!scrapDjid }">{{ scrapDjid ? '已领取' : '未领取' }}</em>
+            </span>
+          </div>
+        </div>
+        <ReadonlyPhoto
+          v-for="(item, index) in CANCEL_PHOTO_ITEMS"
+          :key="item.field"
+          :item="item"
+          :url="getScrapFileUrl(item.field)"
+          :preview-src-list="cancelPreviewList"
+          :initial-index="previewIndexAt(cancelPhotoUrls, index)"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -218,9 +284,10 @@
     DISMANTLE_PHOTO_ITEMS,
     TOW_READONLY_ITEMS
   } from './archive-constants'
-  import { str } from './archive-utils'
+  import { previewIndexAt, resolveDismantlePhotoUrl, str, batchFillUploadSlots } from './archive-utils'
   import ReadonlyPhoto from './readonly-photo.vue'
   import RecycleCertificate from './recycle-certificate.vue'
+  import UploadBatchTrigger from './upload-batch-trigger.vue'
   import UploadSlot from './upload-slot.vue'
   import type {
     ArchiveAgentImages,
@@ -239,6 +306,8 @@
     isCompany: boolean
     /** 是否只读。 */
     readonly: boolean
+    /** vehicle/detail 拆解照片，bfcj 无值时回退。 */
+    dismantlePhotos?: Record<string, string> | null
   }>()
 
   const ownerImages = defineModel<ArchiveOwnerImages>('ownerImages', { required: true })
@@ -249,6 +318,31 @@
   const scrapDjid = ref('')
   const scrapFilesLoading = ref(false)
   const scrapCacheFiles = ref<Record<string, ArchiveCacheFile>>({})
+  const ownerBatchUploading = ref(false)
+  const vehicleBatchUploading = ref(false)
+  const materialBatchUploading = ref(false)
+  const agentBatchUploading = ref(false)
+
+  const ownerUploadFields = computed((): (keyof ArchiveOwnerImages)[] =>
+    props.isCompany ? ['syrzp', 'qksmzp'] : ['sfz1zp', 'sfz2zp', 'qksmzp']
+  )
+
+  const vehicleUploadFields: (keyof ArchiveVehicleImages | keyof ArchiveOwnerImages)[] = [
+    'xszzp',
+    'xszzpfy',
+    'xszbmzp',
+    'czzp',
+    'blpzzp'
+  ]
+
+  const materialUploadFields: (keyof ArchiveMaterialImages)[] = [
+    'photo_front',
+    'photo_side',
+    'photo_back',
+    'photo_interior'
+  ]
+
+  const agentUploadFields: (keyof ArchiveAgentImages)[] = ['jbrsfz1zp', 'jbrsfz2zp', 'jbrzp']
 
   function getScrapFileUrl(field: string) {
     const fileData = scrapCacheFiles.value[field]
@@ -256,6 +350,20 @@
     if (typeof fileData === 'string') return fileData
     return fileData.url || ''
   }
+
+  function getDismantlePhotoUrl(field: string) {
+    return resolveDismantlePhotoUrl(field, scrapCacheFiles.value, props.dismantlePhotos)
+  }
+
+  const dismantlePhotoUrls = computed(() =>
+    DISMANTLE_PHOTO_ITEMS.map((item) => getDismantlePhotoUrl(item.field))
+  )
+  const dismantlePreviewList = computed(() => dismantlePhotoUrls.value.filter(Boolean))
+
+  const cancelPhotoUrls = computed(() =>
+    CANCEL_PHOTO_ITEMS.map((item) => getScrapFileUrl(item.field))
+  )
+  const cancelPreviewList = computed(() => cancelPhotoUrls.value.filter(Boolean))
 
   function clearScrapFiles() {
     scrapCacheFiles.value = {}
@@ -323,6 +431,65 @@
 
   function handleMaterialRemove(field: keyof ArchiveMaterialImages) {
     materialImages.value[field] = ''
+  }
+
+  async function runBatchUpload<T extends string>(
+    loading: Ref<boolean>,
+    fields: readonly T[],
+    upload: (field: T, file: File) => Promise<void>,
+    files: File[]
+  ) {
+    if (props.readonly || loading.value || !files.length) return
+    loading.value = true
+    try {
+      const { filled, excess } = await batchFillUploadSlots(fields, files, upload)
+      if (!filled) {
+        ElMessage.warning('未能上传图片，请重试')
+      } else if (excess > 0) {
+        ElMessage.warning(`已按顺序填入 ${filled} 张，还有 ${excess} 张超出槽位`)
+      } else {
+        ElMessage.success(`已按顺序上传 ${filled} 张图片`)
+      }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  function handleOwnerBatchUpload(files: File[]) {
+    return runBatchUpload(ownerBatchUploading, ownerUploadFields.value, handleOwnerUpload, files)
+  }
+
+  async function handleVehicleFieldUpload(
+    field: keyof ArchiveVehicleImages | 'blpzzp',
+    file: File
+  ) {
+    if (field === 'blpzzp') {
+      await handleOwnerUpload('blpzzp', file)
+      return
+    }
+    await handleVehicleUpload(field, file)
+  }
+
+  function handleVehicleBatchUpload(files: File[]) {
+    return runBatchUpload(
+      vehicleBatchUploading,
+      vehicleUploadFields,
+      handleVehicleFieldUpload,
+      files
+    )
+  }
+
+  function handleMaterialBatchUpload(files: File[]) {
+    return runBatchUpload(
+      materialBatchUploading,
+      materialUploadFields,
+      handleMaterialUpload,
+      files
+    )
+  }
+
+  function handleAgentBatchUpload(files: File[]) {
+    return runBatchUpload(agentBatchUploading, agentUploadFields, handleAgentUpload, files)
   }
 
   function handleCertificateAction() {

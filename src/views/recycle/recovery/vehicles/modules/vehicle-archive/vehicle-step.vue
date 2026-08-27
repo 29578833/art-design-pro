@@ -4,6 +4,11 @@
       <ArtSvgIcon icon="ri:qr-scan-2-line" />
       行驶证 / 产证上传 & OCR智能识别
       <span class="ae-ocr-tip">— 点击各照片格的 OCR识别 按钮，自动填充下方字段</span>
+      <UploadBatchTrigger
+        :disabled="readonly"
+        :loading="batchUploading"
+        @select="handleBatchUpload"
+      />
     </div>
     <div class="ae-ocr-grid cols-4">
       <UploadSlot
@@ -342,8 +347,9 @@
   import type { CascaderOption } from 'element-plus'
   import { ElMessage } from 'element-plus'
   import { FALLBACK_HPZL, FALLBACK_RLZL, FALLBACK_SYXZ, VEHICLE_OCR_KEY } from './archive-constants'
-  import { str } from './archive-utils'
+  import { batchFillUploadSlots, str } from './archive-utils'
   import { applyDrivingOcrResult, applyRegCertOcrResult } from './ocr'
+  import UploadBatchTrigger from './upload-batch-trigger.vue'
   import UploadSlot from './upload-slot.vue'
   import type {
     ArchiveDictOption,
@@ -381,6 +387,14 @@
   const ocrFilled = computed(
     () => !!(ocrDone.driving_front || ocrDone.driving_back || ocrDone.driving_both || ocrDone.cert)
   )
+  const batchUploading = ref(false)
+
+  const vehicleUploadFields: (keyof ArchiveVehicleImages)[] = [
+    'xszzp',
+    'xszzpfy',
+    'xszbmzp',
+    'czzp'
+  ]
 
   const mapPickerVisible = ref(false)
   const mapPickerInitialLatLng = computed(() =>
@@ -453,6 +467,27 @@
     if (ocrKey) {
       delete ocrDone[ocrKey]
       delete ocrLoading[ocrKey]
+    }
+  }
+
+  async function handleBatchUpload(files: File[]) {
+    if (props.readonly || batchUploading.value || !files.length) return
+    batchUploading.value = true
+    try {
+      const { filled, excess } = await batchFillUploadSlots(
+        vehicleUploadFields,
+        files,
+        handleUpload
+      )
+      if (!filled) {
+        ElMessage.warning('未能上传图片，请重试')
+      } else if (excess > 0) {
+        ElMessage.warning(`已按顺序填入 ${filled} 张，还有 ${excess} 张超出槽位`)
+      } else {
+        ElMessage.success(`已按顺序上传 ${filled} 张图片`)
+      }
+    } finally {
+      batchUploading.value = false
     }
   }
 

@@ -184,6 +184,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     jbrsfz2zp: '', // 代理人身份证反面
     jbrzp: '' // 委托说明图片
   })
+  const dismantlePhotos = ref<Record<string, string>>({})
 
   const validationCtx = computed(() => ({
     isPersonal: isPersonal.value,
@@ -307,6 +308,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     ;(Object.keys(materialImages) as (keyof ArchiveMaterialImages)[]).forEach(
       (key) => (materialImages[key] = '')
     )
+    dismantlePhotos.value = {}
     stepRefs.materials.value?.clearScrapFiles()
   }
 
@@ -356,6 +358,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     materialImages.photo_side = str((detail as Record<string, unknown>).photo_side)
     materialImages.photo_back = str((detail as Record<string, unknown>).photo_back)
     materialImages.photo_interior = str((detail as Record<string, unknown>).photo_interior)
+    dismantlePhotos.value = (detail.dismantle_photos || {}) as Record<string, string>
   }
 
   function processAcceptData(sync: Awaited<ReturnType<typeof fetchAcceptSyncFiles>>) {
@@ -722,6 +725,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     materialImages,
     agentForm,
     agentImages,
+    dismantlePhotos,
     stepComplete,
     hplxOptions: HPLX_OPTIONS,
     syqOptions: SYQ_OPTIONS,

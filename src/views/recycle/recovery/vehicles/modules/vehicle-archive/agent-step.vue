@@ -10,6 +10,11 @@
         <ArtSvgIcon icon="ri:qr-scan-2-line" />
         代理人证件上传 & OCR智能识别
         <span class="ae-ocr-tip">— 点击各照片格的 OCR识别 按钮，自动填充下方字段</span>
+        <UploadBatchTrigger
+          :disabled="readonly"
+          :loading="batchUploading"
+          @select="handleBatchUpload"
+        />
       </div>
       <div class="ae-ocr-grid">
         <UploadSlot
@@ -86,7 +91,9 @@
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { ElMessage } from 'element-plus'
   import { AGENT_OCR_KEY } from './archive-constants'
+  import { batchFillUploadSlots } from './archive-utils'
   import { applyIdCardFrontResult } from './ocr'
+  import UploadBatchTrigger from './upload-batch-trigger.vue'
   import UploadSlot from './upload-slot.vue'
   import type { ArchiveAgentForm, ArchiveAgentImages, ArchiveOcrState } from './types'
 
@@ -106,6 +113,9 @@
   const ocrLoading = reactive<ArchiveOcrState>({})
   const ocrDone = reactive<ArchiveOcrState>({})
   const ocrFilled = computed(() => !!(ocrDone.agent_front || ocrDone.agent_back))
+  const batchUploading = ref(false)
+
+  const agentUploadFields: (keyof ArchiveAgentImages)[] = ['jbrsfz1zp', 'jbrsfz2zp', 'jbrzp']
 
   function clearOcrState() {
     Object.keys(ocrLoading).forEach((k) => delete ocrLoading[k])
@@ -139,6 +149,23 @@
     if (ocrKey) {
       delete ocrDone[ocrKey]
       delete ocrLoading[ocrKey]
+    }
+  }
+
+  async function handleBatchUpload(files: File[]) {
+    if (props.readonly || batchUploading.value || !files.length) return
+    batchUploading.value = true
+    try {
+      const { filled, excess } = await batchFillUploadSlots(agentUploadFields, files, handleUpload)
+      if (!filled) {
+        ElMessage.warning('未能上传图片，请重试')
+      } else if (excess > 0) {
+        ElMessage.warning(`已按顺序填入 ${filled} 张，还有 ${excess} 张超出槽位`)
+      } else {
+        ElMessage.success(`已按顺序上传 ${filled} 张图片`)
+      }
+    } finally {
+      batchUploading.value = false
     }
   }
 

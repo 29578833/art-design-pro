@@ -30,7 +30,7 @@
         <span class="vd-photo-count">{{ ownerPhotoSlots.length }}张</span>
       </div>
       <div class="vd-photo-grid" :class="isCommercial ? 'cols-2' : 'cols-3'">
-        <div v-for="slot in ownerPhotoSlots" :key="slot.key" class="vd-photo-slot">
+        <div v-for="(slot, index) in ownerPhotoSlots" :key="slot.key" class="vd-photo-slot">
           <div class="vd-photo-box">
             <ElImage
               v-if="slot.url"
@@ -38,6 +38,7 @@
               fit="cover"
               class="vd-photo-img"
               :preview-src-list="ownerPreviewList"
+              :initial-index="previewIndexAt(ownerPhotoSlots, index)"
             />
             <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
           </div>
@@ -76,7 +77,7 @@
         <span class="vd-photo-count">{{ vehicleDocSlots.length }}张</span>
       </div>
       <div class="vd-photo-grid cols-4">
-        <div v-for="slot in vehicleDocSlots" :key="slot.key" class="vd-photo-slot">
+        <div v-for="(slot, index) in vehicleDocSlots" :key="slot.key" class="vd-photo-slot">
           <div class="vd-photo-box">
             <ElImage
               v-if="slot.url"
@@ -84,6 +85,7 @@
               fit="cover"
               class="vd-photo-img"
               :preview-src-list="vehicleDocPreviewList"
+              :initial-index="previewIndexAt(vehicleDocSlots, index)"
             />
             <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
           </div>
@@ -227,7 +229,7 @@
         <span class="vd-photo-count">{{ agentPhotoSlots.length }}张</span>
       </div>
       <div class="vd-photo-grid cols-3">
-        <div v-for="slot in agentPhotoSlots" :key="slot.key" class="vd-photo-slot">
+        <div v-for="(slot, index) in agentPhotoSlots" :key="slot.key" class="vd-photo-slot">
           <div class="vd-photo-box">
             <ElImage
               v-if="slot.url"
@@ -235,6 +237,7 @@
               fit="cover"
               class="vd-photo-img"
               :preview-src-list="agentPreviewList"
+              :initial-index="previewIndexAt(agentPhotoSlots, index)"
             />
             <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
           </div>
@@ -295,67 +298,55 @@
 
       <RecycleCertificate :djid="scrapDjid" />
 
-      <div class="vd-media-grid-section">
-        <div class="vd-media-grid-head">
-          <span>所有人证件材料</span>
+      <div class="vd-cert-card">
+        <div class="vd-cert-head">
+          <div class="vd-cert-head-left">
+            <span class="vd-cert-head-title">所有人证件材料</span>
+          </div>
           <span class="vd-photo-count">{{ mediaOwnerSlots.length }}张</span>
         </div>
-        <div class="vd-photo-grid cols-4">
-          <div v-for="slot in mediaOwnerSlots" :key="slot.key" class="vd-photo-slot">
-            <div class="vd-photo-label-top">{{ slot.label }}</div>
-            <div class="vd-photo-box">
-              <ElImage
-                v-if="slot.url"
-                :src="slot.url"
-                fit="cover"
-                class="vd-photo-img"
-                :preview-src-list="ownerPreviewList"
-              />
-              <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
+        <div class="vd-cert-body">
+          <div class="vd-photo-grid cols-4">
+            <div v-for="(slot, index) in mediaOwnerSlots" :key="slot.key" class="vd-photo-slot">
+              <div class="vd-photo-label-top">{{ slot.label }}</div>
+              <div class="vd-photo-box">
+                <ElImage
+                  v-if="slot.url"
+                  :src="slot.url"
+                  fit="cover"
+                  class="vd-photo-img"
+                  :preview-src-list="ownerPreviewList"
+                  :initial-index="previewIndexAt(mediaOwnerSlots, index)"
+                />
+                <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="vd-media-grid-section">
-        <div class="vd-media-grid-head">
-          <span>车辆证件材料</span>
+      <div class="vd-cert-card">
+        <div class="vd-cert-head">
+          <div class="vd-cert-head-left">
+            <span class="vd-cert-head-title">车辆证件材料</span>
+          </div>
           <span class="vd-photo-count">{{ mediaVehicleDocSlots.length }}张</span>
         </div>
-        <div class="vd-photo-grid cols-4">
-          <div v-for="slot in mediaVehicleDocSlots" :key="slot.key" class="vd-photo-slot">
-            <div class="vd-photo-label-top">{{ slot.label }}</div>
-            <div class="vd-photo-box">
-              <ElImage
-                v-if="slot.url"
-                :src="slot.url"
-                fit="cover"
-                class="vd-photo-img"
-                :preview-src-list="vehicleDocPreviewList"
-              />
-              <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="vd-media-grid-section">
-        <div class="vd-media-grid-head">
-          <span>车辆实拍照</span>
-          <span class="vd-photo-count">{{ entryPhotoItems.length }}张</span>
-        </div>
-        <div class="vd-photo-grid cols-4">
-          <div v-for="item in entryPhotoItems" :key="item.key" class="vd-photo-slot">
-            <div class="vd-photo-label-top">{{ item.label }}</div>
-            <div class="vd-photo-box">
-              <ElImage
-                v-if="item.url"
-                :src="item.url"
-                fit="cover"
-                class="vd-photo-img"
-                :preview-src-list="entryPhotoPreviewList"
-              />
-              <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
+        <div class="vd-cert-body">
+          <div class="vd-photo-grid cols-4">
+            <div v-for="(slot, index) in mediaVehicleDocSlots" :key="slot.key" class="vd-photo-slot">
+              <div class="vd-photo-label-top">{{ slot.label }}</div>
+              <div class="vd-photo-box">
+                <ElImage
+                  v-if="slot.url"
+                  :src="slot.url"
+                  fit="cover"
+                  class="vd-photo-img"
+                  :preview-src-list="vehicleDocPreviewList"
+                  :initial-index="previewIndexAt(mediaVehicleDocSlots, index)"
+                />
+                <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
+              </div>
             </div>
           </div>
         </div>
@@ -366,40 +357,71 @@
           archiveDetail.has_agent !== 0 &&
           (archiveDetail.agent_name || agentPhotoSlots.some((s) => s.url))
         "
-        class="vd-media-grid-section"
+        class="vd-cert-card"
       >
-        <div class="vd-media-grid-head">
-          <span>代理人证件材料</span>
+        <div class="vd-cert-head">
+          <div class="vd-cert-head-left">
+            <span class="vd-cert-head-title">代理人证件材料</span>
+          </div>
           <span class="vd-photo-count">{{ agentPhotoSlots.length }}张</span>
         </div>
-        <div class="vd-photo-grid cols-4">
-          <div v-for="slot in agentPhotoSlots" :key="slot.key" class="vd-photo-slot">
-            <div class="vd-photo-label-top">{{ slot.label }}</div>
-            <div class="vd-photo-box">
-              <ElImage
-                v-if="slot.url"
-                :src="slot.url"
-                fit="cover"
-                class="vd-photo-img"
-                :preview-src-list="agentPreviewList"
-              />
-              <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
+        <div class="vd-cert-body">
+          <div class="vd-photo-grid cols-4">
+            <div v-for="(slot, index) in agentPhotoSlots" :key="slot.key" class="vd-photo-slot">
+              <div class="vd-photo-label-top">{{ slot.label }}</div>
+              <div class="vd-photo-box">
+                <ElImage
+                  v-if="slot.url"
+                  :src="slot.url"
+                  fit="cover"
+                  class="vd-photo-img"
+                  :preview-src-list="agentPreviewList"
+                  :initial-index="previewIndexAt(agentPhotoSlots, index)"
+                />
+                <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div v-if="dismantlePhotoSlots.length" class="vd-cert-card">
+      <div class="vd-cert-card">
         <div class="vd-cert-head">
           <div class="vd-cert-head-left">
-            <span class="vd-cert-head-title">报废车拆解照片</span>
-            <span class="vd-cert-tag">商务部同步 · 只读</span>
+            <span class="vd-cert-head-title">拖车进场照片</span>
           </div>
-          <span class="vd-cert-source">数据来源：拆解管理 · 拆解工单</span>
+          <span class="vd-photo-count">{{ entryPhotoItems.length }}张</span>
         </div>
         <div class="vd-cert-body">
           <div class="vd-photo-grid cols-4">
-            <div v-for="slot in dismantlePhotoSlots" :key="slot.key" class="vd-photo-slot">
+            <div v-for="(item, index) in entryPhotoItems" :key="item.key" class="vd-photo-slot">
+              <div class="vd-photo-label-top">{{ item.label }}</div>
+              <div class="vd-photo-box">
+                <ElImage
+                  v-if="item.url"
+                  :src="item.url"
+                  fit="cover"
+                  class="vd-photo-img"
+                  :preview-src-list="entryPhotoPreviewList"
+                  :initial-index="previewIndexAt(entryPhotoItems, index)"
+                />
+                <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="vd-cert-card">
+        <div class="vd-cert-head">
+          <div class="vd-cert-head-left">
+            <span class="vd-cert-head-title">报废车拆解照片</span>
+            <span class="vd-cert-tag">本地缓存 · 只读</span>
+          </div>
+        </div>
+        <div class="vd-cert-body">
+          <div class="vd-photo-grid cols-4">
+            <div v-for="(slot, index) in dismantlePhotoSlots" :key="slot.key" class="vd-photo-slot">
               <div class="vd-photo-label-top">{{ slot.label }}</div>
               <div class="vd-photo-box">
                 <ElImage
@@ -408,6 +430,45 @@
                   fit="cover"
                   class="vd-photo-img"
                   :preview-src-list="dismantlePreviewList"
+                  :initial-index="previewIndexAt(dismantlePhotoSlots, index)"
+                />
+                <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="vd-cert-card">
+        <div class="vd-cert-head">
+          <div class="vd-cert-head-left">
+            <span class="vd-cert-head-title">办证注销</span>
+            <span class="vd-cert-tag">商务部同步 · 只读</span>
+          </div>
+        </div>
+        <div class="vd-cert-body">
+          <div class="vd-photo-grid cols-4">
+            <div class="vd-photo-slot">
+              <div class="vd-photo-label-top">回收证明</div>
+              <div class="vd-photo-box vd-receipt-card" @click="handleCertificateAction">
+                <span class="vd-receipt-card__link">点击查看</span>
+                <span class="vd-receipt-card__status">
+                  拍摄情况：<em :class="{ done: !!scrapDjid }">{{
+                    scrapDjid ? '已领取' : '未领取'
+                  }}</em>
+                </span>
+              </div>
+            </div>
+            <div v-for="(slot, index) in cancelPhotoSlots" :key="slot.key" class="vd-photo-slot">
+              <div class="vd-photo-label-top">{{ slot.label }}</div>
+              <div class="vd-photo-box">
+                <ElImage
+                  v-if="slot.url"
+                  :src="slot.url"
+                  fit="cover"
+                  class="vd-photo-img"
+                  :preview-src-list="cancelPreviewList"
+                  :initial-index="previewIndexAt(cancelPhotoSlots, index)"
                 />
                 <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
               </div>
@@ -422,10 +483,12 @@
 <script setup lang="ts">
   import type { AcceptSyncFiles } from '@/types/recycle/recovery/commerce/accept'
   import type { ScrapVehicleDetail } from '@/types/recycle/recovery/vehicles/vehicle'
+  import { ElMessage } from 'element-plus'
   import RecycleCertificate from '../vehicle-archive/recycle-certificate.vue'
   import {
     brandModelText,
     buildAgentPhotoSlots,
+    buildCancelPhotoSlots,
     buildDismantlePhotoSlots,
     buildEntryPhotoItems,
     buildOwnerPhotoSlots,
@@ -435,6 +498,7 @@
     maskIdCard,
     maskPhone,
     mergeAcceptSyncPatch,
+    previewIndexAt,
     previewUrls
   } from './vehicle-detail-utils'
 
@@ -469,13 +533,25 @@
   const mediaVehicleDocSlots = computed(() => vehicleDocSlots.value)
   const agentPhotoSlots = computed(() => buildAgentPhotoSlots(archiveDetail.value))
   const entryPhotoItems = computed(() => buildEntryPhotoItems(archiveDetail.value))
-  const dismantlePhotoSlots = computed(() => buildDismantlePhotoSlots(props.scrapCacheFiles))
+  const dismantlePhotoSlots = computed(() =>
+    buildDismantlePhotoSlots(props.scrapCacheFiles, props.detail.dismantle_photos)
+  )
+  const cancelPhotoSlots = computed(() => buildCancelPhotoSlots(props.scrapCacheFiles))
 
   const ownerPreviewList = computed(() => previewUrls(ownerPhotoSlots.value))
   const vehicleDocPreviewList = computed(() => previewUrls(vehicleDocSlots.value))
   const agentPreviewList = computed(() => previewUrls(agentPhotoSlots.value))
   const entryPhotoPreviewList = computed(() => previewUrls(entryPhotoItems.value))
   const dismantlePreviewList = computed(() => previewUrls(dismantlePhotoSlots.value))
+  const cancelPreviewList = computed(() => previewUrls(cancelPhotoSlots.value))
+
+  function handleCertificateAction() {
+    if (!props.scrapDjid) {
+      ElMessage.warning('暂无回收证明数据')
+      return
+    }
+    window.open(`https://bfc.chexinmeng.com/hszma4?id=${props.scrapDjid}`, '_blank')
+  }
 </script>
 
 <style scoped lang="scss">

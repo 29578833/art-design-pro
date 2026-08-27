@@ -326,4 +326,6 @@ export interface ScrapVehicleDetail extends ScrapVehicle {
   /** 创建人 */
   created_by?: string
   created_at?: string
+  /** 拆解照片（vehicle/detail） */
+  dismantle_photos?: Record<string, string>
 }

@@ -1,16 +1,16 @@
 <template>
-  <div class="rc-box">
-    <div class="rc-head">
-      <span class="rc-title">
-        报废机动车回收证明
-        <span class="rc-badge">{{ tag }}</span>
-      </span>
-      <span v-if="showActions" class="rc-actions">
+  <div class="vd-cert-card">
+    <div class="vd-cert-head">
+      <div class="vd-cert-head-left">
+        <span class="vd-cert-head-title">报废机动车回收证明</span>
+        <span class="vd-cert-tag">{{ tag }}</span>
+      </div>
+      <div v-if="showActions" class="vd-cert-actions">
         <ElButton size="small" @click="handleOpen">查看</ElButton>
         <ElButton size="small" type="primary" @click="handleOpen">下载</ElButton>
-      </span>
+      </div>
     </div>
-    <div class="rc-preview">
+    <div class="vd-cert-body">
       <div v-if="loading || certLoading" class="rc-empty">
         <ArtSvgIcon icon="ri:loader-4-line" class="rc-loading-icon" />
         加载回收证明数据...
@@ -23,7 +23,7 @@
       />
       <div v-else class="rc-empty">暂无回收证明数据</div>
     </div>
-    <div v-if="showOpenFull && certData && certData.hszmbh" class="rc-footer">
+    <div v-if="showOpenFull && certData && certData.hszmbh" class="vd-cert-footer">
       <ElButton size="small" @click="handleOpen">打开完整版（含六联）</ElButton>
     </div>
   </div>
@@ -125,53 +125,12 @@
 </script>
 
 <style scoped lang="scss">
-  .rc-box {
-    margin-bottom: 16px;
-    overflow: hidden;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-  }
-
-  .rc-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 16px;
-    font-size: 12px;
-    font-weight: 600;
-    background: #f9fafb;
-    border-bottom: 1px solid #f3f4f6;
-  }
-
-  .rc-title {
-    display: inline-flex;
-    align-items: center;
-  }
-
-  .rc-badge {
-    padding: 2px 6px;
-    margin-left: 8px;
-    font-size: 10px;
-    font-weight: 500;
-    color: #8c8c8c;
-    background: #f0f0f0;
-    border-radius: 4px;
-  }
-
-  .rc-actions {
-    display: inline-flex;
-    gap: 8px;
-  }
-
-  .rc-preview {
-    padding: 16px;
-    background: #fff;
-  }
+  @use '../../vehicles-dialog' as *;
 
   .rc-empty {
     padding: 20px;
     font-size: 13px;
-    color: #8c8c8c;
+    color: $vm-text-sub;
     text-align: center;
   }
 
@@ -179,14 +138,6 @@
     margin-right: 6px;
     vertical-align: -2px;
     animation: rc-cert-spin 1s linear infinite;
-  }
-
-  .rc-footer {
-    display: flex;
-    justify-content: flex-end;
-    padding: 10px 16px 12px;
-    background: #fff;
-    border-top: 1px solid #f0f0f0;
   }
 
   @keyframes rc-cert-spin {

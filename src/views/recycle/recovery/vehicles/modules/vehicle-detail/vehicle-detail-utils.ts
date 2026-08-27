@@ -4,6 +4,7 @@ import type {
   VehicleDimStatus,
   VehicleFlowStep
 } from '@/types/recycle/recovery/vehicles/vehicle'
+import { previewIndexAt as previewIndexAtUrls, resolveDismantlePhotoUrl } from '../vehicle-archive/archive-utils'
 
 /** 对齐 xinguang_api ScrapVehicleServices 状态常量 */
 const VEHICLE_STATUS = {
@@ -88,12 +89,20 @@ export interface LogItemView {
 
 export const DISMANTLE_PHOTO_FIELDS = [
   { key: 'cjzp', label: '车架照' },
+  { key: 'photo_frame2', label: '车架照2' },
   { key: 'fdjzp', label: '发动机照' },
   { key: 'bsqzp', label: '变速箱照' },
   { key: 'fxjzp', label: '方向器照' },
   { key: 'qqzp', label: '前桥照' },
   { key: 'hqzp', label: '后桥照' },
   { key: 'gybwzp', label: '钢印部照片' }
+] as const
+
+/** 办证注销只读照片字段，对齐编辑页第 5 步 CANCEL_PHOTO_ITEMS */
+export const CANCEL_PHOTO_FIELDS = [
+  { key: 'xhhpzp', label: '销毁号牌照' },
+  { key: 'zxzmzp', label: '注销证明' },
+  { key: 'lqrsfz1zp', label: '领取人' }
 ] as const
 
 export function maskIdCard(val?: string) {
@@ -315,16 +324,35 @@ export function buildEntryPhotoItems(detail: ScrapVehicleDetail): PhotoSlot[] {
   ]
 }
 
-export function buildDismantlePhotoSlots(cache: Record<string, { url?: string }>): PhotoSlot[] {
+export function buildDismantlePhotoSlots(
+  cache: Record<string, { url?: string }>,
+  dismantlePhotos?: Record<string, unknown> | null
+): PhotoSlot[] {
   return DISMANTLE_PHOTO_FIELDS.map((item) => ({
     key: item.key,
     label: item.label,
+    url: resolveDismantlePhotoUrl(item.key, cache, dismantlePhotos)
+  }))
+}
+
+export function buildCancelPhotoSlots(cache: Record<string, { url?: string }>): PhotoSlot[] {
+  return CANCEL_PHOTO_FIELDS.map((item) => ({
+    key: item.key,
+    label: item.label,
     url: getImgUrl(cache[item.key])
-  })).filter((s) => !!s.url)
+  }))
 }
 
 export function previewUrls(slots: PhotoSlot[]) {
   return slots.map((s) => s.url).filter(Boolean)
+}
+
+/** 计算当前槽位在过滤后预览列表中的索引。 */
+export function previewIndexAt(slots: PhotoSlot[], index: number) {
+  return previewIndexAtUrls(
+    slots.map((s) => s.url),
+    index
+  )
 }
 
 export function openRecycleCert(scrapDjid: string, vehicleId?: number) {
