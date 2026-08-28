@@ -146,6 +146,41 @@ export interface VehicleTabCount {
   count: number
 }
 
+/** 燃料类型筛选项 */
+export const VEHICLE_FUEL_TYPE_OPTIONS = [
+  { label: '汽油', value: '汽油' },
+  { label: '柴油', value: '柴油' },
+  { label: '纯电动', value: '纯电动' },
+  { label: '插电混动', value: '插电混动' },
+  { label: '油电混动', value: '油电混动' }
+] as const
+
+/** 拖车维度筛选项（对应 eb_scrap_tow.status，0=无拖车记录） */
+export const VEHICLE_TOW_STATUS_OPTIONS = [
+  { label: '待派单', value: '1' },
+  { label: '待接单', value: '2' },
+  { label: '拖车中', value: '3' },
+  { label: '拖车完成', value: '4' },
+  { label: '无需拖车', value: '0' }
+] as const
+
+/** 入厂拆解维度筛选项（对应 eb_scrap_vehicle.status） */
+export const VEHICLE_FACTORY_STATUS_OPTIONS = [
+  { label: '待查验', value: '2' },
+  { label: '待入厂', value: '3' },
+  { label: '待领料', value: '4' },
+  { label: '待缴库', value: '5' },
+  { label: '已完成', value: '6' }
+] as const
+
+/** 注销办证维度筛选项（对应后端 cancel_filter） */
+export const VEHICLE_CANCEL_FILTER_OPTIONS = [
+  { label: '未开始', value: 'none' },
+  { label: '待注销', value: 'pending' },
+  { label: '已受理', value: 'processing' },
+  { label: '已注销', value: 'done' }
+] as const
+
 /** 列表查询参数 */
 export interface VehicleSearchParams {
   keyword?: string
@@ -153,6 +188,14 @@ export interface VehicleSearchParams {
   vin?: string
   status?: string
   tab?: VehicleTab
+  /** 车辆类型（cllx 字典最后一级 dict_value） */
+  vehicle_type?: string
+  /** 拖车状态（eb_scrap_tow.status，0=无拖车记录） */
+  tow_status?: string
+  /** 入厂拆解子状态（eb_scrap_vehicle.status） */
+  factory_status?: string
+  /** 注销办证分组筛选 */
+  cancel_filter?: string
   /** 关联订单筛选：'' 全部 / no_order 待补关联 / has_order 已关联 */
   type?: '' | 'no_order' | 'has_order'
   page?: number

@@ -457,9 +457,9 @@
 
   const ownerTypeLabel = computed(() => {
     const t = props.detail.owner_type
-    if (t === 'personal') return '个人结算'
-    if (t === 'company') return '企业结算'
-    return '个人结算'
+    if (t === 'personal') return '个人报废车'
+    if (t === 'company' || t === 'non_personal') return '非个人报废车'
+    return '个人报废车'
   })
 
   const settlementMethodLabel = computed(() => {

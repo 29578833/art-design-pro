@@ -122,8 +122,8 @@
         <ElCol :span="8">
           <label class="field-label">结算类型</label>
           <ElSelect v-model="form.settlement_type" placeholder="请选择">
-            <ElOption label="个人结算" value="personal" />
-            <ElOption label="企业结算" value="company" />
+            <ElOption label="个人报废车" value="personal" />
+            <ElOption label="非个人报废车" value="non_personal" />
           </ElSelect>
         </ElCol>
         <ElCol :span="8">
@@ -225,7 +225,7 @@
     phone: string
     address: string
     id_card: string
-    settlement_type: 'personal' | 'company'
+    settlement_type: 'personal' | 'non_personal'
     settlement_method: string
     unit_price: string
     self_delivery_subsidy: string
@@ -296,8 +296,8 @@
 
   const form = ref<OrderEditForm>(defaultForm())
 
-  function mapOwnerType(ownerType?: string): 'personal' | 'company' {
-    if (ownerType === 'company' || ownerType === 'non_personal') return 'company'
+  function mapOwnerType(ownerType?: string): 'personal' | 'non_personal' {
+    if (ownerType === 'company' || ownerType === 'non_personal') return 'non_personal'
     return 'personal'
   }
 

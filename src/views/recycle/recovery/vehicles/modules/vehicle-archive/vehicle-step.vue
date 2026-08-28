@@ -346,7 +346,7 @@
   import TencentMapPickerDialog from '@/components/core/map/tencent-map-picker-dialog/index.vue'
   import type { CascaderOption } from 'element-plus'
   import { ElMessage } from 'element-plus'
-  import { FALLBACK_HPZL, FALLBACK_RLZL, FALLBACK_SYXZ, VEHICLE_OCR_KEY } from './archive-constants'
+  import { VEHICLE_OCR_KEY } from './archive-constants'
   import { batchFillUploadSlots, str } from './archive-utils'
   import { applyDrivingOcrResult, applyRegCertOcrResult } from './ocr'
   import UploadBatchTrigger from './upload-batch-trigger.vue'
@@ -417,24 +417,23 @@
     form.value.self_delivery_latlng = result.latlng
   }
 
-  async function loadDict(type: string, fallback: ArchiveDictOption[]) {
+  async function loadDict(type: string): Promise<ArchiveDictOption[]> {
     try {
       const res = await fetchDataDictList({ dict_type: type, status: 1, page: 1, limit: 200 })
-      const list = (res.list || []).map((i) => ({
+      return (res.list || []).map((i) => ({
         label: i.dict_label || String(i.dict_value ?? ''),
         value: String(i.dict_value ?? '')
       }))
-      return list.length ? list : fallback
     } catch {
-      return fallback
+      return []
     }
   }
 
   async function loadOptions() {
     const [hpzl, syxz, rlzl, cascade] = await Promise.all([
-      loadDict('hpzl', FALLBACK_HPZL),
-      loadDict('syxz', FALLBACK_SYXZ),
-      loadDict('rlzl', FALLBACK_RLZL),
+      loadDict('car_hpzl'),
+      loadDict('car_syxz'),
+      loadDict('car_rylx'),
       fetchCllxCascade().catch(() => [] as CllxCascadeNode[])
     ])
     hpzlDict.value = hpzl

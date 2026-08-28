@@ -32,42 +32,6 @@ export const ARCHIVE_STEPS = [
   { id: 5, label: '影像材料' }
 ]
 
-export const FALLBACK_HPZL: ArchiveDictOption[] = [
-  '大型汽车',
-  '小型汽车',
-  '使馆汽车',
-  '领馆汽车',
-  '境外汽车',
-  '外籍汽车',
-  '教练汽车',
-  '营运汽车',
-  '摩托车',
-  '轻便摩托车',
-  '挂车',
-  '农用运输车'
-].map((t, i) => ({ label: t, value: String(i + 1) }))
-
-export const FALLBACK_SYXZ: ArchiveDictOption[] = [
-  '非营运',
-  '营运',
-  '出租',
-  '教练',
-  '警用',
-  '消防',
-  '救护',
-  '工程作业'
-].map((t) => ({ label: t, value: t }))
-
-export const FALLBACK_RLZL: ArchiveDictOption[] = [
-  '汽油',
-  '柴油',
-  '纯电动',
-  '混合动力',
-  '天然气',
-  '液化气',
-  '其他'
-].map((t) => ({ label: t, value: t }))
-
 /** 拆解只读照片配置。 */
 export const DISMANTLE_PHOTO_ITEMS: ArchivePhotoItem[] = [
   { label: '车架照', field: 'cjzp' },

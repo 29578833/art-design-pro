@@ -45,7 +45,13 @@
     <div class="vehicle-search-panel">
       <VehicleTabBar v-model="activeTab" :counts="tabCounts" @change="handleTabChange" />
 
-      <VehicleSearch v-model="searchForm" embedded @search="handleSearch" @reset="handleReset" />
+      <VehicleSearch
+        v-model="searchForm"
+        :active-tab="activeTab"
+        embedded
+        @search="handleSearch"
+        @reset="handleReset"
+      />
     </div>
 
     <ElCard
@@ -471,10 +477,17 @@
   ])
 
   async function loadCounts() {
+    const countParams = {
+      keyword: searchForm.value.keyword,
+      vehicle_type: searchForm.value.vehicle_type,
+      tow_status: searchForm.value.tow_status,
+      cancel_filter: searchForm.value.cancel_filter,
+      type: searchForm.value.type
+    }
     try {
       const [tabs, counts] = await Promise.all([
-        fetchVehicleTabCounts({ keyword: searchForm.value.keyword }),
-        fetchVehicleStatusCounts({ keyword: searchForm.value.keyword })
+        fetchVehicleTabCounts(countParams),
+        fetchVehicleStatusCounts(countParams)
       ])
       tabCounts.value = tabs
       statusCounts.value = counts
@@ -530,8 +543,12 @@
   // ----- Tab / 搜索交互 -----
   function handleTabChange(tab: VehicleTab) {
     activeTab.value = tab
-    searchForm.value = { ...searchForm.value, tab }
-    replaceSearchParams({ ...searchForm.value, tab, current: 1 })
+    const cleared: VehicleSearchParams = { ...searchForm.value, tab }
+    if (tab !== 'all' && tab !== 'transport') cleared.tow_status = ''
+    if (tab !== 'all' && tab !== 'factory') cleared.factory_status = ''
+    if (tab !== 'all' && tab !== 'cancellation') cleared.cancel_filter = ''
+    searchForm.value = cleared
+    replaceSearchParams({ ...cleared, current: 1 })
     getData()
   }
 
@@ -547,11 +564,23 @@
   }
 
   function handleReset() {
-    searchForm.value = { keyword: '', tab: activeTab.value, type: '' }
+    searchForm.value = {
+      keyword: '',
+      tab: activeTab.value,
+      vehicle_type: '',
+      tow_status: '',
+      factory_status: '',
+      cancel_filter: '',
+      type: ''
+    }
     resetSearchParams()
     replaceSearchParams({
       keyword: '',
       tab: activeTab.value,
+      vehicle_type: '',
+      tow_status: '',
+      factory_status: '',
+      cancel_filter: '',
       type: '',
       current: 1,
       size: 20

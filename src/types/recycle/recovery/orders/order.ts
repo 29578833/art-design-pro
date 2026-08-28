@@ -383,7 +383,7 @@ export interface OrderDetail extends RecycleOrder {
   self_delivery_subsidy?: number | string
   /** 回收单价 */
   unit_price?: number | string
-  /** 车主类型：personal / company */
+  /** 车主类型：personal / non_personal */
   owner_type?: string
   /** 是否有代理人 */
   has_agent?: number
@@ -576,8 +576,8 @@ export interface OrderUpdateCustomerPayload {
 
 /** 编辑订单 — 结算块 */
 export interface OrderUpdateSettlementPayload {
-  /** personal / company（对应 owner_type） */
-  settlement_type?: 'personal' | 'company'
+  /** personal / non_personal（对应 owner_type） */
+  settlement_type?: 'personal' | 'non_personal'
   /** 结算方式 */
   settlement_method?: string
   /** 单价/残值 */

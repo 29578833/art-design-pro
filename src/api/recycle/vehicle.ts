@@ -27,7 +27,9 @@ export function mapVehicleTabToStatus(tab: VehicleTab = 'all'): string {
 function buildListParams(params: VehicleSearchParams) {
   const { page, limit } = resolvePagination(params)
   const tab = params.tab || 'all'
-  const status = params.status !== undefined ? params.status : mapVehicleTabToStatus(tab)
+  const status =
+    params.factory_status ||
+    (params.status !== undefined ? params.status : mapVehicleTabToStatus(tab))
 
   return {
     page,
@@ -36,7 +38,25 @@ function buildListParams(params: VehicleSearchParams) {
     plate_no: params.plate_no?.trim() || '',
     vin: params.vin?.trim() || '',
     status,
+    vehicle_type: params.vehicle_type || '',
+    tow_status: params.tow_status || '',
+    cancel_filter: params.cancel_filter || '',
     phase: '',
+    type: params.type || ''
+  }
+}
+
+/** 构建统计请求参数 */
+function buildCountParams(params: Partial<VehicleSearchParams> = {}) {
+  return {
+    keyword: params.keyword?.trim() || '',
+    plate_no: params.plate_no?.trim() || '',
+    vin: params.vin?.trim() || '',
+    status: '',
+    vehicle_type: params.vehicle_type || '',
+    owner_type: '',
+    tow_status: params.tow_status || '',
+    cancel_filter: params.cancel_filter || '',
     type: params.type || ''
   }
 }
@@ -63,15 +83,7 @@ export async function fetchVehicleStatusCounts(
 ): Promise<VehicleStatusCounts> {
   const res = await request.get<VehicleStatusCounts>({
     url: '/scrap/vehicle/status_counts',
-    params: {
-      keyword: params.keyword?.trim() || '',
-      plate_no: params.plate_no?.trim() || '',
-      vin: params.vin?.trim() || '',
-      status: '',
-      fuel_type: '',
-      vehicle_type: '',
-      owner_type: ''
-    }
+    params: buildCountParams(params)
   })
 
   return {
