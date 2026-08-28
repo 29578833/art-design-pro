@@ -185,8 +185,8 @@
   })
 
   const cancelFilter = computed({
-    get: () => props.modelValue.cancel_filter || '',
-    set: (val: string) => patchModelValue({ cancel_filter: val })
+    get: () => props.modelValue.cancel_status || '',
+    set: (val: string) => patchModelValue({ cancel_status: val })
   })
 
   const listType = computed({
@@ -207,7 +207,7 @@
       vehicle_type: '',
       tow_status: '',
       factory_status: '',
-      cancel_filter: '',
+      cancel_status: '',
       type: ''
     })
     emit('reset')

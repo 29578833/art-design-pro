@@ -75,7 +75,6 @@
     <VehicleDetailDialog
       v-model:visible="detailVisible"
       :vehicle-id="detailVehicleId"
-      :initial-dim-status="detailDimStatus"
     />
 
     <VehicleArchiveEditDialog
@@ -116,7 +115,6 @@
   import { ElMessage } from 'element-plus'
   import type {
     ScrapVehicle,
-    VehicleDimStatus,
     VehicleSearchParams,
     VehicleStatusCounts,
     VehicleTab,
@@ -144,11 +142,9 @@
   // ----- 车辆详情弹窗 -----
   const detailVisible = ref(false)
   const detailVehicleId = ref(0)
-  const detailDimStatus = ref<VehicleDimStatus | undefined>()
 
   function openDetail(row: ScrapVehicle) {
     detailVehicleId.value = row.id
-    detailDimStatus.value = row.dim_status
     detailVisible.value = true
   }
 
@@ -481,7 +477,7 @@
       keyword: searchForm.value.keyword,
       vehicle_type: searchForm.value.vehicle_type,
       tow_status: searchForm.value.tow_status,
-      cancel_filter: searchForm.value.cancel_filter,
+      cancel_status: searchForm.value.cancel_status,
       type: searchForm.value.type
     }
     try {
@@ -546,7 +542,7 @@
     const cleared: VehicleSearchParams = { ...searchForm.value, tab }
     if (tab !== 'all' && tab !== 'transport') cleared.tow_status = ''
     if (tab !== 'all' && tab !== 'factory') cleared.factory_status = ''
-    if (tab !== 'all' && tab !== 'cancellation') cleared.cancel_filter = ''
+    if (tab !== 'all' && tab !== 'cancellation') cleared.cancel_status = ''
     searchForm.value = cleared
     replaceSearchParams({ ...cleared, current: 1 })
     getData()
@@ -570,7 +566,7 @@
       vehicle_type: '',
       tow_status: '',
       factory_status: '',
-      cancel_filter: '',
+      cancel_status: '',
       type: ''
     }
     resetSearchParams()
@@ -580,7 +576,7 @@
       vehicle_type: '',
       tow_status: '',
       factory_status: '',
-      cancel_filter: '',
+      cancel_status: '',
       type: '',
       current: 1,
       size: 20

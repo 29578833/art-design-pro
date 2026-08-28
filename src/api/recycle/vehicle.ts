@@ -40,7 +40,7 @@ function buildListParams(params: VehicleSearchParams) {
     status,
     vehicle_type: params.vehicle_type || '',
     tow_status: params.tow_status || '',
-    cancel_filter: params.cancel_filter || '',
+    cancel_status: params.cancel_status || '',
     phase: '',
     type: params.type || ''
   }
@@ -56,7 +56,7 @@ function buildCountParams(params: Partial<VehicleSearchParams> = {}) {
     vehicle_type: params.vehicle_type || '',
     owner_type: '',
     tow_status: params.tow_status || '',
-    cancel_filter: params.cancel_filter || '',
+    cancel_status: params.cancel_status || '',
     type: params.type || ''
   }
 }

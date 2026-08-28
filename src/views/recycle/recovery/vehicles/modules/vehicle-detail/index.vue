@@ -88,7 +88,6 @@
   import type { AcceptSyncFiles } from '@/types/recycle/recovery/commerce/accept'
   import type {
     ScrapVehicleDetail,
-    VehicleDimStatus,
     VehicleDimStatusItem
   } from '@/types/recycle/recovery/vehicles/vehicle'
   import VehicleDetailCancelTab from './vehicle-detail-cancel-tab.vue'
@@ -96,15 +95,13 @@
   import VehicleDetailInfoTab from './vehicle-detail-info-tab.vue'
   import VehicleDetailLogTab from './vehicle-detail-log-tab.vue'
   import VehicleDetailTowTab from './vehicle-detail-tow-tab.vue'
-  import { brandModelText, resolveDimStatus } from './vehicle-detail-utils'
+  import { brandModelText } from './vehicle-detail-utils'
 
   defineOptions({ name: 'VehicleDetailDialog' })
 
   interface Props {
     visible: boolean
     vehicleId?: number
-    /** 列表行带入的三维状态，详情接口未返回 dim_status 时兜底 */
-    initialDimStatus?: VehicleDimStatus
   }
 
   interface Emits {
@@ -112,8 +109,7 @@
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    vehicleId: 0,
-    initialDimStatus: undefined
+    vehicleId: 0
   })
   const emit = defineEmits<Emits>()
 
@@ -143,22 +139,22 @@
   const headerBrandModel = computed(() => brandModelText(detail.value))
 
   const dimOverview = computed(() => {
-    const dim = resolveDimStatus(detail.value, props.initialDimStatus)
+    const dim = detail.value.dim_status
     const toItem = (
       label: string,
       icon: string,
-      data: VehicleDimStatusItem
+      data?: VehicleDimStatusItem
     ): VehicleDimStatusItem & { icon: string; label: string; text: string } => ({
       label,
       icon,
-      text: data.label || '—',
-      color: data.color || '#8c8c8c',
-      bg: data.bg || '#f5f5f5'
+      text: data?.label || '—',
+      color: data?.color || '#8c8c8c',
+      bg: data?.bg || '#f5f5f5'
     })
     return [
-      toItem('拖车', 'ri:truck-line', dim.tow),
-      toItem('入厂', 'ri:box-3-line', dim.factory),
-      toItem('注销', 'ri:file-text-line', dim.cancel)
+      toItem('拖车', 'ri:truck-line', dim?.tow),
+      toItem('入厂', 'ri:box-3-line', dim?.factory),
+      toItem('注销', 'ri:file-text-line', dim?.cancel)
     ]
   })
 

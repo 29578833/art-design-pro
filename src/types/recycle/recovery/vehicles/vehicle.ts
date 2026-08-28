@@ -175,10 +175,9 @@ export const VEHICLE_FACTORY_STATUS_OPTIONS = [
 
 /** 注销办证维度筛选项（对应后端 cancel_filter） */
 export const VEHICLE_CANCEL_FILTER_OPTIONS = [
-  { label: '未开始', value: 'none' },
-  { label: '待注销', value: 'pending' },
-  { label: '已受理', value: 'processing' },
-  { label: '已注销', value: 'done' }
+  { label: '待注销', value: 'pending_cancel' },
+  { label: '已受理', value: 'accepted' },
+  { label: '已注销', value: 'cancelled' }
 ] as const
 
 /** 列表查询参数 */
@@ -195,7 +194,7 @@ export interface VehicleSearchParams {
   /** 入厂拆解子状态（eb_scrap_vehicle.status） */
   factory_status?: string
   /** 注销办证分组筛选 */
-  cancel_filter?: string
+  cancel_status?: string
   /** 关联订单筛选：'' 全部 / no_order 待补关联 / has_order 已关联 */
   type?: '' | 'no_order' | 'has_order'
   page?: number
