@@ -165,6 +165,18 @@
     border-radius: 4px;
   }
 
+  .order-action-btn.quality-edit-btn {
+    color: #faad14;
+    background: #fff;
+    border-color: #faad14;
+
+    &:hover:not(:disabled) {
+      color: #d48806;
+      background: #fffbe6;
+      border-color: #d48806;
+    }
+  }
+
   .order-muted {
     font-size: 12px;
     font-weight: 400;

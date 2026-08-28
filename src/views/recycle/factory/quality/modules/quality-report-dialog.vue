@@ -337,7 +337,7 @@
       { label: '车牌号', value: d.plate_no || '—' },
       { label: 'VIN 码', value: d.vin || '—' },
       { label: '品牌车型', value: brandModelText.value },
-      { label: '车辆类型', value: d.vehicle_type || (d.vehicle_type_text as string) || '—' },
+      { label: '车辆类型', value: d.vehicle_type_text || '—' },
       { label: '车主姓名', value: d.owner_name || d.real_name || '—' },
       { label: '关联订单', value: d.order_no || '—' },
       { label: '档案号', value: d.check_no || '—' },

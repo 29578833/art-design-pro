@@ -37,6 +37,7 @@
 
   interface Emits {
     (e: 'startInspection', item: QualityQueueItem): void
+    (e: 'viewReport', id: number): void
   }
 
   const props = defineProps<Props>()
@@ -82,16 +83,48 @@
     const status = row.queue_status
     const canStart = status === 'pending' || status === 'overdue'
     const canContinue = status === 'in_progress'
+    const canEdit = status === 'completed'
 
-    if (!canStart && !canContinue) return h('span', { class: 'order-muted' }, '—')
+    if (!canStart && !canContinue && !canEdit) return h('span', { class: 'order-muted' }, '—')
+
+    // 已完成：编辑质检单 + 查看报告
+    if (canEdit) {
+      return h('div', { class: 'order-actions' }, [
+        h(
+          'button',
+          {
+            type: 'button',
+            class: 'order-action-btn default',
+            onClick: () => emit('viewReport', Number(row.check_id || 0))
+          },
+          [
+            h(ArtSvgIcon, { icon: 'ri:eye-line', class: 'order-action-icon' }),
+            h('span', null, '查看报告')
+          ]
+        ),
+        h(
+          'button',
+          {
+            type: 'button',
+            class: 'order-action-btn quality-edit-btn',
+            onClick: () => emit('startInspection', row)
+          },
+          [
+            h(ArtSvgIcon, { icon: 'ri:edit-line', class: 'order-action-icon' }),
+            h('span', null, '编辑质检')
+          ]
+        )
+      ])
+    }
 
     const label = canContinue ? '继续质检' : '开始质检'
+    const btnClass = canContinue ? 'order-action-btn ghost' : 'order-action-btn primary'
     return h('div', { class: 'order-actions' }, [
       h(
         'button',
         {
           type: 'button',
-          class: canContinue ? 'order-action-btn ghost' : 'order-action-btn primary',
+          class: btnClass,
           onClick: () => emit('startInspection', row)
         },
         [
@@ -164,7 +197,7 @@
       {
         prop: 'operation',
         label: '操作',
-        width: 150,
+        width: 300,
         align: 'center',
         fixed: 'right',
         formatter: (row: QualityQueueItem) => renderActions(row)

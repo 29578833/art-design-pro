@@ -32,6 +32,7 @@
       ref="queuePageRef"
       :search-form="queueSearchForm"
       @start-inspection="handleStartInspection"
+      @view-report="handleViewReport"
     />
     <QualityReportPage
       v-if="activeTab === 'reports'"

@@ -94,10 +94,10 @@
               </div>
 
               <div class="qc-form-field">
-                <label class="qc-field-label">车辆类型<span class="required">*</span></label>
+                <label class="qc-field-label">厂区类型<span class="required">*</span></label>
                 <ElSelect
                   v-model="step1Form.factory_type"
-                  placeholder="请选择车辆类型"
+                  placeholder="请选择厂区类型"
                   filterable
                   clearable
                   :loading="loadingFactoryType"
@@ -222,10 +222,7 @@
           <div class="qc-section">
             <div class="qc-section-head">
               <div class="qc-section-title">入场照片（5张）</div>
-              <UploadBatchTrigger
-                :loading="entryBatchUploading"
-                @select="handleEntryBatchUpload"
-              />
+              <UploadBatchTrigger :loading="entryBatchUploading" @select="handleEntryBatchUpload" />
             </div>
             <input
               ref="photoInputRef"
