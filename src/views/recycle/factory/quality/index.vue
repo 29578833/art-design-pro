@@ -5,10 +5,16 @@
         <div class="quality-page-title">质检管理</div>
         <div class="quality-page-desc">车辆入厂质检查验，记录缺件扣款，生成质检报告</div>
       </div>
-      <ElButton type="primary" @click="byPlateVisible = true">
-        <ArtSvgIcon icon="ri:add-line" class="quality-create-icon" />
-        新建质检单
-      </ElButton>
+      <div class="quality-header-actions">
+        <ElButton :loading="reportExporting" @click="handleExportReport">
+          <ArtSvgIcon icon="ri:download-line" class="quality-export-icon" />
+          导出报告
+        </ElButton>
+        <ElButton type="primary" @click="byPlateVisible = true">
+          <ArtSvgIcon icon="ri:add-line" class="quality-create-icon" />
+          新建质检单
+        </ElButton>
+      </div>
     </div>
 
     <div class="quality-stats">
@@ -55,13 +61,16 @@
 
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
-  import { fetchQualityStats } from '@/api/recycle/quality'
+  import * as XLSX from 'xlsx'
+  import { ElMessage } from 'element-plus'
+  import { fetchQualityStats, fetchQualityReportList } from '@/api/recycle/quality'
   import type {
     QualityStats,
     QualityQueueItem,
     QualityTab,
     QualityQueueParams,
-    QualitySearchParams
+    QualitySearchParams,
+    QcResult
   } from '@/types/recycle/factory/quality/quality'
   import QualityReportSearch from './modules/quality-report-search.vue'
   import QualityQueuePage from './modules/quality-queue-page.vue'
@@ -116,6 +125,52 @@
 
   const reportVisible = ref(false)
   const reportCheckId = ref(0)
+  const reportExporting = ref(false)
+
+  async function handleExportReport() {
+    if (activeTab.value !== 'reports') {
+      ElMessage.warning('请先切换到「质检报告」标签页后再导出')
+      return
+    }
+    reportExporting.value = true
+    try {
+      const list = await fetchQualityReportList({
+        keyword: reportSearchForm.value.keyword,
+        result: reportSearchForm.value.result,
+        page: 1,
+        limit: 10000
+      })
+      const records = list.records || []
+      if (!records.length) {
+        ElMessage.warning('暂无数据可导出')
+        return
+      }
+      const resultMap: Record<QcResult, string> = {
+        0: '待查验',
+        1: '合格',
+        2: '不合格'
+      }
+      const rows = records.map((item) => ({
+        质检编号: item.check_no || '',
+        车牌号: item.plate_no || '',
+        品牌车型: item.brand_model || '',
+        车主: item.owner_name || '',
+        质检员: item.inspector || '--',
+        缺件项数: `${item.missing_count ?? 0}项`,
+        缺件扣款: `¥${(item.missing_deduction ?? 0).toFixed(2)}`,
+        质检时间: item.check_time || '',
+        质检结果: resultMap[item.result] || '未知'
+      }))
+      const sheet = XLSX.utils.json_to_sheet(rows)
+      const book = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(book, sheet, '质检报告')
+      const filename = `质检报告_${new Date().getTime()}.xlsx`
+      XLSX.writeFile(book, filename)
+      ElMessage.success('导出成功')
+    } finally {
+      reportExporting.value = false
+    }
+  }
 
   async function loadStats() {
     try {

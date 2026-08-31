@@ -72,10 +72,17 @@
 
   const getSparkLine = (data: number[]) => {
     if (!data.length) return '0,20 200,20'
-    const max = Math.max(...data, 1)
     const w = 200
     const h = 40
-    const toY = (v: number) => h - (v / max) * (h - 8) - 4
+    const top = 4
+    const bottom = h - 4
+    const min = Math.min(...data)
+    const max = Math.max(...data)
+    const toY = (v: number) => {
+      // 数值全等时画一条居中的平线，避免被顶到上/下边缘显得「断掉」
+      if (max === min) return (top + bottom) / 2
+      return bottom - ((v - min) / (max - min)) * (bottom - top)
+    }
     if (data.length === 1) {
       const y = toY(data[0])
       return `0,${y} 200,${y}`
