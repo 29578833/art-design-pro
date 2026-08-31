@@ -31,78 +31,128 @@
 
   <ElDialog
     v-model="authVisible"
-    title="实名认证"
-    width="720px"
+    width="680px"
     align-center
     append-to-body
+    class="vehicle-auth-dialog"
+    :show-close="false"
     @closed="handleAuthDialogClosed"
   >
-    <div style="margin-bottom: 16px; font-size: 14px">
-      认证人：
-      <b>{{ authPersonName }}</b>
-    </div>
-    <ElRow :gutter="40">
-      <ElCol :span="12">
-        <ElCheckbox v-model="authSmsChecked" @change="onAuthSmsModeChange">短信认证</ElCheckbox>
+    <template #header>
+      <div class="auth-dialog-header">
+        <div class="auth-dialog-header-main">
+          <div class="auth-dialog-header-icon">
+            <ArtSvgIcon icon="ri:shield-user-line" />
+          </div>
+          <div class="auth-dialog-header-text">
+            <div class="auth-dialog-header-title">实名认证</div>
+            <div class="auth-dialog-header-desc">{{ authTypeLabel }}：{{ authPersonName }}</div>
+          </div>
+        </div>
+        <button type="button" class="auth-dialog-header-close" @click="authVisible = false">
+          <ArtSvgIcon icon="ri:close-line" />
+        </button>
+      </div>
+    </template>
+
+    <div class="auth-dialog-body">
+      <div class="auth-phone-field">
+        <div class="auth-field-label">认证手机号</div>
         <ElInput
           v-model="authPhone"
-          placeholder="请输入手机号"
+          placeholder="请输入认证人手机号"
           maxlength="11"
           clearable
-          style="margin-top: 12px"
+          class="auth-phone-input"
         />
-        <div v-if="authPhone && !authSending && authSmsCountdown <= 0" class="ae-auth-hint">
-          即将发送认证短信到【{{ authPhone }}】。
-        </div>
-        <div v-if="authSmsCountdown > 0" class="ae-auth-hint">
-          验证码已发送，{{ authSmsCountdown }}秒后可重新发送。
-        </div>
-        <div v-if="authSending" class="ae-auth-hint">短信发送中...</div>
-      </ElCol>
-      <ElCol :span="12">
-        <ElCheckbox v-model="authQrChecked" @change="onAuthQrModeChange">扫码认证</ElCheckbox>
-        <ol class="ae-auth-qr-steps">
-          <li>将跳转至认证页面进行扫码认证，请打开支付宝 APP（推荐）或微信扫码功能。</li>
-          <li>扫码认证完成后关闭本窗口即可。</li>
-        </ol>
-        <ElButton
-          v-if="authQrChecked"
-          type="primary"
-          size="small"
-          :loading="authQrLoading"
-          style="width: 100%; margin-top: 16px"
-          @click="handleAuthQrScan"
+      </div>
+
+      <div class="auth-mode-grid">
+        <div
+          class="auth-mode-card"
+          :class="{ 'is-active': authMode === 'sms' }"
+          @click="authMode = 'sms'"
         >
-          去认证
-        </ElButton>
-      </ElCol>
-    </ElRow>
-    <ElAlert
-      type="error"
-      :closable="false"
-      show-icon
-      title="短信实名认证期间请勿更改姓名和身份证，以免实名认证无法通过！"
-      style="margin-top: 12px"
-    />
+          <div class="auth-mode-card-head">
+            <div class="auth-mode-icon sms"><ArtSvgIcon icon="ri:message-3-line" /></div>
+            <div class="auth-mode-title">短信认证</div>
+            <span class="auth-mode-radio" :class="{ 'is-active': authMode === 'sms' }" />
+          </div>
+          <p class="auth-mode-desc">验证码将发送至上方手机号，按短信提示回复即可完成认证。</p>
+          <div v-if="authMode === 'sms'" class="auth-mode-extra">
+            <div v-if="authSmsCountdown > 0" class="auth-sms-hint">
+              验证码已发送，{{ authSmsCountdown }} 秒后可重新发送。
+            </div>
+            <div v-else-if="authSending" class="auth-sms-hint">短信发送中...</div>
+            <div v-else-if="authPhone" class="auth-sms-hint">
+              即将发送认证短信到【{{ authPhone }}】。
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="auth-mode-card"
+          :class="{ 'is-active': authMode === 'qr' }"
+          @click="authMode = 'qr'"
+        >
+          <div class="auth-mode-card-head">
+            <div class="auth-mode-icon qr"><ArtSvgIcon icon="ri:qr-scan-line" /></div>
+            <div class="auth-mode-title">扫码认证</div>
+            <span class="auth-mode-radio" :class="{ 'is-active': authMode === 'qr' }" />
+          </div>
+          <p class="auth-mode-desc">
+            跳转至认证页面进行扫码认证，请打开支付宝 APP（推荐）或微信扫码。
+          </p>
+          <ol class="auth-qr-steps">
+            <li><span class="auth-qr-step-no">1</span>进入认证页面</li>
+            <li><span class="auth-qr-step-no">2</span>扫码认证完成后关闭本窗口即可</li>
+          </ol>
+          <ElButton
+            v-if="authMode === 'qr'"
+            type="primary"
+            class="auth-qr-btn"
+            :loading="authQrLoading"
+            @click="handleAuthQrScan"
+          >
+            <ArtSvgIcon icon="ri:qr-scan-line" />
+            去认证
+          </ElButton>
+        </div>
+      </div>
+
+      <div v-if="authMode === 'sms'" class="auth-dialog-alert">
+        <ArtSvgIcon icon="ri:error-warning-line" class="auth-dialog-alert-icon" />
+        <span>短信实名认证期间请勿更改姓名和身份证，以免实名认证无法通过！</span>
+      </div>
+    </div>
+
     <template #footer>
-      <ElButton @click="authVisible = false">取消</ElButton>
-      <ElButton
-        v-if="authSmsChecked"
-        type="primary"
-        :loading="authSending"
-        :disabled="authSmsCountdown > 0"
-        @click="handleAuthSendSms"
-      >
-        {{ authSmsCountdown > 0 ? `短信已发送(${authSmsCountdown})` : '发送认证短信' }}
-      </ElButton>
+      <div class="auth-dialog-footer-tip">
+        <ArtSvgIcon icon="ri:shield-check-line" />
+        认证信息将与车辆档案绑定
+      </div>
+      <div class="auth-dialog-footer-actions">
+        <ElButton @click="authVisible = false">取消</ElButton>
+        <ElButton
+          v-if="authMode === 'sms'"
+          type="primary"
+          :loading="authSending"
+          :disabled="authSmsCountdown > 0"
+          @click="handleAuthSendSms"
+        >
+          {{ authSmsCountdown > 0 ? `短信已发送(${authSmsCountdown})` : '发送认证短信' }}
+        </ElButton>
+      </div>
     </template>
   </ElDialog>
 </template>
 
 <script setup lang="ts">
   import { fetchAcceptAuthSms } from '@/api/recycle/accept'
+  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { ElMessage } from 'element-plus'
   import type { ArchiveAgentForm, ArchiveOwnerForm } from './types'
+  import './authentication-step.scss'
 
   defineOptions({ name: 'VehicleArchiveAuthenticationStep' })
 
@@ -133,10 +183,9 @@
 
   const authVisible = ref(false)
   const authType = ref<'syr' | 'dlr'>('syr')
+  const authMode = ref<'sms' | 'qr'>('sms')
   const authPhone = ref('')
   const authSending = ref(false)
-  const authSmsChecked = ref(true)
-  const authQrChecked = ref(false)
   const authSmsCountdown = ref(0)
   const authQrLoading = ref(false)
   let authSmsTimer: ReturnType<typeof setInterval> | null = null
@@ -144,6 +193,7 @@
   const authPersonName = computed(() =>
     authType.value === 'syr' ? props.ownerForm.syr || '—' : props.agentForm.jbr || '—'
   )
+  const authTypeLabel = computed(() => (authType.value === 'syr' ? '所有人' : '代理人'))
 
   function openAuth(type: 'syr' | 'dlr') {
     const person = type === 'syr' ? props.ownerForm.syr : props.agentForm.jbr
@@ -153,20 +203,9 @@
     }
     authType.value = type
     authPhone.value = type === 'syr' ? props.ownerForm.dh : props.agentForm.jbrdh
-    authSmsChecked.value = true
-    authQrChecked.value = false
+    authMode.value = 'sms'
     authSmsCountdown.value = 0
     authVisible.value = true
-  }
-
-  function onAuthSmsModeChange(val: unknown) {
-    if (val) authQrChecked.value = false
-    else authQrChecked.value = true
-  }
-
-  function onAuthQrModeChange(val: unknown) {
-    if (val) authSmsChecked.value = false
-    else authSmsChecked.value = true
   }
 
   function handleAuthDialogClosed() {
