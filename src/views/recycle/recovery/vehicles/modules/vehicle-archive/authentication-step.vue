@@ -119,6 +119,8 @@
     isPersonal: boolean
     /** 是否只读。 */
     readonly: boolean
+    /** 车信盟 Token 检测：无效时返回 false（登录框由父级弹出），认证请求前调用 */
+    checkCxmToken?: () => Promise<boolean>
   }>()
 
   const emit = defineEmits<{
@@ -189,6 +191,8 @@
       ElMessage.warning('受理记录初始化中，请稍后重试')
       return
     }
+    // 车信盟 Token 无效时弹出登录框，中止本次认证
+    if (props.checkCxmToken && !(await props.checkCxmToken())) return
     authSending.value = true
     try {
       await fetchAcceptAuthSms({
@@ -224,6 +228,8 @@
       ElMessage.warning('受理记录初始化中，请稍后重试')
       return
     }
+    // 车信盟 Token 无效时弹出登录框，中止本次认证
+    if (props.checkCxmToken && !(await props.checkCxmToken())) return
     authQrLoading.value = true
     try {
       const res = (await fetchAcceptAuthSms({

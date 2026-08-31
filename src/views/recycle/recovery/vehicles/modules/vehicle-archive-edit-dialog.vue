@@ -94,6 +94,7 @@
             :agent-form="agentForm"
             :is-personal="isPersonal"
             :readonly="isSubmitted"
+            :check-cxm-token="ensureCxmToken"
             @refreshed="loadAcceptDataByVehicleId"
           />
         </div>
