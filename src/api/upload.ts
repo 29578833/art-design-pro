@@ -21,6 +21,10 @@ export interface UploadFileOptions {
   showSuccessMessage?: boolean
   /** 是否显示错误提示 */
   showErrorMessage?: boolean
+  /** 上传超时时间（毫秒），默认 120s，适配大图上传 */
+  timeout?: number
+  /** 上传进度回调，参数为 0-100 的百分比 */
+  onProgress?: (percent: number) => void
 }
 
 /** 后台上传接口：/adminapi/file/upload */
@@ -60,7 +64,9 @@ export async function uploadFile(
     url = resolveUploadUrl(),
     pid = 0,
     showSuccessMessage = false,
-    showErrorMessage = true
+    showErrorMessage = true,
+    timeout = 120000,
+    onProgress
   } = options
 
   const fileName = file instanceof File ? file.name : `upload-${Date.now()}.png`
@@ -68,12 +74,17 @@ export async function uploadFile(
   formData.append(fieldName, file, fileName)
   formData.append('pid', String(pid))
 
+  // 上传进度由 @/utils/http 请求拦截器统一登记，此处仅透传 onProgress 回调
   try {
     const data = await request.post<AdminUploadResponse>({
       url,
       data: formData,
       showSuccessMessage,
-      showErrorMessage
+      showErrorMessage,
+      timeout,
+      onUploadProgress: (event) => {
+        if (event.total) onProgress?.(Math.round((event.loaded / event.total) * 100))
+      }
     })
 
     return normalizeUploadResult(data.src, fileName)

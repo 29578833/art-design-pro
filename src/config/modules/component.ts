@@ -68,6 +68,14 @@ export const globalComponentsConfig: GlobalComponentConfig[] = [
       () => import('@/components/core/others/art-watermark/index.vue')
     ),
     enabled: true
+  },
+  {
+    name: '上传进度提示',
+    key: 'upload-progress',
+    component: defineAsyncComponent(
+      () => import('@/components/core/layouts/art-upload-progress/index.vue')
+    ),
+    enabled: true
   }
 ]
 

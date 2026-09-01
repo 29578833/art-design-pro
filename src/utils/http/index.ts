@@ -20,6 +20,7 @@ import { ApiStatus } from './status'
 import { HttpError, handleError, showError, showSuccess } from './error'
 import { $t } from '@/locales'
 import { BaseResponse } from '@/types'
+import { finishUploadTask, startUploadTask, updateUploadTask } from '@/utils/upload-progress'
 
 /** 请求配置常量 */
 const REQUEST_TIMEOUT = 15000
@@ -36,9 +37,21 @@ let unauthorizedTimer: NodeJS.Timeout | null = null
 interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
   showErrorMessage?: boolean
   showSuccessMessage?: boolean
+  /** 上传进度任务 id（请求拦截器登记，响应拦截器结束） */
+  __uploadTaskId?: string
 }
 
 const { VITE_API_URL, VITE_WITH_CREDENTIALS } = import.meta.env
+
+/** 从 FormData 中提取上传文件名 */
+function getUploadFileName(data: unknown): string | undefined {
+  if (!(data instanceof FormData)) return undefined
+  let name: string | undefined
+  data.forEach((value) => {
+    if (!name && value instanceof File) name = value.name
+  })
+  return name
+}
 
 /** Axios实例 */
 const axiosInstance = axios.create({
@@ -90,6 +103,19 @@ axiosInstance.interceptors.request.use(
       request.data = JSON.stringify(request.data)
     }
 
+    // 上传请求：自动登记全局进度任务，并透传进度事件
+    if (request.data instanceof FormData) {
+      const name = getUploadFileName(request.data) || '文件'
+      const taskId = startUploadTask(name)
+      ;(request as ExtendedAxiosRequestConfig).__uploadTaskId = taskId
+
+      const callerOnUploadProgress = request.onUploadProgress
+      request.onUploadProgress = (event) => {
+        if (event.total) updateUploadTask(taskId, Math.round((event.loaded / event.total) * 100))
+        callerOnUploadProgress?.(event)
+      }
+    }
+
     return request
   },
   (error) => {
@@ -101,13 +127,20 @@ axiosInstance.interceptors.request.use(
 /** 响应拦截器 */
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse<BaseResponse>) => {
+    const taskId = (response.config as ExtendedAxiosRequestConfig)?.__uploadTaskId
     const { msg } = response.data
     const code = response.data.code ?? response.data.status ?? 0
-    if (code === ApiStatus.success) return response
+    if (code === ApiStatus.success) {
+      if (taskId) finishUploadTask(taskId, 'done')
+      return response
+    }
     if (code === ApiStatus.unauthorized) handleUnauthorizedError(msg)
+    if (taskId) finishUploadTask(taskId, 'error')
     throw createHttpError(msg || $t('httpMsg.requestFailed'), code)
   },
   (error) => {
+    const taskId = (error?.config as ExtendedAxiosRequestConfig | undefined)?.__uploadTaskId
+    if (taskId) finishUploadTask(taskId, 'error')
     if (error.response?.status === ApiStatus.unauthorized) handleUnauthorizedError()
     return Promise.reject(handleError(error))
   }
