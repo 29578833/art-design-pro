@@ -347,8 +347,8 @@
   import type { CascaderOption } from 'element-plus'
   import { ElMessage } from 'element-plus'
   import { VEHICLE_OCR_KEY } from './archive-constants'
-  import { batchFillUploadSlots, str } from './archive-utils'
-  import { applyDrivingOcrResult, applyRegCertOcrResult } from './ocr'
+  import { batchFillUploadSlots } from './archive-utils'
+  import { applyDrivingOcrResult, applyRegCertOcrResult, resolveCllxValue } from './ocr'
   import UploadBatchTrigger from './upload-batch-trigger.vue'
   import UploadSlot from './upload-slot.vue'
   import type {
@@ -504,8 +504,18 @@
     ocrLoading[key] = true
     try {
       const data = await fetchAcceptRecognizeDrivingLicense(url)
-      applyDrivingOcrResult(data as unknown as Record<string, unknown>, form.value, props.ownerForm)
-      if (data.vehicle_type) cllxPath.value = str(data.vehicle_type)
+      applyDrivingOcrResult(
+        data as unknown as Record<string, unknown>,
+        form.value,
+        props.ownerForm,
+        {
+          cllx: cllxOptions.value,
+          syxz: syxzDict.value,
+          rlzl: rlzlDict.value
+        }
+      )
+      const cllx = resolveCllxValue(data.vehicle_type, cllxOptions.value)
+      if (cllx) cllxPath.value = cllx
       ocrDone[key] = true
       ElMessage.success('OCR识别成功')
     } finally {
@@ -521,8 +531,12 @@
     ocrLoading.cert = true
     try {
       const data = await fetchAcceptRecognizeRegCert(images.value.czzp)
-      applyRegCertOcrResult(data as Record<string, unknown>, form.value)
-      if (data.vehicle_type) cllxPath.value = str(data.vehicle_type)
+      applyRegCertOcrResult(data as Record<string, unknown>, form.value, {
+        cllx: cllxOptions.value,
+        rlzl: rlzlDict.value
+      })
+      const cllx = resolveCllxValue(data.vehicle_type, cllxOptions.value)
+      if (cllx) cllxPath.value = cllx
       ocrDone.cert = true
       ElMessage.success('OCR识别成功')
     } finally {

@@ -680,6 +680,9 @@
   import { uploadFile } from '@/api/upload'
   import { fetchPartnerList } from '@/api/recycle/customer'
   import { fetchSaveOrder } from '@/api/recycle/order'
+  import { fetchCllxCascade } from '@/api/recycle/data-dict'
+  import { resolveCllxValue } from '@/views/recycle/recovery/shared/dict-resolve'
+  import type { CllxCascadeNode } from '@/types/recycle/system/data-dict'
   import type { CustomerGrade } from '@/types/recycle/customers/customer'
   import type { DrivingLicenseOcrData } from '@/types/recycle/recovery/vehicles/ocr'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
@@ -786,6 +789,8 @@
   const ocrDone = ref(false)
   const ocrFileInputRef = ref<HTMLInputElement>()
   let ocrDoneTimer: ReturnType<typeof setTimeout> | null = null
+  /** 车辆类型级联树（OCR 反查字典值用）。 */
+  const cllxOptions = ref<CllxCascadeNode[]>([])
   const mockOrderNo = ref('')
   const lastSaveResult = ref<OrderSaveResult | null>(null)
   const customerQuery = ref('')
@@ -1272,7 +1277,7 @@
   }
 
   function applyOcrResult(data: DrivingLicenseOcrData) {
-    const vehicleType = data.vehicle_type || ''
+    const vehicleType = resolveCllxValue(data.vehicle_type, cllxOptions.value)
     const emissionStandard = parseEmissionStandardFromOcr(data)
     const registrationDate = data.reg_date || ''
     // const year = extractYearFromRegDate(registrationDate)
@@ -1306,6 +1311,14 @@
     if (!Number(form.value.uid)) {
       if (data.owner_name) form.value.owner_name = data.owner_name
       if (data.address) form.value.owner_address = data.address
+    }
+  }
+
+  async function loadCllxOptions() {
+    try {
+      cllxOptions.value = (await fetchCllxCascade().catch(() => [])) || []
+    } catch {
+      cllxOptions.value = []
     }
   }
 
@@ -1380,6 +1393,7 @@
     (visible) => {
       if (!visible) return
       resetState()
+      loadCllxOptions()
       if (props.prefillOrder) {
         prefillFromOrder(props.prefillOrder)
       }

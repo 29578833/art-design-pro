@@ -1,4 +1,23 @@
-import type { ArchiveAgentForm, ArchiveOwnerForm, ArchiveVehicleForm } from './types'
+import type {
+  ArchiveAgentForm,
+  ArchiveDictOption,
+  ArchiveOwnerForm,
+  ArchiveVehicleForm
+} from './types'
+import { resolveCllxValue, resolveDictValue } from '@/views/recycle/recovery/shared/dict-resolve'
+import type { CllxCascadeNode } from '@/types/recycle/system/data-dict'
+
+export { resolveDictValue, resolveCllxValue }
+
+/** OCR 填表时用到的下拉字典。 */
+export interface OcrDicts {
+  /** 使用性质。 */
+  syxz?: ArchiveDictOption[]
+  /** 燃料种类。 */
+  rlzl?: ArchiveDictOption[]
+  /** 车辆类型级联树。 */
+  cllx?: CllxCascadeNode[]
+}
 
 function pickNum(value: unknown) {
   if (value === null || value === undefined || value === '') return ''
@@ -17,7 +36,8 @@ function pickDims(value: unknown) {
 export function applyDrivingOcrResult(
   data: Record<string, unknown>,
   vehicleForm: ArchiveVehicleForm,
-  ownerForm?: ArchiveOwnerForm
+  ownerForm?: ArchiveOwnerForm,
+  dicts?: OcrDicts
 ) {
   if (data.plate_no) vehicleForm.hphm = String(data.plate_no)
   if (data.vin) vehicleForm.clsbdh = String(data.vin)
@@ -30,10 +50,14 @@ export function applyDrivingOcrResult(
   if (data.brand || data.model) {
     vehicleForm.ppxh = [data.brand, data.model].filter(Boolean).join('')
   }
-  if (data.vehicle_type) vehicleForm.cllx = String(data.vehicle_type)
-  if (data.use_character) vehicleForm.syxz = String(data.use_character)
+  if (data.vehicle_type) {
+    vehicleForm.cllx = resolveCllxValue(data.vehicle_type, dicts?.cllx ?? [])
+  }
+  if (data.use_character) {
+    vehicleForm.syxz = resolveDictValue(data.use_character, dicts?.syxz ?? [])
+  }
   if (data.inspection_record && !vehicleForm.rlzl) {
-    vehicleForm.rlzl = String(data.inspection_record)
+    vehicleForm.rlzl = resolveDictValue(data.inspection_record, dicts?.rlzl ?? [])
   }
 
   const dimensions = pickDims(data.overall_dimensions)
@@ -52,7 +76,8 @@ export function applyDrivingOcrResult(
 /** 将机动车登记证书 OCR 结果回填到车辆表单。 */
 export function applyRegCertOcrResult(
   data: Record<string, unknown>,
-  vehicleForm: ArchiveVehicleForm
+  vehicleForm: ArchiveVehicleForm,
+  dicts?: OcrDicts
 ) {
   if (data.certificate_no) vehicleForm.czbh = String(data.certificate_no)
   if (data.register_no) vehicleForm.hphm = String(data.register_no)
@@ -65,9 +90,13 @@ export function applyRegCertOcrResult(
     vehicleForm.clpp1 = String(data.brand)
     vehicleForm.ppxh = String(data.brand)
   }
-  if (data.vehicle_type) vehicleForm.cllx = String(data.vehicle_type)
+  if (data.vehicle_type) {
+    vehicleForm.cllx = resolveCllxValue(data.vehicle_type, dicts?.cllx ?? [])
+  }
   if (data.body_color) vehicleForm.csys = String(data.body_color)
-  if (data.fuel_type) vehicleForm.rlzl = String(data.fuel_type)
+  if (data.fuel_type) {
+    vehicleForm.rlzl = resolveDictValue(data.fuel_type, dicts?.rlzl ?? [])
+  }
   if (data.displacement) vehicleForm.pl = pickNum(data.displacement)
   if (data.power) vehicleForm.gl = pickNum(data.power)
   if (data.overall_length) vehicleForm.cwkc = pickNum(data.overall_length)
