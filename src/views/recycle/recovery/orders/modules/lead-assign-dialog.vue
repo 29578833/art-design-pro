@@ -228,7 +228,7 @@
 
   /* ===== 搜索 ===== */
   .lad-search {
-    padding: 14px 20px 10px;
+    padding: 0 0 10px;
     border-bottom: 1px solid #f0f0f0;
   }
 
@@ -236,7 +236,7 @@
   .lad-list {
     min-height: 200px;
     max-height: 360px;
-    padding: 10px 12px;
+    padding: 10px 0;
     overflow-y: auto;
   }
 
