@@ -161,6 +161,21 @@ export function showError(error: HttpError, showMessage: boolean = true): void {
   console.error('[HTTP Error]', error.toLogData())
 }
 
+/** 后端常见英文成功提示 -> 中文文案 */
+const SUCCESS_MESSAGE_MAP: Record<string, string> = {
+  success: '操作成功',
+  ok: '操作成功',
+  'operation successful': '操作成功',
+  'operation success': '操作成功'
+}
+
+/** 将英文成功提示统一转为中文 */
+function normalizeSuccessMessage(message: string): string {
+  const trimmed = message.trim()
+  if (!trimmed) return '操作成功'
+  return SUCCESS_MESSAGE_MAP[trimmed.toLowerCase()] ?? trimmed
+}
+
 /**
  * 显示成功消息
  * @param message 成功消息
@@ -168,7 +183,7 @@ export function showError(error: HttpError, showMessage: boolean = true): void {
  */
 export function showSuccess(message: string, showMessage: boolean = true): void {
   if (showMessage) {
-    ElMessage.success(message)
+    ElMessage.success(normalizeSuccessMessage(message))
   }
 }
 

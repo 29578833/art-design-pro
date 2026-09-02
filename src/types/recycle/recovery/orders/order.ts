@@ -664,6 +664,8 @@ export interface TowDriverRecord {
   truck_plate?: string
   /** 拖车公司 */
   tow_company?: string
+  /** 执行中订单数（>0 显示「执行中N单」，0/空 显示「空闲」） */
+  active_order_count?: number
   /** 后端拼接展示文案 */
   label?: string
   /** 关联用户 ID */

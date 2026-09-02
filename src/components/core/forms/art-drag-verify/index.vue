@@ -86,7 +86,7 @@
     width: '100%',
     height: 40,
     text: '按住滑块拖动',
-    successText: 'success',
+    successText: '验证成功',
     background: '#eee',
     progressBarBg: '#1385FF',
     completedBg: '#57D187',

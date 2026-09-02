@@ -435,7 +435,8 @@
     v-model:visible="dispatchDialogVisible"
     :order-id="props.orderId"
     :current-driver-id="detail.driver_id"
-    :delivery-address="deliveryAddress !== '—' ? deliveryAddress : ''"
+    :plate-no="plateNo !== '—' ? plateNo : ''"
+    :pickup-address="pickupAddress !== '—' ? pickupAddress : ''"
     @success="handleDispatchSuccess"
   />
 

@@ -112,7 +112,8 @@
       v-model:visible="towAssignVisible"
       :order-id="towAssignOrderId"
       :current-driver-id="towAssignDriverId"
-      :delivery-address="towAssignDeliveryAddress"
+      :plate-no="towAssignPlateNo"
+      :pickup-address="towAssignPickupAddress"
       @success="refreshAll"
     />
   </div>
@@ -226,7 +227,8 @@
   const towAssignVisible = ref(false)
   const towAssignOrderId = ref<number | null>(null)
   const towAssignDriverId = ref<number | null>(null)
-  const towAssignDeliveryAddress = ref('')
+  const towAssignPlateNo = ref('')
+  const towAssignPickupAddress = ref('')
 
   const defaultSearchForm = (): OrderSearchParams => ({
     current: 1,
@@ -654,8 +656,13 @@
       typeof row.driver_id === 'number' || typeof row.driver_id === 'string'
         ? Number(row.driver_id)
         : null
-    towAssignDeliveryAddress.value =
-      typeof row.delivery_address === 'string' ? row.delivery_address : ''
+    towAssignPlateNo.value = typeof row.plate_no === 'string' ? row.plate_no : ''
+    towAssignPickupAddress.value =
+      typeof row.pickup_address === 'string'
+        ? row.pickup_address
+        : typeof row.delivery_address === 'string'
+          ? row.delivery_address
+          : ''
     towAssignVisible.value = true
   }
 
