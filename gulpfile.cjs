@@ -31,9 +31,17 @@ function getEnvConfig(env) {
   return config
 }
 
+function pad2(n) {
+  return String(n).padStart(2, '0')
+}
+
 function formatTimestamp(date = new Date()) {
-  const pad = (n) => String(n).padStart(2, '0')
-  return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}_${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`
+  return `${date.getFullYear()}${pad2(date.getMonth() + 1)}${pad2(date.getDate())}_${pad2(date.getHours())}${pad2(date.getMinutes())}${pad2(date.getSeconds())}`
+}
+
+/** 部署日志用的可读时间，例如 2026-09-04 16:18:05 */
+function formatDateTime(date = new Date()) {
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())} ${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`
 }
 
 /** 远程执行 shell 命令 */
@@ -137,7 +145,9 @@ async function deploy() {
   const config = getEnvConfig(env)
   const { host, port, user, pass, remotePath, cleanRemote } = config
 
+  const startedAt = new Date()
   console.log(`\n========== 部署环境: ${env} ==========`)
+  console.log(`开始时间: ${formatDateTime(startedAt)}`)
   console.log(`目标: ${host}:${port} -> ${remotePath}`)
   if (config.siteUrl) console.log(`站点: ${config.siteUrl}`)
 
@@ -175,7 +185,9 @@ async function deploy() {
 
     console.log('文件上传完成')
     await verifyDeployment(config)
-    console.log(`\n[${env}] 部署完成`)
+    const finishedAt = new Date()
+    const elapsedSec = ((finishedAt.getTime() - startedAt.getTime()) / 1000).toFixed(1)
+    console.log(`\n[${env}] 部署成功  ${formatDateTime(finishedAt)}  耗时 ${elapsedSec}s`)
   } finally {
     await sftp.end()
   }
