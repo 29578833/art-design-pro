@@ -124,3 +124,11 @@ export function fetchVehicleAssociateOrder(data: { vehicle_id: number; order_id:
     showSuccessMessage: true
   })
 }
+
+/** 删除车辆档案 */
+export function fetchVehicleDelete(id: number) {
+  return request.del({
+    url: `/scrap/vehicle/delete/${id}`,
+    showSuccessMessage: true
+  })
+}

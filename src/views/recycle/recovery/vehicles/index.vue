@@ -108,11 +108,12 @@
     fetchVehicleList,
     fetchVehicleStatusCounts,
     fetchVehicleTabCounts,
-    fetchVehicleAssociateOrder
+    fetchVehicleAssociateOrder,
+    fetchVehicleDelete
   } from '@/api/recycle/vehicle'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { useTable } from '@/hooks/core/useTable'
-  import { ElMessage } from 'element-plus'
+  import { ElMessage, ElMessageBox } from 'element-plus'
   import type {
     ScrapVehicle,
     VehicleSearchParams,
@@ -301,6 +302,26 @@
     window.open(`https://bfc.chexinmeng.com/hszma4?id=${row.djid || row.id}`, '_blank')
   }
 
+  async function handleSoftDelete(row: ScrapVehicle) {
+    const display = row.vehicle_no || row.plate_no || row.vin || row.id
+    try {
+      await ElMessageBox.confirm(`确认软删除车辆档案「${display}」？`, '删除', {
+        type: 'warning',
+        confirmButtonText: '确认删除',
+        cancelButtonText: '取消'
+      })
+    } catch {
+      return
+    }
+    try {
+      await fetchVehicleDelete(row.id)
+      getData()
+      loadCounts()
+    } catch {
+      // 删除失败提示由 http 封装统一处理
+    }
+  }
+
   function buildColumns() {
     return [
       {
@@ -370,7 +391,7 @@
       {
         prop: 'operation',
         label: '操作',
-        width: 320,
+        width: 400,
         align: 'center',
         fixed: 'right',
         formatter: (row: ScrapVehicle) => {
@@ -407,6 +428,17 @@
                 onClick: () => handleDownloadCert(row)
               },
               [h(ArtSvgIcon, { icon: 'ri:download-line', class: 'order-action-icon' }), '下载证明']
+            )
+          )
+          actions.push(
+            h(
+              'button',
+              {
+                type: 'button',
+                class: 'order-action-btn danger',
+                onClick: () => handleSoftDelete(row)
+              },
+              [h(ArtSvgIcon, { icon: 'ri:delete-bin-line', class: 'order-action-icon' }), '删除']
             )
           )
           return h('div', { class: 'order-actions' }, actions)
