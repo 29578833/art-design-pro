@@ -1,4 +1,5 @@
 import request from '@/utils/http'
+import { compressImage, isCompressibleImage } from '@/utils/compress'
 import type {
   AcceptAuthSmsParams,
   AcceptDictUsernameOption,
@@ -237,8 +238,13 @@ export async function fetchAcceptUploadImage(options: {
   lx?: string
 }) {
   const formData = new FormData()
-  const fileName = options.file instanceof File ? options.file.name : `upload-${Date.now()}.png`
-  formData.append('file', options.file, fileName)
+  // 图片上传前在浏览器端压缩，降低上传体积
+  let targetFile: File | Blob = options.file
+  if (isCompressibleImage(options.file)) {
+    targetFile = await compressImage(options.file)
+  }
+  const fileName = targetFile instanceof File ? targetFile.name : `upload-${Date.now()}.png`
+  formData.append('file', targetFile, fileName)
   if (options.vehicle_id) formData.append('vehicle_id', String(options.vehicle_id))
   if (options.field) formData.append('field', options.field)
   if (options.lx) formData.append('lx', options.lx)

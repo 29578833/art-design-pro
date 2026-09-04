@@ -1,4 +1,5 @@
 import request from '@/utils/http'
+import { compressImage, isCompressibleImage } from '@/utils/compress'
 import { HttpError } from '@/utils/http/error'
 import { ApiStatus } from '@/utils/http/status'
 
@@ -25,6 +26,8 @@ export interface UploadFileOptions {
   timeout?: number
   /** 上传进度回调，参数为 0-100 的百分比 */
   onProgress?: (percent: number) => void
+  /** 是否对图片进行前端压缩，默认 true（仅对常见栅格图片生效） */
+  compress?: boolean
 }
 
 /** 后台上传接口：/adminapi/file/upload */
@@ -66,12 +69,19 @@ export async function uploadFile(
     showSuccessMessage = false,
     showErrorMessage = true,
     timeout = 120000,
-    onProgress
+    onProgress,
+    compress = true
   } = options
 
-  const fileName = file instanceof File ? file.name : `upload-${Date.now()}.png`
+  // 图片上传前在浏览器端压缩，降低上传体积
+  let targetFile: File | Blob = file
+  if (compress && isCompressibleImage(file)) {
+    targetFile = await compressImage(file)
+  }
+
+  const fileName = targetFile instanceof File ? targetFile.name : `upload-${Date.now()}.png`
   const formData = new FormData()
-  formData.append(fieldName, file, fileName)
+  formData.append(fieldName, targetFile, fileName)
   formData.append('pid', String(pid))
 
   // 上传进度由 @/utils/http 请求拦截器统一登记，此处仅透传 onProgress 回调
