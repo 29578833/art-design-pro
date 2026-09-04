@@ -240,6 +240,8 @@ export interface VehicleFlowStep {
 
 /** 车辆详情（直接使用接口字段） */
 export interface ScrapVehicleDetail extends ScrapVehicle {
+  /** 状态徽标（与 dim_status 子项同构：label/color/bg/icon；可能以数组或按维度对象返回） */
+  status_badges?: any[]
   /** 发动机号 */
   engine_no?: string
   /** 颜色 */

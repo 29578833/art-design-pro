@@ -139,7 +139,7 @@
   const headerBrandModel = computed(() => brandModelText(detail.value))
 
   const dimOverview = computed(() => {
-    const dim = detail.value.dim_status
+    const dim = detail.value.status_badges
     const toItem = (
       label: string,
       icon: string,
@@ -152,9 +152,9 @@
       bg: data?.bg || '#f5f5f5'
     })
     return [
-      toItem('拖车', 'ri:truck-line', dim?.tow),
-      toItem('入厂', 'ri:box-3-line', dim?.factory),
-      toItem('注销', 'ri:file-text-line', dim?.cancel)
+      toItem('拖车', 'ri:truck-line', dim[0]),
+      toItem('入厂', 'ri:box-3-line', dim[1]),
+      toItem('注销', 'ri:file-text-line', dim[2])
     ]
   })
 
