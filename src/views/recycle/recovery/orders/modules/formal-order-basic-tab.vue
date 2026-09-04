@@ -92,7 +92,7 @@
           <div class="fob-item">
             <div class="fob-label">车辆类型</div>
             <div class="fob-value">
-              {{ currentVehicle?.vehicle_type || currentVehicle?.fuel_type || '—' }}
+              {{ currentVehicle?.vehicle_type_text || currentVehicle?.fuel_type_text || '—' }}
             </div>
           </div>
         </ElCol>

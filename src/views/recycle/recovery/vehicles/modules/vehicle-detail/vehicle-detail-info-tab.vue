@@ -103,9 +103,7 @@
         </div>
         <div class="vd-row">
           <span class="vd-row-label">车辆类型</span
-          ><span class="vd-row-value">{{
-            archiveDetail.vehicle_type_text || archiveDetail.vehicle_type || '—'
-          }}</span>
+          ><span class="vd-row-value">{{ archiveDetail.vehicle_type_text || '—' }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">燃料性质</span
@@ -334,7 +332,11 @@
         </div>
         <div class="vd-cert-body">
           <div class="vd-photo-grid cols-4">
-            <div v-for="(slot, index) in mediaVehicleDocSlots" :key="slot.key" class="vd-photo-slot">
+            <div
+              v-for="(slot, index) in mediaVehicleDocSlots"
+              :key="slot.key"
+              class="vd-photo-slot"
+            >
               <div class="vd-photo-label-top">{{ slot.label }}</div>
               <div class="vd-photo-box">
                 <ElImage
