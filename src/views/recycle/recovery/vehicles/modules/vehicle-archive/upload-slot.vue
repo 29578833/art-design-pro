@@ -9,6 +9,7 @@
         <ElImage
           :src="url"
           fit="contain"
+          loading="lazy"
           class="ae-slot-img"
           :preview-src-list="[url]"
           preview-teleported

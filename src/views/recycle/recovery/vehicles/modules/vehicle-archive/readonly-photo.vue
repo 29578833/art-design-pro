@@ -6,6 +6,7 @@
         v-if="url"
         :src="url"
         fit="cover"
+        loading="lazy"
         class="vd-photo-img"
         :preview-src-list="previewList"
         :initial-index="previewInitialIndex"

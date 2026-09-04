@@ -139,6 +139,7 @@
   const headerBrandModel = computed(() => brandModelText(detail.value))
 
   const dimOverview = computed(() => {
+    if (!detail.value.status_badges) return []
     const dim = detail.value.status_badges
     const toItem = (
       label: string,
