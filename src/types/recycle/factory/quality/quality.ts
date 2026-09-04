@@ -167,8 +167,8 @@ export interface QualityDetail {
   conclusion_type: ConclusionType
   /** 车牌状态(多选逗号) */
   plate_status: string
-  /** 厂区车辆类型（dict_value，来自 cllx_cascade 叶子节点） */
-  factory_type: string
+  /** 车辆类型（dict_value，来自 cllx_cascade 叶子节点） */
+  vehicle_type: string
   /** 备注 */
   remark: string
   /** 质检员签字 URL */
@@ -205,8 +205,6 @@ export interface QualityDetail {
   brand?: string
   /** 车型 */
   model?: string
-  /** 车辆类型 */
-  vehicle_type?: string
   /** 燃料类型 */
   fuel_type?: string
   /** 排放标准 */
@@ -336,8 +334,8 @@ export interface QualityCreateParams {
   other_image?: string
   /** 车牌状态 */
   plate_status?: string
-  /** 厂区类型 */
-  factory_type?: string
+  /** 车辆类型 */
+  vehicle_type?: string
   /** 监销标记 */
   is_supervision?: number
   /** 质检员ID */
@@ -429,7 +427,7 @@ export interface QualityUpdateParams {
   engine_image?: string
   other_image?: string
   plate_status?: string
-  factory_type?: string
+  vehicle_type?: string
   is_supervision?: number
   inspector_id?: number
   inspector_name?: string

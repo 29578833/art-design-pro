@@ -94,22 +94,12 @@
               </div>
 
               <div class="qc-form-field">
-                <label class="qc-field-label">厂区类型<span class="required">*</span></label>
-                <ElSelect
-                  v-model="step1Form.factory_type"
-                  placeholder="请选择厂区类型"
-                  filterable
-                  clearable
-                  :loading="loadingFactoryType"
+                <label class="qc-field-label">车辆类型<span class="required">*</span></label>
+                <CllxCascader
+                  v-model="step1Form.vehicle_type"
+                  placeholder="请选择车辆类型"
                   class="qc-full-width"
-                >
-                  <ElOption
-                    v-for="opt in factoryTypeOptions"
-                    :key="opt.value"
-                    :label="opt.label"
-                    :value="opt.value"
-                  />
-                </ElSelect>
+                />
               </div>
             </div>
           </div>
@@ -561,7 +551,7 @@
   import UploadBatchTrigger from '@/views/recycle/recovery/vehicles/modules/vehicle-archive/upload-batch-trigger.vue'
   import { batchFillUploadSlots } from '@/views/recycle/recovery/vehicles/modules/vehicle-archive/archive-utils'
   import { uploadFileGetUrl } from '@/api/upload'
-  import { fetchDataDictList } from '@/api/recycle/data-dict'
+  import CllxCascader from '@/views/recycle/recovery/shared/cllx-cascader.vue'
   import { fetchUserRoleList } from '@/api/recycle/role'
   import {
     createQuality,
@@ -614,8 +604,6 @@
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
 
-  const factoryTypeOptions = ref<Array<{ label: string; value: string }>>([])
-  const loadingFactoryType = ref(false)
   const inspectorOptions = ref<ScrapUserRoleItem[]>([])
   const loadingInspectors = ref(false)
   const photoInputRef = ref<HTMLInputElement>()
@@ -652,7 +640,7 @@
 
   const step1Form = reactive({
     plate_status_arr: [] as string[],
-    factory_type: '',
+    vehicle_type: '',
     is_supervision: 0,
     weight: undefined as number | undefined,
     tare_weight: undefined as number | undefined,
@@ -797,7 +785,7 @@
 
   const canNext = computed(() => {
     if (currentStep.value === 0) {
-      return Number(step1Form.weight) > 0 && !!step1Form.factory_type && !!inspectorName.value
+      return Number(step1Form.weight) > 0 && !!step1Form.vehicle_type && !!inspectorName.value
     }
     return true
   })
@@ -948,7 +936,7 @@
       deduction_weight: step1Form.deduction_weight || 0,
       deduction_images: deductionImages.value.filter(Boolean).join(','),
       plate_status: step1Form.plate_status_arr.join(','),
-      factory_type: step1Form.factory_type,
+      vehicle_type: step1Form.vehicle_type,
       is_supervision: step1Form.is_supervision,
       inspector_name: inspectorName.value || undefined,
       inspector_signature: signatures.inspector_signature || undefined,
@@ -994,7 +982,7 @@
     step1Form.plate_status_arr = check.plate_status
       ? check.plate_status.split(',').filter(Boolean)
       : []
-    step1Form.factory_type = check.factory_type || ''
+    step1Form.vehicle_type = check.vehicle_type || ''
     step1Form.is_supervision = check.is_supervision ?? 0
     Object.assign(entryPhotos, createEmptyEntryPhotos(), {
       full_image: check.full_image || '',
@@ -1057,34 +1045,11 @@
     }
   }
 
-  async function loadFactoryTypeOptions() {
-    if (factoryTypeOptions.value.length) return
-    loadingFactoryType.value = true
-    try {
-      const res = await fetchDataDictList({
-        dict_type: 'car_hpzl',
-        status: 1,
-        page: 1,
-        limit: 1000
-      })
-      factoryTypeOptions.value = (res.list || [])
-        .map((item) => {
-          const label = item.dict_label || String(item.dict_value ?? '')
-          return { label, value: label }
-        })
-        .filter((item) => item.value)
-    } catch {
-      factoryTypeOptions.value = []
-    } finally {
-      loadingFactoryType.value = false
-    }
-  }
-
   async function initWorkbench(item: QualityQueueItem) {
     initializing.value = true
     try {
       resetForm()
-      await Promise.all([loadFactoryTypeOptions(), loadInspectors()])
+      await loadInspectors()
       try {
         let existing: QualityDetail | null = null
         if (item.check_id) {
@@ -1205,7 +1170,7 @@
     checkId.value = 0
     inspectorName.value = ''
     step1Form.plate_status_arr = []
-    step1Form.factory_type = ''
+    step1Form.vehicle_type = ''
     step1Form.is_supervision = 0
     step1Form.weight = undefined
     step1Form.tare_weight = undefined
