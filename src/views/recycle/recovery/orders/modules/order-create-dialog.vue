@@ -119,6 +119,7 @@
             <div class="step0-section-head">
               <ArtSvgIcon icon="ri:user-line" class="step0-section-icon" />
               <span class="step0-section-title">客户信息</span>
+              <span class="step0-required">*</span>
               <span class="step0-section-hint">先选客户，联系确认意向后再操作下方步骤</span>
             </div>
 
@@ -633,8 +634,8 @@
       <div class="dialog-footer">
         <div class="footer-step-hint">
           <span>步骤 {{ currentStep + 1 }} / {{ stepLabels.length }}</span>
-          <span v-if="isIntentOrder" class="intent-order-tag">意向订单（非必填）</span>
-          <span v-else-if="stepError" class="step-error-hint">{{ stepError }}</span>
+          <span v-if="stepError" class="step-error-hint">{{ stepError }}</span>
+          <span v-else-if="isIntentOrder" class="intent-order-tag">意向订单（非必填）</span>
         </div>
         <div class="footer-actions">
           <button type="button" class="btn-cancel" @click="dialogVisible = false">取消</button>
@@ -1060,14 +1061,19 @@
 
   /**
    * 校验指定步骤的必填项，返回错误提示；通过返回 null。
-   * 意向订单（is_deal === false）所有字段均非必填。
+   * 客户信息（姓名、电话）在任意订单类型下均为必填；
+   * 意向订单（is_deal === false）其余步骤字段非必填。
    */
   function validateStep(step: number): string | null {
-    if (form.value.is_deal === false) return null
-
     if (step === 0) {
-      return form.value.is_deal === null ? '请先选择是否成交' : null
+      if (form.value.is_deal === null) return '请先选择是否成交'
+      if (!form.value.real_name.trim()) return '请填写或选择客户姓名'
+      if (!form.value.phone.trim()) return '请填写联系电话'
+      return null
     }
+
+    // 意向订单（is_deal === false）除客户信息外，其余步骤字段均非必填
+    if (form.value.is_deal === false) return null
 
     if (step === 1) {
       if (form.value.is_batch) {
@@ -1109,7 +1115,8 @@
 
   /** 当前步骤未通过校验时的提示文案，用于底栏内联展示 */
   const stepError = computed(() => {
-    if (isIntentOrder.value) return ''
+    // 意向订单仅第 0 步强制客户信息，其余步骤字段非必填
+    if (isIntentOrder.value && currentStep.value > 0) return ''
     return validateStep(currentStep.value) || ''
   })
 
@@ -1365,12 +1372,10 @@
       ElMessage.warning('请填写联系电话')
       return
     }
-    if (form.value.is_deal !== false) {
-      const name = form.value.real_name.trim() || form.value.owner_name.trim()
-      if (!name) {
-        ElMessage.warning('请填写或选择客户')
-        return
-      }
+    const name = form.value.real_name.trim() || form.value.owner_name.trim()
+    if (!name) {
+      ElMessage.warning('请填写或选择客户')
+      return
     }
     saving.value = true
     try {
