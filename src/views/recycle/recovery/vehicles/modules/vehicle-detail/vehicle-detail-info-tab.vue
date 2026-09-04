@@ -101,7 +101,9 @@
         </div>
         <div class="vd-row">
           <span class="vd-row-label">号牌类型</span
-          ><span class="vd-row-value">{{ archiveDetail.plate_type || '—' }}</span>
+          ><span class="vd-row-value">{{
+            archiveDetail.plate_type_text || archiveDetail.plate_type || '—'
+          }}</span>
         </div>
         <div class="vd-row">
           <span class="vd-row-label">车辆类型</span
@@ -138,7 +140,7 @@
         <div class="vd-row">
           <span class="vd-row-label">使用性质</span
           ><span class="vd-row-value">{{
-            archiveDetail.usage_type || archiveDetail.fuel_nature || '—'
+            archiveDetail.fuel_nature_text || archiveDetail.fuel_nature || '—'
           }}</span>
         </div>
         <div class="vd-row">

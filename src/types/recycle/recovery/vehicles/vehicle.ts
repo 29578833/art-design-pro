@@ -358,7 +358,11 @@ export interface ScrapVehicleDetail extends ScrapVehicle {
   cert_no?: string
   vehicle_model?: string
   plate_type?: string
+  /** 号牌类型文案 */
+  plate_type_text?: string
   fuel_nature?: string
+  /** 使用性质文案 */
+  fuel_nature_text?: string
   register_date?: string
   year?: string | number
   monitor_type?: string
