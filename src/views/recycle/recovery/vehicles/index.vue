@@ -299,7 +299,7 @@
   }
 
   function handleDownloadCert(row: ScrapVehicle) {
-    window.open(`https://bfc.chexinmeng.com/hszma4?id=${row.djid || row.id}`, '_blank')
+    window.open(`https://bfc.chexinmeng.com/hszma4?id=${row.owner_sync_djid}`, '_blank')
   }
 
   async function handleSoftDelete(row: ScrapVehicle) {
@@ -419,17 +419,19 @@
               )
             )
           }
-          actions.push(
-            h(
-              'button',
-              {
-                type: 'button',
-                class: 'order-action-btn default',
-                onClick: () => handleDownloadCert(row)
-              },
-              [h(ArtSvgIcon, { icon: 'ri:download-line', class: 'order-action-icon' }), '下载证明']
+          if (row.owner_sync_djid) {
+            actions.push(
+              h(
+                'button',
+                {
+                  type: 'button',
+                  class: 'order-action-btn default',
+                  onClick: () => handleDownloadCert(row)
+                },
+                [h(ArtSvgIcon, { icon: 'ri:download-line', class: 'order-action-icon' }), '下载证明']
+              )
             )
-          )
+          }
           actions.push(
             h(
               'button',
