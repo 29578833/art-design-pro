@@ -192,7 +192,7 @@
         prop: 'archive_no',
         label: '档案号',
         minWidth: 130,
-        formatter: (row: MaterialItem) => h('span', { class: 'order-no' }, row.archive_no || '—')
+        formatter: (row: MaterialItem) => h('span', {}, row.archive_no || '—')
       },
       {
         prop: 'plate_no',
