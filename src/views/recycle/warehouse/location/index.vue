@@ -386,7 +386,7 @@
         prop: 'order_no',
         label: '订单号',
         minWidth: 130,
-        formatter: (row) => h('span', { class: 'order-no' }, row.order_no || '—')
+        formatter: (row) => h('span', {}, row.order_no || '—')
       },
       {
         prop: 'entry_no',
