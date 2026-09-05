@@ -6,6 +6,7 @@
       class="fs-search-item"
       placeholder="全部结算单"
       style="width: 130px"
+      @change="emitSearch"
     >
       <ElOption label="全部结算单" value="" />
       <ElOption label="待审核" :value="1" />
@@ -20,6 +21,7 @@
       placeholder="订单/合同编号"
       clearable
       style="width: 140px"
+      @input="debouncedEmitSearch"
     />
     <ElInput
       v-model="localForm.applicant"
@@ -27,6 +29,7 @@
       placeholder="申请人"
       clearable
       style="width: 140px"
+      @input="debouncedEmitSearch"
     />
     <ElDatePicker
       v-model="dateRange"
@@ -35,7 +38,8 @@
       start-placeholder="开始日期"
       end-placeholder="结束日期"
       :unlink-panels="true"
-      style="width: 240px"
+      style="width: 180px; max-width: 400px"
+      @change="emitSearch"
     />
     <ElSelect
       v-model="localForm.settlement_type"
@@ -43,12 +47,12 @@
       placeholder="结算单类型"
       clearable
       style="width: 140px"
+      @change="emitSearch"
     >
       <ElOption label="服务费结算单" value="service_fee" />
       <ElOption label="残值结算单" value="residual" />
     </ElSelect>
-    <ElButton type="primary" @click="emitSearch">查询</ElButton>
-    <ElButton @click="emitReset">重置</ElButton>
+    <ElButton class="fs-search-reset" text @click="emitReset">重置</ElButton>
     <div class="fs-search-actions">
       <ElButton :loading="exporting" @click="$emit('export')">
         <ArtSvgIcon icon="ri:download-line" class="mr-1" />
@@ -101,6 +105,7 @@
   function emitSearch() {
     emit('search', buildPayload())
   }
+  const debouncedEmitSearch = useDebounceFn(emitSearch, 300)
   function emitReset() {
     dateRange.value = null
     Object.assign(localForm, {
@@ -128,5 +133,14 @@
 
   .fs-search-actions {
     margin-left: auto;
+  }
+
+  .fs-search-reset {
+    flex-shrink: 0;
+    color: var(--art-gray-500);
+
+    &:hover {
+      color: var(--art-gray-700);
+    }
   }
 </style>

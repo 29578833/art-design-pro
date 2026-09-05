@@ -16,6 +16,7 @@
             placeholder="请输入"
             clearable
             style="width: 200px"
+            @input="debouncedSearch"
           >
             <template #prefix>
               <span class="fs-export-input-label">车辆编号</span>
@@ -27,6 +28,7 @@
             placeholder="请输入"
             clearable
             style="width: 200px"
+            @input="debouncedSearch"
           >
             <template #prefix>
               <span class="fs-export-input-label">车主姓名</span>
@@ -38,6 +40,7 @@
             placeholder="请输入"
             clearable
             style="width: 200px"
+            @input="debouncedSearch"
           >
             <template #prefix>
               <span class="fs-export-input-label">车牌号</span>
@@ -49,6 +52,7 @@
             placeholder="请输入"
             clearable
             style="width: 200px"
+            @input="debouncedSearch"
           >
             <template #prefix>
               <span class="fs-export-input-label">收款人名称</span>
@@ -60,6 +64,7 @@
             placeholder="请输入"
             clearable
             style="width: 200px"
+            @input="debouncedSearch"
           >
             <template #prefix>
               <span class="fs-export-input-label">收款人账号</span>
@@ -70,6 +75,7 @@
             placeholder="业务员(全部)"
             clearable
             style="width: 200px"
+            @change="handleSearch"
           >
             <ElOption
               v-for="item in businessOptions"
@@ -90,6 +96,7 @@
             end-placeholder="结束日期"
             :unlink-panels="true"
             style="flex-grow: 0; width: 340px"
+            @change="handleSearch"
           />
           <div class="fs-export-status-group">
             <button
@@ -103,8 +110,7 @@
               {{ item.label }}
             </button>
           </div>
-          <ElButton type="primary" @click="handleSearch"> 查询 </ElButton>
-          <ElButton @click="handleReset"> 重置 </ElButton>
+          <ElButton class="fs-export-reset" text @click="handleReset"> 重置 </ElButton>
         </div>
       </div>
     </ElCard>
@@ -364,6 +370,7 @@
     pagination.current = 1
     loadList()
   }
+  const debouncedSearch = useDebounceFn(handleSearch, 300)
 
   /** 业务员下拉 */
   const businessOptions = ref<SettlementExportBusiness[]>([])

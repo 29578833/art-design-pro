@@ -106,8 +106,7 @@
       </ElSelect>
     </div>
 
-    <ElButton type="primary" @click="emitSearch">搜索</ElButton>
-    <ElButton @click="handleReset">重置</ElButton>
+    <ElButton class="vehicle-toolbar-reset" text @click="handleReset">重置</ElButton>
   </div>
 </template>
 
@@ -280,5 +279,15 @@
   .vehicle-toolbar-search-icon {
     font-size: 16px;
     color: var(--art-gray-400);
+  }
+
+  .vehicle-toolbar-reset {
+    flex-shrink: 0;
+    margin-left: auto;
+    color: var(--art-gray-500);
+
+    &:hover {
+      color: var(--art-gray-700);
+    }
   }
 </style>

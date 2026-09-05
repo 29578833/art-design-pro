@@ -55,7 +55,7 @@
           <ElFormItem prop="pwd">
             <div class="erp-login-form-label-row">
               <label class="erp-login-form-label !mb-0">密码</label>
-              <RouterLink class="erp-login-forgot-link" :to="{ name: 'ForgetPassword' }">
+              <RouterLink class="erp-login-forgot-link" tabindex="-1" :to="{ name: 'ForgetPassword' }">
                 忘记密码？
               </RouterLink>
             </div>
@@ -74,7 +74,7 @@
           </ElFormItem>
 
           <ElFormItem class="!mb-0">
-            <ElButton class="erp-login-btn" type="primary" :loading="loading" @click="handleSubmit">
+            <ElButton class="erp-login-btn" type="primary" tabindex="-1" :loading="loading" @click="handleSubmit">
               登录
               <ArtSvgIcon icon="ri:arrow-right-line" class="ml-1" />
             </ElButton>
