@@ -152,6 +152,7 @@
                     fit="cover"
                     class="work-photo-preview"
                     preview-teleported
+                    hide-on-click-modal
                   />
                 </template>
                 <div v-else class="work-photo-empty" @click="handlePhotoClick(index)">

@@ -194,6 +194,7 @@
                     fit="cover"
                     class="qc-photo-preview-image"
                     preview-teleported
+                    hide-on-click-modal
                   />
                   <span class="qc-photo-label">扣杂照{{ idx + 1 }}</span>
                 </div>
@@ -247,6 +248,7 @@
                     fit="cover"
                     class="qc-photo-preview-image"
                     preview-teleported
+                    hide-on-click-modal
                   />
                 </template>
                 <ArtSvgIcon v-else icon="ri:camera-line" class="qc-photo-icon" />
@@ -458,6 +460,7 @@
                     class="qc-sign-preview"
                     :preview-src-list="[signatures[role.field]]"
                     preview-teleported
+                    hide-on-click-modal
                   />
                   <span v-else class="qc-sign-empty-text">待签名</span>
                 </div>

@@ -106,6 +106,7 @@
                     fit="cover"
                     class="entry-photo-thumb-image"
                     preview-teleported
+                    hide-on-click-modal
                   />
                 </div>
               </div>

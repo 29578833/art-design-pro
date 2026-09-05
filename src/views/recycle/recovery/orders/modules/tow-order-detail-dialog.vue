@@ -445,6 +445,7 @@
     v-if="previewVisible"
     :url-list="previewList"
     :initial-index="previewIndex"
+    hide-on-click-modal
     @close="previewVisible = false"
   />
 </template>

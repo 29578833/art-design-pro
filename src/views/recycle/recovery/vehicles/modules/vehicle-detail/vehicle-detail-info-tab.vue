@@ -40,6 +40,7 @@
               class="vd-photo-img"
               :preview-src-list="ownerPreviewList"
               :initial-index="previewIndexAt(ownerPhotoSlots, index)"
+              hide-on-click-modal
             />
             <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
           </div>
@@ -88,6 +89,7 @@
               class="vd-photo-img"
               :preview-src-list="vehicleDocPreviewList"
               :initial-index="previewIndexAt(vehicleDocSlots, index)"
+              hide-on-click-modal
             />
             <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
           </div>
@@ -241,6 +243,7 @@
               class="vd-photo-img"
               :preview-src-list="agentPreviewList"
               :initial-index="previewIndexAt(agentPhotoSlots, index)"
+              hide-on-click-modal
             />
             <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
           </div>
@@ -321,6 +324,7 @@
                   class="vd-photo-img"
                   :preview-src-list="ownerPreviewList"
                   :initial-index="previewIndexAt(mediaOwnerSlots, index)"
+                  hide-on-click-modal
                 />
                 <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
               </div>
@@ -353,6 +357,7 @@
                   class="vd-photo-img"
                   :preview-src-list="vehicleDocPreviewList"
                   :initial-index="previewIndexAt(mediaVehicleDocSlots, index)"
+                  hide-on-click-modal
                 />
                 <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
               </div>
@@ -387,6 +392,7 @@
                   class="vd-photo-img"
                   :preview-src-list="agentPreviewList"
                   :initial-index="previewIndexAt(agentPhotoSlots, index)"
+                  hide-on-click-modal
                 />
                 <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
               </div>
@@ -416,6 +422,7 @@
                   class="vd-photo-img"
                   :preview-src-list="entryPhotoPreviewList"
                   :initial-index="previewIndexAt(entryPhotoItems, index)"
+                  hide-on-click-modal
                 />
                 <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
               </div>
@@ -444,6 +451,7 @@
                   class="vd-photo-img"
                   :preview-src-list="dismantlePreviewList"
                   :initial-index="previewIndexAt(dismantlePhotoSlots, index)"
+                  hide-on-click-modal
                 />
                 <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
               </div>
@@ -483,6 +491,7 @@
                   class="vd-photo-img"
                   :preview-src-list="cancelPreviewList"
                   :initial-index="previewIndexAt(cancelPhotoSlots, index)"
+                  hide-on-click-modal
                 />
                 <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
               </div>

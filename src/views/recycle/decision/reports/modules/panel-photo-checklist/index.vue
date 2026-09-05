@@ -97,6 +97,7 @@
               :src="row[col.key]"
               :preview-src-list="[row[col.key]]"
               preview-teleported
+              hide-on-click-modal
               fit="cover"
               class="pc-thumb"
               :style="{ background: col.color }"

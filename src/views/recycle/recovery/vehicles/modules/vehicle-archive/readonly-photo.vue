@@ -11,6 +11,7 @@
         :preview-src-list="previewList"
         :initial-index="previewInitialIndex"
         preview-teleported
+        hide-on-click-modal
       />
       <ArtSvgIcon v-else icon="ri:camera-line" class="vd-photo-camera" />
     </div>

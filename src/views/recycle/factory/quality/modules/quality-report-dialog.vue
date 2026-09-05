@@ -77,6 +77,7 @@
                   fit="cover"
                   class="qr-photo-thumb"
                   preview-teleported
+                  hide-on-click-modal
                 />
               </div>
             </div>
@@ -93,6 +94,7 @@
                   fit="cover"
                   class="qr-photo-thumb"
                   preview-teleported
+                  hide-on-click-modal
                 />
                 <div class="qr-photo-caption">{{ photo.label }}</div>
               </div>
@@ -237,6 +239,7 @@
                     class="qr-sign-img"
                     :preview-src-list="[String(detail[role.field])]"
                     preview-teleported
+                    hide-on-click-modal
                   />
                   <span v-else class="qr-sign-placeholder">签名 / 盖章</span>
                 </div>

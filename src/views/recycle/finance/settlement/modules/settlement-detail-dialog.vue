@@ -55,6 +55,7 @@
               class="fs-proof-thumb"
               :preview-src-list="[proofUrl]"
               preview-teleported
+              hide-on-click-modal
             />
             <a v-else :href="proofUrl" target="_blank" rel="noopener" class="fs-proof-link">
               查看文件
