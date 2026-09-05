@@ -25,6 +25,8 @@ export interface QualityQueueItem {
   plate_no?: string
   /** 品牌车型拼接 */
   brand_model?: string
+  /** 车辆类型 */
+  vehicle_type?: string
   /** 车辆类型文案 */
   vehicle_type_text?: string
   /** 车主姓名 */

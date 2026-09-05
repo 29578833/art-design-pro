@@ -664,7 +664,7 @@
     { label: '车牌号', value: props.queueItem?.plate_no || '—' },
     { label: 'VIN码', value: props.queueItem?.vin || '—' },
     { label: '品牌车型', value: props.queueItem?.brand_model || '—' },
-    { label: '车辆类型', value: props.queueItem?.vehicle_type_text || '—' },
+    // { label: '车辆类型', value: props.queueItem?.vehicle_type_text || '—' },
     { label: '车主姓名', value: props.queueItem?.owner_name || '—' },
     { label: '档案号', value: props.queueItem?.inspection_no || '—' }
   ])
@@ -1173,7 +1173,7 @@
     checkId.value = 0
     inspectorName.value = ''
     step1Form.plate_status_arr = []
-    step1Form.vehicle_type = ''
+    step1Form.vehicle_type = props.queueItem?.vehicle_type || ''
     step1Form.is_supervision = 0
     step1Form.weight = undefined
     step1Form.tare_weight = undefined
