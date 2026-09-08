@@ -680,6 +680,7 @@
 
   .fo-batch-list {
     display: flex;
+    flex-wrap: wrap;
     flex: 1;
     gap: 8px;
     overflow-x: auto;
