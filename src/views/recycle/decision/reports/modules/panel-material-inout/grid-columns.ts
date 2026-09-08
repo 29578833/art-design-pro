@@ -81,8 +81,8 @@ export function buildMaterialInOutColumns() {
       ...th
     },
     {
-      field: 'vehicle_model',
-      title: '车型',
+      field: 'vehicle_type_text',
+      title: '车辆类型',
       width: 120,
       headerClassName: 'rmi-head-base',
       ...th

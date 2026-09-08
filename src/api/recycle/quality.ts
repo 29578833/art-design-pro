@@ -82,8 +82,7 @@ function buildReportListParams(params: QualitySearchParams) {
     limit,
     keyword: params.keyword?.trim() || '',
     order_id: params.order_id || '',
-    plate_no: params.plate_no?.trim() || '',
-    result: params.result !== undefined && params.result !== '' ? params.result : ''
+    plate_no: params.plate_no?.trim() || ''
   }
 }
 

@@ -18,6 +18,8 @@ export interface WarehouseEntryItem {
   vehicle_info?: string
   /** 车辆类型 */
   vehicle_type?: string
+  /** 车辆类型文案 */
+  vehicle_type_text?: string
   /** 燃料类型 */
   fuel_type?: string
   /** 颜色 */

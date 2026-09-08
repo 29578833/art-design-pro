@@ -28,7 +28,6 @@
     QualityReportItem,
     QualitySearchParams
   } from '@/types/recycle/factory/quality/quality'
-  import { QC_RESULT_CONFIG } from '@/types/recycle/factory/quality/quality'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
   interface Props {
@@ -45,22 +44,8 @@
   defineOptions({ name: 'QualityReportPage' })
 
   const defaultSearchForm = (): QualitySearchParams => ({
-    keyword: undefined,
-    result: undefined
+    keyword: undefined
   })
-
-  function renderResultTag(row: QualityReportItem) {
-    const cfg = QC_RESULT_CONFIG[row.result]
-    if (!cfg) return h('span', { class: 'order-muted' }, '—')
-    return h(
-      'span',
-      {
-        class: 'order-status-tag',
-        style: { color: cfg.color, background: cfg.bg, borderColor: cfg.color }
-      },
-      cfg.label
-    )
-  }
 
   function renderMissingCount(row: QualityReportItem) {
     const count = row.missing_count ?? 0
@@ -169,12 +154,6 @@
           h('span', { class: 'order-time' }, row.check_time || '—')
       },
       {
-        prop: 'result',
-        label: '质检结果',
-        width: 90,
-        formatter: (row: QualityReportItem) => renderResultTag(row)
-      },
-      {
         prop: 'operation',
         label: '操作',
         width: 140,
@@ -203,7 +182,6 @@
       apiFn: fetchQualityReportList,
       apiParams: {
         keyword: props.searchForm.keyword,
-        result: props.searchForm.result,
         page: 1,
         limit: 20
       },
@@ -215,8 +193,7 @@
   function handleSearch(form?: QualitySearchParams) {
     const params = form ?? props.searchForm
     replaceSearchParams({
-      keyword: params.keyword,
-      result: params.result
+      keyword: params.keyword
     })
     getData()
   }

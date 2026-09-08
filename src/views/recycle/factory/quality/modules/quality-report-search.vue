@@ -42,24 +42,6 @@
         </ElSelect>
       </div>
 
-      <div v-else class="quality-filter-item">
-        <span class="quality-filter-label">质检结果</span>
-        <ElSelect
-          v-model="localResult"
-          class="quality-toolbar-select"
-          clearable
-          placeholder="全部结果"
-          @change="handleFilterChange"
-        >
-          <ElOption
-            v-for="opt in QC_RESULT_FILTER_OPTIONS"
-            :key="opt.value"
-            :label="opt.label"
-            :value="opt.value"
-          />
-        </ElSelect>
-      </div>
-
       <ElButton class="quality-toolbar-reset" text @click="handleReset">重置</ElButton>
     </div>
   </div>
@@ -70,13 +52,11 @@
     QualityTab,
     QualityQueueParams,
     QualitySearchParams,
-    QueueStatus,
-    QcResult
+    QueueStatus
   } from '@/types/recycle/factory/quality/quality'
   import {
     QUALITY_TAB_CONFIG,
-    QUEUE_STATUS_FILTER_OPTIONS,
-    QC_RESULT_FILTER_OPTIONS
+    QUEUE_STATUS_FILTER_OPTIONS
   } from '@/types/recycle/factory/quality/quality'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
 
@@ -108,7 +88,6 @@
 
   const keyword = ref('')
   const localQueueStatus = ref<QueueStatus | undefined>()
-  const localResult = ref<QcResult | undefined>()
 
   function syncFromProps() {
     if (props.activeTab === 'queue') {
@@ -116,10 +95,6 @@
       localQueueStatus.value = props.queueForm.queue_status || undefined
     } else {
       keyword.value = props.reportForm.keyword || ''
-      localResult.value =
-        props.reportForm.result !== undefined && props.reportForm.result !== ''
-          ? (props.reportForm.result as QcResult)
-          : undefined
     }
   }
 
@@ -146,8 +121,7 @@
 
   function buildReportForm(): QualitySearchParams {
     return {
-      keyword: keyword.value.trim() || undefined,
-      result: localResult.value
+      keyword: keyword.value.trim() || undefined
     }
   }
 

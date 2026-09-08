@@ -188,13 +188,10 @@
           h('span', { class: 'order-plate-tag' }, row.plate_no || '—')
       },
       {
-        prop: 'vehicle_info',
-        label: '车辆信息',
-        minWidth: 140,
-        formatter: (row: WarehouseEntryItem) => {
-          const info = row.vehicle_info || `${row.brand || ''} ${row.model || ''}`.trim()
-          return info || '—'
-        }
+        prop: 'vehicle_type_text',
+        label: '车辆类型',
+        minWidth: 100,
+        formatter: (row: WarehouseEntryItem) => row.vehicle_type_text || '—'
       },
       {
         prop: 'customer_name',

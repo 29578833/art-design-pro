@@ -305,8 +305,8 @@ export interface MaterialInOutItem {
   category: string
   /** 分类文案 */
   category_label: string
-  /** 车型 */
-  vehicle_model: string
+  /** 车辆类型 */
+  vehicle_type_text: string
   /** 车架号 */
   vin: string
   /** 牌照号码 */

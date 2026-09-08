@@ -69,8 +69,7 @@
     QualityQueueItem,
     QualityTab,
     QualityQueueParams,
-    QualitySearchParams,
-    QcResult
+    QualitySearchParams
   } from '@/types/recycle/factory/quality/quality'
   import QualityReportSearch from './modules/quality-report-search.vue'
   import QualityQueuePage from './modules/quality-queue-page.vue'
@@ -89,8 +88,7 @@
   })
 
   const reportSearchForm = ref<QualitySearchParams>({
-    keyword: undefined,
-    result: undefined
+    keyword: undefined
   })
 
   const stats = ref<QualityStats>({
@@ -136,7 +134,6 @@
     try {
       const list = await fetchQualityReportList({
         keyword: reportSearchForm.value.keyword,
-        result: reportSearchForm.value.result,
         page: 1,
         limit: 10000
       })
@@ -144,11 +141,6 @@
       if (!records.length) {
         ElMessage.warning('暂无数据可导出')
         return
-      }
-      const resultMap: Record<QcResult, string> = {
-        0: '待查验',
-        1: '合格',
-        2: '不合格'
       }
       const rows = records.map((item) => ({
         质检编号: item.check_no || '',
@@ -158,8 +150,7 @@
         质检员: item.inspector || '--',
         缺件项数: `${item.missing_count ?? 0}项`,
         缺件扣款: `¥${(item.missing_deduction ?? 0).toFixed(2)}`,
-        质检时间: item.check_time || '',
-        质检结果: resultMap[item.result] || '未知'
+        质检时间: item.check_time || ''
       }))
       const sheet = XLSX.utils.json_to_sheet(rows)
       const book = XLSX.utils.book_new()
@@ -201,7 +192,7 @@
       queueSearchForm.value = { keyword: undefined, queue_status: undefined }
       queuePageRef.value?.handleReset?.()
     } else {
-      reportSearchForm.value = { keyword: undefined, result: undefined }
+      reportSearchForm.value = { keyword: undefined }
       reportPageRef.value?.handleReset?.()
     }
   }

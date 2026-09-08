@@ -293,7 +293,6 @@ export interface QualitySearchParams {
   keyword?: string
   order_id?: number
   plate_no?: string
-  result?: QcResult | ''
   page?: number
   limit?: number
   current?: number
@@ -496,12 +495,6 @@ export const QC_RESULT_CONFIG: Record<number, { label: string; color: string; bg
   1: { label: '合格', color: '#52C41A', bg: '#F6FFED' },
   2: { label: '不合格', color: '#FF4D4F', bg: '#FFF2F0' }
 }
-
-/** 质检结果筛选项（对接接口 result，空为全部） */
-export const QC_RESULT_FILTER_OPTIONS: { value: 1 | 2; label: string }[] = [
-  { value: 1, label: '合格' },
-  { value: 2, label: '不合格' }
-]
 
 /** 质检结论配置 */
 export const CONCLUSION_CONFIG: Record<number, { label: string; color: string }> = {
