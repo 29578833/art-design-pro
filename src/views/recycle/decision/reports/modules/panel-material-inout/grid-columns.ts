@@ -52,15 +52,15 @@ export function buildMaterialInOutColumns() {
       title: '序号',
       width: 50,
       headerClassName: 'rmi-head-base',
-      className: 'rmi-cell-seq rmi-cell-sticky rmi-cell-sticky-seq',
+      // className: 'rmi-cell-seq rmi-cell-sticky rmi-cell-sticky-seq',
       ...th
     },
     {
       field: 'date',
       title: '日期',
       width: 90,
-      headerClassName: 'rmi-head-base rmi-head-sticky rmi-head-sticky-date',
-      className: 'rmi-cell-sticky rmi-cell-sticky-date',
+      headerClassName: 'rmi-head-base',
+      // className: 'rmi-cell-sticky rmi-cell-sticky-date',
       slots: { default: 'date' },
       ...th
     },
