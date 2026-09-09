@@ -247,8 +247,8 @@
         </ElCol>
         <ElCol :span="8">
           <div class="fob-item">
-            <div class="fob-label">回收单价</div>
-            <div class="fob-value">{{ formatAmount(detail.unit_price) }}</div>
+            <div class="fob-label">回收单价/残值</div>
+            <div class="fob-value fob-value--primary">{{ formatAmount(detail.unit_price) }}</div>
           </div>
         </ElCol>
         <ElCol :span="8">

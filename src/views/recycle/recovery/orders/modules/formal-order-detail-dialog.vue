@@ -117,11 +117,19 @@
             <ArtSvgIcon icon="ri:file-list-3-line" class="fo-footer-no-icon" />
             {{ detail.order_no }}
           </span> -->
-          <!-- 待审核请在列表「审核详情」中操作，此处仅保留关闭 -->
-          <ElButton v-if="detail.status === 3" size="large" @click="activeTab = 'basic'">
+          <!-- <ElButton v-if="detail.status === 3" size="large" @click="activeTab = 'basic'">
             <ArtSvgIcon icon="ri:money-cny-circle-line" class="mr-1" />
             查看结算详情
-          </ElButton>
+          </ElButton> -->
+          <!-- 待审核订单：审核操作放左侧 -->
+          <template v-if="isPendingReview">
+            <ElButton size="large" type="success mr-2!" :loading="submitting" @click="handleApprove"
+              >审核通过</ElButton
+            >
+            <ElButton size="large" class="fo-btn-reject" :loading="submitting" @click="handleReject"
+              >审核驳回</ElButton
+            >
+          </template>
         </div>
         <div class="fo-footer-right">
           <template v-if="isEditing">
@@ -159,7 +167,7 @@
     class="fo-reject-dialog"
   >
     <ElForm label-position="top" class="fo-reject-form">
-      <ElFormItem label="驳回原因">
+      <ElFormItem label="">
         <ElInput v-model="rejectReason" type="textarea" :rows="4" placeholder="请填写驳回原因..." />
       </ElFormItem>
     </ElForm>
@@ -351,37 +359,37 @@
   }
 
   // ========== Footer 动作 ==========
-  // const isPendingReview = computed(() => {
-  //   // const src = detail.value.source || ''
-  //   // return detail.value.status === 1 && ['miniapp', 'mini_program'].includes(src)
-  //   return detail.value.status === 1
-  // })
+  /** 是否待审核（客户/员工订单 status=1）：详情弹窗内可直接审核 */
+  const isPendingReview = computed(() => {
+    const type = detail.value.source || detail.value.order_type
+    return ['customer_order', 'staff_order'].includes(type) && Number(detail.value.status) === 1
+  })
 
   const submitting = ref(false)
   const rejectDialogVisible = ref(false)
   const rejectReason = ref('')
 
-  // async function handleApprove() {
-  //   if (!props.orderId) return
-  //   await ElMessageBox.confirm('确认审核通过该订单？', '审核通过', {
-  //     type: 'warning',
-  //     confirmButtonText: '确认通过',
-  //     cancelButtonText: '取消'
-  //   })
-  //   submitting.value = true
-  //   try {
-  //     await fetchAuditOrder({ id: props.orderId, approved: true })
-  //     dialogVisible.value = false
-  //     emit('refresh')
-  //   } finally {
-  //     submitting.value = false
-  //   }
-  // }
+  async function handleApprove() {
+    if (!props.orderId) return
+    await ElMessageBox.confirm('确认审核通过该订单？', '审核通过', {
+      type: 'warning',
+      confirmButtonText: '确认通过',
+      cancelButtonText: '取消'
+    })
+    submitting.value = true
+    try {
+      await fetchAuditOrder({ id: props.orderId, approved: true })
+      dialogVisible.value = false
+      emit('refresh')
+    } finally {
+      submitting.value = false
+    }
+  }
 
-  // function handleReject() {
-  //   rejectReason.value = ''
-  //   rejectDialogVisible.value = true
-  // }
+  function handleReject() {
+    rejectReason.value = ''
+    rejectDialogVisible.value = true
+  }
 
   async function confirmReject() {
     if (!rejectReason.value.trim()) {
@@ -565,7 +573,7 @@
 
   .fo-reject-dialog {
     .el-dialog__body {
-      padding: 20px 24px 0;
+      padding: 0;
     }
   }
 </style>

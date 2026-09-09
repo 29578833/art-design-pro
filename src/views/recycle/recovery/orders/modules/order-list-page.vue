@@ -98,11 +98,6 @@
       :order-id="assignOrderId"
       @success="refreshAll"
     />
-    <OrderAuditDialog
-      v-model:visible="auditDialogVisible"
-      :order-id="auditOrderId"
-      @refresh="refreshAll"
-    />
     <TowOrderDetailDialog
       v-model:visible="towDetailVisible"
       :order-id="towDetailOrderId"
@@ -155,7 +150,6 @@
   import LeadDetailDialog from './lead-detail-dialog.vue'
   import LeadAssignDialog from './lead-assign-dialog.vue'
   import FormalOrderDetailDialog from './formal-order-detail-dialog.vue'
-  import OrderAuditDialog from './order-audit-dialog.vue'
   import TowOrderDetailDialog from './tow-order-detail-dialog.vue'
   import TowDriverAssignDialog from './tow-driver-assign-dialog.vue'
 
@@ -220,8 +214,6 @@
   const formalDetailVisible = ref(false)
   const formalDetailOrderId = ref<number | null>(null)
   const formalDetailInitialEditing = ref(false)
-  const auditDialogVisible = ref(false)
-  const auditOrderId = ref<number | null>(null)
   const towDetailVisible = ref(false)
   const towDetailOrderId = ref<number | null>(null)
   const towAssignVisible = ref(false)
@@ -620,10 +612,11 @@
     openCreateDialog(row ?? undefined)
   }
 
-  /** 审核详情：专用审核弹窗 */
+  /** 审核详情：跳转到回收订单详情弹窗，弹窗内可直接通过 / 驳回 */
   function handleAudit(row: RecycleOrder) {
-    auditOrderId.value = row.id
-    auditDialogVisible.value = true
+    formalDetailOrderId.value = row.id
+    formalDetailInitialEditing.value = false
+    formalDetailVisible.value = true
   }
 
   function openCreateDialog(row?: RecycleOrder) {
