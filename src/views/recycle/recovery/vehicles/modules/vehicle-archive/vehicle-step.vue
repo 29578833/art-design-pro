@@ -64,6 +64,15 @@
         @ocr="runRegCertOcr"
       />
     </div>
+    <div class="ae-ocr-grid" style="grid-template-columns: 1fr">
+      <MultiUploadSlot
+        label="产权变更页（如有）"
+        :urls="ownerChangeImages"
+        :readonly="readonly"
+        @upload="handleOwnerChangeUpload"
+        @remove="handleOwnerChangeRemove"
+      />
+    </div>
     <div v-if="ocrFilled" class="ae-ocr-ok">
       <ArtSvgIcon icon="ri:checkbox-circle-line" />
       OCR已识别，以下字段已自动填充，请核对后继续
@@ -349,6 +358,7 @@
   import { VEHICLE_OCR_KEY } from './archive-constants'
   import { batchFillUploadSlots } from './archive-utils'
   import { applyDrivingOcrResult, applyRegCertOcrResult, resolveCllxValue } from './ocr'
+  import MultiUploadSlot from './multi-upload-slot.vue'
   import UploadBatchTrigger from './upload-batch-trigger.vue'
   import UploadSlot from './upload-slot.vue'
   import type {
@@ -375,6 +385,8 @@
   const form = defineModel<ArchiveVehicleForm>('form', { required: true })
   const images = defineModel<ArchiveVehicleImages>('images', { required: true })
   const cllxPath = defineModel<string>('cllxPath', { required: true })
+  /** 产权变更页照片（车信盟 lx=4，后端 vehicle sync.tcjczp，多图）。 */
+  const ownerChangeImages = defineModel<string[]>('ownerChangeImages', { required: true })
 
   const ocrLoading = reactive<ArchiveOcrState>({})
   const ocrDone = reactive<ArchiveOcrState>({})
@@ -469,6 +481,22 @@
     }
   }
 
+  async function handleOwnerChangeUpload(files: File[]) {
+    if (props.readonly || !files.length) return
+    for (const file of files) {
+      const url = await fetchAcceptUploadImage({
+        file,
+        vehicle_id: props.vehicleId,
+        field: 'owner_change_image'
+      })
+      if (url) ownerChangeImages.value = [...ownerChangeImages.value, url]
+    }
+  }
+
+  function handleOwnerChangeRemove(index: number) {
+    ownerChangeImages.value = ownerChangeImages.value.filter((_, i) => i !== index)
+  }
+
   async function handleBatchUpload(files: File[]) {
     if (props.readonly || batchUploading.value || !files.length) return
     batchUploading.value = true
@@ -552,7 +580,8 @@
       xszzp: images.value.xszzp || '',
       xszzpfy: images.value.xszzpfy || '',
       xszbmzp: images.value.xszbmzp || '',
-      czzp: images.value.czzp || ''
+      czzp: images.value.czzp || '',
+      tcjczp: JSON.stringify(ownerChangeImages.value)
     } as never)
   }
 

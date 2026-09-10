@@ -38,6 +38,32 @@ export function imgUrl(v: unknown) {
   return o.url || o.src || o.att_dir || ''
 }
 
+/**
+ * 解析多图字段为 URL 数组。
+ * 兼容 JSON 数组字符串（后端 tcjczp 存储格式）、数组、单 URL 字符串。
+ */
+export function parseImageArray(v: unknown): string[] {
+  if (v === null || v === undefined || v === '') return []
+  if (Array.isArray(v)) {
+    return v.map((item) => imgUrl(item)).filter(Boolean)
+  }
+  if (typeof v === 'string') {
+    const trimmed = v.trim()
+    if (trimmed.startsWith('[')) {
+      try {
+        const decoded = JSON.parse(trimmed)
+        if (Array.isArray(decoded)) return decoded.map((item) => imgUrl(item)).filter(Boolean)
+      } catch {
+        return [trimmed]
+      }
+      return [trimmed]
+    }
+    return [trimmed]
+  }
+  const single = imgUrl(v)
+  return single ? [single] : []
+}
+
 /** 拆解照片 URL：优先 bfcj 缓存，无值时回退 vehicle/detail.dismantle_photos。 */
 export function resolveDismantlePhotoUrl(
   cacheKey: string,

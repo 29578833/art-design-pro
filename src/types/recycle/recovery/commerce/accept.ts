@@ -214,6 +214,8 @@ export interface AcceptSaveVehicleParams extends AcceptVehicleData {
   xszzpfy?: string
   xszbmzp?: string
   czzp?: string
+  /** 产权变更页（vehicle sync.tcjczp，JSON 数组字符串，支持多图）。 */
+  tcjczp?: string
 }
 
 /** 保存代理人 */

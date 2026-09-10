@@ -1,9 +1,11 @@
 import type { AcceptSyncFiles } from '@/types/recycle/recovery/commerce/accept'
-import type {
-  ScrapVehicleDetail,
-  VehicleFlowStep
-} from '@/types/recycle/recovery/vehicles/vehicle'
-import { previewIndexAt as previewIndexAtUrls, resolveDismantlePhotoUrl, buildEntryPhotoSlots } from '../vehicle-archive/archive-utils'
+import type { ScrapVehicleDetail, VehicleFlowStep } from '@/types/recycle/recovery/vehicles/vehicle'
+import {
+  buildEntryPhotoSlots,
+  parseImageArray,
+  previewIndexAt as previewIndexAtUrls,
+  resolveDismantlePhotoUrl
+} from '../vehicle-archive/archive-utils'
 
 export interface PhotoSlot {
   key: string
@@ -102,8 +104,10 @@ export function mergeAcceptSyncPatch(d: AcceptSyncFiles): Partial<ScrapVehicleDe
   if (xszbmzpImg) patch.license_both_image = xszbmzpImg
   const czzpImg = getImgUrl(vehicleImgs.czzp)
   if (czzpImg) patch.cert_image = czzpImg
-  const blpzzpImg = getImgUrl(vehicleImgs.blpzzp)
-  if (blpzzpImg) patch.owner_change_image = blpzzpImg
+  // 产权变更页：vehicle sync.tcjczp（JSON 数组字符串，支持多图），兼容旧数据 owner_sync.blpzzp
+  const ownerChangeImages = parseImageArray(vehicleImgs.tcjczp)
+  if (!ownerChangeImages.length) ownerChangeImages.push(...parseImageArray(ownerImgs.blpzzp))
+  if (ownerChangeImages.length) patch.owner_change_image = ownerChangeImages
 
   const jbrzpImg = getImgUrl(agentImgs.jbrzp)
   if (jbrzpImg) patch.agent_auth_image = jbrzpImg
@@ -112,8 +116,6 @@ export function mergeAcceptSyncPatch(d: AcceptSyncFiles): Partial<ScrapVehicleDe
   const jbrsfz2Img = getImgUrl(agentImgs.jbrsfz2zp)
   if (jbrsfz2Img) patch.agent_id_back_image = jbrsfz2Img
 
-  const tcjczpImg = getImgUrl(vehicleImgs.tcjczp)
-  if (tcjczpImg) patch.photo_front = tcjczpImg
   const zczpImg = getImgUrl(vehicleImgs.zczp)
   if (zczpImg) patch.photo_side = zczpImg
   const gyzpImg = getImgUrl(vehicleImgs.gyzp)
@@ -245,13 +247,14 @@ export function buildVehicleDocSlots(detail: ScrapVehicleDetail): PhotoSlot[] {
     { key: 'xszbmzp', label: '正副背面', url: detail.license_both_image || '' },
     { key: 'czzp', label: '产证一二页', url: detail.cert_image || '' }
   ]
-  if (detail.owner_change_image) {
+  const ownerChangeImages = parseImageArray(detail.owner_change_image)
+  ownerChangeImages.forEach((url, index) => {
     slots.push({
-      key: 'blpzzp',
-      label: '产权变更页（如有）',
-      url: detail.owner_change_image
+      key: index === 0 ? 'tcjczp' : `tcjczp_${index}`,
+      label: ownerChangeImages.length > 1 ? `产权变更页（如有）${index + 1}` : '产权变更页（如有）',
+      url
     })
-  }
+  })
   return slots
 }
 
@@ -263,9 +266,7 @@ export function buildAgentPhotoSlots(detail: ScrapVehicleDetail): PhotoSlot[] {
   ]
 }
 
-export function buildEntryPhotoItems(
-  qualityPhotos?: Record<string, unknown> | null
-): PhotoSlot[] {
+export function buildEntryPhotoItems(qualityPhotos?: Record<string, unknown> | null): PhotoSlot[] {
   return buildEntryPhotoSlots(qualityPhotos)
 }
 

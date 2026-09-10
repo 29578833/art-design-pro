@@ -166,8 +166,6 @@ export interface ArchiveOwnerImages {
   sfz2zp: string
   /** 证件缺失情况说明。 */
   qksmzp: string
-  /** 产权变更页照片。 */
-  blpzzp: string
 }
 
 /** 车辆证件图片。 */

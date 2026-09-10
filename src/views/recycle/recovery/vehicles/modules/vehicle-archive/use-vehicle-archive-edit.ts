@@ -20,7 +20,7 @@ import type MaterialsStep from './materials-step.vue'
 import type OwnerStep from './owner-step.vue'
 import type VehicleStep from './vehicle-step.vue'
 import { ARCHIVE_STEPS, HPLX_OPTIONS, SYQ_OPTIONS } from './archive-constants'
-import { formatDate, imgUrl, str } from './archive-utils'
+import { formatDate, imgUrl, parseImageArray, str } from './archive-utils'
 import { isStepComplete } from './archive-validation'
 import type {
   ArchiveAgentForm,
@@ -116,9 +116,10 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     syrzp: '', // 所有人主证件照
     sfz1zp: '', // 所有人身份证正面
     sfz2zp: '', // 所有人身份证反面
-    qksmzp: '', // 所有人证件缺失情况说明
-    blpzzp: '' // 所有人产权变更页照片
+    qksmzp: '' // 所有人证件缺失情况说明
   })
+  // 产权变更页（vehicle sync.tcjczp，JSON 数组字符串，支持多图）
+  const ownerChangeImages = ref<string[]>([])
 
   const vehicleForm = reactive<ArchiveVehicleForm>({
     clsbdh: '', // 车辆识别代号（车架号）
@@ -254,6 +255,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     ;(Object.keys(ownerImages) as (keyof ArchiveOwnerImages)[]).forEach(
       (key) => (ownerImages[key] = '')
     )
+    ownerChangeImages.value = []
     Object.assign(vehicleForm, {
       clsbdh: '',
       hphm: '',
@@ -318,7 +320,9 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   async function loadVehicleData() {
     if (!activeVehicleId.value) return
     const detail = await fetchVehicleDetail(activeVehicleId.value)
-    linkedOrderId.value = Number(detail.order_id || vehicleRow?.value?.order_id || pendingOrderId.value || 0)
+    linkedOrderId.value = Number(
+      detail.order_id || vehicleRow?.value?.order_id || pendingOrderId.value || 0
+    )
     linkInfo.order_no = str(detail.order_no)
     linkInfo.archive_no = str(detail.vehicle_no || detail.archive_no)
     linkInfo.tow_order_no = str((detail as Record<string, unknown>).tow_order_no)
@@ -411,14 +415,17 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     }
     const xszzp = imgUrl(vehicleImgs.xszzp)
     if (xszzp) vehicleImages.xszzp = xszzp
-    const xszzpfy = imgUrl(vehicleImgs.xszzpfy) || imgUrl(vehicleImgs.tcjczp)
+    const xszzpfy = imgUrl(vehicleImgs.xszzpfy)
     if (xszzpfy) vehicleImages.xszzpfy = xszzpfy
     const xszbmzp = imgUrl(vehicleImgs.xszbmzp)
     if (xszbmzp) vehicleImages.xszbmzp = xszbmzp
     const czzp = imgUrl(vehicleImgs.czzp)
     if (czzp) vehicleImages.czzp = czzp
-    const blpzzp = imgUrl(vehicleImgs.blpzzp) || imgUrl(vehicleImgs.tcjczp)
-    if (blpzzp) ownerImages.blpzzp = blpzzp
+    // 产权变更页：读取 vehicle sync.tcjczp（JSON 数组字符串，支持多图），兼容旧数据 owner_sync.blpzzp
+    const ownerChangeUrls = parseImageArray(vehicleImgs.tcjczp)
+    ownerChangeImages.value = ownerChangeUrls.length
+      ? ownerChangeUrls
+      : parseImageArray(ownerImgs.blpzzp)
 
     if (a.jbr || a.jbrdh || a.jbrsfzmhm || Number(a.has_agent) === 1) hasAgent.value = true
     if (a.jbr) agentForm.jbr = str(a.jbr)
@@ -721,6 +728,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     linkInfo,
     ownerForm,
     ownerImages,
+    ownerChangeImages,
     vehicleForm,
     vehicleImages,
     materialImages,

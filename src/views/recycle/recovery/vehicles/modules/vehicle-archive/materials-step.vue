@@ -114,13 +114,13 @@
       @remove="handleVehicleRemove('czzp')"
     />
       </div>
-      <div class="ae-ocr-grid cols-4" style="margin-top: 12px">
-        <UploadSlot
+      <div class="ae-ocr-grid" style="grid-template-columns: 1fr; margin-top: 12px">
+        <MultiUploadSlot
           label="产权变更页（如有）"
-          :url="ownerImages.blpzzp"
+          :urls="ownerChangeImages"
           :readonly="readonly"
-          @upload="(file) => handleOwnerUpload('blpzzp', file)"
-          @remove="handleOwnerRemove('blpzzp')"
+          @upload="handleOwnerChangeUpload"
+          @remove="handleOwnerChangeRemove"
         />
       </div>
     </div>
@@ -256,6 +256,7 @@
     ENTRY_PHOTO_ITEMS
   } from './archive-constants'
   import { previewIndexAt, resolveDismantlePhotoUrl, str, batchFillUploadSlots } from './archive-utils'
+  import MultiUploadSlot from './multi-upload-slot.vue'
   import ReadonlyPhoto from './readonly-photo.vue'
   import RecycleCertificate from './recycle-certificate.vue'
   import UploadBatchTrigger from './upload-batch-trigger.vue'
@@ -287,6 +288,8 @@
   const vehicleImages = defineModel<ArchiveVehicleImages>('vehicleImages', { required: true })
   const agentImages = defineModel<ArchiveAgentImages>('agentImages', { required: true })
   const materialImages = defineModel<ArchiveMaterialImages>('materialImages', { required: true })
+  /** 产权变更页照片（vehicle sync.tcjczp，多图）。 */
+  const ownerChangeImages = defineModel<string[]>('ownerChangeImages', { required: true })
 
   const scrapDjid = ref('')
   const scrapFilesLoading = ref(false)
@@ -300,12 +303,11 @@
     props.isCompany ? ['syrzp', 'qksmzp'] : ['sfz1zp', 'sfz2zp', 'qksmzp']
   )
 
-  const vehicleUploadFields: (keyof ArchiveVehicleImages | keyof ArchiveOwnerImages)[] = [
+  const vehicleUploadFields: (keyof ArchiveVehicleImages)[] = [
     'xszzp',
     'xszzpfy',
     'xszbmzp',
-    'czzp',
-    'blpzzp'
+    'czzp'
   ]
 
   const agentUploadFields: (keyof ArchiveAgentImages)[] = ['jbrsfz1zp', 'jbrsfz2zp', 'jbrzp']
@@ -417,6 +419,18 @@
     vehicleImages.value[field] = ''
   }
 
+  async function handleOwnerChangeUpload(files: File[]) {
+    if (props.readonly || !files.length) return
+    for (const file of files) {
+      const url = await uploadImage('owner_change_image', file)
+      if (url) ownerChangeImages.value = [...ownerChangeImages.value, url]
+    }
+  }
+
+  function handleOwnerChangeRemove(index: number) {
+    ownerChangeImages.value = ownerChangeImages.value.filter((_, i) => i !== index)
+  }
+
   async function handleAgentUpload(field: keyof ArchiveAgentImages, file: File) {
     const url = await uploadImage(field, file)
     if (url) agentImages.value[field] = url
@@ -452,24 +466,8 @@
     return runBatchUpload(ownerBatchUploading, ownerUploadFields.value, handleOwnerUpload, files)
   }
 
-  async function handleVehicleFieldUpload(
-    field: keyof ArchiveVehicleImages | 'blpzzp',
-    file: File
-  ) {
-    if (field === 'blpzzp') {
-      await handleOwnerUpload('blpzzp', file)
-      return
-    }
-    await handleVehicleUpload(field, file)
-  }
-
   function handleVehicleBatchUpload(files: File[]) {
-    return runBatchUpload(
-      vehicleBatchUploading,
-      vehicleUploadFields,
-      handleVehicleFieldUpload,
-      files
-    )
+    return runBatchUpload(vehicleBatchUploading, vehicleUploadFields, handleVehicleUpload, files)
   }
 
   function handleAgentBatchUpload(files: File[]) {

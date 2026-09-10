@@ -309,10 +309,8 @@
         : images.value.syrzp || '',
       qksmzp: images.value.qksmzp || '',
       xszzp: props.vehicleImages.xszzp || '',
-      tcjczp: props.vehicleImages.xszzpfy || '',
       xszbmzp: props.vehicleImages.xszbmzp || '',
-      czzp: props.vehicleImages.czzp || '',
-      blpzzp: images.value.blpzzp || ''
+      czzp: props.vehicleImages.czzp || ''
     }
     if (isPersonal.value) {
       base.sfz1zp = images.value.sfz1zp || images.value.syrzp || ''

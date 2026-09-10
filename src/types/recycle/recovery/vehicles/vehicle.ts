@@ -342,7 +342,8 @@ export interface ScrapVehicleDetail extends ScrapVehicle {
   license_back_image?: string
   license_both_image?: string
   cert_image?: string
-  owner_change_image?: string
+  /** 产权变更页（支持多图，接口可能返回 JSON 数组字符串或字符串数组） */
+  owner_change_image?: string | string[]
   /** 代理人证件图 */
   agent_id_front_image?: string
   agent_id_back_image?: string

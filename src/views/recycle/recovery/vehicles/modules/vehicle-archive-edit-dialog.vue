@@ -67,6 +67,7 @@
             ref="vehicleStepRef"
             v-model:form="vehicleForm"
             v-model:images="vehicleImages"
+            v-model:owner-change-images="ownerChangeImages"
             v-model:cllx-path="cllxPath"
             :vehicle-id="activeVehicleId"
             :hplx="hplx"
@@ -104,6 +105,7 @@
             ref="materialsStepRef"
             v-model:owner-images="ownerImages"
             v-model:vehicle-images="vehicleImages"
+            v-model:owner-change-images="ownerChangeImages"
             v-model:agent-images="agentImages"
             v-model:material-images="materialImages"
             :vehicle-id="activeVehicleId"
@@ -260,6 +262,7 @@
     linkInfo,
     ownerForm,
     ownerImages,
+    ownerChangeImages,
     vehicleForm,
     vehicleImages,
     materialImages,
