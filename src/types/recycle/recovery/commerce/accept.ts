@@ -181,6 +181,31 @@ export interface AcceptAgentData {
   [key: string]: unknown
 }
 
+/** 商委登记状态步骤：unregistered=未登记 / pending=待审核 / approved=通过 / rejected=未通过 */
+export type AcceptBusinessStep = 'unregistered' | 'pending' | 'approved' | 'rejected'
+
+/** 商委状态（get_scrap_files_from_sync 返回） */
+export interface AcceptBusinessStatus {
+  /** 登记审核步骤 */
+  step?: AcceptBusinessStep | string
+  /** 步骤文案（后端可能输出） */
+  step_text?: string
+  /** 是否允许进入质检「入场信息」步骤 */
+  can_enter_entry?: boolean | number
+  [key: string]: unknown
+}
+
+/** 商委状态展示配置 */
+export const ACCEPT_BUSINESS_STEP_CONFIG: Record<
+  AcceptBusinessStep,
+  { label: string; color: string; bg: string }
+> = {
+  unregistered: { label: '未登记', color: '#8c8c8c', bg: '#f5f5f5' },
+  pending: { label: '待审核', color: '#fa8c16', bg: '#fff7e6' },
+  approved: { label: '通过', color: '#52c41a', bg: '#f6ffed' },
+  rejected: { label: '未通过', color: '#ff4d4f', bg: '#fff1f0' }
+}
+
 /** 同步表回显数据 */
 export interface AcceptSyncFiles {
   id?: string
@@ -193,6 +218,8 @@ export interface AcceptSyncFiles {
   agent_images?: Record<string, string>
   is_submitted_commerce?: boolean | number
   djid?: string
+  /** 商委登记审核状态 */
+  business_status?: AcceptBusinessStatus
 }
 
 /** 保存所有人 */

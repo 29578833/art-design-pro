@@ -509,7 +509,27 @@
 
     <template #footer>
       <div class="qc-footer">
-        <span class="qc-footer-step">步骤 {{ currentStep + 1 }} / {{ QC_STEP_LABELS.length }}</span>
+        <div class="qc-footer-left">
+          <span class="qc-footer-step">步骤 {{ currentStep + 1 }} / {{ QC_STEP_LABELS.length }}</span>
+          <span class="qc-footer-divider" />
+          <span class="qc-footer-biz-label">商委状态</span>
+          <span
+            class="qc-footer-biz-tag"
+            :style="{ color: businessStepConfig.color, background: businessStepConfig.bg }"
+          >
+            {{ businessStepConfig.label }}
+          </span>
+          <button
+            type="button"
+            class="qc-footer-biz-refresh"
+            :class="{ 'is-loading': loadingBusinessStatus }"
+            :disabled="loadingBusinessStatus"
+            title="刷新商委状态"
+            @click="loadBusinessStatus()"
+          >
+            <ArtSvgIcon icon="ri:refresh-line" />
+          </button>
+        </div>
         <div class="qc-footer-actions">
           <ElButton @click="handleClose">取消</ElButton>
           <ElButton v-if="currentStep > 0" :disabled="initializing" @click="prevStep"
@@ -556,6 +576,12 @@
   import { uploadFileGetUrl } from '@/api/upload'
   import CllxCascader from '@/views/recycle/recovery/shared/cllx-cascader.vue'
   import { fetchUserRoleList } from '@/api/recycle/role'
+  import { fetchAcceptSyncFiles } from '@/api/recycle/accept'
+  import {
+    ACCEPT_BUSINESS_STEP_CONFIG,
+    type AcceptBusinessStatus,
+    type AcceptBusinessStep
+  } from '@/types/recycle/recovery/commerce/accept'
   import {
     createQuality,
     updateQuality,
@@ -640,6 +666,63 @@
   const initializing = ref(false)
   const checkId = ref(0)
   const inspectorName = ref('')
+
+  // ==================== 商委状态（get_scrap_files_from_sync.business_status） ====================
+  const businessStatus = ref<AcceptBusinessStatus | null>(null)
+  const loadingBusinessStatus = ref(false)
+
+  /** 商委状态展示配置（未知步骤/请求失败时显示「未获取」） */
+  const businessStepConfig = computed(() => {
+    const step = businessStatus.value?.step as AcceptBusinessStep | undefined
+    if (step && ACCEPT_BUSINESS_STEP_CONFIG[step]) {
+      const cfg = ACCEPT_BUSINESS_STEP_CONFIG[step]
+      return { ...cfg, label: businessStatus.value?.step_text || cfg.label }
+    }
+    if (loadingBusinessStatus.value) {
+      return { label: '获取中…', color: '#8c8c8c', bg: '#f5f5f5' }
+    }
+    return { label: businessStatus.value?.step_text || '未获取', color: '#8c8c8c', bg: '#f5f5f5' }
+  })
+
+  /** 是否允许进入「入场信息」步骤：优先 can_enter_entry，缺省时以 step === approved 判断 */
+  const canEnterEntry = computed(() => {
+    const status = businessStatus.value
+    if (!status) return false
+    if (status.can_enter_entry !== undefined && status.can_enter_entry !== null) {
+      return status.can_enter_entry === true || Number(status.can_enter_entry) === 1
+    }
+    return status.step === 'approved'
+  })
+
+  /** 拉取商委状态 */
+  async function loadBusinessStatus() {
+    const vehicleId = props.queueItem?.vehicle_id
+    if (!vehicleId) {
+      businessStatus.value = null
+      return
+    }
+    loadingBusinessStatus.value = true
+    try {
+      const res = await fetchAcceptSyncFiles({ vehicle_id: vehicleId })
+      businessStatus.value = res?.business_status ?? null
+    } catch {
+      businessStatus.value = null
+    } finally {
+      loadingBusinessStatus.value = false
+    }
+  }
+
+  /** 校验商委状态是否放行入场信息步骤，不通过时给出提示 */
+  function ensureCanEnterEntry() {
+    if (canEnterEntry.value) return true
+    const label = businessStepConfig.value.label
+    ElMessage.warning(
+      businessStatus.value
+        ? `商委状态为「${label}」，需登记审核通过后才能进入入场信息步骤`
+        : '未获取到商委状态，请刷新后重试'
+    )
+    return false
+  }
 
   const step1Form = reactive({
     plate_status_arr: [] as string[],
@@ -1054,8 +1137,7 @@
     initializing.value = true
     try {
       resetForm()
-      await loadInspectors()
-      await loadItems()
+      await Promise.all([loadInspectors(), loadItems(), loadBusinessStatus()])
       try {
         let existing: QualityDetail | null = null
         if (item.check_id) {
@@ -1069,7 +1151,9 @@
         if (existing.items?.length) {
           populateItemsFromCheck(existing.items)
         }
-        currentStep.value = resolveResumeStep(existing)
+        const resumeStep = resolveResumeStep(existing)
+        // 商委未审核通过时，不允许直接恢复到入场信息及之后的步骤
+        currentStep.value = resumeStep >= 1 && !canEnterEntry.value ? 0 : resumeStep
       } catch {
         // 无历史记录时保持新建流程
       }
@@ -1115,6 +1199,9 @@
           },
           { showSuccessMessage: false }
         )
+        // 第一步保存后重新拉取商委状态，登记审核通过才能进入入场信息
+        await loadBusinessStatus()
+        if (!ensureCanEnterEntry()) return
         currentStep.value = 1
       } catch {
         // 错误已由 http 拦截器处理
@@ -1193,6 +1280,7 @@
     Object.keys(itemTireMaterial).forEach((k) => delete itemTireMaterial[k])
     conclusionType.value = 0
     inspectorRemark.value = ''
+    businessStatus.value = null
   }
 </script>
 
@@ -1776,6 +1864,7 @@
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
+    z-index: 9;
   }
 
   .qc-deduct-stats {
@@ -1931,9 +2020,68 @@
     padding: 16px 24px;
   }
 
+  .qc-footer-left {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
   .qc-footer-step {
     font-size: 12px;
     color: #9ca3af;
+  }
+
+  .qc-footer-divider {
+    width: 1px;
+    height: 12px;
+    background: #e5e7eb;
+  }
+
+  .qc-footer-biz-label {
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .qc-footer-biz-tag {
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 18px;
+    border-radius: 10px;
+  }
+
+  .qc-footer-biz-refresh {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    font-size: 14px;
+    color: #9ca3af;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+
+    &:hover:not(:disabled) {
+      color: #1677ff;
+      background: #e6f4ff;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+
+    &.is-loading {
+      animation: qc-spin 1s linear infinite;
+    }
+  }
+
+  @keyframes qc-spin {
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .qc-footer-actions {
