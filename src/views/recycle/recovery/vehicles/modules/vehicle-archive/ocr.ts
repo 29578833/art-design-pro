@@ -86,7 +86,8 @@ export function applyRegCertOcrResult(
   if (data.engine_no) vehicleForm.fdjh = String(data.engine_no)
   if (data.engine_model) vehicleForm.fdjxh = String(data.engine_model)
   if (data.brand) vehicleForm.clpp1 = String(data.brand)
-  if (data.vehicle_type) {
+  // 车辆类型以行驶证正页为准，产证 OCR 不得覆盖已有值
+  if (data.vehicle_type && !vehicleForm.cllx) {
     vehicleForm.cllx = resolveCllxValue(data.vehicle_type, dicts?.cllx ?? [])
   }
   if (data.body_color) vehicleForm.csys = String(data.body_color)

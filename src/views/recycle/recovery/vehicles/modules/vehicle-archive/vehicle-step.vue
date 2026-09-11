@@ -564,8 +564,10 @@
         cllx: cllxOptions.value,
         rlzl: rlzlDict.value
       })
-      const cllx = resolveCllxValue(data.vehicle_type, cllxOptions.value)
-      if (cllx) cllxPath.value = cllx
+      if (!cllxPath.value) {
+        const cllx = resolveCllxValue(data.vehicle_type, cllxOptions.value)
+        if (cllx) cllxPath.value = cllx
+      }
       ocrDone.cert = true
       ElMessage.success('OCR识别成功')
     } finally {
