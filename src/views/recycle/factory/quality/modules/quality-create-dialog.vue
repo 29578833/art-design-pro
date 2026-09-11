@@ -61,8 +61,113 @@
       </div>
 
       <div class="qc-body">
-        <!-- Step1 入场信息 -->
+        <!-- Step1 质检查验 -->
         <div v-show="currentStep === 0" class="qc-step-panel">
+          <div class="qc-legend">
+            <span class="qc-legend-tag good">有（完好）</span>
+            <span class="qc-legend-tag miss">缺（缺失）</span>
+            <span class="qc-legend-hint">点击选择每个部件状态，缺失项自动计入扣款</span>
+          </div>
+
+          <div v-loading="loadingItems" class="qc-categories">
+            <div v-for="cat in inspectionCategories" :key="cat.id" class="qc-category-card">
+              <div
+                class="qc-category-head"
+                :style="{ background: getCategoryBg(cat.category_name) }"
+              >
+                <div class="qc-category-icon-wrap">
+                  <ArtSvgIcon
+                    :icon="getCategoryIcon(cat.category_name)"
+                    :style="{ color: getCategoryColor(cat.category_name) }"
+                  />
+                </div>
+                <span
+                  class="qc-category-name"
+                  :style="{ color: getCategoryColor(cat.category_name) }"
+                >
+                  {{ cat.category_name }}
+                </span>
+                <span class="qc-category-count">共{{ cat.items?.length || 0 }}项</span>
+                <span v-if="getCatMissing(cat) > 0" class="qc-category-badge miss">
+                  缺失{{ getCatMissing(cat) }}
+                </span>
+              </div>
+              <div class="qc-category-body">
+                <div v-for="item in cat.items" :key="item.id" class="qc-item-row-wrap">
+                  <div class="qc-item-row">
+                    <span class="qc-item-name">{{ item.item_name }}</span>
+                    <div class="qc-item-btns">
+                      <button
+                        type="button"
+                        class="qc-result-btn present"
+                        :class="{ active: getItemPresent(item, cat.category_name) }"
+                        @click="setItemPresent(item, cat.category_name)"
+                      >
+                        有
+                      </button>
+                      <button
+                        type="button"
+                        class="qc-result-btn missing"
+                        :class="{ active: getItemMissing(item, cat.category_name) }"
+                        @click="setItemMissing(item, cat.category_name)"
+                      >
+                        缺
+                      </button>
+                    </div>
+                  </div>
+                  <div v-if="isBatteryItem(item.item_name)" class="qc-item-extra">
+                    <span class="qc-item-extra-label">电池数量：</span>
+                    <ElInputNumber
+                      :model-value="getBatteryCount(item, cat.category_name)"
+                      :min="0"
+                      :max="99"
+                      :precision="0"
+                      controls-position="right"
+                      class="qc-item-extra-input"
+                      @update:model-value="
+                        (v) => setBatteryCount(item, cat.category_name, Number(v || 0))
+                      "
+                    />
+                    <span class="qc-item-extra-unit">节</span>
+                  </div>
+                  <div v-if="isTireHubCategory(cat.category_name)" class="qc-item-extra">
+                    <span class="qc-item-extra-label">轮毂材质：</span>
+                    <div class="qc-toggle-row">
+                      <button
+                        v-for="opt in WHEEL_MATERIAL_OPTIONS"
+                        :key="opt"
+                        type="button"
+                        class="qc-toggle-btn qc-tire-material-btn"
+                        :class="{
+                          'is-active': getTireMaterial(item, cat.category_name) === opt
+                        }"
+                        @click="setTireMaterial(item, cat.category_name, opt)"
+                      >
+                        {{ opt }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="qc-deduct-bar">
+            <div class="qc-deduct-stats">
+              <div class="qc-deduct-stat">
+                <span class="qc-deduct-label">缺失件</span>
+                <span class="qc-deduct-value miss">{{ missingCount }}项</span>
+              </div>
+              <div class="qc-deduct-stat">
+                <span class="qc-deduct-label">缺件扣款合计</span>
+                <span class="qc-deduct-value total">¥{{ totalDeduction.toFixed(2) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step2 补充入场信息 -->
+        <div v-show="currentStep === 1" class="qc-step-panel">
           <div class="qc-section">
             <div class="qc-section-title">车辆信息</div>
             <div class="qc-readonly-grid">
@@ -270,111 +375,6 @@
               >
                 {{ opt.label }}
               </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step2 质检查验 -->
-        <div v-show="currentStep === 1" class="qc-step-panel">
-          <div class="qc-legend">
-            <span class="qc-legend-tag good">有（完好）</span>
-            <span class="qc-legend-tag miss">缺（缺失）</span>
-            <span class="qc-legend-hint">点击选择每个部件状态，缺失项自动计入扣款</span>
-          </div>
-
-          <div v-loading="loadingItems" class="qc-categories">
-            <div v-for="cat in inspectionCategories" :key="cat.id" class="qc-category-card">
-              <div
-                class="qc-category-head"
-                :style="{ background: getCategoryBg(cat.category_name) }"
-              >
-                <div class="qc-category-icon-wrap">
-                  <ArtSvgIcon
-                    :icon="getCategoryIcon(cat.category_name)"
-                    :style="{ color: getCategoryColor(cat.category_name) }"
-                  />
-                </div>
-                <span
-                  class="qc-category-name"
-                  :style="{ color: getCategoryColor(cat.category_name) }"
-                >
-                  {{ cat.category_name }}
-                </span>
-                <span class="qc-category-count">共{{ cat.items?.length || 0 }}项</span>
-                <span v-if="getCatMissing(cat) > 0" class="qc-category-badge miss">
-                  缺失{{ getCatMissing(cat) }}
-                </span>
-              </div>
-              <div class="qc-category-body">
-                <div v-for="item in cat.items" :key="item.id" class="qc-item-row-wrap">
-                  <div class="qc-item-row">
-                    <span class="qc-item-name">{{ item.item_name }}</span>
-                    <div class="qc-item-btns">
-                      <button
-                        type="button"
-                        class="qc-result-btn present"
-                        :class="{ active: getItemPresent(item, cat.category_name) }"
-                        @click="setItemPresent(item, cat.category_name)"
-                      >
-                        有
-                      </button>
-                      <button
-                        type="button"
-                        class="qc-result-btn missing"
-                        :class="{ active: getItemMissing(item, cat.category_name) }"
-                        @click="setItemMissing(item, cat.category_name)"
-                      >
-                        缺
-                      </button>
-                    </div>
-                  </div>
-                  <div v-if="isBatteryItem(item.item_name)" class="qc-item-extra">
-                    <span class="qc-item-extra-label">电池数量：</span>
-                    <ElInputNumber
-                      :model-value="getBatteryCount(item, cat.category_name)"
-                      :min="0"
-                      :max="99"
-                      :precision="0"
-                      controls-position="right"
-                      class="qc-item-extra-input"
-                      @update:model-value="
-                        (v) => setBatteryCount(item, cat.category_name, Number(v || 0))
-                      "
-                    />
-                    <span class="qc-item-extra-unit">节</span>
-                  </div>
-                  <div v-if="isTireHubCategory(cat.category_name)" class="qc-item-extra">
-                    <span class="qc-item-extra-label">轮毂材质：</span>
-                    <div class="qc-toggle-row">
-                      <button
-                        v-for="opt in WHEEL_MATERIAL_OPTIONS"
-                        :key="opt"
-                        type="button"
-                        class="qc-toggle-btn qc-tire-material-btn"
-                        :class="{
-                          'is-active': getTireMaterial(item, cat.category_name) === opt
-                        }"
-                        @click="setTireMaterial(item, cat.category_name, opt)"
-                      >
-                        {{ opt }}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="qc-deduct-bar">
-            <div class="qc-deduct-stats">
-              <div class="qc-deduct-stat">
-                <span class="qc-deduct-label">缺失件</span>
-                <span class="qc-deduct-value miss">{{ missingCount }}项</span>
-              </div>
-              <div class="qc-deduct-stat">
-                <span class="qc-deduct-label">缺件扣款合计</span>
-                <span class="qc-deduct-value total">¥{{ totalDeduction.toFixed(2) }}</span>
-              </div>
             </div>
           </div>
         </div>
@@ -787,7 +787,7 @@
   const inspectorRemark = ref('')
 
   const canNext = computed(() => {
-    if (currentStep.value === 0) {
+    if (currentStep.value === 1) {
       return Number(step1Form.weight) > 0 && !!step1Form.vehicle_type && !!inspectorName.value
     }
     return true
@@ -1026,8 +1026,10 @@
   }
 
   function resolveResumeStep(check: QualityDetail) {
-    if ((check.items || []).length > 0) return 2
-    if (Number(check.weight) > 0) return 1
+    const hasItems = (check.items || []).length > 0
+    const hasEntry = Number(check.weight) > 0
+    if (hasItems && hasEntry) return 2
+    if (hasItems) return 1
     return 0
   }
 
@@ -1053,6 +1055,7 @@
     try {
       resetForm()
       await loadInspectors()
+      await loadItems()
       try {
         let existing: QualityDetail | null = null
         if (item.check_id) {
@@ -1063,7 +1066,6 @@
         if (!existing?.id) return
 
         populateStep1FromCheck(existing)
-        await loadItems()
         if (existing.items?.length) {
           populateItemsFromCheck(existing.items)
         }
@@ -1095,23 +1097,24 @@
     if (currentStep.value === 0) {
       submitting.value = true
       try {
-        const step1Payload = buildStep1Payload()
-        if (checkId.value) {
-          await updateQuality({ id: checkId.value, ...step1Payload }, { showSuccessMessage: false })
-        } else {
+        if (!checkId.value) {
           const res = await createQuality(
             {
               order_id: props.queueItem?.order_id || 0,
               vehicle_id: props.queueItem?.vehicle_id || 0,
-              ...step1Payload
+              weight: 0
             },
             { showSuccessMessage: false }
           )
           checkId.value = res.id
         }
-        if (!inspectionCategories.value.length) {
-          await loadItems()
-        }
+        await updateQuality(
+          {
+            id: checkId.value,
+            items: buildAllItems()
+          },
+          { showSuccessMessage: false }
+        )
         currentStep.value = 1
       } catch {
         // 错误已由 http 拦截器处理
@@ -1122,10 +1125,7 @@
       submitting.value = true
       try {
         await updateQuality(
-          {
-            id: checkId.value,
-            items: buildAllItems()
-          },
+          { id: checkId.value, ...buildStep1Payload() },
           { showSuccessMessage: false }
         )
         currentStep.value = 2
