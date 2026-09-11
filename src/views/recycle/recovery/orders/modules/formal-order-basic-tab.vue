@@ -253,6 +253,20 @@
         </ElCol>
         <ElCol :span="8">
           <div class="fob-item">
+            <div class="fob-label">自送费补贴</div>
+            <div class="fob-value">
+              {{ detail.self_delivery_subsidy ? `+¥ ${detail.self_delivery_subsidy}` : '—' }}
+            </div>
+          </div>
+        </ElCol>
+        <ElCol :span="8">
+          <div class="fob-item">
+            <div class="fob-label">代理服务费</div>
+            <div class="fob-value">{{ formatAmount(displayAgentFee) }}</div>
+          </div>
+        </ElCol>
+        <ElCol :span="8">
+          <div class="fob-item">
             <div class="fob-label">缺件免扣款</div>
             <span
               class="fob-bool-tag"
@@ -268,17 +282,17 @@
         </ElCol>
         <ElCol :span="8">
           <div class="fob-item">
-            <div class="fob-label">自送费补贴</div>
-            <div class="fob-value">
-              {{ detail.self_delivery_subsidy ? `+¥ ${detail.self_delivery_subsidy}` : '—' }}
+            <div class="fob-label">结算金额</div>
+            <div class="fob-value fob-value--bold fob-value--amount">
+              {{ formatAmount(detail.settlement_amount) }}
             </div>
           </div>
         </ElCol>
         <ElCol :span="8">
           <div class="fob-item">
-            <div class="fob-label">结算金额</div>
+            <div class="fob-label">预估总价</div>
             <div class="fob-value fob-value--bold fob-value--amount">
-              {{ formatAmount(detail.settlement_amount) }}
+              {{ formatAmount(displayEstimatedTotal) }}
             </div>
           </div>
         </ElCol>
@@ -384,6 +398,16 @@
 
   const currentVehicle = computed(
     () => props.detail.vehicles?.[props.selectedVehicleIdx] ?? props.detail.vehicle
+  )
+
+  /** 预估总价：优先当前车辆，其次订单级字段 */
+  const displayEstimatedTotal = computed(
+    () => currentVehicle.value?.estimated_total ?? props.detail.estimated_total
+  )
+
+  /** 代理服务费：优先当前车辆，其次订单级字段 */
+  const displayAgentFee = computed(
+    () => currentVehicle.value?.agent_fee ?? props.detail.agent_fee
   )
 
   // const brandModel = computed(() => {

@@ -265,6 +265,12 @@ export interface OrderVehicle {
   status_logs?: OrderStatusLog[]
   /** 该车辆订单附件（详情接口挂在 vehicles[] 每项） */
   attachments?: OrderAttachment[]
+  /** 净重（kg） */
+  net_weight?: number | string
+  /** 预估总价 */
+  estimated_total?: number | string
+  /** 代理服务费 */
+  agent_fee?: number | string
   [key: string]: unknown
 }
 
@@ -393,6 +399,10 @@ export interface OrderDetail extends RecycleOrder {
   agent_phone?: string
   /** 代理服务费 */
   agent_fee?: number | string
+  /** 预估总价 */
+  estimated_total?: number | string
+  /** 净重（kg） */
+  net_weight?: number | string
   /** 代理发票号 */
   agent_invoice_no?: string
   /** 开户行 */
