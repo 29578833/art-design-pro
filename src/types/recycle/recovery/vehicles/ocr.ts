@@ -20,3 +20,11 @@ export interface DrivingLicenseOcrData {
   towing_capacity?: string
   [key: string]: unknown
 }
+
+/** 行驶证 OCR 接口响应（success + data） */
+export interface DrivingLicenseOcrResult {
+  success: boolean
+  message?: string
+  data?: DrivingLicenseOcrData
+  image_url?: string
+}

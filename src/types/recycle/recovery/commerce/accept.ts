@@ -312,6 +312,9 @@ export interface AcceptLicenseOcrData {
 
 /** OCR 产证（字段与 recognize_registration_cert 一致） */
 export interface AcceptRegCertOcrData {
+  /** 登记证书编号（产证编号） */
+  cert_no?: string
+  /** 条码编号（与产证编号不同，勿用于 czbh） */
   certificate_no?: string
   register_no?: string
   register_date?: string

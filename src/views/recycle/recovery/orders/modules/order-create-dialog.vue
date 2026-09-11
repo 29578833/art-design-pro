@@ -676,7 +676,6 @@
 </template>
 
 <script setup lang="ts">
-  import { parseEmissionStandardFromOcr } from '@/api/recycle/ocr'
   import { fetchAcceptRecognizeDrivingLicense } from '@/api/recycle/accept'
   import { uploadFile } from '@/api/upload'
   import { fetchPartnerList } from '@/api/recycle/customer'
@@ -1285,9 +1284,7 @@
 
   function applyOcrResult(data: DrivingLicenseOcrData) {
     const vehicleType = resolveCllxValue(data.vehicle_type, cllxOptions.value)
-    const emissionStandard = parseEmissionStandardFromOcr(data)
     const registrationDate = data.reg_date || ''
-    // const year = extractYearFromRegDate(registrationDate)
 
     if (form.value.is_batch) {
       const vehicle = form.value.vehicles[0] || newVehicle()
@@ -1296,7 +1293,6 @@
       if (data.model) vehicle.model = data.model
       if (data.brand) vehicle.brand = data.brand
       if (vehicleType) vehicle.vehicle_type = vehicleType
-      if (emissionStandard) vehicle.emission_standard = emissionStandard
       if (registrationDate) vehicle.registration_date = registrationDate
 
       if (!form.value.vehicles.length) {
@@ -1308,11 +1304,7 @@
       if (data.model) form.value.model = data.model
       if (data.brand) form.value.brand = data.brand
       if (vehicleType) form.value.vehicle_type = vehicleType
-      if (emissionStandard) form.value.emission_standard = emissionStandard
-      if (registrationDate) {
-        form.value.registration_date = registrationDate
-        // if (year) form.value.year = year
-      }
+      if (registrationDate) form.value.registration_date = registrationDate
     }
 
     if (!Number(form.value.uid)) {

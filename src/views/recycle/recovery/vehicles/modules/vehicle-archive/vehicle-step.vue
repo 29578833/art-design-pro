@@ -15,7 +15,7 @@
         label="行驶证正页"
         required
         enable-ocr
-        ocr-hint="车牌号·车辆类型…"
+        ocr-hint="车牌号·品牌型号…"
         :url="images.xszzp"
         :ocr-loading="!!ocrLoading.driving_front"
         :ocr-done="!!ocrDone.driving_front"
@@ -41,7 +41,7 @@
         label="正副背面"
         required
         enable-ocr
-        ocr-hint="车牌号·品牌型号"
+        ocr-hint="车牌号…"
         :url="images.xszbmzp"
         :ocr-loading="!!ocrLoading.driving_both"
         :ocr-done="!!ocrDone.driving_both"
@@ -540,7 +540,8 @@
           cllx: cllxOptions.value,
           syxz: syxzDict.value,
           rlzl: rlzlDict.value
-        }
+        },
+        side
       )
       const cllx = resolveCllxValue(data.vehicle_type, cllxOptions.value)
       if (cllx) cllxPath.value = cllx

@@ -37,7 +37,8 @@ export function applyDrivingOcrResult(
   data: Record<string, unknown>,
   vehicleForm: ArchiveVehicleForm,
   ownerForm?: ArchiveOwnerForm,
-  dicts?: OcrDicts
+  dicts?: OcrDicts,
+  side?: 'front' | 'back' | 'both'
 ) {
   if (data.plate_no) vehicleForm.hphm = String(data.plate_no)
   if (data.vin) vehicleForm.clsbdh = String(data.vin)
@@ -47,7 +48,8 @@ export function applyDrivingOcrResult(
   if (data.file_no && !vehicleForm.xszbh) vehicleForm.xszbh = String(data.file_no)
   if (data.brand) vehicleForm.clpp1 = String(data.brand)
   if (data.model) vehicleForm.clxh = String(data.model)
-  if (data.brand || data.model) {
+  // 品牌型号仅行驶证正页 OCR 可填充，副页/正副背面不得覆盖
+  if (side === 'front' && (data.brand || data.model)) {
     vehicleForm.ppxh = [data.brand, data.model].filter(Boolean).join('')
   }
   if (data.vehicle_type) {
@@ -55,9 +57,6 @@ export function applyDrivingOcrResult(
   }
   if (data.use_character) {
     vehicleForm.syxz = resolveDictValue(data.use_character, dicts?.syxz ?? [])
-  }
-  if (data.inspection_record && !vehicleForm.rlzl) {
-    vehicleForm.rlzl = resolveDictValue(data.inspection_record, dicts?.rlzl ?? [])
   }
 
   const dimensions = pickDims(data.overall_dimensions)
@@ -79,17 +78,14 @@ export function applyRegCertOcrResult(
   vehicleForm: ArchiveVehicleForm,
   dicts?: OcrDicts
 ) {
-  if (data.certificate_no) vehicleForm.czbh = String(data.certificate_no)
+  if (data.cert_no) vehicleForm.czbh = String(data.cert_no)
   if (data.register_no) vehicleForm.hphm = String(data.register_no)
   if (data.plate_no && !vehicleForm.hphm) vehicleForm.hphm = String(data.plate_no)
   if (data.register_date) vehicleForm.ccdjrq = String(data.register_date)
   if (data.vin) vehicleForm.clsbdh = String(data.vin)
   if (data.engine_no) vehicleForm.fdjh = String(data.engine_no)
   if (data.engine_model) vehicleForm.fdjxh = String(data.engine_model)
-  if (data.brand) {
-    vehicleForm.clpp1 = String(data.brand)
-    vehicleForm.ppxh = String(data.brand)
-  }
+  if (data.brand) vehicleForm.clpp1 = String(data.brand)
   if (data.vehicle_type) {
     vehicleForm.cllx = resolveCllxValue(data.vehicle_type, dicts?.cllx ?? [])
   }
