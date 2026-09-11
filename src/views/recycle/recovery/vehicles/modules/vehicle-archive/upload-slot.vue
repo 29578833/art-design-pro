@@ -104,10 +104,11 @@
   const showOcr = computed(() => !props.readonly && !!props.enableOcr)
 
   const filledLabel = computed(() => {
-    if (props.ocrFilledText) return props.ocrFilledText
-    if (!props.ocrHint) return '已填入'
-    const count = props.ocrHint.replace(/…/, '').split('·').filter(Boolean).length
-    return count ? `已填入（${count}项）` : '已填入'
+    // if (props.ocrFilledText) return props.ocrFilledText
+    // if (!props.ocrHint) return '已填入'
+    // const count = props.ocrHint.replace(/…/, '').split('·').filter(Boolean).length
+    // return count ? `已填入（${count}项）` : '已填入'
+    return '已填入'
   })
 
   function triggerPick() {
