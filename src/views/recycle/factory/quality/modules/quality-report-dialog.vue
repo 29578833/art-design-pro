@@ -273,7 +273,8 @@
     QC_ITEM_STATUS_CFG,
     QC_ENTRY_PHOTO_CONFIG,
     QC_SIGNATURE_CONFIG,
-    isBatteryItem
+    isBatteryItem,
+    resolveDeliveryLabel
   } from '@/types/recycle/factory/quality/quality'
 
   interface Props {
@@ -342,6 +343,7 @@
       { label: '品牌车型', value: brandModelText.value },
       { label: '车辆类型', value: d.vehicle_type_text || '—' },
       { label: '车主姓名', value: d.owner_name || d.real_name || '—' },
+      { label: '自送/托运', value: resolveDeliveryLabel(d) },
       { label: '关联订单', value: d.order_no || '—' },
       { label: '档案号', value: d.check_no || '—' },
       { label: '监销类型', value: d.is_supervision ? '监销车辆' : '非监销' },

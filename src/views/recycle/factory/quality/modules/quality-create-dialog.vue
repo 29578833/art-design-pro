@@ -363,18 +363,12 @@
           </div>
 
           <div class="qc-section">
-            <div class="qc-section-title">监销设置</div>
-            <div class="qc-toggle-row qc-monitor-row">
-              <button
-                v-for="opt in SUPERVISION_OPTIONS"
-                :key="opt.value"
-                type="button"
-                class="qc-toggle-btn qc-monitor-btn"
-                :class="{ 'is-active': step1Form.is_supervision === opt.value }"
-                @click="step1Form.is_supervision = opt.value"
-              >
-                {{ opt.label }}
-              </button>
+            <div class="qc-supervision-card">
+              <div class="qc-supervision-title">监销类型</div>
+              <div class="qc-supervision-body">
+                <span class="qc-supervision-value">{{ supervisionTypeText }}</span>
+                <span class="qc-supervision-hint">由车信盟自动拉取，只读</span>
+              </div>
             </div>
           </div>
         </div>
@@ -580,7 +574,8 @@
   import {
     ACCEPT_BUSINESS_STEP_CONFIG,
     type AcceptBusinessStatus,
-    type AcceptBusinessStep
+    type AcceptBusinessStep,
+    type AcceptSyncFiles
   } from '@/types/recycle/recovery/commerce/accept'
   import {
     createQuality,
@@ -608,7 +603,6 @@
     QC_STEP_LABELS,
     PLATE_STATUS_OPTIONS,
     WHEEL_MATERIAL_OPTIONS,
-    SUPERVISION_OPTIONS,
     QC_CATEGORY_COLORS,
     QC_CATEGORY_BG,
     QC_CATEGORY_ICONS,
@@ -617,7 +611,8 @@
     createEmptyEntryPhotos,
     QC_CONCLUSION_OPTIONS,
     isBatteryItem,
-    isTireHubCategory
+    isTireHubCategory,
+    resolveDeliveryLabel
   } from '@/types/recycle/factory/quality/quality'
 
   interface Props {
@@ -694,19 +689,53 @@
     return status.step === 'approved'
   })
 
-  /** 拉取商委状态 */
+  // ==================== 监销类型（get_scrap_files_from_sync.sfJxc_text，只读展示） ====================
+  /** 监销类型文案（未获取时展示占位符） */
+  const supervisionTypeText = ref('—')
+  /** 由车信盟文案推导的监销标记：null=未获取 1=监销 0=非监销 */
+  const syncedSupervision = ref<number | null>(null)
+
+  /** 取监销类型文案：接口可能平铺返回，也可能挂在 vehicle/owner 节点下 */
+  function pickSupervisionText(res?: AcceptSyncFiles | null): string {
+    const candidates = [res?.sfJxc_text, res?.vehicle?.sfJxc_text, res?.owner?.sfJxc_text]
+    for (const item of candidates) {
+      const text = String(item ?? '').trim()
+      if (text) return text
+    }
+    return ''
+  }
+
+  /** 由监销类型文案推导监销标记，无法识别时返回 null（保留记录原值） */
+  function resolveSupervisionFlag(text: string): number | null {
+    if (!text) return null
+    if (/^(0|否|非|不|no)/i.test(text)) return 0
+    if (/^(1|是|yes)/i.test(text) || text.includes('监销')) return 1
+    return null
+  }
+
+  /** 应用监销类型展示值（只读，来源于车信盟同步数据） */
+  function applySupervisionType(res?: AcceptSyncFiles | null) {
+    const text = pickSupervisionText(res)
+    supervisionTypeText.value = text || '—'
+    syncedSupervision.value = resolveSupervisionFlag(text)
+  }
+
+  /** 拉取商委状态与监销类型（同一同步接口） */
   async function loadBusinessStatus() {
     const vehicleId = props.queueItem?.vehicle_id
     if (!vehicleId) {
       businessStatus.value = null
+      applySupervisionType(null)
       return
     }
     loadingBusinessStatus.value = true
     try {
       const res = await fetchAcceptSyncFiles({ vehicle_id: vehicleId })
       businessStatus.value = res?.business_status ?? null
+      applySupervisionType(res)
     } catch {
       businessStatus.value = null
+      applySupervisionType(null)
     } finally {
       loadingBusinessStatus.value = false
     }
@@ -743,12 +772,15 @@
 
   const netWeightDisplay = computed(() => (step1Form.weight ? `${netWeight.value} kg` : '—'))
 
+  const displayDeliveryType = ref('—')
+
   const vehicleReadonlyFields = computed(() => [
     { label: '车牌号', value: props.queueItem?.plate_no || '—' },
     { label: 'VIN码', value: props.queueItem?.vin || '—' },
     { label: '品牌车型', value: props.queueItem?.brand_model || '—' },
     // { label: '车辆类型', value: props.queueItem?.vehicle_type_text || '—' },
     { label: '车主姓名', value: props.queueItem?.owner_name || '—' },
+    { label: '自送/托运', value: displayDeliveryType.value },
     { label: '档案号', value: props.queueItem?.inspection_no || '—' }
   ])
 
@@ -1069,7 +1101,8 @@
       ? check.plate_status.split(',').filter(Boolean)
       : []
     step1Form.vehicle_type = check.vehicle_type || ''
-    step1Form.is_supervision = check.is_supervision ?? 0
+    // 监销标记不再由前端设置：优先采用车信盟同步值，取不到时沿用记录原值
+    step1Form.is_supervision = syncedSupervision.value ?? check.is_supervision ?? 0
     Object.assign(entryPhotos, createEmptyEntryPhotos(), {
       full_image: check.full_image || '',
       vin_rub_image: check.vin_rub_image || '',
@@ -1086,6 +1119,10 @@
     signatures.owner_signature = check.owner_signature || ''
     inspectorRemark.value = check.remark || ''
     conclusionType.value = (check.conclusion_type || 0) as ConclusionType
+    const deliveryLabel = resolveDeliveryLabel(check)
+    if (deliveryLabel !== '—') {
+      displayDeliveryType.value = deliveryLabel
+    }
   }
 
   function populateItemsFromCheck(savedItems: QualityCheckItem[]) {
@@ -1137,6 +1174,7 @@
     initializing.value = true
     try {
       resetForm()
+      displayDeliveryType.value = resolveDeliveryLabel(item)
       await Promise.all([loadInspectors(), loadItems(), loadBusinessStatus()])
       try {
         let existing: QualityDetail | null = null
@@ -1281,6 +1319,9 @@
     conclusionType.value = 0
     inspectorRemark.value = ''
     businessStatus.value = null
+    supervisionTypeText.value = '—'
+    syncedSupervision.value = null
+    displayDeliveryType.value = '—'
   }
 </script>
 
@@ -1553,9 +1594,38 @@
     }
   }
 
-  .qc-monitor-row .qc-monitor-btn {
-    padding: 10px 0;
+  .qc-supervision-card {
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+  }
+
+  .qc-supervision-title {
+    margin-bottom: 10px;
     font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  .qc-supervision-body {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    padding: 8px 18px;
+    background: #f5effc;
+    border-radius: 999px;
+  }
+
+  .qc-supervision-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #7c3aed;
+  }
+
+  .qc-supervision-hint {
+    font-size: 12px;
+    color: #9ca3af;
   }
 
   .qc-weight-grid {

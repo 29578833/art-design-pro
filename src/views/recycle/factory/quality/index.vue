@@ -71,6 +71,7 @@
     QualityQueueParams,
     QualitySearchParams
   } from '@/types/recycle/factory/quality/quality'
+  import { resolveDeliveryLabel } from '@/types/recycle/factory/quality/quality'
   import QualityReportSearch from './modules/quality-report-search.vue'
   import QualityQueuePage from './modules/quality-queue-page.vue'
   import QualityReportPage from './modules/quality-report-page.vue'
@@ -147,6 +148,7 @@
         车牌号: item.plate_no || '',
         品牌车型: item.brand_model || '',
         车主: item.owner_name || '',
+        '自送/托运': resolveDeliveryLabel(item),
         质检员: item.inspector || '--',
         缺件项数: `${item.missing_count ?? 0}项`,
         缺件扣款: `¥${(item.missing_deduction ?? 0).toFixed(2)}`,

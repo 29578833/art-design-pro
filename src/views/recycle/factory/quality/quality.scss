@@ -193,6 +193,31 @@
     line-height: 16px;
     color: #9ca3af;
   }
+
+  .order-delivery-tag {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 12px;
+    line-height: 16px;
+    border-radius: 4px;
+
+    &.tow {
+      color: #2563eb;
+      background: #eff6ff;
+    }
+
+    &.self {
+      color: #4b5563;
+      background: #f9fafb;
+    }
+  }
+
+  .order-delivery-icon {
+    width: 12px;
+    height: 12px;
+  }
 }
 
 @media (width <=1200px) {

@@ -7,6 +7,26 @@ export type QcResult = 0 | 1 | 2 // 0待查验 1合格 2不合格
 /** 质检状态 */
 export type QcStatus = 1 | 2 // 1质检中 2已完成
 
+/** 送厂方式：self 自送 / tow 拖车 */
+export type DeliveryType = 'self' | 'tow'
+
+/** 送厂方式文案 */
+export function deliveryTypeText(type?: string) {
+  if (type === 'tow') return '拖车'
+  if (type === 'self') return '自送'
+  return type ? String(type) : '—'
+}
+
+/** 优先 delivery_type_text，否则按 delivery_type 映射 */
+export function resolveDeliveryLabel(source?: {
+  delivery_type?: string
+  delivery_type_text?: string
+}) {
+  if (!source) return '—'
+  if (source.delivery_type_text) return source.delivery_type_text
+  return deliveryTypeText(source.delivery_type)
+}
+
 /** 质检结论类型 */
 export type ConclusionType = 0 | 1 | 2 | 3 // 0未填写 1车况正常 2存在缺件 3需特殊处理
 
@@ -49,6 +69,10 @@ export interface QualityQueueItem {
   queue_status_text?: string
   /** 质检员姓名 */
   inspector_name?: string
+  /** 送厂方式：self 自送 / tow 拖车 */
+  delivery_type?: DeliveryType | string
+  /** 送厂方式文案 */
+  delivery_type_text?: string
   [key: string]: unknown
 }
 
@@ -82,6 +106,10 @@ export interface QualityReportItem {
   owner_name?: string
   /** 缺失/损坏件数 */
   missing_count?: number
+  /** 送厂方式：self 自送 / tow 拖车 */
+  delivery_type?: DeliveryType | string
+  /** 送厂方式文案 */
+  delivery_type_text?: string
   [key: string]: unknown
 }
 
@@ -227,6 +255,10 @@ export interface QualityDetail {
   owner_id_card?: string
   /** 到场时间 */
   arrival_time?: string
+  /** 送厂方式：self 自送 / tow 拖车 */
+  delivery_type?: DeliveryType | string
+  /** 送厂方式文案 */
+  delivery_type_text?: string
   [key: string]: unknown
 }
 
@@ -532,12 +564,6 @@ export const QC_STEP_LABELS = ['质检查验', '补充入场信息', '质检报�
 
 /** 轮胎轮毂材质选项（铁 / 铝） */
 export const WHEEL_MATERIAL_OPTIONS = ['铁', '铝'] as const
-
-/** 监销类型选项 */
-export const SUPERVISION_OPTIONS = [
-  { label: '非监销', value: 0 },
-  { label: '监销车辆', value: 1 }
-]
 
 /** 车牌状态选项 */
 export const PLATE_STATUS_OPTIONS = ['无前牌', '无后牌']

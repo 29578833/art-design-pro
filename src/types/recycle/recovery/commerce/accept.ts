@@ -172,6 +172,8 @@ export interface AcceptVehicleData {
   bank_branch?: string
   bank_card_no?: string
   remark?: string
+  /** 监销类型（车信盟自动拉取，只读），如「监销车辆」「非监销」 */
+  sfJxc_text?: string
   [key: string]: unknown
 }
 
@@ -224,6 +226,8 @@ export interface AcceptSyncFiles {
   djid?: string
   /** 商委登记审核状态 */
   business_status?: AcceptBusinessStatus
+  /** 监销类型（车信盟自动拉取，只读），如「监销车辆」「非监销」 */
+  sfJxc_text?: string
 }
 
 /** 保存所有人 */
