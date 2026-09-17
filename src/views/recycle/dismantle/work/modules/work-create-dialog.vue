@@ -17,6 +17,14 @@
     </template>
 
     <div v-loading="loadingList" class="work-create-body">
+      <div class="work-entry-limit-tip">
+        <ArtSvgIcon icon="ri:error-warning-fill" class="work-entry-limit-icon" />
+        <div class="work-entry-limit-text">
+          <span class="work-entry-limit-title">进场通过限制：</span>
+          车辆档案须在商务部完成"进场通过"审核后，方可创建拆解工单。未通过进场审核的档案仅可查看，不可选择。
+        </div>
+      </div>
+
       <div class="work-form-field">
         <label class="work-field-label">选择车辆档案 <span class="required">*</span></label>
         <ElInput
@@ -37,42 +45,70 @@
             :key="item.id"
             type="button"
             class="work-vehicle-item"
-            :class="{ 'is-selected': selectedId === item.id }"
-            @click="selectedId = item.id"
+            :class="{
+              'is-selected': selectedId === item.id,
+              'is-disabled': isVehicleLocked(item)
+            }"
+            :disabled="isVehicleLocked(item)"
+            @click="handleSelectVehicle(item)"
           >
+            <div class="work-vehicle-radio">
+              <ArtSvgIcon
+                v-if="isVehicleLocked(item)"
+                icon="ri:lock-line"
+                class="work-vehicle-lock"
+              />
+              <ArtSvgIcon
+                v-else-if="selectedId === item.id"
+                icon="ri:checkbox-circle-fill"
+                class="work-vehicle-checked"
+              />
+              <ArtSvgIcon v-else icon="ri:radio-button-line" class="work-vehicle-unchecked" />
+            </div>
             <div class="work-vehicle-main">
               <div class="work-vehicle-row">
                 <span class="work-vehicle-plate">{{ item.plate_no || '—' }}</span>
-                <span class="work-vehicle-model">{{ item.brand }} {{ item.model }}</span>
-                <span v-if="item.fuel_type" class="work-vehicle-type">{{ item.fuel_type }}</span>
+                <span class="work-vehicle-model">{{ vehicleModelText(item) }}</span>
               </div>
               <div class="work-vehicle-sub">
-                档案号：{{ item.vehicle_no || '—' }} · 车主：{{ item.owner_name || '—' }} · 库位：{{
-                  item.warehouse_slot || '—'
+                档案号：{{ item.vehicle_no || item.archive_no || '—' }} · 车主：{{
+                  item.owner_name || '—'
                 }}
+                · 库位：{{ item.warehouse_slot || '—' }}
               </div>
             </div>
-            <ArtSvgIcon
-              v-if="selectedId === item.id"
-              icon="ri:checkbox-circle-fill"
-              class="work-vehicle-check"
-            />
+            <div v-if="item.business_zt_text" class="work-vehicle-status">
+              <div class="work-vehicle-status-label">商务部状态</div>
+              <div
+                class="work-vehicle-status-text"
+                :style="{ color: getBusinessStatusColor(item) }"
+              >
+                {{ item.business_zt_text }}
+              </div>
+            </div>
           </button>
         </div>
       </div>
 
       <div v-if="selectedVehicle" class="work-selected-summary">
-        <div>
-          <span class="label">车型：</span>
-          <span>{{ selectedVehicle.vehicle_model || '—' }}</span>
-        </div>
-        <div>
-          <span class="label">库位：</span>
-          <span>{{ selectedVehicle.warehouse_slot || '—' }}</span>
-        </div>
-        <div>
-          <span class="label">车主：</span>
-          <span>{{ selectedVehicle.owner_name || '—' }}</span>
+        <div class="work-selected-title">已选车辆档案</div>
+        <div class="work-selected-detail">
+          <div>
+            <span class="label">车牌：</span>
+            <span>{{ selectedVehicle.plate_no || '—' }}</span>
+          </div>
+          <div>
+            <span class="label">车型：</span>
+            <span>{{ selectedVehicle.vehicle_model || '—' }}</span>
+          </div>
+          <div>
+            <span class="label">库位：</span>
+            <span>{{ selectedVehicle.warehouse_slot || '—' }}</span>
+          </div>
+          <div>
+            <span class="label">车主：</span>
+            <span>{{ selectedVehicle.owner_name || '—' }}</span>
+          </div>
         </div>
       </div>
 
@@ -153,7 +189,8 @@
         item.brand,
         item.model,
         item.warehouse_slot,
-        item.archive_no
+        item.archive_no,
+        item.vehicle_no
       ]
         .filter(Boolean)
         .join(' ')
@@ -161,6 +198,28 @@
       return text.includes(q)
     })
   })
+
+  function isVehicleLocked(item: PlatePendingVehicle) {
+    if (item.is_locked === 1 || item.selectable === 0) return true
+    const businessZt = Number(item.business_zt)
+    return !Number.isFinite(businessZt) || businessZt < 30
+  }
+
+  function vehicleModelText(item: PlatePendingVehicle) {
+    if (item.vehicle_model) return item.vehicle_model
+    return [item.brand, item.model].filter(Boolean).join(' ')
+  }
+
+  function getBusinessStatusColor(item: PlatePendingVehicle) {
+    const businessZt = Number(item.business_zt)
+    if (businessZt >= 30) return '#52C41A'
+    return '#666'
+  }
+
+  function handleSelectVehicle(item: PlatePendingVehicle) {
+    if (isVehicleLocked(item)) return
+    selectedId.value = item.id
+  }
 
   const selectedVehicle = computed(() =>
     vehicles.value.find((item) => item.id === selectedId.value)
@@ -277,6 +336,33 @@
     width: 100%;
   }
 
+  .work-entry-limit-tip {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 10px 12px;
+    background: #fffbe6;
+    border: 1px solid #ffe58f;
+    border-radius: 8px;
+  }
+
+  .work-entry-limit-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-size: 16px;
+    color: #faad14;
+  }
+
+  .work-entry-limit-text {
+    font-size: 12px;
+    line-height: 20px;
+    color: #614700;
+  }
+
+  .work-entry-limit-title {
+    font-weight: 600;
+  }
+
   .work-vehicle-list {
     display: flex;
     flex-direction: column;
@@ -312,11 +398,59 @@
       background: #e6f7ff;
       border-color: #1677ff;
     }
+
+    &.is-disabled {
+      cursor: not-allowed;
+      background: #fafafa;
+      border-color: #f0f0f0;
+      opacity: 0.75;
+    }
+  }
+
+  .work-vehicle-radio {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    font-size: 20px;
+  }
+
+  .work-vehicle-checked {
+    color: #1677ff;
+  }
+
+  .work-vehicle-unchecked {
+    color: #555;
+  }
+
+  .work-vehicle-lock {
+    color: #bfbfbf;
   }
 
   .work-vehicle-main {
     flex: 1;
     min-width: 0;
+  }
+
+  .work-vehicle-status {
+    flex-shrink: 0;
+    max-width: 96px;
+    text-align: right;
+  }
+
+  .work-vehicle-status-label {
+    margin-bottom: 2px;
+    font-size: 11px;
+    line-height: 16px;
+    color: var(--art-gray-500);
+  }
+
+  .work-vehicle-status-text {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 18px;
+    white-space: nowrap;
   }
 
   .work-vehicle-row {
@@ -338,38 +472,31 @@
     color: var(--art-gray-500);
   }
 
-  .work-vehicle-type {
-    padding: 2px 6px;
-    font-size: 12px;
-    color: #1677ff;
-    background: #e6f7ff;
-    border-radius: 4px;
-  }
-
   .work-vehicle-sub {
     font-size: 12px;
     color: var(--art-gray-600);
   }
 
-  .work-vehicle-check {
-    flex-shrink: 0;
-    font-size: 20px;
-    color: #1677ff;
+  .work-selected-summary {
+    padding: 12px;
+    background: #f6ffed;
+    border: 1px solid #b7eb8f;
+    border-radius: 8px;
   }
 
-  .work-selected-summary {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-    padding: 12px;
+  .work-selected-title {
+    margin-bottom: 4px;
     font-size: 12px;
-    color: var(--art-gray-700);
-    background: #f9fafb;
-    border-radius: 8px;
+    font-weight: 600;
+    color: #389e0d;
+  }
 
-    .label {
-      color: var(--art-gray-600);
-    }
+  .work-selected-detail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--art-gray-700);
   }
 
   .work-tip {

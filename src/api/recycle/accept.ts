@@ -45,6 +45,7 @@ export async function fetchAcceptLocalList(params: AcceptListParams): Promise<Ac
       jbr: params.jbr?.trim() || '',
       jbrsmrz: params.jbrsmrz ?? '',
       zt: params.zt || '',
+      bfdj_zt: params.bfdj_zt || '',
       startsj: params.startsj || '',
       endsj: params.endsj || ''
     }

@@ -34,6 +34,8 @@ export interface AcceptListParams {
   jbrsmrz?: string
   /** 受理状态 */
   zt?: string
+  /** 进度状态（报废登记状态） */
+  bfdj_zt?: string
   startsj?: string
   endsj?: string
 }
@@ -65,6 +67,8 @@ export interface AcceptListItem {
   bidui_type?: string
   zt?: string
   zt_text?: string
+  /** 进度状态（报废登记状态） */
+  bfdj_zt?: string
   is_submitted_commerce?: boolean | number
   action?: unknown[]
 }

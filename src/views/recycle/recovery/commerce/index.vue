@@ -22,7 +22,12 @@
         <ElForm :model="searchForm" label-position="right" label-width="76px" @submit.prevent>
           <div class="commerce-filter-grid" :class="{ 'is-expanded': filterExpanded }">
             <ElFormItem label="非车/车管" class="commerce-filter-item">
-              <ElSelect v-model="searchForm.is_vehicle_mgmt" clearable placeholder="车管/非车管">
+              <ElSelect
+                v-model="searchForm.is_vehicle_mgmt"
+                clearable
+                placeholder="车管/非车管"
+                @change="handleSearch"
+              >
                 <ElOption label="车管" :value="1" />
                 <ElOption label="非车管" :value="0" />
               </ElSelect>
@@ -36,7 +41,13 @@
               />
             </ElFormItem>
             <ElFormItem label="受理人" class="commerce-filter-item">
-              <ElSelect v-model="searchForm.yhsjhm" clearable filterable placeholder="受理人">
+              <ElSelect
+                v-model="searchForm.yhsjhm"
+                clearable
+                filterable
+                placeholder="受理人"
+                @change="handleSearch"
+              >
                 <ElOption
                   v-for="item in dictUsernameOptions"
                   :key="item.value"
@@ -45,17 +56,20 @@
                 />
               </ElSelect>
             </ElFormItem>
-            <ElFormItem label="受理状态" class="commerce-filter-item">
+            <ElFormItem label="进度状态" class="commerce-filter-item">
               <ElSelect
-                v-model="searchForm.zt"
+                v-model="searchForm.bfdj_zt"
                 clearable
-                placeholder="待登记"
+                filterable
+                placeholder="进度状态"
                 @change="handleSearch"
               >
-                <ElOption label="待登记" value="4" />
-                <ElOption label="已登记" value="5" />
-                <ElOption label="已完成" value="6" />
-                <ElOption label="全部" value="" />
+                <ElOption
+                  v-for="item in djztOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
               </ElSelect>
             </ElFormItem>
             <!-- <ElFormItem label="平台" class="commerce-filter-item commerce-filter-item--extra">
@@ -71,12 +85,23 @@
                 end-placeholder="结束时间"
                 value-format="YYYY-MM-DD"
                 unlink-panels
+                @change="handleSearch"
               />
             </ElFormItem>
             <ElFormItem label="所有人" class="commerce-filter-item commerce-filter-item--extra">
               <div class="commerce-inline-filters">
-                <ElInput v-model="searchForm.syr" clearable placeholder="所有人" />
-                <ElSelect v-model="searchForm.syrsmrz" clearable placeholder="实名">
+                <ElInput
+                  v-model="searchForm.syr"
+                  clearable
+                  placeholder="所有人"
+                  @input="debouncedHandleSearch"
+                />
+                <ElSelect
+                  v-model="searchForm.syrsmrz"
+                  clearable
+                  placeholder="实名"
+                  @change="handleSearch"
+                >
                   <ElOption label="实名" value="1" />
                   <ElOption label="非实名" value="0" />
                 </ElSelect>
@@ -84,32 +109,25 @@
             </ElFormItem>
             <ElFormItem label="代理人" class="commerce-filter-item commerce-filter-item--extra">
               <div class="commerce-inline-filters">
-                <ElInput v-model="searchForm.jbr" clearable placeholder="代理人" />
-                <ElSelect v-model="searchForm.jbrsmrz" clearable placeholder="所有">
+                <ElInput
+                  v-model="searchForm.jbr"
+                  clearable
+                  placeholder="代理人"
+                  @input="debouncedHandleSearch"
+                />
+                <ElSelect
+                  v-model="searchForm.jbrsmrz"
+                  clearable
+                  placeholder="所有"
+                  @change="handleSearch"
+                >
                   <ElOption label="所有" value="" />
                   <ElOption label="实名" value="1" />
                   <ElOption label="非实名" value="0" />
                 </ElSelect>
               </div>
             </ElFormItem>
-            <ElFormItem label="受理状态" class="commerce-filter-item commerce-filter-item--extra">
-              <ElSelect
-                v-model="searchForm.zt"
-                clearable
-                placeholder="待登记"
-                @change="handleSearch"
-              >
-                <ElOption label="待登记" value="4" />
-                <ElOption label="已登记" value="5" />
-                <ElOption label="已完成" value="6" />
-                <ElOption label="全部" value="" />
-              </ElSelect>
-            </ElFormItem>
             <div class="commerce-filter-actions commerce-filter-item">
-              <ElButton type="primary" @click="handleSearch">
-                <ArtSvgIcon icon="ri:search-line" />
-                查询
-              </ElButton>
               <ElButton @click="handleReset">
                 <ArtSvgIcon icon="ri:refresh-line" />
                 重置
@@ -197,6 +215,7 @@
     fetchAcceptSubmit,
     fetchAcceptSubmitResult
   } from '@/api/recycle/accept'
+  import { fetchDataDictList } from '@/api/recycle/data-dict'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import type { ColumnOption } from '@/types/component'
@@ -222,8 +241,14 @@
 
   defineOptions({ name: 'RecycleCommerce' })
 
+  interface DictOption {
+    label: string
+    value: string
+  }
+
   const filterExpanded = ref(false)
   const dictUsernameOptions = ref<AcceptDictUsernameOption[]>([])
+  const djztOptions = ref<DictOption[]>([])
   const searchForm = ref<AcceptListParams>({
     is_vehicle_mgmt: '',
     clsbdh: '',
@@ -233,7 +258,7 @@
     syrsmrz: '',
     jbr: '',
     jbrsmrz: '',
-    zt: '4'
+    bfdj_zt: ''
   })
   const dateRange = ref<[string, string] | null>(null)
   const { cxmLoginVisible: loginVisible, ensureCxmToken } = useCxmTokenCheck()
@@ -258,6 +283,12 @@
     if (String(zt) === '5') return { label: '已登记', type: 'success' as const }
     if (String(zt) === '6') return { label: '已完成', type: 'info' as const }
     return { label: '待登记', type: 'warning' as const }
+  }
+
+  function getDjztLabel(value?: string) {
+    if (!value) return '—'
+    const found = djztOptions.value.find((item) => item.value === String(value))
+    return found?.label || value
   }
 
   function renderMgmtBadge(isVehicleMgmt?: boolean) {
@@ -419,6 +450,13 @@
           ])
       },
       {
+        prop: 'bfdj_zt',
+        label: '进度状态',
+        minWidth: 110,
+        align: 'center',
+        formatter: (row: AcceptListItem) => getDjztLabel(row.bfdj_zt)
+      },
+      {
         prop: 'zt',
         label: '受理状态',
         minWidth: 96,
@@ -487,6 +525,18 @@
     }
   }
 
+  async function loadDjztOptions() {
+    try {
+      const res = await fetchDataDictList({ dict_type: 'car_djzt', status: 1, limit: 1000 })
+      djztOptions.value = (res.list || []).map((item) => ({
+        label: item.dict_label || String(item.dict_value ?? ''),
+        value: String(item.dict_value ?? '')
+      }))
+    } catch {
+      djztOptions.value = []
+    }
+  }
+
   function handleSearch() {
     replaceSearchParams({ ...queryParams(), current: 1 })
     getData()
@@ -504,7 +554,7 @@
       syrsmrz: '',
       jbr: '',
       jbrsmrz: '',
-      zt: '4'
+      bfdj_zt: ''
     }
     dateRange.value = null
     filterExpanded.value = false
@@ -584,5 +634,6 @@
 
   onMounted(() => {
     loadDictUsernameOptions()
+    loadDjztOptions()
   })
 </script>

@@ -90,6 +90,10 @@ export interface PlatePendingVehicle {
   id: number
   /** 车牌号 */
   plate_no?: string
+  /** 档案号 */
+  archive_no?: string
+  /** 车辆编号（部分接口字段名） */
+  vehicle_no?: string
   /** 品牌 */
   brand?: string
   /** 车型 */
@@ -100,10 +104,20 @@ export interface PlatePendingVehicle {
   warehouse_slot?: string
   /** 燃料类型 */
   fuel_type?: string
+  /** 净重（kg） */
+  net_weight?: number | string
   /** 车型描述（brand + model） */
   vehicle_model?: string
   /** 车辆类型：1汽油 2纯电动 3插电混动 */
   vehicle_type?: PlateVehicleType
+  /** 商务部状态码 */
+  business_zt?: number | string
+  /** 商务部状态文案 */
+  business_zt_text?: string
+  /** 是否锁定不可选：1锁定 */
+  is_locked?: number
+  /** 是否可选：0不可选 */
+  selectable?: number
   [key: string]: unknown
 }
 
