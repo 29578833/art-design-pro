@@ -36,7 +36,10 @@
         v-for="item in orders"
         :key="item.id"
         class="vlo-item"
-        :class="{ 'vlo-item--current': isCurrentLinkedOrder(item) }"
+        :class="{
+          'vlo-item--current': isCurrentLinkedOrder(item),
+          'vlo-item--full': isOrderFull(item)
+        }"
       >
         <div class="vlo-item-main">
           <div class="vlo-item-head">
@@ -53,9 +56,15 @@
             {{ item.plate_no || '—' }} · {{ item.real_name || '—' }} ·
             {{ item.add_time_text || '—' }}
           </div>
+          <div v-if="getOrderVehicleCapacity(item) > 0" class="vlo-vehicle-count">
+            已关联 {{ Number(item.vehicle_count) || 0 }}/{{ getOrderVehicleCapacity(item) }} 辆
+          </div>
         </div>
         <ElButton v-if="isCurrentLinkedOrder(item)" type="success" size="small" plain disabled>
           已关联
+        </ElButton>
+        <ElButton v-else-if="isOrderFull(item)" type="info" size="small" plain disabled>
+          已达上限
         </ElButton>
         <ElButton
           v-else
@@ -95,7 +104,11 @@
   import { fetchOrderList } from '@/api/recycle/order'
   import { fetchVehicleAssociateOrder } from '@/api/recycle/vehicle'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
-  import type { RecycleOrder } from '@/types/recycle/recovery/orders/order'
+  import {
+    getOrderVehicleCapacity,
+    isOrderVehicleLimitReached,
+    type RecycleOrder
+  } from '@/types/recycle/recovery/orders/order'
   import type { ScrapVehicle } from '@/types/recycle/recovery/vehicles/vehicle'
 
   defineOptions({ name: 'VehicleLinkOrderDialog' })
@@ -123,6 +136,10 @@
   const page = ref(1)
   const pageSize = 8
   const total = ref(0)
+
+  function isOrderFull(order: RecycleOrder) {
+    return isOrderVehicleLimitReached(order)
+  }
 
   function isCurrentLinkedOrder(order: RecycleOrder) {
     const vehicle = props.vehicle
@@ -173,7 +190,7 @@
   }
 
   async function handleLink(order: RecycleOrder) {
-    if (!props.vehicle?.id || !order.id) return
+    if (!props.vehicle?.id || !order.id || isOrderFull(order)) return
     linkingId.value = order.id
     try {
       await fetchVehicleAssociateOrder({
@@ -256,6 +273,32 @@
         color: #389e0d;
       }
     }
+
+    &.vlo-item--full {
+      cursor: not-allowed;
+      background: #fafafa;
+      border-color: #f0f0f0;
+
+      &:hover {
+        background: #fafafa;
+        border-color: #f0f0f0;
+      }
+
+      .vlo-order-no {
+        color: #91caff;
+      }
+
+      .vlo-item-sub,
+      .vlo-vehicle-count {
+        color: #bfbfbf;
+      }
+    }
+  }
+
+  .vlo-vehicle-count {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #bfbfbf;
   }
 
   .vlo-current-tag {

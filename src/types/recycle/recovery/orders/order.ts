@@ -59,8 +59,10 @@ export interface RecycleOrder {
   vin?: string
   /** 是否批量：0 否 / 1 是 */
   is_batch?: number
-  /** 批量车辆数量 */
+  /** 批量车辆数量 / 最多可关联车数量 */
   batch_vehicle_count?: number
+  /** 当前已关联车数量 */
+  vehicle_count?: number
   /** 批量展示文案 */
   batch_display?: string
   /** 回收方式：tow 上门拖车 / self 自行送厂 */
@@ -229,6 +231,20 @@ export function isLeadViewed(row: RecycleOrder) {
 /** 正式回收单待审核（status=1） */
 export function isPendingFormalReview(row: RecycleOrder) {
   return ['customer_order', 'staff_order'].includes(row.order_type) && Number(row.status) === 1
+}
+
+/** 订单最多可关联车辆数（单台默认 1） */
+export function getOrderVehicleCapacity(order: RecycleOrder) {
+  const max = Number(order.batch_vehicle_count)
+  if (max > 0) return max
+  return Number(order.is_batch) === 1 ? 0 : 1
+}
+
+/** 订单关联车辆数是否已达上限 */
+export function isOrderVehicleLimitReached(order: RecycleOrder) {
+  const max = getOrderVehicleCapacity(order)
+  if (max <= 0) return false
+  return (Number(order.vehicle_count) || 0) >= max
 }
 
 /** 订单车辆项（接口原字段） */

@@ -784,6 +784,23 @@ $ae-sub: #8c8c8c;
     background: #e6f4ff;
   }
 
+  &.is-full {
+    cursor: not-allowed;
+
+    .ae-order-no {
+      color: #91caff;
+    }
+
+    .ae-order-sub,
+    .ae-order-vehicle-count {
+      color: #bfbfbf;
+    }
+
+    &:hover {
+      background: transparent;
+    }
+  }
+
   &:last-child {
     border-bottom: none;
   }
@@ -794,11 +811,24 @@ $ae-sub: #8c8c8c;
   color: #1677ff;
 }
 
+.ae-order-plate-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
 .ae-order-sub {
   overflow: hidden;
   font-size: 12px;
   color: #595959;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ae-order-vehicle-count {
+  font-size: 11px;
+  color: #bfbfbf;
   white-space: nowrap;
 }
 
@@ -834,6 +864,13 @@ $ae-sub: #8c8c8c;
     color: #fff;
     background: #1677ff;
     border-color: #1677ff;
+  }
+
+  &.is-full {
+    color: #a6a6a6;
+    cursor: not-allowed;
+    background: #fafafa;
+    border-color: #e8e8e8;
   }
 }
 

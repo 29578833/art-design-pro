@@ -12,7 +12,11 @@ import type {
   AcceptSyq
 } from '@/types/recycle/recovery/commerce/accept'
 import { fetchVehicleAssociateOrder, fetchVehicleDetail } from '@/api/recycle/vehicle'
-import { isLeadOrder, type RecycleOrder } from '@/types/recycle/recovery/orders/order'
+import {
+  isLeadOrder,
+  isOrderVehicleLimitReached,
+  type RecycleOrder
+} from '@/types/recycle/recovery/orders/order'
 import type { ScrapVehicle } from '@/types/recycle/recovery/vehicles/vehicle'
 import { ElMessage } from 'element-plus'
 import type AgentStep from './agent-step.vue'
@@ -524,6 +528,10 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   function confirmOrderNext() {
     if (!selectedOrder.value?.id) {
       ElMessage.warning('请选择关联订单')
+      return
+    }
+    if (isOrderVehicleLimitReached(selectedOrder.value)) {
+      ElMessage.warning('该订单关联车辆数已达上限，请选择其他订单')
       return
     }
     applySelectedOrder(selectedOrder.value)

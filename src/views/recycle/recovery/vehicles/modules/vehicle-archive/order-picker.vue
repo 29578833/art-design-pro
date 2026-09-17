@@ -30,8 +30,11 @@
         v-for="item in orders"
         :key="item.id"
         class="ae-order-row"
-        :class="{ 'is-selected': selected?.id === item.id }"
-        @click="selected = item"
+        :class="{
+          'is-selected': selected?.id === item.id,
+          'is-full': isOrderFull(item)
+        }"
+        @click="handleSelect(item)"
       >
         <span class="ae-order-no">{{ item.order_no || '—' }}</span>
         <span>
@@ -40,13 +43,27 @@
           </span>
         </span>
         <span class="ae-order-sub">{{ item.tow_no || '—' }}</span>
-        <span class="ae-order-sub"> {{ item.plate_no || '—' }} · {{ item.real_name || '—' }} </span>
+        <span class="ae-order-plate-col">
+          <span class="ae-order-sub">{{ item.plate_no || '—' }} · {{ item.real_name || '—' }}</span>
+          <span v-if="getOrderVehicleCapacity(item) > 0" class="ae-order-vehicle-count">
+            已关联 {{ Number(item.vehicle_count) || 0 }}/{{ getOrderVehicleCapacity(item) }} 辆
+          </span>
+        </span>
         <span>
           <button
+            v-if="isOrderFull(item)"
+            type="button"
+            class="ae-order-select-btn is-full"
+            disabled
+          >
+            已上限
+          </button>
+          <button
+            v-else
             type="button"
             class="ae-order-select-btn"
             :class="{ active: selected?.id === item.id }"
-            @click.stop="selected = item"
+            @click.stop="handleSelect(item)"
           >
             {{ selected?.id === item.id ? '已选' : '选择' }}
           </button>
@@ -82,8 +99,12 @@
 <script setup lang="ts">
   import { fetchOrderList } from '@/api/recycle/order'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
-  import { isLeadOrder } from '@/types/recycle/recovery/orders/order'
-  import type { RecycleOrder } from '@/types/recycle/recovery/orders/order'
+  import {
+    getOrderVehicleCapacity,
+    isLeadOrder,
+    isOrderVehicleLimitReached,
+    type RecycleOrder
+  } from '@/types/recycle/recovery/orders/order'
 
   defineOptions({ name: 'VehicleArchiveOrderPicker' })
 
@@ -95,6 +116,15 @@
   const page = ref(1)
   const pageSize = 8
   const total = ref(0)
+
+  function isOrderFull(order: RecycleOrder) {
+    return isOrderVehicleLimitReached(order)
+  }
+
+  function handleSelect(order: RecycleOrder) {
+    if (isOrderFull(order)) return
+    selected.value = order
+  }
 
   function resolveLeadNo(order: RecycleOrder) {
     const leadNo = String(order.lead_no || '')
