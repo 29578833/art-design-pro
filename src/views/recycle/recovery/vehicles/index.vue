@@ -406,19 +406,17 @@
               [h(ArtSvgIcon, { icon: 'ri:eye-line', class: 'order-action-icon' }), '查看']
             )
           ]
-          if (Number(row.is_submitted_commerce) !== 1) {
-            actions.push(
-              h(
-                'button',
-                {
-                  type: 'button',
-                  class: 'order-action-btn primary',
-                  onClick: () => openEdit(row)
-                },
-                [h(ArtSvgIcon, { icon: 'ri:edit-line', class: 'order-action-icon' }), '编辑档案']
-              )
+          actions.push(
+            h(
+              'button',
+              {
+                type: 'button',
+                class: 'order-action-btn primary',
+                onClick: () => openEdit(row)
+              },
+              [h(ArtSvgIcon, { icon: 'ri:edit-line', class: 'order-action-icon' }), '编辑档案']
             )
-          }
+          )
           if (row.owner_sync_djid) {
             actions.push(
               h(

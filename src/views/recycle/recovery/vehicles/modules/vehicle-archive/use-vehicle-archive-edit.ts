@@ -405,6 +405,8 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     if (qksm) ownerImages.qksmzp = qksm
 
     Object.keys(vehicleForm).forEach((k) => {
+      // 收款银行卡来自关联订单，不要被受理 sync 覆盖
+      if (k === 'bank_name' || k === 'bank_branch' || k === 'bank_card_no') return
       if (v[k] !== undefined && v[k] !== null && v[k] !== '') {
         ;(vehicleForm as Record<string, unknown>)[k] = k === 'ccdjrq' ? formatDate(v[k]) : str(v[k])
       }
@@ -502,14 +504,19 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
         if (echo?.syq) syq.value = echo.syq as AcceptSyq
       }
 
-      if (echo?.is_submitted_commerce === 1) {
+      const submitted =
+        Number(vehicleRow?.value?.is_submitted_commerce) === 1 || echo?.is_submitted_commerce === 1
+      if (submitted) {
         isSubmitted.value = true
         phase.value = 'form'
         await nextTick()
         await loadOptions()
         await loadAcceptDataByVehicleId()
         await stepRefs.materials.value?.loadScrapFiles()
+        const hadPending = pendingTargetStep.value >= 1 && pendingTargetStep.value <= 5
         await applyPendingStep()
+        // 已提交档案打开编辑时默认落到车辆信息步，方便改收款银行卡
+        if (!hadPending) step.value = 2
         return
       }
 
@@ -608,15 +615,32 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   }
 
   async function saveCurrentStep() {
-    if (!activeVehicleId.value || isSubmitted.value) return
+    if (!activeVehicleId.value) return
+    if (isSubmitted.value) {
+      // 已提交商务部后仅允许保存车辆步骤中的收款银行卡
+      await stepRefs.vehicle.value?.save()
+      return
+    }
     if (step.value === 1) await stepRefs.owner.value?.save()
     else if (step.value === 2) await stepRefs.vehicle.value?.save()
     else if (step.value === 3) await stepRefs.agent.value?.save()
   }
 
+  async function handleSaveBankInfo() {
+    if (!activeVehicleId.value) return
+    saving.value = true
+    try {
+      await stepRefs.vehicle.value?.save()
+      ElMessage.success('收款信息已保存')
+      onSuccess?.()
+    } finally {
+      saving.value = false
+    }
+  }
+
   async function handleSaveDraft() {
     if (isSubmitted.value) {
-      ElMessage.warning('已提交至商务部，不可修改')
+      await handleSaveBankInfo()
       return
     }
     saving.value = true
@@ -755,6 +779,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     selectedOrder,
     confirmScene,
     handleSaveDraft,
+    handleSaveBankInfo,
     goToStep,
     goNext,
     goPrev,

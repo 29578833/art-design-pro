@@ -227,6 +227,7 @@
         type="button"
         class="ae-delivery-card"
         :class="{ active: form.delivery_method === 'tow' }"
+        :disabled="readonly"
         @click="form.delivery_method = 'tow'"
       >
         <div class="name">需要拖车运输</div>
@@ -236,13 +237,14 @@
         type="button"
         class="ae-delivery-card"
         :class="{ active: form.delivery_method === 'self' }"
+        :disabled="readonly"
         @click="form.delivery_method = 'self'"
       >
         <div class="name">自行送车</div>
         <div class="desc">车主自行驾驶或运输</div>
       </button>
     </div>
-    <ElForm label-position="top">
+    <ElForm label-position="top" :disabled="readonly">
       <ElRow :gutter="16">
         <ElCol :span="24">
           <ElFormItem :label="form.delivery_method === 'tow' ? '上门取车地址' : '自送地址'">
@@ -293,6 +295,9 @@
 
   <div class="ae-section">
     <div class="ae-section-title">结算信息</div>
+    <div v-if="readonly" class="ae-material-tip">
+      已提交至商务部，车辆信息不可修改；开户姓名/名称、开户银行、银行卡号仍可修改。
+    </div>
     <ElForm label-position="top">
       <ElRow :gutter="16">
         <ElCol :span="8">
@@ -316,20 +321,26 @@
           ><ElFormItem label="结算金额（元）"
             ><ElInput v-model="form.settlement_amount" type="number" disabled /></ElFormItem
         ></ElCol>
-        <ElCol :span="8"
-          ><ElFormItem label="开户姓名/名称"><ElInput v-model="form.bank_name" /></ElFormItem
-        ></ElCol>
-        <ElCol :span="8"
-          ><ElFormItem label="开户银行"><ElInput v-model="form.bank_branch" /></ElFormItem
-        ></ElCol>
-        <ElCol :span="8"
-          ><ElFormItem label="银行卡号"
-            ><ElInput v-model="form.bank_card_no" maxlength="19" /></ElFormItem
-        ></ElCol>
-        <ElCol :span="24"
-          ><ElFormItem label="备注说明"
-            ><ElInput v-model="form.remark" type="textarea" :rows="3" /></ElFormItem
-        ></ElCol>
+        <ElCol :span="8">
+          <ElFormItem label="开户姓名/名称">
+            <ElInput v-model="form.bank_name" />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="8">
+          <ElFormItem label="开户银行">
+            <ElInput v-model="form.bank_branch" />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="8">
+          <ElFormItem label="银行卡号">
+            <ElInput v-model="form.bank_card_no" maxlength="19" />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="24">
+          <ElFormItem label="备注说明">
+            <ElInput v-model="form.remark" type="textarea" :rows="3" :disabled="readonly" />
+          </ElFormItem>
+        </ElCol>
       </ElRow>
     </ElForm>
   </div>

@@ -145,6 +145,9 @@
         <span style="font-size: 13px; color: #52c41a">已提交至商务部</span>
         <div style="display: flex; gap: 12px">
           <ElButton @click="dialogVisible = false">关闭</ElButton>
+          <ElButton type="primary" :loading="saving" @click="handleSaveBankInfo">
+            保存收款信息
+          </ElButton>
           <ElButton type="primary" plain @click="viewSubmitResult">查看提交结果</ElButton>
         </div>
       </div>
@@ -281,6 +284,7 @@
     selectedOrder,
     confirmScene,
     handleSaveDraft,
+    handleSaveBankInfo,
     goToStep,
     goNext,
     goPrev,
