@@ -63,7 +63,7 @@
                 icon="ri:checkbox-circle-fill"
                 class="work-vehicle-checked"
               />
-              <ArtSvgIcon v-else icon="ri:radio-button-line" class="work-vehicle-unchecked" />
+              <ArtSvgIcon v-else icon="ri:circle-line" class="work-vehicle-unchecked" />
             </div>
             <div class="work-vehicle-main">
               <div class="work-vehicle-row">
