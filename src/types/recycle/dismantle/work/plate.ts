@@ -130,10 +130,19 @@ export interface PreprocessStepOption {
   is_enabled?: number
 }
 
-/** 预处理勾选项 */
+/** 需要填写可拆解数量的预处理步骤 key：电池、三元催化 */
+export const PREPROCESS_QTY_STEP_KEYS = ['battery', 'catalytic_converter'] as const
+
+/** 预处理勾选项（提交 checked_items 字段） */
 export interface PreprocessCheckedItem {
-  step_key: string
-  finish_time?: string
+  /** 步骤标识 */
+  key: string
+  /** 1=有 0=无 */
+  has: 0 | 1
+  /** 完成时间（has=1 时提交） */
+  time?: string
+  /** 可拆解数量（电池、三元催化，选填） */
+  qty?: number
 }
 
 /** 预处理提交参数 */
