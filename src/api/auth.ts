@@ -1,15 +1,40 @@
 import request from '@/utils/http'
 
 /** 递归收集菜单 id */
-function collectMenuIds(menus: Api.Auth.BackendMenu[]): number[] {
+export function collectMenuIds(menus: Api.Auth.BackendMenu[]): number[] {
   const ids: number[] = []
   for (const menu of menus) {
-    ids.push(menu.id)
+    ids.push(Number(menu.id))
     if (menu.children?.length) {
       ids.push(...collectMenuIds(menu.children))
     }
   }
   return ids
+}
+
+/** unique 可能是数组，也可能是 PHP column 返回的对象 */
+function normalizeUnique(unique: unknown): string[] {
+  if (Array.isArray(unique)) {
+    return unique.map(String).filter(Boolean)
+  }
+  if (unique && typeof unique === 'object') {
+    return Object.values(unique as Record<string, unknown>)
+      .map(String)
+      .filter(Boolean)
+  }
+  return []
+}
+
+/** 左侧菜单（按当前登录角色，对应 /adminapi/menus） */
+export async function fetchGetMenus(): Promise<Api.Auth.SidebarMenusResult> {
+  const res = await request.get<Api.Auth.SidebarMenusResult>({
+    url: '/menus'
+  })
+  return {
+    menus: res?.menus || [],
+    unique: normalizeUnique(res?.unique),
+    btnAuth: Array.isArray(res?.btnAuth) ? res.btnAuth : []
+  }
 }
 
 /** 将登录接口原始响应映射为前端结构 */

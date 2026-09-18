@@ -123,10 +123,20 @@
           </ElButton> -->
           <!-- 待审核订单：审核操作放左侧 -->
           <template v-if="isPendingReview">
-            <ElButton size="large" type="success mr-2!" :loading="submitting" @click="handleApprove"
+            <ElButton
+              v-auth="AUTH_SCRAP_ORDER_AUDIT_APPROVE"
+              size="large"
+              type="success mr-2!"
+              :loading="submitting"
+              @click="handleApprove"
               >审核通过</ElButton
             >
-            <ElButton size="large" class="fo-btn-reject" :loading="submitting" @click="handleReject"
+            <ElButton
+              v-auth="AUTH_SCRAP_ORDER_AUDIT_REJECT"
+              size="large"
+              class="fo-btn-reject"
+              :loading="submitting"
+              @click="handleReject"
               >审核驳回</ElButton
             >
           </template>
@@ -188,6 +198,10 @@
   import FormalOrderDetailEditPanel from './formal-order-detail-edit-panel.vue'
   import FormalOrderProgressTab from './formal-order-progress-tab.vue'
   import FormalOrderAttachmentsTab from './formal-order-attachments-tab.vue'
+  import {
+    AUTH_SCRAP_ORDER_AUDIT_APPROVE,
+    AUTH_SCRAP_ORDER_AUDIT_REJECT
+  } from '@/constants/auth'
 
   type TabKey = 'basic' | 'progress' | 'attachments'
 

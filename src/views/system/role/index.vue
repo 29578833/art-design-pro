@@ -157,28 +157,37 @@
     return []
   }
 
-  /** 将 rules 规范为菜单 id（兼容历史按钮权限 id：menuId*10+1~4） */
+  /** 收集菜单树中合法的菜单 id 与操作级权限 id */
+  function collectValidRuleIds(menus: SystemRoleMenuNode[]): Set<number> {
+    const ids = new Set<number>()
+    const walk = (nodes: SystemRoleMenuNode[]) => {
+      for (const node of nodes) {
+        ids.add(Number(node.id))
+        for (const op of node.operations || []) {
+          ids.add(Number(op.id))
+        }
+        if (node.children?.length) walk(node.children)
+      }
+    }
+    walk(menus)
+    return ids
+  }
+
+  /** 将 rules 规范为菜单 / 操作权限 id（兼容历史按钮权限 id：menuId*10+1~4） */
   function normalizeMenuRuleIds(
     rules: SystemRoleItem['rules'],
     menus: SystemRoleMenuNode[]
   ): number[] {
     const raw = parseRuleIds(rules)
-    const menuIdSet = new Set<number>()
-    const walk = (nodes: SystemRoleMenuNode[]) => {
-      for (const node of nodes) {
-        menuIdSet.add(Number(node.id))
-        if (node.children?.length) walk(node.children)
-      }
-    }
-    walk(menus)
+    const validIds = collectValidRuleIds(menus)
 
     const result = new Set<number>()
     for (const id of raw) {
-      if (menuIdSet.has(id)) {
+      if (validIds.has(id)) {
         result.add(id)
       } else if (id > 10 && id % 10 >= 1 && id % 10 <= 4) {
         const menuId = Math.floor(id / 10)
-        if (menuIdSet.has(menuId)) result.add(menuId)
+        if (validIds.has(menuId)) result.add(menuId)
       }
     }
     return [...result]
@@ -195,7 +204,8 @@
         const mid = Number(node.id)
         const childAny = node.children?.length ? walk(node.children) : false
         const selfOn = selected.has(mid)
-        if (selfOn || childAny) {
+        const opOn = (node.operations || []).some((op) => selected.has(Number(op.id)))
+        if (selfOn || childAny || opOn) {
           result.add(mid)
           any = true
         }

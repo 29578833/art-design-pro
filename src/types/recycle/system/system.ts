@@ -120,6 +120,18 @@ export interface SystemRoleSaveParams {
   mini_program_roles?: string[]
 }
 
+/** 菜单操作级权限（由后端 operations 字段驱动） */
+export interface SystemRoleMenuOperation {
+  /** 操作权限 ID */
+  id: number
+  /** 操作名称 */
+  name: string
+  /** 权限标识 */
+  unique_auth?: string
+  /** 偏移量（后端计算字段） */
+  offset?: number
+}
+
 /** 角色菜单节点 */
 export interface SystemRoleMenuNode {
   /** 菜单 ID */
@@ -140,6 +152,8 @@ export interface SystemRoleMenuNode {
   btn_delete?: number
   /** 是否已勾选（接口可能返回） */
   checked?: boolean
+  /** 操作级权限列表 */
+  operations?: SystemRoleMenuOperation[]
   /** 子节点 */
   children?: SystemRoleMenuNode[]
   [key: string]: unknown

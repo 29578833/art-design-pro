@@ -82,6 +82,16 @@ declare namespace Api {
       children?: BackendMenu[]
     }
 
+    /** 左侧菜单接口 /menus 响应 */
+    interface SidebarMenusResult {
+      /** 当前角色可见菜单树 */
+      menus: BackendMenu[]
+      /** 权限标识 unique_auth 列表 */
+      unique?: string[]
+      /** 操作级权限 ID 列表 */
+      btnAuth?: number[]
+    }
+
     /** 登录接口原始响应 data */
     interface LoginResponseRaw {
       token: string

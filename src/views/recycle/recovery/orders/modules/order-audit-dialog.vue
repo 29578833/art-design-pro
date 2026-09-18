@@ -163,8 +163,8 @@
     <template #footer>
       <div class="audit-footer">
         <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton class="btn-reject" :loading="submitting" @click="handleReject">驳回</ElButton>
-        <ElButton class="btn-approve" :loading="submitting" @click="handleApprove">通过</ElButton>
+        <ElButton class="btn-reject" v-auth="AUTH_SCRAP_ORDER_AUDIT_REJECT" :loading="submitting" @click="handleReject">驳回</ElButton>
+        <ElButton class="btn-approve" v-auth="AUTH_SCRAP_ORDER_AUDIT_APPROVE" :loading="submitting" @click="handleApprove">通过</ElButton>
       </div>
     </template>
   </ElDialog>
@@ -174,6 +174,10 @@
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchAuditOrder, fetchOrderDetail } from '@/api/recycle/order'
   import type { OrderDetail, OrderVehicle } from '@/types/recycle/recovery/orders/order'
+  import {
+    AUTH_SCRAP_ORDER_AUDIT_APPROVE,
+    AUTH_SCRAP_ORDER_AUDIT_REJECT
+  } from '@/constants/auth'
 
   interface Props {
     visible: boolean

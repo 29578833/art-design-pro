@@ -11,6 +11,26 @@
       <ArtSvgIcon v-if="action.icon" :icon="action.icon" class="order-action-icon" />
       <span>{{ action.label }}</span>
     </button>
+    <button
+      v-if="pendingReview"
+      v-auth="AUTH_SCRAP_ORDER_AUDIT_APPROVE"
+      type="button"
+      class="order-action-btn primary"
+      @click="emit('approve', row)"
+    >
+      <ArtSvgIcon icon="ri:checkbox-circle-line" class="order-action-icon" />
+      <span>通过</span>
+    </button>
+    <button
+      v-if="pendingReview"
+      v-auth="AUTH_SCRAP_ORDER_AUDIT_REJECT"
+      type="button"
+      class="order-action-btn danger"
+      @click="emit('reject', row)"
+    >
+      <ArtSvgIcon icon="ri:close-circle-line" class="order-action-icon" />
+      <span>驳回</span>
+    </button>
   </div>
 </template>
 
@@ -24,6 +44,10 @@
     isPendingFormalReview,
     isTowOrder
   } from '@/types/recycle/recovery/orders/order'
+  import {
+    AUTH_SCRAP_ORDER_AUDIT_APPROVE,
+    AUTH_SCRAP_ORDER_AUDIT_REJECT
+  } from '@/constants/auth'
 
   export interface OrderActionEvent {
     (e: 'view', row: RecycleOrder): void
@@ -49,14 +73,14 @@
 
   const props = defineProps<{ row: RecycleOrder }>()
   const emit = defineEmits<OrderActionEvent>()
+  const pendingReview = computed(() => isPendingFormalReview(props.row))
 
   const visibleActions = computed<ActionItem[]>(() => {
     const row = props.row
     const actions: ActionItem[] = []
+    const isPending = pendingReview.value
 
-    const pendingReview = isPendingFormalReview(row)
-
-    if (!pendingReview) {
+    if (!isPending) {
       actions.push({
         key: 'view',
         label: '查看',
@@ -66,8 +90,8 @@
       })
     }
 
-    // 客户/员工订单待审核 status=1
-    if (pendingReview) {
+    // 客户/员工订单待审核 status=1（通过/驳回由模板 v-auth 控制）
+    if (isPending) {
       actions.push({
         key: 'audit',
         label: '审核详情',
@@ -75,22 +99,6 @@
         variant: 'ghost',
         onClick: () => emit('audit', row)
       })
-      actions.push(
-        {
-          key: 'approve',
-          label: '通过',
-          icon: 'ri:checkbox-circle-line',
-          variant: 'primary',
-          onClick: () => emit('approve', row)
-        },
-        {
-          key: 'reject',
-          label: '驳回',
-          icon: 'ri:close-circle-line',
-          variant: 'danger',
-          onClick: () => emit('reject', row)
-        }
-      )
       return actions
     }
 

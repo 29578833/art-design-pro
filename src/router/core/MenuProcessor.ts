@@ -9,8 +9,7 @@
 
 import type { AppRouteRecord } from '@/types/router'
 import { useUserStore } from '@/store/modules/user'
-import { useAppMode } from '@/hooks/core/useAppMode'
-import { fetchGetMenuList } from '@/api/system-manage'
+import { collectMenuIds, fetchGetMenus } from '@/api/auth'
 import { asyncRoutes } from '../routes/asyncRoutes'
 import { formatMenuTitle } from '@/utils'
 
@@ -19,14 +18,7 @@ export class MenuProcessor {
    * 获取菜单数据
    */
   async getMenuList(): Promise<AppRouteRecord[]> {
-    const { isFrontendMode } = useAppMode()
-
-    let menuList: AppRouteRecord[]
-    if (isFrontendMode.value) {
-      menuList = await this.processFrontendMenu()
-    } else {
-      menuList = await this.processBackendMenu()
-    }
+    const menuList = await this.processPermissionMenus()
 
     // 在规范化路径之前，验证原始路径配置
     this.validateMenuPaths(menuList)
@@ -36,31 +28,28 @@ export class MenuProcessor {
   }
 
   /**
-   * 处理前端控制模式的菜单
+   * 调用 /menus 获取当前角色可见菜单，再按 menuId 过滤本地路由
    */
-  private async processFrontendMenu(): Promise<AppRouteRecord[]> {
-    const userStore = useUserStore()
-    const menuIds = userStore.info?.menuIds
+  private async processPermissionMenus(): Promise<AppRouteRecord[]> {
+    const res = await fetchGetMenus()
+    const backendMenus = res?.menus || []
+    const menuIds = collectMenuIds(backendMenus).filter((id) => !Number.isNaN(id) && id > 0)
 
-    let menuList = [...asyncRoutes]
+    this.syncUserMenuAuth(menuIds, res.unique)
 
-    // 按后端 menuId 过滤（统一转 number，避免持久化/接口返回 string 导致匹配失败）
-    if (menuIds && menuIds.length > 0) {
-      menuList = this.filterMenuByIds(
-        menuList,
-        new Set(menuIds.map((id) => Number(id)).filter((id) => !Number.isNaN(id)))
-      )
-    }
-
+    const allowedIds = new Set(menuIds)
+    const menuList = this.filterMenuByIds([...asyncRoutes], allowedIds)
     return this.filterEmptyMenus(menuList)
   }
 
-  /**
-   * 处理后端控制模式的菜单
-   */
-  private async processBackendMenu(): Promise<AppRouteRecord[]> {
-    const list = await fetchGetMenuList()
-    return this.filterEmptyMenus(list)
+  /** 把 /menus 返回的菜单 id、权限标识写回用户信息，供按钮权限使用 */
+  private syncUserMenuAuth(menuIds: number[], unique?: string[]) {
+    const userStore = useUserStore()
+    userStore.setUserInfo({
+      ...userStore.info,
+      menuIds,
+      buttons: unique || []
+    } as Api.Auth.UserInfo)
   }
 
   /**

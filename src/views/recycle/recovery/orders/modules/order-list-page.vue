@@ -38,7 +38,7 @@
     />
 
     <!-- 待审核批量操作栏 -->
-    <div v-if="showBatchBar" class="order-batch-bar">
+    <div v-if="showBatchBar" v-auth="AUTH_SCRAP_ORDER_AUDIT_APPROVE" class="order-batch-bar">
       <div class="order-batch-bar-left">
         <span class="order-batch-bar-count">
           已选 <em>{{ selectedRows.length }}</em> 条待审核订单
@@ -47,6 +47,7 @@
         <ElButton text @click="clearSelection">取消选择</ElButton>
       </div>
       <ElButton
+        v-auth="AUTH_SCRAP_ORDER_AUDIT_APPROVE"
         type="primary"
         :disabled="!selectedRows.length"
         :loading="batchAuditing"
@@ -152,6 +153,8 @@
   import FormalOrderDetailDialog from './formal-order-detail-dialog.vue'
   import TowOrderDetailDialog from './tow-order-detail-dialog.vue'
   import TowDriverAssignDialog from './tow-driver-assign-dialog.vue'
+  import { useAuth } from '@/hooks/core/useAuth'
+  import { AUTH_SCRAP_ORDER_AUDIT_APPROVE } from '@/constants/auth'
 
   /** 列表页模式：全部管理 / 待审核 / 线索 */
   export type OrderListMode = 'all' | 'pending_review' | 'lead'
@@ -186,6 +189,8 @@
   const showTabBar = computed(() => props.mode === 'all')
   const showCreateButton = computed(() => props.mode === 'all')
   const showBatchBar = computed(() => props.mode === 'pending_review')
+  const { hasAuth } = useAuth()
+  const canBatchApprove = computed(() => hasAuth(AUTH_SCRAP_ORDER_AUDIT_APPROVE))
 
   const initialTab = ((): OrderTab => {
     if (props.mode === 'pending_review') return 'pending_review'
@@ -387,7 +392,7 @@
 
     const cols: ColumnOption<RecycleOrder>[] = []
 
-    if (isPendingReview) {
+    if (isPendingReview && canBatchApprove.value) {
       cols.push({ type: 'selection', width: 48, fixed: 'left' })
     }
 
