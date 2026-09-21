@@ -10,8 +10,7 @@
       <div class="sys-notify-tip">
         <ArtSvgIcon icon="ri:information-line" class="sys-notify-tip-ico" />
         <div>
-          系统内消息默认全开启；微信公众号需绑定服务号，对高优先级节点开启；短信（计费）当前仅 C-10
-          结算打款固定开启，不在此处配置。点击「查看模板」可查看和编辑各通知类型的默认消息内容。
+          系统内消息默认全开启；微信公众号需绑定服务号，对高优先级节点开启；短信按需开启（计费）。点击「查看模板」可查看和编辑各通知类型的默认消息内容。
         </div>
       </div>
 
@@ -74,6 +73,7 @@
             <div class="col-name">消息通知类型</div>
             <div class="col-desc">触发说明</div>
             <div class="col-switch">系统消息</div>
+            <div class="col-switch">短信通知</div>
             <div class="col-switch">微信公众号</div>
             <div class="col-action">消息模板</div>
           </div>
@@ -139,6 +139,19 @@
                   </div>
                   <div class="col-switch">
                     <ElSwitch
+                      :model-value="Number(item.is_sms) === 1"
+                      style="--el-switch-on-color: #52c41a; --el-switch-off-color: #d9d9d9"
+                      @change="(val) => handleToggle(item, 'is_sms', val)"
+                    />
+                    <span
+                      class="switch-label"
+                      :class="{ on: Number(item.is_sms) === 1 }"
+                    >
+                      {{ Number(item.is_sms) === 1 ? '开启' : '关闭' }}
+                    </span>
+                  </div>
+                  <div class="col-switch">
+                    <ElSwitch
                       :model-value="Number(item.is_wechat) === 1"
                       style="--el-switch-on-color: #52c41a; --el-switch-off-color: #d9d9d9"
                       @change="(val) => handleToggle(item, 'is_wechat', val)"
@@ -169,9 +182,9 @@
       <div class="sys-notify-stats">
         共 <strong>{{ totalCount }}</strong> 条
         <span class="dot">·</span>
-        微信公众号已开启 <strong>{{ wechatEnabledCount }}</strong> 条
+        短信已开启 <strong>{{ smsEnabledCount }}</strong> 条
         <span class="dot">·</span>
-        短信（计费）固定开启 1 条（C-10 结算打款）
+        微信公众号已开启 <strong>{{ wechatEnabledCount }}</strong> 条
       </div>
       <div class="sys-notify-actions">
         <ElButton :loading="resetting" @click="handleReset">重置默认</ElButton>
@@ -468,14 +481,21 @@
     )
   )
 
+  const smsEnabledCount = computed(() =>
+    groups.value.reduce(
+      (sum, g) => sum + g.items.filter((i) => Number(i.is_sms) === 1).length,
+      0
+    )
+  )
+
   // ==================== 渠道开关与批量保存 ====================
 
   const saving = ref(false)
 
-  /** 切换渠道开关（直接改 groups 原数据，保存时统一提交） */
+  /** 切换渠道开关（直接改 groups 原数据，保存时统一提交；1开 2关） */
   function handleToggle(
     item: SystemNotificationItem,
-    channelKey: 'is_system' | 'is_wechat',
+    channelKey: 'is_system' | 'is_sms' | 'is_wechat',
     val: string | number | boolean
   ) {
     item[channelKey] = val ? 1 : 2
