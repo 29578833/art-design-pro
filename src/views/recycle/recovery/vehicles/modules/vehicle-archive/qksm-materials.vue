@@ -2,21 +2,29 @@
   <div class="ae-qksm">
     <div class="ae-qksm-head">
       <div class="ae-qksm-head-left">
-        <ArtSvgIcon icon="ri:folder-image-line" class="ae-qksm-head-icon" />
-        <span class="ae-qksm-title">非车管情况材料上传</span>
-        <span class="ae-qksm-tag">非车管（场内）专用</span>
+        <span class="ae-qksm-head-icon-wrap">
+          <ArtSvgIcon icon="ri:folder-image-line" class="ae-qksm-head-icon" />
+        </span>
+        <div class="ae-qksm-head-text">
+          <div class="ae-qksm-title-row">
+            <span class="ae-qksm-title">非车管情况材料上传</span>
+            <span class="ae-qksm-tag">非车管（场内）专用</span>
+          </div>
+          <span class="ae-qksm-limit">支持 JPG / PNG，单张 ≤10MB</span>
+        </div>
       </div>
-      <span class="ae-qksm-limit">支持 JPG / PNG，单张 ≤10MB</span>
     </div>
 
     <div class="ae-qksm-body">
       <div class="ae-qksm-col">
-        <div class="ae-qksm-col-label">
-          非车管情况说明
-          <span class="ae-qksm-req">必传</span>
+        <div class="ae-qksm-proof-head">
+          <div class="ae-qksm-proof-head-label">
+            非车管情况说明
+            <span class="ae-qksm-req">必传</span>
+          </div>
         </div>
         <div
-          class="ae-qksm-note"
+          class="ae-qksm-note mt-3"
           :class="{ done: !!materials.cqksmzp, disabled: readonly }"
           @click="!readonly && !materials.cqksmzp && triggerNotePick()"
           @dragover.prevent="onNoteDragOver"
@@ -44,8 +52,11 @@
             </button>
           </template>
           <div v-else class="ae-qksm-note-empty" :class="{ drag: noteDragging }">
-            <ArtSvgIcon icon="ri:upload-2-line" />
-            <span>单击或拖拽照片至此上传</span>
+            <span class="ae-qksm-note-icon">
+              <ArtSvgIcon icon="ri:upload-cloud-2-line" />
+            </span>
+            <span class="ae-qksm-note-main">单击或拖拽照片至此上传</span>
+            <span class="ae-qksm-note-sub">必传 · 情况说明图片</span>
           </div>
         </div>
         <input
@@ -65,8 +76,9 @@
           </div>
           <ElDropdown v-if="!readonly" trigger="click" @command="pickProof">
             <button type="button" class="ae-qksm-upload-btn">
+              <ArtSvgIcon icon="ri:add-line" />
               点击上传
-              <ArtSvgIcon icon="ri:arrow-up-s-line" />
+              <ArtSvgIcon icon="ri:arrow-down-s-line" class="ae-qksm-upload-caret" />
             </button>
             <template #dropdown>
               <ElDropdownMenu>
@@ -82,11 +94,14 @@
           </ElDropdown>
         </div>
 
-        <div class="ae-qksm-proof">
+        <div class="ae-qksm-proof" :class="{ empty: !hasProof }">
           <template v-if="hasProof">
             <div v-for="item in proofOptions" :key="item.field" class="ae-qksm-proof-group">
               <template v-if="materials[item.field].length">
-                <div class="ae-qksm-proof-label">{{ item.label }}</div>
+                <div class="ae-qksm-proof-label">
+                  <span>{{ item.label }}</span>
+                  <span class="ae-qksm-proof-count">{{ materials[item.field].length }} 张</span>
+                </div>
                 <div class="ae-qksm-proof-grid">
                   <div
                     v-for="(url, index) in materials[item.field]"
@@ -117,8 +132,12 @@
               </template>
             </div>
           </template>
-          <div v-else class="ae-qksm-proof-empty">暂无证明材料，点击右上角上传</div>
-          <div class="ae-qksm-proof-hint">可按需选择多种证明材料分别上传</div>
+          <div v-else class="ae-qksm-proof-empty">
+            <ArtSvgIcon icon="ri:image-add-line" class="ae-qksm-proof-empty-icon" />
+            <span>暂无证明材料</span>
+            <span class="ae-qksm-proof-empty-sub">点击右上角按类型上传</span>
+          </div>
+          <div class="ae-qksm-proof-hint">可按需选择身份证明 / 产权证明 / 委托代办等材料分别上传</div>
         </div>
         <input
           ref="proofInputRef"
