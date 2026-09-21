@@ -76,9 +76,9 @@
     <div class="vd-photo-section">
       <div class="vd-photo-section-head">
         <span class="vd-section-title">车辆信息</span>
-        <span class="vd-photo-count">{{ vehicleDocSlots.length }}张</span>
+        <span v-if="vehicleDocSlots.length" class="vd-photo-count">{{ vehicleDocSlots.length }}张</span>
       </div>
-      <div class="vd-photo-grid cols-4">
+      <div v-if="vehicleDocSlots.length" class="vd-photo-grid cols-4">
         <div v-for="(slot, index) in vehicleDocSlots" :key="slot.key" class="vd-photo-slot">
           <div class="vd-photo-box">
             <ElImage
@@ -333,10 +333,12 @@
         </div>
       </div>
 
-      <div class="vd-cert-card">
+      <div v-if="!isOutOfProvince" class="vd-cert-card">
         <div class="vd-cert-head">
           <div class="vd-cert-head-left">
-            <span class="vd-cert-head-title">车辆证件材料</span>
+            <span class="vd-cert-head-title">{{
+              isNonVehicleMgmt ? '非车管情况材料' : '车辆证件材料'
+            }}</span>
           </div>
           <span class="vd-photo-count">{{ mediaVehicleDocSlots.length }}张</span>
         </div>
@@ -521,6 +523,7 @@
     maskIdCard,
     maskPhone,
     mergeAcceptSyncPatch,
+    resolveVehicleOrigin,
     previewIndexAt,
     previewUrls
   } from './vehicle-detail-utils'
@@ -545,6 +548,9 @@
   })
 
   const isCommercial = computed(() => isCommercialOwner(archiveDetail.value))
+  const vehicleOrigin = computed(() => resolveVehicleOrigin(archiveDetail.value))
+  const isOutOfProvince = computed(() => vehicleOrigin.value === 'out_of_province')
+  const isNonVehicleMgmt = computed(() => vehicleOrigin.value === 'non_vehicle_mgmt')
   const brandModel = computed(() => brandModelText(archiveDetail.value))
   const delivery = computed(() => deliveryText(archiveDetail.value))
 

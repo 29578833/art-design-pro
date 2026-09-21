@@ -33,6 +33,7 @@ import type {
   ArchiveMaterialImages,
   ArchiveOwnerForm,
   ArchiveOwnerImages,
+  ArchiveQksmMaterials,
   ArchiveVehicleForm,
   ArchiveVehicleImages
 } from './types'
@@ -172,6 +173,12 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     xszbmzp: '', // 行驶证正副本背面
     czzp: '' // 机动车登记证书一二页
   })
+  const qksmMaterials = reactive<ArchiveQksmMaterials>({
+    cqksmzp: '', // 非车管情况说明
+    sfzmzp: [], // 身份证明材料
+    cqzmzp: [], // 产权证明材料
+    wtdbzp: [] // 委托代办材料
+  })
   const materialImages = reactive<ArchiveMaterialImages>({
     photo_front: '', // 拖车单图片
     photo_side: '', // 整车照片
@@ -193,18 +200,24 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   const dismantlePhotos = ref<Record<string, string>>({})
 
   const validationCtx = computed(() => ({
+    hplx: hplx.value,
     isPersonal: isPersonal.value,
     hasAgent: hasAgent.value,
     ownerForm,
     ownerImages,
     vehicleForm,
     vehicleImages,
+    qksmMaterials,
     agentForm,
     agentImages,
     materialImages,
     ownerAuthed: ownerForm.syrsmrz === '1',
     agentAuthed: agentForm.jbrsmrz === '1'
   }))
+
+  const visibleSteps = computed(() =>
+    hplx.value === 2 ? ARCHIVE_STEPS.filter((item) => item.id !== 2) : ARCHIVE_STEPS
+  )
 
   const stepComplete = computed(() =>
     [1, 2, 3, 4, 5].map((n) => isStepComplete(n, validationCtx.value))
@@ -304,6 +317,10 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     ;(Object.keys(vehicleImages) as (keyof ArchiveVehicleImages)[]).forEach(
       (key) => (vehicleImages[key] = '')
     )
+    qksmMaterials.cqksmzp = ''
+    qksmMaterials.sfzmzp = []
+    qksmMaterials.cqzmzp = []
+    qksmMaterials.wtdbzp = []
     Object.assign(agentForm, { jbr: '', jbrsfzmhm: '', jbrdh: '', jbrsmrz: '' })
     ;(Object.keys(agentImages) as (keyof ArchiveAgentImages)[]).forEach(
       (key) => (agentImages[key] = '')
@@ -427,6 +444,10 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     if (xszbmzp) vehicleImages.xszbmzp = xszbmzp
     const czzp = imgUrl(vehicleImgs.czzp)
     if (czzp) vehicleImages.czzp = czzp
+    qksmMaterials.cqksmzp = imgUrl(vehicleImgs.cqksmzp)
+    qksmMaterials.sfzmzp = parseImageArray(vehicleImgs.sfzmzp)
+    qksmMaterials.cqzmzp = parseImageArray(vehicleImgs.cqzmzp)
+    qksmMaterials.wtdbzp = parseImageArray(vehicleImgs.wtdbzp)
     // 产权变更页：读取 vehicle sync.tcjczp（JSON 数组字符串，支持多图），兼容旧数据 owner_sync.blpzzp
     const ownerChangeUrls = parseImageArray(vehicleImgs.tcjczp)
     ownerChangeImages.value = ownerChangeUrls.length
@@ -515,8 +536,8 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
         await stepRefs.materials.value?.loadScrapFiles()
         const hadPending = pendingTargetStep.value >= 1 && pendingTargetStep.value <= 5
         await applyPendingStep()
-        // 已提交档案打开编辑时默认落到车辆信息步，方便改收款银行卡
-        if (!hadPending) step.value = 2
+        // 已提交档案打开编辑时默认落到车辆信息步，方便改收款银行卡；外牌无该步则留在第一步
+        if (!hadPending) step.value = hplx.value === 2 ? 1 : 2
         return
       }
 
@@ -656,23 +677,31 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     const target = pendingTargetStep.value
     if (target < 1 || target > 5 || phase.value !== 'form') return
     pendingTargetStep.value = 0
-    step.value = target
-    if (target === 5) await stepRefs.materials.value?.loadScrapFiles()
+    step.value = skipHiddenVehicleStep(target)
+    if (step.value === 5) await stepRefs.materials.value?.loadScrapFiles()
+  }
+
+  /** 外牌跳过步骤 2；preferPrev 为 true 时从 3 回退到 1。 */
+  function skipHiddenVehicleStep(target: number, preferPrev = false) {
+    if (target < 1) return 1
+    if (target > 5) return 5
+    if (hplx.value === 2 && target === 2) return preferPrev ? 1 : 3
+    return target
   }
 
   async function goToStep(target: number) {
     if (target < 1 || target > 5) return
     if (phase.value !== 'form') {
-      pendingTargetStep.value = target
+      pendingTargetStep.value = skipHiddenVehicleStep(target)
       return
     }
-    step.value = target
-    if (target === 5) await stepRefs.materials.value?.loadScrapFiles()
+    step.value = skipHiddenVehicleStep(target, target < step.value)
+    if (step.value === 5) await stepRefs.materials.value?.loadScrapFiles()
   }
 
   async function goNext() {
     if (isSubmitted.value) {
-      if (step.value < 5) step.value += 1
+      if (step.value < 5) step.value = skipHiddenVehicleStep(step.value + 1)
       return
     }
     saving.value = true
@@ -680,7 +709,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
       await saveCurrentStep()
       draftSaved.value = true
       if (step.value < 5) {
-        step.value += 1
+        step.value = skipHiddenVehicleStep(step.value + 1)
         if (step.value === 5) await stepRefs.materials.value?.loadScrapFiles()
       }
     } finally {
@@ -689,7 +718,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   }
 
   function goPrev() {
-    if (step.value > 1) step.value -= 1
+    if (step.value > 1) step.value = skipHiddenVehicleStep(step.value - 1, true)
   }
 
   async function handleFetchArchive() {
@@ -763,6 +792,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     ownerChangeImages,
     vehicleForm,
     vehicleImages,
+    qksmMaterials,
     materialImages,
     agentForm,
     agentImages,
@@ -771,7 +801,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     stepComplete,
     hplxOptions: HPLX_OPTIONS,
     syqOptions: SYQ_OPTIONS,
-    visibleSteps: ARCHIVE_STEPS,
+    visibleSteps,
     openEditor,
     confirmOrderSkip,
     confirmOrderNext,

@@ -1,3 +1,10 @@
+<!--
+ * @Descripttion: 
+ * @Author: wy
+ * @Date: 2026-08-26 12:20:53
+ * @LastEditors: NUMBER\29758
+ * @LastEditTime: 2026-09-21 11:21:32
+-->
 <template>
   <div class="ae-scene">
     <div class="ae-scene-group">
@@ -35,6 +42,8 @@
     <div class="ae-scene-summary">
       当前场景：
       <b>{{ hplxLabel }} · {{ syqLabel }}</b>
+      <span v-if="hplx === 2" class="ae-scene-skip-hint">（车辆信息模块自动跳过）</span>
+      <span v-if="hplx === 3" class="ae-scene-skip-hint text-amber-500!">（第2步将使用非车管简化上传流程）</span>
     </div>
   </div>
 </template>

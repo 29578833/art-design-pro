@@ -1,5 +1,12 @@
 <template>
-  <div class="ae-ocr-box">
+  <QksmMaterials
+    v-if="hplx === 3"
+    v-model:materials="qksmMaterials"
+    :vehicle-id="vehicleId"
+    :readonly="readonly"
+  />
+
+  <div v-else class="ae-ocr-box">
     <div class="ae-ocr-head">
       <ArtSvgIcon icon="ri:qr-scan-2-line" />
       行驶证 / 产证上传 & OCR智能识别
@@ -370,12 +377,14 @@
   import { batchFillUploadSlots } from './archive-utils'
   import { applyDrivingOcrResult, applyRegCertOcrResult, resolveCllxValue } from './ocr'
   import MultiUploadSlot from './multi-upload-slot.vue'
+  import QksmMaterials from './qksm-materials.vue'
   import UploadBatchTrigger from './upload-batch-trigger.vue'
   import UploadSlot from './upload-slot.vue'
   import type {
     ArchiveDictOption,
     ArchiveOcrState,
     ArchiveOwnerForm,
+    ArchiveQksmMaterials,
     ArchiveVehicleForm,
     ArchiveVehicleImages
   } from './types'
@@ -398,6 +407,8 @@
   const cllxPath = defineModel<string>('cllxPath', { required: true })
   /** 产权变更页照片（车信盟 lx=4，后端 vehicle sync.tcjczp，多图）。 */
   const ownerChangeImages = defineModel<string[]>('ownerChangeImages', { required: true })
+  /** 非车管情况材料。 */
+  const qksmMaterials = defineModel<ArchiveQksmMaterials>('qksmMaterials', { required: true })
 
   const ocrLoading = reactive<ArchiveOcrState>({})
   const ocrDone = reactive<ArchiveOcrState>({})
@@ -587,6 +598,7 @@
   }
 
   async function save() {
+    const isNonMgmt = props.hplx === 3
     await fetchAcceptSaveVehicle({
       vehicle_id: props.vehicleId,
       hplx: props.hplx,
@@ -595,8 +607,12 @@
       xszzpfy: images.value.xszzpfy || '',
       xszbmzp: images.value.xszbmzp || '',
       czzp: images.value.czzp || '',
-      tcjczp: JSON.stringify(ownerChangeImages.value)
-    } as never)
+      tcjczp: JSON.stringify(ownerChangeImages.value),
+      cqksmzp: isNonMgmt ? qksmMaterials.value.cqksmzp || '' : '',
+      sfzmzp: isNonMgmt ? JSON.stringify(qksmMaterials.value.sfzmzp) : '',
+      cqzmzp: isNonMgmt ? JSON.stringify(qksmMaterials.value.cqzmzp) : '',
+      wtdbzp: isNonMgmt ? JSON.stringify(qksmMaterials.value.wtdbzp) : ''
+    })
   }
 
   defineExpose({ save, clearOcrState, loadOptions, handleUpload, handleRemove })

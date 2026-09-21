@@ -228,6 +228,16 @@ export interface AcceptSyncFiles {
   business_status?: AcceptBusinessStatus
   /** 监销类型（车信盟自动拉取，只读），如「监销车辆」「非监销」 */
   sfJxc_text?: string
+  /** 车辆属地（get_scrap_files_from_sync.origin） */
+  origin?: {
+    /** shanghai / out_of_province / non_vehicle_mgmt */
+    vehicle_origin?: string
+    /** 沪牌机动车 / 外牌机动车 / 非车管（场内） */
+    vehicle_origin_text?: string
+    sywd?: string
+    zcbj?: string
+    syq?: string
+  }
 }
 
 /** 保存所有人 */
@@ -251,6 +261,14 @@ export interface AcceptSaveVehicleParams extends AcceptVehicleData {
   czzp?: string
   /** 产权变更页（vehicle sync.tcjczp，JSON 数组字符串，支持多图）。 */
   tcjczp?: string
+  /** 非车管情况说明图片 URL（单图，lx=9）。车辆属地=非车管（场内）时必传。 */
+  cqksmzp?: string
+  /** 非车管-身份证明材料（多图 JSON 数组字符串，lx=81）。 */
+  sfzmzp?: string
+  /** 非车管-产权证明材料（多图 JSON 数组字符串，lx=82）。 */
+  cqzmzp?: string
+  /** 非车管-委托代办材料（多图 JSON 数组字符串，lx=83）。 */
+  wtdbzp?: string
 }
 
 /** 保存代理人 */

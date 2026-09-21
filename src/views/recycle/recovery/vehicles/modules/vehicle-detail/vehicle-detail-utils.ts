@@ -109,6 +109,30 @@ export function mergeAcceptSyncPatch(d: AcceptSyncFiles): Partial<ScrapVehicleDe
   if (!ownerChangeImages.length) ownerChangeImages.push(...parseImageArray(ownerImgs.blpzzp))
   if (ownerChangeImages.length) patch.owner_change_image = ownerChangeImages
 
+  const qksmNote = getImgUrl(vehicleImgs.cqksmzp)
+  if (qksmNote) patch.cqksmzp = qksmNote
+  const qksmIdImages = parseImageArray(vehicleImgs.sfzmzp)
+  if (qksmIdImages.length) patch.sfzmzp = qksmIdImages
+  const qksmPropImages = parseImageArray(vehicleImgs.cqzmzp)
+  if (qksmPropImages.length) patch.cqzmzp = qksmPropImages
+  const qksmAgentImages = parseImageArray(vehicleImgs.wtdbzp)
+  if (qksmAgentImages.length) patch.wtdbzp = qksmAgentImages
+
+  const origin = d.origin
+  if (origin?.vehicle_origin) patch.vehicle_origin = String(origin.vehicle_origin)
+  if (origin?.vehicle_origin_text) patch.vehicle_origin_text = String(origin.vehicle_origin_text)
+  if (origin?.zcbj) patch.zcbj = String(origin.zcbj)
+  else if (owner.zcbj !== undefined && owner.zcbj !== null && owner.zcbj !== '') {
+    patch.zcbj = String(owner.zcbj)
+  }
+  if (origin?.sywd) patch.sywd = String(origin.sywd)
+  else if (owner.sywd !== undefined && owner.sywd !== null && owner.sywd !== '') {
+    patch.sywd = String(owner.sywd)
+  }
+  if (owner.hplx !== undefined && owner.hplx !== null && owner.hplx !== '') {
+    patch.hplx = owner.hplx as string | number
+  }
+
   const jbrzpImg = getImgUrl(agentImgs.jbrzp)
   if (jbrzpImg) patch.agent_auth_image = jbrzpImg
   const jbrsfz1Img = getImgUrl(agentImgs.jbrsfz1zp)
@@ -226,6 +250,56 @@ export function buildLogItems(logs?: ScrapVehicleDetail['operation_logs']): LogI
   }))
 }
 
+/** 车辆属地：shanghai / out_of_province / non_vehicle_mgmt */
+export function resolveVehicleOrigin(detail: {
+  vehicle_origin?: string
+  zcbj?: string
+  sywd?: string
+  sfyd?: string
+  hplx?: string | number
+}): 'shanghai' | 'out_of_province' | 'non_vehicle_mgmt' {
+  if (
+    detail.vehicle_origin === 'shanghai' ||
+    detail.vehicle_origin === 'out_of_province' ||
+    detail.vehicle_origin === 'non_vehicle_mgmt'
+  ) {
+    return detail.vehicle_origin
+  }
+  if (String(detail.zcbj) === '0') return 'non_vehicle_mgmt'
+  if (String(detail.sywd) === '1' || String(detail.sfyd) === '1') return 'out_of_province'
+  const hplx = Number(detail.hplx)
+  if (hplx === 3) return 'non_vehicle_mgmt'
+  if (hplx === 2) return 'out_of_province'
+  return 'shanghai'
+}
+
+/** 非车管情况材料槽位。 */
+export function buildQksmPhotoSlots(detail: ScrapVehicleDetail): PhotoSlot[] {
+  const slots: PhotoSlot[] = [
+    { key: 'cqksmzp', label: '非车管情况说明', url: getImgUrl(detail.cqksmzp) }
+  ]
+  const groups: { field: 'sfzmzp' | 'cqzmzp' | 'wtdbzp'; label: string }[] = [
+    { field: 'sfzmzp', label: '身份证明材料' },
+    { field: 'cqzmzp', label: '产权证明材料' },
+    { field: 'wtdbzp', label: '委托代办材料' }
+  ]
+  groups.forEach((group) => {
+    const urls = parseImageArray(detail[group.field])
+    if (!urls.length) {
+      slots.push({ key: group.field, label: group.label, url: '' })
+      return
+    }
+    urls.forEach((url, index) => {
+      slots.push({
+        key: index === 0 ? group.field : `${group.field}_${index}`,
+        label: urls.length > 1 ? `${group.label}${index + 1}` : group.label,
+        url
+      })
+    })
+  })
+  return slots
+}
+
 export function buildOwnerPhotoSlots(detail: ScrapVehicleDetail): PhotoSlot[] {
   if (isCommercialOwner(detail)) {
     return [
@@ -241,6 +315,9 @@ export function buildOwnerPhotoSlots(detail: ScrapVehicleDetail): PhotoSlot[] {
 }
 
 export function buildVehicleDocSlots(detail: ScrapVehicleDetail): PhotoSlot[] {
+  const origin = resolveVehicleOrigin(detail)
+  if (origin === 'out_of_province') return []
+  if (origin === 'non_vehicle_mgmt') return buildQksmPhotoSlots(detail)
   const slots: PhotoSlot[] = [
     { key: 'xszzp', label: '行驶证正页', url: detail.license_front_image || '' },
     { key: 'xszzpfy', label: '行驶证副页', url: detail.license_back_image || '' },

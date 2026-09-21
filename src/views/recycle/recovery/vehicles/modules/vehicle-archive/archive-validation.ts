@@ -1,21 +1,25 @@
+import type { AcceptHplx } from '@/types/recycle/recovery/commerce/accept'
 import type {
   ArchiveAgentForm,
   ArchiveAgentImages,
   ArchiveMaterialImages,
   ArchiveOwnerForm,
   ArchiveOwnerImages,
+  ArchiveQksmMaterials,
   ArchiveVehicleForm,
   ArchiveVehicleImages
 } from './types'
 import { hasVal, nonZero } from './archive-utils'
 
 interface StepValidationContext {
+  hplx: AcceptHplx
   isPersonal: boolean
   hasAgent: boolean
   ownerForm: ArchiveOwnerForm
   ownerImages: ArchiveOwnerImages
   vehicleForm: ArchiveVehicleForm
   vehicleImages: ArchiveVehicleImages
+  qksmMaterials: ArchiveQksmMaterials
   agentForm: ArchiveAgentForm
   agentImages: ArchiveAgentImages
   materialImages: ArchiveMaterialImages
@@ -46,18 +50,30 @@ export function isOwnerStepComplete(
   return hasVal(ownerImages.syrzp)
 }
 
+/** 步骤 2 车辆证件是否齐全（按属地）。 */
+function isVehicleCertComplete(
+  ctx: Pick<StepValidationContext, 'hplx' | 'vehicleImages' | 'qksmMaterials'>
+) {
+  if (ctx.hplx === 2) return true
+  if (ctx.hplx === 3) return hasVal(ctx.qksmMaterials.cqksmzp)
+  return (
+    hasVal(ctx.vehicleImages.xszzp) &&
+    hasVal(ctx.vehicleImages.xszzpfy) &&
+    hasVal(ctx.vehicleImages.xszbmzp) &&
+    hasVal(ctx.vehicleImages.czzp)
+  )
+}
+
 /** 步骤 2：车辆信息。 */
 export function isVehicleStepComplete(
-  ctx: Pick<StepValidationContext, 'vehicleForm' | 'vehicleImages'>
+  ctx: Pick<
+    StepValidationContext,
+    'hplx' | 'vehicleForm' | 'vehicleImages' | 'qksmMaterials'
+  >
 ) {
-  const { vehicleForm, vehicleImages } = ctx
-  if (
-    !hasVal(vehicleImages.xszzp) ||
-    !hasVal(vehicleImages.xszzpfy) ||
-    !hasVal(vehicleImages.xszbmzp) ||
-    !hasVal(vehicleImages.czzp)
-  )
-    return false
+  if (ctx.hplx === 2) return true
+  if (!isVehicleCertComplete(ctx)) return false
+  const { vehicleForm } = ctx
   if (!hasVal(vehicleForm.clsbdh) || !hasVal(vehicleForm.hphm) || !hasVal(vehicleForm.hpzl))
     return false
   if (!hasVal(vehicleForm.cllx) || !hasVal(vehicleForm.syxz) || !hasVal(vehicleForm.xszbh))
@@ -125,20 +141,14 @@ export function isAuthStepComplete(
 
 /** 步骤 5：影像材料。 */
 export function isMaterialsStepComplete(ctx: StepValidationContext) {
-  const { isPersonal, hasAgent, ownerImages, vehicleImages, agentImages } = ctx
+  const { isPersonal, hasAgent, ownerImages, agentImages } = ctx
   if (isPersonal) {
     if (!hasVal(ownerImages.sfz1zp || ownerImages.syrzp) || !hasVal(ownerImages.sfz2zp))
       return false
   } else if (!hasVal(ownerImages.syrzp)) {
     return false
   }
-  if (
-    !hasVal(vehicleImages.xszzp) ||
-    !hasVal(vehicleImages.xszzpfy) ||
-    !hasVal(vehicleImages.xszbmzp) ||
-    !hasVal(vehicleImages.czzp)
-  )
-    return false
+  if (!isVehicleCertComplete(ctx)) return false
   if (hasAgent) {
     if (
       !hasVal(agentImages.jbrsfz1zp) ||

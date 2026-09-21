@@ -62,12 +62,13 @@
           />
         </div>
 
-        <div v-show="step === 2" class="ae-step-pane">
+        <div v-show="step === 2 && hplx !== 2" class="ae-step-pane">
           <VehicleStep
             ref="vehicleStepRef"
             v-model:form="vehicleForm"
             v-model:images="vehicleImages"
             v-model:owner-change-images="ownerChangeImages"
+            v-model:qksm-materials="qksmMaterials"
             v-model:cllx-path="cllxPath"
             :vehicle-id="activeVehicleId"
             :hplx="hplx"
@@ -106,10 +107,12 @@
             v-model:owner-images="ownerImages"
             v-model:vehicle-images="vehicleImages"
             v-model:owner-change-images="ownerChangeImages"
+            v-model:qksm-materials="qksmMaterials"
             v-model:agent-images="agentImages"
             v-model:material-images="materialImages"
             :vehicle-id="activeVehicleId"
             :order-id="linkedOrderId"
+            :hplx="hplx"
             :is-company="isCompany"
             :readonly="isSubmitted"
             :dismantle-photos="dismantlePhotos"
@@ -156,7 +159,7 @@
         style="display: flex; justify-content: space-between; width: 100%"
       >
         <div class="ae-footer-left">
-          <span>步骤 {{ step }} / 5</span>
+          <span>步骤 {{ formStepIndex }} / {{ formStepTotal }}</span>
           <span v-if="draftSaved" style="color: #52c41a">已暂存</span>
         </div>
         <div style="display: flex; gap: 12px">
@@ -268,6 +271,7 @@
     ownerChangeImages,
     vehicleForm,
     vehicleImages,
+    qksmMaterials,
     materialImages,
     agentForm,
     agentImages,
@@ -321,6 +325,12 @@
     if (phase.value === 'order') return '640px'
     if (phase.value === 'scene') return '500px'
     return '1100px'
+  })
+
+  const formStepTotal = computed(() => visibleSteps.value.length)
+  const formStepIndex = computed(() => {
+    const idx = visibleSteps.value.findIndex((item) => item.id === step.value)
+    return idx >= 0 ? idx + 1 : step.value
   })
 
   watch(

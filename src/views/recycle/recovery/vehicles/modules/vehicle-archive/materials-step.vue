@@ -68,7 +68,15 @@
     </div>
   </div>
 
-  <div class="vd-cert-card">
+  <div v-if="hplx === 3" class="ae-qksm-wrap">
+    <QksmMaterials
+      v-model:materials="qksmMaterials"
+      :vehicle-id="vehicleId"
+      :readonly="readonly"
+    />
+  </div>
+
+  <div v-else-if="hplx !== 2" class="vd-cert-card">
     <div class="vd-cert-head">
       <div class="vd-cert-head-left">
         <span class="vd-cert-head-title">车辆证件材料</span>
@@ -247,6 +255,7 @@
 
 <script setup lang="ts">
   import { fetchAcceptFilesCache, fetchAcceptUploadImage } from '@/api/recycle/accept'
+  import type { AcceptHplx } from '@/types/recycle/recovery/commerce/accept'
   import { fetchQualityByOrder } from '@/api/recycle/quality'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { ElMessage } from 'element-plus'
@@ -257,6 +266,7 @@
   } from './archive-constants'
   import { previewIndexAt, resolveDismantlePhotoUrl, str, batchFillUploadSlots } from './archive-utils'
   import MultiUploadSlot from './multi-upload-slot.vue'
+  import QksmMaterials from './qksm-materials.vue'
   import ReadonlyPhoto from './readonly-photo.vue'
   import RecycleCertificate from './recycle-certificate.vue'
   import UploadBatchTrigger from './upload-batch-trigger.vue'
@@ -266,6 +276,7 @@
     ArchiveCacheFile,
     ArchiveMaterialImages,
     ArchiveOwnerImages,
+    ArchiveQksmMaterials,
     ArchiveVehicleImages
   } from './types'
 
@@ -276,6 +287,8 @@
     vehicleId: number
     /** 关联订单 ID，用于拉取质检入场照片。 */
     orderId?: number
+    /** 车辆属地。 */
+    hplx: AcceptHplx
     /** 是否为企业或单位所有人。 */
     isCompany: boolean
     /** 是否只读。 */
@@ -290,6 +303,8 @@
   const materialImages = defineModel<ArchiveMaterialImages>('materialImages', { required: true })
   /** 产权变更页照片（vehicle sync.tcjczp，多图）。 */
   const ownerChangeImages = defineModel<string[]>('ownerChangeImages', { required: true })
+  /** 非车管情况材料。 */
+  const qksmMaterials = defineModel<ArchiveQksmMaterials>('qksmMaterials', { required: true })
 
   const scrapDjid = ref('')
   const scrapFilesLoading = ref(false)

@@ -180,6 +180,21 @@ export interface ArchiveVehicleImages {
   czzp: string
 }
 
+/** 非车管（场内）情况材料。 */
+export interface ArchiveQksmMaterials {
+  /** 非车管情况说明（单图 URL，lx=9）。 */
+  cqksmzp: string
+  /** 身份证明材料（多图 URL，lx=81）。 */
+  sfzmzp: string[]
+  /** 产权证明材料（多图 URL，lx=82）。 */
+  cqzmzp: string[]
+  /** 委托代办材料（多图 URL，lx=83）。 */
+  wtdbzp: string[]
+}
+
+/** 非车管证明材料字段。 */
+export type ArchiveQksmProofField = 'sfzmzp' | 'cqzmzp' | 'wtdbzp'
+
 /** 代理人证件图片。 */
 export interface ArchiveAgentImages {
   /** 代理人身份证正面。 */

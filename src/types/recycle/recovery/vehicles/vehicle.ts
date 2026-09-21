@@ -344,6 +344,24 @@ export interface ScrapVehicleDetail extends ScrapVehicle {
   cert_image?: string
   /** 产权变更页（支持多图，接口可能返回 JSON 数组字符串或字符串数组） */
   owner_change_image?: string | string[]
+  /** 非车管情况说明（单图，lx=9） */
+  cqksmzp?: string
+  /** 非车管-身份证明材料（多图） */
+  sfzmzp?: string | string[]
+  /** 非车管-产权证明材料（多图） */
+  cqzmzp?: string | string[]
+  /** 非车管-委托代办材料（多图） */
+  wtdbzp?: string | string[]
+  /** 车辆属地：shanghai / out_of_province / non_vehicle_mgmt */
+  vehicle_origin?: string
+  /** 车辆属地文案 */
+  vehicle_origin_text?: string
+  /** 是否车管：1 车管 0 非车管 */
+  zcbj?: string
+  /** 是否外地：0 本地 1 外地 */
+  sywd?: string
+  /** 号牌类型：1 沪牌 2 外牌 3 非车管 */
+  hplx?: string | number
   /** 代理人证件图 */
   agent_id_front_image?: string
   agent_id_back_image?: string

@@ -1,10 +1,15 @@
 import type { AcceptHplx, AcceptSyq } from '@/types/recycle/recovery/commerce/accept'
-import type { ArchiveDictOption, ArchivePhotoItem, ArchiveSceneOption } from './types'
+import type {
+  ArchiveDictOption,
+  ArchivePhotoItem,
+  ArchiveQksmProofField,
+  ArchiveSceneOption
+} from './types'
 
 /** 车辆属地选项。 */
 export const HPLX_OPTIONS: ArchiveSceneOption<AcceptHplx>[] = [
   { value: 1, label: '沪牌机动车', desc: '上海本地登记，需完整车辆信息' },
-  { value: 2, label: '外牌机动车', desc: '非沪登记车辆' },
+  { value: 2, label: '外牌机动车', desc: '非沪登记，车辆信息自动跳过' },
   { value: 3, label: '非车管（场内）', desc: '场内非机动车管理车辆' }
 ]
 
@@ -22,6 +27,23 @@ export const COMPANY_ID_TYPE_OPTIONS: ArchiveDictOption[] = [
   { label: '驻华机构证明', value: 'L' },
   { label: '个体工商户营业执照注册号', value: 'P' }
 ]
+
+/** 非车管情况说明上传 lx。 */
+export const QKSM_NOTE_LX = '9'
+
+/** 非车管证明材料选项（下拉上传）。 */
+export const QKSM_PROOF_OPTIONS: {
+  field: ArchiveQksmProofField
+  lx: string
+  label: string
+}[] = [
+  { field: 'sfzmzp', lx: '81', label: '身份证明材料' },
+  { field: 'cqzmzp', lx: '82', label: '产权证明材料' },
+  { field: 'wtdbzp', lx: '83', label: '委托代办材料' }
+]
+
+/** 非车管材料单张上限（字节）。 */
+export const QKSM_MAX_FILE_SIZE = 10 * 1024 * 1024
 
 /** 流程步骤。 */
 export const ARCHIVE_STEPS = [
