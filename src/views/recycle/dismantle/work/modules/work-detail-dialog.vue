@@ -114,6 +114,7 @@
           <div class="work-photos-head">
             <div class="work-panel-title">报废拆解照片（工序二）</div>
             <div class="work-photos-head-actions">
+              <CxmEntryPhotoSync sync-type="dismantle" :vehicle-id="plateItem?.vehicle_id" />
               <UploadBatchTrigger
                 v-if="!isCompleted"
                 :disabled="!timeFieldsFilled"
@@ -241,6 +242,7 @@
   import { DISMANTLE_PHOTO_FIELDS, PLATE_STATUS_CONFIG } from '@/types/recycle/dismantle/work/plate'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import UploadBatchTrigger from '@/views/recycle/recovery/vehicles/modules/vehicle-archive/upload-batch-trigger.vue'
+  import CxmEntryPhotoSync from '@/views/recycle/recovery/commerce/modules/cxm-entry-photo-sync.vue'
   import { batchFillUploadSlots } from '@/views/recycle/recovery/vehicles/modules/vehicle-archive/archive-utils'
 
   interface Props {

@@ -178,6 +178,39 @@ export function fetchAcceptSubmitResult(vehicleId: number) {
   })
 }
 
+/** 同步入场照片到车信盟的单张结果 */
+export interface SyncEntryPhotoItem {
+  field?: string
+  lx?: string
+  label?: string
+  url?: string
+  status?: string
+  reason?: string
+}
+
+/** 同步入场照片到车信盟的汇总结果 */
+export interface SyncEntryPhotosResult {
+  cjid?: string
+  total?: number
+  success?: number
+  failed?: number
+  results?: SyncEntryPhotoItem[]
+}
+
+/** 同步入场照片到车信盟（质检） */
+export function fetchSyncEntryPhotos(vehicleId: number) {
+  return request.post<SyncEntryPhotosResult>({
+    url: '/scrap/accept/sync_entry_photos',
+    params: { vehicle_id: vehicleId }
+  })
+}
+
+/** 同步拆解照片到车信盟（接口待补充） */
+export function fetchSyncDismantlePhotos(vehicleId: number): Promise<SyncEntryPhotosResult> {
+  void vehicleId
+  return Promise.reject(new Error('拆解同步接口待接入'))
+}
+
 /** 检测车信盟 Token 是否有效（无效时前端需弹出车信盟登录框） */
 export function fetchAcceptCheckToken() {
   return request.get<boolean | { valid?: boolean; token_valid?: boolean }>({

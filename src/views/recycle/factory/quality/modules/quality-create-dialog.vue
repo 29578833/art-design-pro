@@ -318,6 +318,11 @@
           <div class="qc-section">
             <div class="qc-section-head">
               <div class="qc-section-title">入场照片（5张）</div>
+              <CxmEntryPhotoSync
+                sync-type="quality"
+                :vehicle-id="queueItem?.vehicle_id"
+                :before-sync="saveEntryBeforeSync"
+              />
               <UploadBatchTrigger :loading="entryBatchUploading" @select="handleEntryBatchUpload" />
             </div>
             <input
@@ -566,6 +571,7 @@
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import SignCanvasDialog from '@/views/recycle/recovery/orders/modules/sign-canvas-dialog.vue'
   import UploadBatchTrigger from '@/views/recycle/recovery/vehicles/modules/vehicle-archive/upload-batch-trigger.vue'
+  import CxmEntryPhotoSync from '@/views/recycle/recovery/commerce/modules/cxm-entry-photo-sync.vue'
   import { batchFillUploadSlots } from '@/views/recycle/recovery/vehicles/modules/vehicle-archive/archive-utils'
   import { uploadFileGetUrl } from '@/api/upload'
   import CllxCascader from '@/views/recycle/recovery/shared/cllx-cascader.vue'
@@ -1214,6 +1220,22 @@
       }
     }
   )
+
+  /** 同步入场照片前先保存，避免同步接口读不到刚上传的图片 */
+  async function saveEntryBeforeSync() {
+    if (!checkId.value) {
+      const res = await createQuality(
+        {
+          order_id: props.queueItem?.order_id || 0,
+          vehicle_id: props.queueItem?.vehicle_id || 0,
+          weight: step1Form.weight || 0
+        },
+        { showSuccessMessage: false }
+      )
+      checkId.value = res.id
+    }
+    await updateQuality({ id: checkId.value, ...buildStep1Payload() }, { showSuccessMessage: false })
+  }
 
   async function nextStep() {
     if (currentStep.value === 0) {
