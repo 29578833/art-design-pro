@@ -1116,7 +1116,7 @@
       deduction_images: deductionImages.value.filter(Boolean).join(','),
       plate_status: step1Form.plate_status_arr.join(','),
       vehicle_type: step1Form.vehicle_type,
-      item_type: inspectionType.value,
+      inspection_type: inspectionType.value,
       is_supervision: step1Form.is_supervision,
       inspector_name: inspectorName.value || undefined,
       inspector_signature: signatures.inspector_signature || undefined,
@@ -1164,7 +1164,7 @@
       : []
     step1Form.vehicle_type = check.vehicle_type || ''
     // 查验类型：历史记录已保存时回显，缺失时保持默认（汽油/柴油）
-    inspectionType.value = normalizeInspectionType(check.item_type)
+    inspectionType.value = normalizeInspectionType(check.inspection_type)
     // 监销标记不再由前端设置：优先采用车信盟同步值，取不到时沿用记录原值
     step1Form.is_supervision = syncedSupervision.value ?? check.is_supervision ?? 0
     Object.assign(entryPhotos, createEmptyEntryPhotos(), {
@@ -1319,6 +1319,8 @@
         await updateQuality(
           {
             id: checkId.value,
+            // 第一步即落库查验类型，避免只存了某类型的项目却丢了类型
+            inspection_type: inspectionType.value,
             items: buildAllItems()
           },
           { showSuccessMessage: false }

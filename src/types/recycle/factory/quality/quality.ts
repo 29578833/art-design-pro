@@ -200,7 +200,7 @@ export interface QualityDetail {
   /** 车辆类型（dict_value，来自 cllx_cascade 叶子节点） */
   vehicle_type: string
   /** 查验类型：gasoline汽油/柴油 | electric电混/太阳能 | motorcycle摩托车 */
-  item_type?: QcInspectionType
+  inspection_type?: QcInspectionType
   /** 备注 */
   remark: string
   /** 质检员签字 URL */
@@ -274,8 +274,8 @@ export interface InspectionItem {
   category_id: number
   /** 项目名称 */
   item_name: string
-  /** 查验类型（后端按 item_type 过滤时回传） */
-  item_type?: QcInspectionType
+  /** 查验类型（按 inspection_type 过滤时回传） */
+  inspection_type?: QcInspectionType
   /** 标准扣款金额 */
   deduction_amount?: number
   /** 是否必检 */
@@ -374,7 +374,7 @@ export interface QualityCreateParams {
   /** 车辆类型 */
   vehicle_type?: string
   /** 查验类型：gasoline汽油/柴油（默认） | electric电混/太阳能 | motorcycle摩托车 */
-  item_type?: QcInspectionType
+  inspection_type?: QcInspectionType
   /** 监销标记 */
   is_supervision?: number
   /** 质检员ID */
@@ -468,7 +468,7 @@ export interface QualityUpdateParams {
   plate_status?: string
   vehicle_type?: string
   /** 查验类型：gasoline汽油/柴油（默认） | electric电混/太阳能 | motorcycle摩托车 */
-  item_type?: QcInspectionType
+  inspection_type?: QcInspectionType
   is_supervision?: number
   inspector_id?: number
   inspector_name?: string
@@ -570,7 +570,7 @@ export const QUALITY_TAB_CONFIG: QualityTabConfig[] = [
 export type QcStep = 0 | 1 | 2
 export const QC_STEP_LABELS = ['质检查验', '补充入场信息', '质检报告']
 
-/** 查验类型（后端 item_type）：汽油/柴油 | 电混/太阳能 | 摩托车 */
+/** 查验类型（后端 inspection_type）：汽油/柴油 | 电混/太阳能 | 摩托车 */
 export type QcInspectionType = 'gasoline' | 'electric' | 'motorcycle'
 
 /** 查验类型选项（顺序与后端 gasoline|electric|motorcycle 一致） */

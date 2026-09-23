@@ -166,14 +166,30 @@ export async function updateQuality(
 
 // ==================== 质检项目 ====================
 
-/** 获取质检项目分类及项目（按查验类型过滤，缺省为汽油/柴油） */
-export async function fetchInspectionItems(itemType?: QcInspectionType) {
-  return request.get<InspectionCategory[]>({
+/** 仅保留必检项（is_required=1），并去掉已无可用项目的分类 */
+function filterRequiredCategories(list: InspectionCategory[]): InspectionCategory[] {
+  if (!Array.isArray(list)) return []
+  return list
+    .map((category) => ({
+      ...category,
+      items: (category.items || []).filter((item) => Number(item.is_required) === 1)
+    }))
+    .filter((category) => (category.items || []).length > 0)
+}
+
+/**
+ * 获取质检项目分类及项目
+ * @param inspectionType 查验类型，缺省 gasoline（汽油/柴油）
+ * @returns 仅含必检项（is_required=1）的分类列表
+ */
+export async function fetchInspectionItems(inspectionType?: QcInspectionType) {
+  const list = await request.get<InspectionCategory[]>({
     url: '/scrap/inspection/items',
     params: {
-      item_type: itemType || QC_DEFAULT_INSPECTION_TYPE
+      inspection_type: inspectionType || QC_DEFAULT_INSPECTION_TYPE
     }
   })
+  return filterRequiredCategories(list)
 }
 
 // ==================== 批量审核 ====================
