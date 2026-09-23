@@ -62,7 +62,7 @@
           />
         </div>
 
-        <div v-show="step === 2 && hplx !== 2" class="ae-step-pane">
+        <div v-show="step === 2" class="ae-step-pane">
           <VehicleStep
             ref="vehicleStepRef"
             v-model:form="vehicleForm"

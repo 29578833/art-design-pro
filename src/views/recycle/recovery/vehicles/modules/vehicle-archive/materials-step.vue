@@ -76,7 +76,7 @@
     />
   </div>
 
-  <div v-else-if="hplx !== 2" class="vd-cert-card">
+  <div v-else class="vd-cert-card">
     <div class="vd-cert-head">
       <div class="vd-cert-head-left">
         <span class="vd-cert-head-title">车辆证件材料</span>

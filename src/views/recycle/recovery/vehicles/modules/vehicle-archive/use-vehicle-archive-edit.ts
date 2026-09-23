@@ -215,9 +215,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     agentAuthed: agentForm.jbrsmrz === '1'
   }))
 
-  const visibleSteps = computed(() =>
-    hplx.value === 2 ? ARCHIVE_STEPS.filter((item) => item.id !== 2) : ARCHIVE_STEPS
-  )
+  const visibleSteps = computed(() => ARCHIVE_STEPS)
 
   const stepComplete = computed(() =>
     [1, 2, 3, 4, 5].map((n) => isStepComplete(n, validationCtx.value))
@@ -536,8 +534,8 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
         await stepRefs.materials.value?.loadScrapFiles()
         const hadPending = pendingTargetStep.value >= 1 && pendingTargetStep.value <= 5
         await applyPendingStep()
-        // 已提交档案打开编辑时默认落到车辆信息步，方便改收款银行卡；外牌无该步则留在第一步
-        if (!hadPending) step.value = hplx.value === 2 ? 1 : 2
+        // 已提交档案打开编辑时默认落到车辆信息步，方便改收款银行卡
+        if (!hadPending) step.value = 2
         return
       }
 
@@ -677,31 +675,23 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     const target = pendingTargetStep.value
     if (target < 1 || target > 5 || phase.value !== 'form') return
     pendingTargetStep.value = 0
-    step.value = skipHiddenVehicleStep(target)
+    step.value = target
     if (step.value === 5) await stepRefs.materials.value?.loadScrapFiles()
-  }
-
-  /** 外牌跳过步骤 2；preferPrev 为 true 时从 3 回退到 1。 */
-  function skipHiddenVehicleStep(target: number, preferPrev = false) {
-    if (target < 1) return 1
-    if (target > 5) return 5
-    if (hplx.value === 2 && target === 2) return preferPrev ? 1 : 3
-    return target
   }
 
   async function goToStep(target: number) {
     if (target < 1 || target > 5) return
     if (phase.value !== 'form') {
-      pendingTargetStep.value = skipHiddenVehicleStep(target)
+      pendingTargetStep.value = target
       return
     }
-    step.value = skipHiddenVehicleStep(target, target < step.value)
+    step.value = target
     if (step.value === 5) await stepRefs.materials.value?.loadScrapFiles()
   }
 
   async function goNext() {
     if (isSubmitted.value) {
-      if (step.value < 5) step.value = skipHiddenVehicleStep(step.value + 1)
+      if (step.value < 5) step.value += 1
       return
     }
     saving.value = true
@@ -709,7 +699,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
       await saveCurrentStep()
       draftSaved.value = true
       if (step.value < 5) {
-        step.value = skipHiddenVehicleStep(step.value + 1)
+        step.value += 1
         if (step.value === 5) await stepRefs.materials.value?.loadScrapFiles()
       }
     } finally {
@@ -718,7 +708,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   }
 
   function goPrev() {
-    if (step.value > 1) step.value = skipHiddenVehicleStep(step.value - 1, true)
+    if (step.value > 1) step.value -= 1
   }
 
   async function handleFetchArchive() {

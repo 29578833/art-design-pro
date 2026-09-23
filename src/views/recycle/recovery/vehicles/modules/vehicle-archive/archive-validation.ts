@@ -54,7 +54,6 @@ export function isOwnerStepComplete(
 function isVehicleCertComplete(
   ctx: Pick<StepValidationContext, 'hplx' | 'vehicleImages' | 'qksmMaterials'>
 ) {
-  if (ctx.hplx === 2) return true
   if (ctx.hplx === 3) return hasVal(ctx.qksmMaterials.cqksmzp)
   return (
     hasVal(ctx.vehicleImages.xszzp) &&
@@ -71,7 +70,6 @@ export function isVehicleStepComplete(
     'hplx' | 'vehicleForm' | 'vehicleImages' | 'qksmMaterials'
   >
 ) {
-  if (ctx.hplx === 2) return true
   if (!isVehicleCertComplete(ctx)) return false
   const { vehicleForm } = ctx
   if (!hasVal(vehicleForm.clsbdh) || !hasVal(vehicleForm.hphm) || !hasVal(vehicleForm.hpzl))

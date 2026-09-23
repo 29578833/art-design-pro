@@ -9,7 +9,7 @@ import type {
 /** 车辆属地选项。 */
 export const HPLX_OPTIONS: ArchiveSceneOption<AcceptHplx>[] = [
   { value: 1, label: '沪牌机动车', desc: '上海本地登记，需完整车辆信息' },
-  { value: 2, label: '外牌机动车', desc: '非沪登记，车辆信息自动跳过' },
+  { value: 2, label: '外牌机动车', desc: '非沪登记，需完整车辆信息' },
   { value: 3, label: '非车管（场内）', desc: '场内非机动车管理车辆' }
 ]
 
