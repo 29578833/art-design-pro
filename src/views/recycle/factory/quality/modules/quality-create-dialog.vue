@@ -1563,7 +1563,7 @@
   }
 
   .qc-body {
-    max-height: calc(92vh - 260px);
+    max-height: calc(92vh - 160px);
     overflow-y: auto;
   }
 
@@ -1887,7 +1887,7 @@
     transition: all 0.2s;
 
     &:hover:not(:disabled) {
-      color: #1677ff;
+      // color: #1677ff;
       border-color: #1677ff;
     }
 

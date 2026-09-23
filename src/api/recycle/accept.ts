@@ -213,6 +213,29 @@ export function fetchSyncDismantlePhotos(vehicleId: number) {
   })
 }
 
+/** 拆解送审（企业确认）结果 */
+export interface SubmitDismantleReviewResult {
+  /** 登记ID */
+  djid?: string
+  /** 商委返回的提示文案 */
+  message?: string
+  /** 商委原始响应 */
+  response?: Record<string, unknown>
+}
+
+/**
+ * 提交拆解送审（企业确认，商委进入审核流程）
+ *
+ * 不可撤回、非幂等，调用方需自行防重复点击；未取得 djid 时后端会反查失败并报错。
+ */
+export function fetchSubmitDismantleReview(vehicleId: number) {
+  return request.post<SubmitDismantleReviewResult>({
+    url: '/scrap/bfdj/submit_dismantle_review',
+    params: { vehicle_id: vehicleId },
+    showSuccessMessage: true
+  })
+}
+
 /** 检测车信盟 Token 是否有效（无效时前端需弹出车信盟登录框） */
 export function fetchAcceptCheckToken() {
   return request.get<boolean | { valid?: boolean; token_valid?: boolean }>({

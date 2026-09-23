@@ -4,8 +4,19 @@
       <ArtSvgIcon icon="ri:checkbox-circle-fill" />
       车信盟已登录
     </span>
-    <ElButton size="small" plain type="primary" :loading="syncing" @click="handleSync">
+    <ElButton class="cxm-entry-sync__btn" type="primary" :loading="syncing" @click="handleSync">
+      <ArtSvgIcon icon="ri:refresh-line" />
       手动同步照片
+    </ElButton>
+    <ElButton
+      v-if="isDismantle"
+      class="cxm-entry-sync__btn"
+      type="warning"
+      :loading="reviewSubmitting"
+      @click="handleSubmitReview"
+    >
+      <ArtSvgIcon icon="ri:send-plane-line" />
+      拆解送审
     </ElButton>
     <CxmSyncResultDialog v-model:visible="resultVisible" :message="resultMessage" :result="result" />
     <CxmLoginDialog v-model:visible="loginVisible" @success="onLoginSuccess" />
@@ -17,6 +28,7 @@
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import {
     fetchAcceptCheckToken,
+    fetchSubmitDismantleReview,
     fetchSyncDismantlePhotos,
     fetchSyncEntryPhotos,
     type SyncEntryPhotosResult
@@ -30,18 +42,28 @@
     vehicleId?: number | string
     /** quality：入场照片同步；dismantle：拆解照片同步 */
     syncType: 'quality' | 'dismantle'
+    /** 车牌号，拆解送审二次确认用 */
+    plateNo?: string
     /** 质检同步前先保存当前照片 */
     beforeSync?: () => Promise<unknown>
   }>()
 
+  const emit = defineEmits<{
+    /** 拆解送审提交成功 */
+    (e: 'reviewed'): void
+  }>()
+
   const loggedIn = ref(false)
   const syncing = ref(false)
+  const reviewSubmitting = ref(false)
   const loginVisible = ref(false)
   const resultVisible = ref(false)
   const resultMessage = ref('')
   const result = ref<SyncEntryPhotosResult | null>(null)
   let loginResolver: ((ok: boolean) => void) | null = null
   let loginPassed = false
+
+  const isDismantle = computed(() => props.syncType === 'dismantle')
 
   function finishLogin(ok: boolean) {
     const resolve = loginResolver
@@ -104,10 +126,10 @@
       const ok = await waitLogin()
       if (!ok) return
     }
-    const isDismantle = props.syncType === 'dismantle'
+    const isDismantleSync = props.syncType === 'dismantle'
     try {
       await ElMessageBox.confirm(
-        isDismantle ? '确定要同步拆解照片到车信盟吗？' : '确定要同步入场照片到车信盟吗？',
+        isDismantleSync ? '确定要同步拆解照片到车信盟吗？' : '确定要同步入场照片到车信盟吗？',
         '提示',
         {
           type: 'warning',
@@ -124,7 +146,7 @@
       if (props.beforeSync) {
         await props.beforeSync()
       }
-      const data = isDismantle
+      const data = isDismantleSync
         ? await fetchSyncDismantlePhotos(vehicleId)
         : await fetchSyncEntryPhotos(vehicleId)
       result.value = data || {}
@@ -136,6 +158,52 @@
       // 错误已由 http 拦截器处理
     } finally {
       syncing.value = false
+    }
+  }
+
+  /** 拆解送审二次确认内容：不可撤回，需确认照片已同步完成 */
+  function buildReviewConfirmMessage(plateNo: string) {
+    return h('div', null, [
+      h('p', { style: 'margin: 0 0 8px;' }, `确定将「${plateNo}」提交拆解送审吗？`),
+      h(
+        'p',
+        { style: 'margin: 0; font-size: 12px; line-height: 18px; color: #909399;' },
+        '送审后商委将进入审核流程，该操作不可撤回，请确认拆解照片已同步完成'
+      )
+    ])
+  }
+
+  async function handleSubmitReview() {
+    // 送审接口非幂等，重复调用会重复送审，这里做防重复点击
+    if (reviewSubmitting.value) return
+    const vehicleId = Number(props.vehicleId || 0)
+    if (!vehicleId) {
+      ElMessage.warning('缺少车辆信息')
+      return
+    }
+    const logged = await refreshLogin()
+    if (!logged) {
+      const ok = await waitLogin()
+      if (!ok) return
+    }
+    const plateNo = String(props.plateNo || '').trim() || '该车辆'
+    try {
+      await ElMessageBox.confirm(buildReviewConfirmMessage(plateNo), '拆解送审', {
+        type: 'warning',
+        confirmButtonText: '确定送审',
+        cancelButtonText: '取消'
+      })
+    } catch {
+      return
+    }
+    reviewSubmitting.value = true
+    try {
+      await fetchSubmitDismantleReview(vehicleId)
+      emit('reviewed')
+    } catch {
+      // 错误已由 http 拦截器处理
+    } finally {
+      reviewSubmitting.value = false
     }
   }
 
@@ -161,6 +229,17 @@
       background: #f6ffed;
       border: 1px solid #b7eb8f;
       border-radius: 999px;
+    }
+
+    &__btn {
+      display: inline-flex;
+      // gap: 4px;
+      align-items: center;
+      padding: 2px 8px;
+      width: 120px;
+      font-size: 13px;
+      margin-left: 0 !important;
+      height: 32px !important;
     }
   }
 </style>

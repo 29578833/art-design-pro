@@ -117,22 +117,31 @@
               <p class="text-[12px] text-gray-400">在本系统完成拍照上传，手动同步推送至商务部车信盟系统</p>
             </div>
             <div class="work-photos-head-actions">
-              <UploadBatchTrigger
+              <!-- <UploadBatchTrigger
                 v-if="!isCompleted"
                 :disabled="!timeFieldsFilled"
                 :loading="batchUploading"
                 @select="handleBatchUpload"
-              />
+              /> -->
               <span class="work-photos-count">{{ uploadedPhotoCount }}/9 已上传</span>
+              <CxmEntryPhotoSync
+                sync-type="dismantle"
+                :vehicle-id="plateItem?.vehicle_id"
+                :plate-no="plateItem?.plate_no"
+                :before-sync="saveDismantleBeforeSync"
+                @reviewed="handleReviewed"
+              />
             </div>
           </div>
-          <div class="work-photos-sync mb-3">
+          <!-- <div class="work-photos-sync mb-3">
             <CxmEntryPhotoSync
               sync-type="dismantle"
               :vehicle-id="plateItem?.vehicle_id"
+              :plate-no="plateItem?.plate_no"
               :before-sync="saveDismantleBeforeSync"
+              @reviewed="handleReviewed"
             />
-          </div>
+          </div> -->
           <div class="work-photos-tip">
             <ArtSvgIcon icon="ri:information-line" />
             请完成9张拆解照片拍摄上传，照片数据可在本系统修改后再手动同步至商务部车信盟系统。
@@ -509,6 +518,11 @@
   async function saveDismantleBeforeSync() {
     if (!props.plateId) return
     await fetchDismantleSave(props.plateId, buildSavePayload(false), { showSuccessMessage: false })
+  }
+
+  /** 拆解送审成功：刷新列表状态，弹窗内数据保持不变以免丢失未保存的编辑 */
+  function handleReviewed() {
+    emit('success')
   }
 
   // async function handleSave() {
