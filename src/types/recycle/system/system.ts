@@ -314,6 +314,55 @@ export interface InspectionItemSearchParams {
   size?: number
 }
 
+/** 查验类型：汽油/柴油 | 电混 | 摩托车 */
+export type InspectionItemType = 'gasoline' | 'electric' | 'motorcycle'
+
+/** 配件在某一查验类型下的配置项 */
+export interface InspectionItemTypeConfig {
+  /** 该查验类型下的配置项 ID */
+  id: number
+  /** 该查验类型下是否适用：0否 1是 */
+  is_required?: number
+  /** 该查验类型下的缺失扣款金额 */
+  deduction_amount?: number
+  [key: string]: unknown
+}
+
+/** 配件查验聚合行（按配件名称聚合三种查验类型，同配件一行） */
+export interface InspectionItemGrouped {
+  /** 聚合键（配件名称） */
+  key: string
+  /** 配件名称 */
+  item_name?: string
+  /** 分类名称（取首个有值的查验类型） */
+  category_name?: string
+  /** 各查验类型下的分类名称 */
+  category_names?: Partial<Record<InspectionItemType, string>>
+  /** 缺失扣款金额（取首个有值的查验类型） */
+  deduction_amount?: number
+  /** 排序 */
+  sort?: number
+  /** 各查验类型配置项，键为查验类型 */
+  items?: Partial<Record<InspectionItemType, InspectionItemTypeConfig>>
+  [key: string]: unknown
+}
+
+/** 配件查验聚合列表查询 */
+export interface InspectionItemGroupedSearchParams {
+  page?: number
+  limit?: number
+  current?: number
+  size?: number
+}
+
+/** 批量设置配件适用查验类型的变更项 */
+export interface InspectionItemRequiredChange {
+  /** 配置项 ID */
+  id: number
+  /** 是否适用：0否 1是 */
+  is_required: 0 | 1
+}
+
 /** 操作日志列表项 */
 export interface OperationLogItem {
   /** 主键 ID */

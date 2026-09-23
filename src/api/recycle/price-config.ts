@@ -3,6 +3,9 @@ import type {
   CollectPriceItem,
   CollectPriceSearchParams,
   InspectionItem,
+  InspectionItemGrouped,
+  InspectionItemGroupedSearchParams,
+  InspectionItemRequiredChange,
   InspectionItemSearchParams
 } from '@/types/recycle/system/system'
 
@@ -116,11 +119,40 @@ export async function fetchInspectionItemList(params?: InspectionItemSearchParam
   }
 }
 
+/** 配件查验项目聚合列表（按配件名称聚合 gasoline/electric/motorcycle 三种查验类型） */
+export async function fetchInspectionItemGroupedList(params?: InspectionItemGroupedSearchParams) {
+  const paging = resolvePagination({
+    ...params,
+    limit: params?.limit ?? params?.size ?? 50
+  })
+  const res = await request.get<{ list: InspectionItemGrouped[]; count: number }>({
+    url: '/scrap/config/inspection_item_grouped_list',
+    params: paging
+  })
+  return {
+    records: res.list || [],
+    total: res.count || 0
+  }
+}
+
 /** 更新配件扣款金额 */
-export function fetchInspectionItemUpdate(id: number, deduction_amount: number) {
+export function fetchInspectionItemUpdate(
+  id: number,
+  deduction_amount: number,
+  options?: { showSuccessMessage?: boolean }
+) {
   return request.post({
     url: `/scrap/config/inspection_item_update/${id}`,
     params: { deduction_amount },
+    showSuccessMessage: options?.showSuccessMessage ?? true
+  })
+}
+
+/** 批量设置配件适用的查验类型（只提交发生变化的记录） */
+export function fetchInspectionItemRequired(items: InspectionItemRequiredChange[]) {
+  return request.post({
+    url: '/scrap/config/inspection_item_required',
+    params: { items },
     showSuccessMessage: true
   })
 }

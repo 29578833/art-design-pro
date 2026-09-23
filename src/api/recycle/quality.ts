@@ -13,8 +13,10 @@ import type {
   QualityCreateByPlateResult,
   QualityUpdateParams,
   QualityBatchAuditParams,
-  InspectionCategory
+  InspectionCategory,
+  QcInspectionType
 } from '@/types/recycle/factory/quality/quality'
+import { QC_DEFAULT_INSPECTION_TYPE } from '@/types/recycle/factory/quality/quality'
 
 // ==================== 分页辅助 ====================
 
@@ -164,10 +166,13 @@ export async function updateQuality(
 
 // ==================== 质检项目 ====================
 
-/** 获取质检项目分类及项目 */
-export async function fetchInspectionItems() {
+/** 获取质检项目分类及项目（按查验类型过滤，缺省为汽油/柴油） */
+export async function fetchInspectionItems(itemType?: QcInspectionType) {
   return request.get<InspectionCategory[]>({
-    url: '/scrap/inspection/items'
+    url: '/scrap/inspection/items',
+    params: {
+      item_type: itemType || QC_DEFAULT_INSPECTION_TYPE
+    }
   })
 }
 

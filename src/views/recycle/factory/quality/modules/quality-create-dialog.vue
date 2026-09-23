@@ -63,6 +63,24 @@
       <div class="qc-body">
         <!-- Step1 质检查验 -->
         <div v-show="currentStep === 0" class="qc-step-panel">
+          <!-- 查验类型切换：决定下方查验项目清单（默认汽油/柴油） -->
+          <div class="qc-type-bar">
+            <span class="qc-type-label">查验类型</span>
+            <div class="qc-type-btns">
+              <button
+                v-for="opt in QC_INSPECTION_TYPE_OPTIONS"
+                :key="opt.value"
+                type="button"
+                class="qc-type-btn"
+                :class="{ 'is-active': inspectionType === opt.value }"
+                :disabled="loadingItems || initializing"
+                @click="handleInspectionTypeChange(opt.value)"
+              >
+                {{ opt.label }}
+              </button>
+            </div>
+          </div>
+
           <div class="qc-legend">
             <span class="qc-legend-tag good">有（完好）</span>
             <span class="qc-legend-tag miss">缺（缺失）</span>
@@ -590,7 +608,7 @@
     fetchQualityByOrder,
     fetchQualityDetail
   } from '@/api/recycle/quality'
-  import { ElMessage } from 'element-plus'
+  import { ElMessage, ElMessageBox } from 'element-plus'
   import { QC_INSPECTOR_ROLE_ID, type ScrapUserRoleItem } from '@/types/recycle/system/role'
   import type {
     QualityQueueItem,
@@ -603,7 +621,8 @@
     QualityUpdateItemParams,
     QualityCreateParams,
     QcEntryPhotoField,
-    QcSignatureRole
+    QcSignatureRole,
+    QcInspectionType
   } from '@/types/recycle/factory/quality/quality'
   import {
     QC_STEP_LABELS,
@@ -616,6 +635,9 @@
     QC_SIGNATURE_CONFIG,
     createEmptyEntryPhotos,
     QC_CONCLUSION_OPTIONS,
+    QC_INSPECTION_TYPE_OPTIONS,
+    QC_DEFAULT_INSPECTION_TYPE,
+    normalizeInspectionType,
     isBatteryItem,
     isTireHubCategory,
     resolveDeliveryLabel
@@ -790,11 +812,25 @@
     { label: '档案号', value: props.queueItem?.inspection_no || '—' }
   ])
 
+  /** 当前查验类型（决定查验项目清单，默认汽油/柴油） */
+  const inspectionType = ref<QcInspectionType>(QC_DEFAULT_INSPECTION_TYPE)
   const loadingItems = ref(false)
   const inspectionCategories = ref<InspectionCategory[]>([])
   const itemResults = reactive<Record<string, ItemStatus | null>>({})
   const itemBatteryCount = reactive<Record<string, number>>({})
   const itemTireMaterial = reactive<Record<string, string>>({})
+
+  /** 是否已录入查验结果（切换查验类型前用于确认提示） */
+  const hasItemSelection = computed(() =>
+    Object.values(itemResults).some((status) => status !== null && status !== undefined)
+  )
+
+  /** 清空已录入的查验项目结果 */
+  function clearItemResults() {
+    Object.keys(itemResults).forEach((k) => delete itemResults[k])
+    Object.keys(itemBatteryCount).forEach((k) => delete itemBatteryCount[k])
+    Object.keys(itemTireMaterial).forEach((k) => delete itemTireMaterial[k])
+  }
 
   const checkTimeText = computed(() => {
     const d = new Date()
@@ -1045,12 +1081,31 @@
   async function loadItems() {
     loadingItems.value = true
     try {
-      inspectionCategories.value = (await fetchInspectionItems()) || []
+      inspectionCategories.value = (await fetchInspectionItems(inspectionType.value)) || []
     } catch {
       ElMessage.error('加载质检项目失败')
     } finally {
       loadingItems.value = false
     }
+  }
+
+  /** 切换查验类型：先清空已录入结果，再按类型重新拉取查验项目 */
+  async function handleInspectionTypeChange(type: QcInspectionType) {
+    if (type === inspectionType.value || loadingItems.value) return
+    if (hasItemSelection.value) {
+      try {
+        await ElMessageBox.confirm(
+          '切换查验类型将清空当前已选择的查验结果，是否继续？',
+          '切换查验类型',
+          { type: 'warning', confirmButtonText: '继续切换', cancelButtonText: '取消' }
+        )
+      } catch {
+        return
+      }
+    }
+    inspectionType.value = type
+    clearItemResults()
+    await loadItems()
   }
 
   function buildStep1Payload(): Omit<QualityCreateParams, 'order_id' | 'vehicle_id'> {
@@ -1061,6 +1116,7 @@
       deduction_images: deductionImages.value.filter(Boolean).join(','),
       plate_status: step1Form.plate_status_arr.join(','),
       vehicle_type: step1Form.vehicle_type,
+      item_type: inspectionType.value,
       is_supervision: step1Form.is_supervision,
       inspector_name: inspectorName.value || undefined,
       inspector_signature: signatures.inspector_signature || undefined,
@@ -1107,6 +1163,8 @@
       ? check.plate_status.split(',').filter(Boolean)
       : []
     step1Form.vehicle_type = check.vehicle_type || ''
+    // 查验类型：历史记录已保存时回显，缺失时保持默认（汽油/柴油）
+    inspectionType.value = normalizeInspectionType(check.item_type)
     // 监销标记不再由前端设置：优先采用车信盟同步值，取不到时沿用记录原值
     step1Form.is_supervision = syncedSupervision.value ?? check.is_supervision ?? 0
     Object.assign(entryPhotos, createEmptyEntryPhotos(), {
@@ -1191,7 +1249,13 @@
         }
         if (!existing?.id) return
 
+        const loadedType = inspectionType.value
         populateStep1FromCheck(existing)
+        // 历史记录保存的查验类型与已加载清单不一致时，按记录类型重新拉取
+        if (inspectionType.value !== loadedType) {
+          clearItemResults()
+          await loadItems()
+        }
         if (existing.items?.length) {
           populateItemsFromCheck(existing.items)
         }
@@ -1335,9 +1399,8 @@
     entryBatchUploading.value = false
     uploadingDeductPhoto.value = false
     inspectionCategories.value = []
-    Object.keys(itemResults).forEach((k) => delete itemResults[k])
-    Object.keys(itemBatteryCount).forEach((k) => delete itemBatteryCount[k])
-    Object.keys(itemTireMaterial).forEach((k) => delete itemTireMaterial[k])
+    inspectionType.value = QC_DEFAULT_INSPECTION_TYPE
+    clearItemResults()
     conclusionType.value = 0
     inspectorRemark.value = ''
     businessStatus.value = null
@@ -1784,6 +1847,58 @@
     font-size: 12px;
     background: #f9fafb;
     border-radius: 8px;
+  }
+
+  /* 查验类型切换条：左侧标签，右侧三种类型按钮 */
+  .qc-type-bar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+  }
+
+  .qc-type-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1f2937;
+  }
+
+  .qc-type-btns {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .qc-type-btn {
+    min-width: 96px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    background: #fff;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      color: #1677ff;
+      border-color: #1677ff;
+    }
+
+    &.is-active {
+      color: #fff;
+      background: #1677ff;
+      border-color: #1677ff;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
   }
 
   .qc-legend-tag {

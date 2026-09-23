@@ -69,6 +69,7 @@
         <div>
           <strong>配件查验扣款说明：</strong>以下配件清单与质检工单第二步的查验配件保持一致，
           可配置各配件缺失时的扣款金额，系统在生成质检报告时自动计算总扣款。
+          「查验类型显示」列按配件名称聚合三种查验类型（汽油/柴油、电/混动、摩托车），点击标签即可切换该配件是否适用于对应查验类型。
         </div>
       </div>
 
@@ -87,7 +88,7 @@
             :pagination="inspectPagination"
             :show-table-header="false"
             :stripe="false"
-            row-key="id"
+            row-key="key"
             @pagination:size-change="handleInspectSizeChange"
             @pagination:current-change="handleInspectCurrentChange"
           />
@@ -104,16 +105,22 @@
 </template>
 
 <script setup lang="ts">
-  import { ElInputNumber, ElMessageBox } from 'element-plus'
+  import { ElInputNumber, ElMessage, ElMessageBox } from 'element-plus'
   import {
     fetchCollectPriceDelete,
     fetchCollectPriceList,
-    fetchInspectionItemList,
+    fetchInspectionItemGroupedList,
+    fetchInspectionItemRequired,
     fetchInspectionItemUpdate
   } from '@/api/recycle/price-config'
   import type { ColumnOption } from '@/types/component'
   import { useTable } from '@/hooks/core/useTable'
-  import type { CollectPriceItem, InspectionItem } from '@/types/recycle/system/system'
+  import type {
+    CollectPriceItem,
+    InspectionItemGrouped,
+    InspectionItemType,
+    InspectionItemTypeConfig
+  } from '@/types/recycle/system/system'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import CollectPriceDialog from './modules/collect-price-dialog.vue'
 
@@ -122,8 +129,10 @@
   const activeTab = ref<'vehicle' | 'parts'>('vehicle')
   const collectDialogVisible = ref(false)
   const collectEditing = ref<CollectPriceItem | null>(null)
-  const editPartId = ref<number | null>(null)
+  const editPartKey = ref<string | null>(null)
   const editPartAmount = ref(0)
+  /** 正在提交查验类型变更的配件，避免重复点击 */
+  const savingTypeKey = ref<string | null>(null)
 
   function formatMoney(val?: number) {
     return Number(val || 0).toLocaleString('zh-CN')
@@ -168,18 +177,98 @@
     await getCollectData()
   }
 
-  function startPartEdit(row: InspectionItem) {
-    editPartId.value = row.id
+  // ----- 配件查验：查验类型 / 扣款金额 -----
+
+  /** 查验类型枚举与展示文案（后端 item_type：gasoline|electric|motorcycle） */
+  const INSPECTION_TYPE_OPTIONS: { value: InspectionItemType; label: string }[] = [
+    { value: 'gasoline', label: '汽油/柴油' },
+    { value: 'electric', label: '电/混动' },
+    { value: 'motorcycle', label: '摩托车' }
+  ]
+
+  /** 取配件在某一查验类型下的配置项，无记录表示该类型未配置该配件 */
+  function getTypeConfig(
+    row: InspectionItemGrouped,
+    type: InspectionItemType
+  ): InspectionItemTypeConfig | undefined {
+    const config = row.items?.[type]
+    return config?.id ? config : undefined
+  }
+
+  /** 该配件在某查验类型下是否适用（接口 is_required：1适用） */
+  function isTypeApplicable(row: InspectionItemGrouped, type: InspectionItemType) {
+    const config = getTypeConfig(row, type)
+    if (!config) return false
+    return Number(config.is_required ?? 1) === 1
+  }
+
+  /** 汇总聚合行下所有查验类型的配置项 */
+  function getRowTypeConfigs(row: InspectionItemGrouped): InspectionItemTypeConfig[] {
+    return INSPECTION_TYPE_OPTIONS.map((opt) => getTypeConfig(row, opt.value)).filter(
+      (config): config is InspectionItemTypeConfig => !!config
+    )
+  }
+
+  /** 渲染「查验类型显示」列：适用类型高亮，点击切换适用状态 */
+  function renderInspectionTypes(row: InspectionItemGrouped) {
+    const tags = INSPECTION_TYPE_OPTIONS.map((opt) => {
+      const config = getTypeConfig(row, opt.value)
+      if (!config) return null
+      const applicable = isTypeApplicable(row, opt.value)
+      const saving = savingTypeKey.value === row.key
+      return h(
+        'button',
+        {
+          type: 'button',
+          class: ['price-inspect-tag', `is-${opt.value}`, applicable ? 'is-on' : 'is-off'],
+          title: `点击${applicable ? '取消' : '设为'}「${opt.label}」适用`,
+          disabled: saving,
+          onClick: () => toggleInspectionType(row, opt.value)
+        },
+        opt.label
+      )
+    }).filter(Boolean)
+    if (!tags.length) return h('span', null, '—')
+    return h('div', { class: 'price-type-tags' }, tags)
+  }
+
+  /** 切换配件在指定查验类型下的适用状态 */
+  async function toggleInspectionType(row: InspectionItemGrouped, type: InspectionItemType) {
+    const config = getTypeConfig(row, type)
+    if (!config || savingTypeKey.value) return
+    const isRequired = isTypeApplicable(row, type) ? 0 : 1
+    savingTypeKey.value = row.key
+    try {
+      await fetchInspectionItemRequired([{ id: config.id, is_required: isRequired }])
+      await getInspectData()
+    } finally {
+      savingTypeKey.value = null
+    }
+  }
+
+  function startPartEdit(row: InspectionItemGrouped) {
+    editPartKey.value = row.key
     editPartAmount.value = Number(row.deduction_amount || 0)
   }
 
   function cancelPartEdit() {
-    editPartId.value = null
+    editPartKey.value = null
   }
 
-  async function savePartAmount(row: InspectionItem) {
-    await fetchInspectionItemUpdate(row.id, editPartAmount.value)
-    editPartId.value = null
+  /** 保存扣款金额：聚合行包含多种查验类型的记录，需同步更新 */
+  async function savePartAmount(row: InspectionItemGrouped) {
+    const targets = getRowTypeConfigs(row)
+    if (!targets.length) {
+      editPartKey.value = null
+      return
+    }
+    for (const target of targets) {
+      await fetchInspectionItemUpdate(target.id, editPartAmount.value, {
+        showSuccessMessage: false
+      })
+    }
+    ElMessage.success('更新成功')
+    editPartKey.value = null
     await getInspectData()
   }
 
@@ -247,7 +336,7 @@
     ]
   }
 
-  function buildInspectColumns(): ColumnOption<InspectionItem>[] {
+  function buildInspectColumns(): ColumnOption<InspectionItemGrouped>[] {
     return [
       {
         prop: 'category_name',
@@ -262,11 +351,17 @@
         formatter: (row) => h('span', null, row.item_name || '—')
       },
       {
+        prop: 'inspection_types',
+        label: '查验类型显示',
+        minWidth: 240,
+        formatter: (row) => renderInspectionTypes(row)
+      },
+      {
         prop: 'deduction_amount',
         label: '缺失扣款金额（元）',
         minWidth: 200,
         formatter: (row) => {
-          if (editPartId.value === row.id) {
+          if (editPartKey.value === row.key) {
             return h('div', { class: 'price-inline-edit' }, [
               h(ElInputNumber, {
                 modelValue: editPartAmount.value,
@@ -353,7 +448,7 @@
     handleCurrentChange: handleInspectCurrentChange
   } = useTable({
     core: {
-      apiFn: fetchInspectionItemList,
+      apiFn: fetchInspectionItemGroupedList,
       apiParams: {
         current: 1,
         size: 50
