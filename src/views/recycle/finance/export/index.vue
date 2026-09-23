@@ -220,7 +220,7 @@
     >
       <div class="fs-col-dialog-summary">
         <span
-          >已选 <b>{{ selectedKeys.size }}</b> / {{ SETTLEMENT_EXPORT_COLUMNS.length }} 列</span
+          >已选 <b>{{ selectedKeys.size }}</b> / {{ activeExportColumns.length }} 列</span
         >
         <ElButton link type="primary" @click="selectAllColumns">全选</ElButton>
         <ElButton link @click="clearAllColumns">清空</ElButton>
@@ -375,11 +375,14 @@
   /** 业务员下拉 */
   const businessOptions = ref<SettlementExportBusiness[]>([])
 
+  /** 暂隐藏列不参与展示和导出 */
+  const activeExportColumns = SETTLEMENT_EXPORT_COLUMNS.filter((col) => !col.hidden)
+
   /** 列显示设置弹窗 */
   const columnDialogVisible = ref(false)
-  const selectedKeys = ref(new Set(SETTLEMENT_EXPORT_COLUMNS.map((c) => c.key)))
+  const selectedKeys = ref(new Set(activeExportColumns.map((c) => c.key)))
   const visibleColumns = computed(() =>
-    SETTLEMENT_EXPORT_COLUMNS.filter((c) => selectedKeys.value.has(c.key))
+    activeExportColumns.filter((c) => selectedKeys.value.has(c.key))
   )
   const visibleGroups = computed(() => {
     const map = new Map<string, SettlementExportColumnDef[]>()
@@ -393,7 +396,7 @@
     }))
   })
   function columnsByGroup(group: string) {
-    return SETTLEMENT_EXPORT_COLUMNS.filter((c) => c.group === group)
+    return activeExportColumns.filter((c) => c.group === group)
   }
   function isGroupChecked(group: string) {
     const cols = columnsByGroup(group)
@@ -419,7 +422,7 @@
     selectedKeys.value = next
   }
   function selectAllColumns() {
-    selectedKeys.value = new Set(SETTLEMENT_EXPORT_COLUMNS.map((c) => c.key))
+    selectedKeys.value = new Set(activeExportColumns.map((c) => c.key))
   }
   function clearAllColumns() {
     selectedKeys.value = new Set()

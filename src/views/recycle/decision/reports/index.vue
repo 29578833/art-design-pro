@@ -130,14 +130,14 @@
       color: '#13C2C2',
       available: true
     },
-    {
-      key: 'finance-settlement',
-      label: '财务结算申请表',
-      desc: '车辆收购结算明细，含产权人、代理人、费用及付款信息',
-      icon: 'ri:bank-card-line',
-      color: '#389E0D',
-      available: true
-    },
+    // {
+    //   key: 'finance-settlement',
+    //   label: '财务结算申请表',
+    //   desc: '车辆收购结算明细，含产权人、代理人、费用及付款信息',
+    //   icon: 'ri:bank-card-line',
+    //   color: '#389E0D',
+    //   available: true
+    // },
     {
       key: 'vehicle-summary',
       label: '收车汇总报表',
