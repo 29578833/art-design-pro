@@ -49,6 +49,8 @@ export interface QualityQueueItem {
   vehicle_type?: string
   /** 车辆类型文案 */
   vehicle_type_text?: string
+  /** 查验类型（scrap/quality/queue 返回）：gasoline汽油/柴油 | electric电混/太阳能 | motorcycle摩托车 */
+  inspection_type?: QcInspectionType
   /** 车主姓名 */
   owner_name?: string
   /** 订单ID */

@@ -71,7 +71,8 @@
   import { useUserStore } from '@/store/modules/user'
   import type {
     QualityCreateByPlateResult,
-    QualityQueueItem
+    QualityQueueItem,
+    QcInspectionType
   } from '@/types/recycle/factory/quality/quality'
   import { ElMessage, type InputInstance } from 'element-plus'
 
@@ -132,7 +133,9 @@
       plate_no: (res.plate_no as string) || plate,
       inspection_no: (res.check_no as string) || undefined,
       queue_status: 'in_progress',
-      queue_status_text: '质检中'
+      queue_status_text: '质检中',
+      // 创建接口返回查验类型时作为质检工单默认选中（未返回则由弹窗回退汽油/柴油）
+      inspection_type: (res.inspection_type as QcInspectionType) || undefined
     }
   }
 

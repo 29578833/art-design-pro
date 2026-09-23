@@ -1163,8 +1163,10 @@
       ? check.plate_status.split(',').filter(Boolean)
       : []
     step1Form.vehicle_type = check.vehicle_type || ''
-    // 查验类型：历史记录已保存时回显，缺失时保持默认（汽油/柴油）
-    inspectionType.value = normalizeInspectionType(check.inspection_type)
+    // 查验类型：质检记录已保存时以记录为准（保证与已存项目一致），未保存时沿用列表带来的默认值
+    if (check.inspection_type) {
+      inspectionType.value = normalizeInspectionType(check.inspection_type)
+    }
     // 监销标记不再由前端设置：优先采用车信盟同步值，取不到时沿用记录原值
     step1Form.is_supervision = syncedSupervision.value ?? check.is_supervision ?? 0
     Object.assign(entryPhotos, createEmptyEntryPhotos(), {
@@ -1401,7 +1403,8 @@
     entryBatchUploading.value = false
     uploadingDeductPhoto.value = false
     inspectionCategories.value = []
-    inspectionType.value = QC_DEFAULT_INSPECTION_TYPE
+    // 默认查验类型取队列行返回的 inspection_type（scrap/quality/queue），缺失时回退汽油/柴油
+    inspectionType.value = normalizeInspectionType(props.queueItem?.inspection_type)
     clearItemResults()
     conclusionType.value = 0
     inspectorRemark.value = ''
