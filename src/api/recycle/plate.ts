@@ -152,11 +152,15 @@ export function fetchDismantleInit(plateId: number) {
 }
 
 /** 保存拆解数据 */
-export function fetchDismantleSave(plateId: number, data: DismantleSaveParams) {
+export function fetchDismantleSave(
+  plateId: number,
+  data: DismantleSaveParams,
+  options?: { showSuccessMessage?: boolean }
+) {
   return request.post({
     url: `/scrap/plate/dismantle_save/${plateId}`,
     params: data,
-    showSuccessMessage: true
+    showSuccessMessage: options?.showSuccessMessage ?? true
   })
 }
 

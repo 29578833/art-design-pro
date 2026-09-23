@@ -127,7 +127,11 @@
             </div>
           </div>
           <div class="work-photos-sync mb-3">
-            <CxmEntryPhotoSync sync-type="dismantle" :vehicle-id="plateItem?.vehicle_id" />
+            <CxmEntryPhotoSync
+              sync-type="dismantle"
+              :vehicle-id="plateItem?.vehicle_id"
+              :before-sync="saveDismantleBeforeSync"
+            />
           </div>
           <div class="work-photos-tip">
             <ArtSvgIcon icon="ri:information-line" />
@@ -499,6 +503,12 @@
     } finally {
       initializing.value = false
     }
+  }
+
+  /** 同步拆解照片前先保存，避免同步接口读不到刚上传的图片 */
+  async function saveDismantleBeforeSync() {
+    if (!props.plateId) return
+    await fetchDismantleSave(props.plateId, buildSavePayload(false), { showSuccessMessage: false })
   }
 
   // async function handleSave() {

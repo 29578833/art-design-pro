@@ -205,10 +205,12 @@ export function fetchSyncEntryPhotos(vehicleId: number) {
   })
 }
 
-/** 同步拆解照片到车信盟（接口待补充） */
-export function fetchSyncDismantlePhotos(vehicleId: number): Promise<SyncEntryPhotosResult> {
-  void vehicleId
-  return Promise.reject(new Error('拆解同步接口待接入'))
+/** 同步拆解照片到车信盟 */
+export function fetchSyncDismantlePhotos(vehicleId: number) {
+  return request.post<SyncEntryPhotosResult>({
+    url: '/scrap/accept/sync_dismantle_photos',
+    params: { vehicle_id: vehicleId }
+  })
 }
 
 /** 检测车信盟 Token 是否有效（无效时前端需弹出车信盟登录框） */
