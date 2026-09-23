@@ -112,9 +112,11 @@
           </div>
 
           <div class="work-photos-head">
-            <div class="work-panel-title">报废拆解照片（工序二）</div>
+            <div class="work-panel-title">
+              <p>报废拆解照片（工序二）</p>
+              <p class="text-[12px] text-gray-400">在本系统完成拍照上传，手动同步推送至商务部车信盟系统</p>
+            </div>
             <div class="work-photos-head-actions">
-              <CxmEntryPhotoSync sync-type="dismantle" :vehicle-id="plateItem?.vehicle_id" />
               <UploadBatchTrigger
                 v-if="!isCompleted"
                 :disabled="!timeFieldsFilled"
@@ -124,9 +126,12 @@
               <span class="work-photos-count">{{ uploadedPhotoCount }}/9 已上传</span>
             </div>
           </div>
+          <div class="work-photos-sync mb-3">
+            <CxmEntryPhotoSync sync-type="dismantle" :vehicle-id="plateItem?.vehicle_id" />
+          </div>
           <div class="work-photos-tip">
             <ArtSvgIcon icon="ri:information-line" />
-            上传拆解照片后将同步至商务部数字化管理平台（车信盟），请确保照片清晰完整
+            请完成9张拆解照片拍摄上传，照片数据可在本系统修改后再手动同步至商务部车信盟系统。
           </div>
           <div class="work-photo-grid">
             <div v-for="(photo, index) in photoList" :key="photo.field" class="work-photo-card">

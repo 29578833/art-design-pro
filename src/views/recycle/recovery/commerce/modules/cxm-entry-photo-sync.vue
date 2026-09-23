@@ -4,7 +4,14 @@
       <ArtSvgIcon icon="ri:checkbox-circle-fill" />
       车信盟已登录
     </span>
-    <ElButton size="small" plain type="primary" :loading="syncing" @click="handleSync">
+    <ElButton
+      v-if="syncType !== 'dismantle'"
+      size="small"
+      plain
+      type="primary"
+      :loading="syncing"
+      @click="handleSync"
+    >
       手动同步照片
     </ElButton>
     <CxmSyncResultDialog v-model:visible="resultVisible" :message="resultMessage" :result="result" />
