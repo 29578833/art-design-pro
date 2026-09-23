@@ -461,7 +461,7 @@
   })
   const gridOptions = {
     border: true,
-    size: 'mini' as const,
+    size: 'small' as const,
     align: 'center' as const,
     headerAlign: 'center' as const,
     showOverflow: 'tooltip' as const,
@@ -497,7 +497,7 @@
           backgroundColor: colors[0],
           color: colors[1],
           fontWeight: '700',
-          fontSize: '11px'
+          fontSize: '14px'
         }
       }
     }
