@@ -208,6 +208,9 @@
                       </span>
                     </div>
                   </template>
+                  <template #footer>
+                    <div v-if="customerLoadingMore" class="customer-load-more">加载中...</div>
+                  </template>
                 </ElAutocomplete>
                 <button type="button" class="btn-add-customer" @click="openAddCustomerDialog">
                   <ArtSvgIcon icon="ri:add-line" />
@@ -796,6 +799,18 @@
   const customerQuery = ref('')
   const selectedCustomerGrade = ref<CustomerGrade | ''>('')
   const customerDialogVisible = ref(false)
+  /** 客户下拉分页：与 ElAutocomplete 内部 suggestions 共用同一数组，追加即可刷新列表 */
+  const CUSTOMER_PAGE_SIZE = 20
+  const customerOptions = ref<CustomerOption[]>([])
+  const customerPage = ref(1)
+  const customerTotal = ref(0)
+  const customerLoadingMore = ref(false)
+  const customerHasMore = computed(
+    () => customerOptions.value.length > 0 && customerOptions.value.length < customerTotal.value
+  )
+  let customerKeyword = ''
+  let customerRequestSeq = 0
+  let customerScrollWrap: HTMLElement | null = null
   /** 初始 readonly，聚焦后再输入，避免浏览器地址/联系人自动填充层 */
   const customerSearchReadonly = ref(true)
 
@@ -923,27 +938,120 @@
     set: (val) => emit('update:visible', val)
   })
 
-  const filteredCustomers = async (queryString: string): Promise<CustomerOption[]> => {
-    const res = await fetchPartnerList({
-      keyword: queryString.trim(),
-      current: 1,
-      size: 20
-    })
-    return res.records.map((item) => ({
+  function mapCustomerOption(item: {
+    id: string
+    name: string
+    phone: string
+    address?: string
+    grade: CustomerGrade
+  }): CustomerOption {
+    return {
       uid: Number(item.id),
       real_name: item.name,
       phone: item.phone,
       address: item.address || '',
-      grade: item.grade as CustomerGrade
-    }))
+      grade: item.grade
+    }
   }
 
-  /** 客户自动补全：返回数据给 ElAutocomplete，避免 async+cb 导致 Promise<void> 类型不兼容 */
+  function resetCustomerSuggest() {
+    customerRequestSeq += 1
+    customerKeyword = ''
+    customerPage.value = 1
+    customerTotal.value = 0
+    customerLoadingMore.value = false
+    customerOptions.value.splice(0, customerOptions.value.length)
+  }
+
+  function handleCustomerDropdownScroll(event: Event) {
+    const el = event.target as HTMLElement
+    if (el.scrollHeight - el.scrollTop - el.clientHeight > 40) return
+    loadMoreCustomers()
+  }
+
+  /** 下拉层 teleport 到 body，列表渲染后再绑定滚动容器 */
+  function bindCustomerDropdownScroll(retry = 0) {
+    nextTick(() => {
+      const wrap = document.querySelector(
+        '.order-customer-autocomplete-popper .el-autocomplete-suggestion__wrap'
+      ) as HTMLElement | null
+      if (!wrap) {
+        if (retry < 3) bindCustomerDropdownScroll(retry + 1)
+        return
+      }
+      if (wrap !== customerScrollWrap) {
+        customerScrollWrap?.removeEventListener('scroll', handleCustomerDropdownScroll)
+        customerScrollWrap = wrap
+        wrap.addEventListener('scroll', handleCustomerDropdownScroll, { passive: true })
+      }
+      wrap.scrollTop = 0
+    })
+  }
+
+  function unbindCustomerDropdownScroll() {
+    customerScrollWrap?.removeEventListener('scroll', handleCustomerDropdownScroll)
+    customerScrollWrap = null
+  }
+
+  /** 客户自动补全：返回同一数组引用，翻页时 push 才能更新下拉 */
   async function queryCustomers(queryString: string) {
+    const keyword = queryString.trim()
+    const requestId = ++customerRequestSeq
+    customerKeyword = keyword
+    customerPage.value = 1
+    customerLoadingMore.value = false
     try {
-      return await filteredCustomers(queryString)
+      const res = await fetchPartnerList({
+        keyword,
+        current: 1,
+        size: CUSTOMER_PAGE_SIZE
+      })
+      if (requestId !== customerRequestSeq) return customerOptions.value
+      customerTotal.value = res.total
+      customerOptions.value.splice(
+        0,
+        customerOptions.value.length,
+        ...res.records.map(mapCustomerOption)
+      )
+      bindCustomerDropdownScroll()
+      return customerOptions.value
     } catch {
-      return []
+      if (requestId !== customerRequestSeq) return customerOptions.value
+      customerTotal.value = 0
+      customerOptions.value.splice(0, customerOptions.value.length)
+      return customerOptions.value
+    }
+  }
+
+  async function loadMoreCustomers() {
+    if (customerLoadingMore.value || !customerHasMore.value) return
+    const keyword = customerKeyword
+    const requestId = customerRequestSeq
+    const nextPage = customerPage.value + 1
+    customerLoadingMore.value = true
+    try {
+      const res = await fetchPartnerList({
+        keyword,
+        current: nextPage,
+        size: CUSTOMER_PAGE_SIZE
+      })
+      if (requestId !== customerRequestSeq || keyword !== customerKeyword) return
+      customerPage.value = nextPage
+      customerTotal.value = res.total
+      const exist = new Set(customerOptions.value.map((item) => item.uid))
+      let added = 0
+      for (const item of res.records.map(mapCustomerOption)) {
+        if (exist.has(item.uid)) continue
+        customerOptions.value.push(item)
+        added += 1
+      }
+      if (added === 0) {
+        customerTotal.value = customerOptions.value.length
+      }
+    } catch {
+      // 翻页失败保留当前列表，滚到底可再次请求
+    } finally {
+      if (requestId === customerRequestSeq) customerLoadingMore.value = false
     }
   }
 
@@ -1128,6 +1236,7 @@
     customerQuery.value = ''
     selectedCustomerGrade.value = ''
     customerSearchReadonly.value = true
+    resetCustomerSuggest()
     form.value = defaultForm()
     lastSaveResult.value = null
   }
@@ -1396,6 +1505,10 @@
       }
     }
   )
+
+  onBeforeUnmount(() => {
+    unbindCustomerDropdownScroll()
+  })
 </script>
 
 <style scoped lang="scss">
@@ -1428,9 +1541,15 @@
       display: none;
     }
 
+    .el-scrollbar {
+      height: 280px;
+    }
+
     .el-autocomplete-suggestion__wrap {
-      max-height: 192px;
+      height: 280px;
+      max-height: 280px;
       padding: 0;
+      overflow-y: auto;
     }
 
     .el-autocomplete-suggestion__list {
@@ -1503,6 +1622,17 @@
     .el-autocomplete-suggestion__footer {
       padding: 8px 12px;
       border-top: 1px solid #f0f0f0;
+
+      &:not(:has(.customer-load-more)) {
+        display: none;
+      }
+    }
+
+    .customer-load-more {
+      font-size: 12px;
+      line-height: 1.4;
+      color: #9ca3af;
+      text-align: center;
     }
 
     .customer-add-btn {

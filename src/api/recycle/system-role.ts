@@ -1,7 +1,10 @@
 import request from '@/utils/http'
 import type {
+  SystemEmployeeBrief,
+  SystemEmployeeOption,
   SystemRoleEditResult,
   SystemRoleItem,
+  SystemRoleMenuNode,
   SystemRoleSaveParams
 } from '@/types/recycle/system/system'
 
@@ -64,7 +67,11 @@ export function fetchSystemRoleSave(id: number, data: SystemRoleSaveParams) {
       role_desc: data.role_desc || '',
       status: data.status ?? 1,
       checked_menus: data.checked_menus || [],
-      mini_program_roles: data.mini_program_roles || []
+      mini_program_roles: data.mini_program_roles || [],
+      view_scope: data.view_scope || 'all',
+      view_employees: data.view_scope === 'assigned' ? data.view_employees || [] : [],
+      edit_scope: data.edit_scope || 'all',
+      edit_employees: data.edit_scope === 'assigned' ? data.edit_employees || [] : []
     },
     showSuccessMessage: true
   })
@@ -85,4 +92,38 @@ export async function fetchScrapRoleOptions() {
     params: { page: 1, limit: 200, status: 1 }
   })
   return res.list || []
+}
+
+/** 订单数据范围可选员工 */
+export async function fetchSelectableEmployees(params?: {
+  keyword?: string
+  page?: number
+  limit?: number
+}) {
+  const res = await request.get<{ list: SystemEmployeeOption[]; count: number }>({
+    url: '/scrap/role/selectable_employees',
+    params: {
+      keyword: params?.keyword || '',
+      page: params?.page ?? 1,
+      limit: params?.limit ?? 200
+    }
+  })
+  return {
+    list: res.list || [],
+    count: res.count ?? res.list?.length ?? 0
+  }
+}
+
+/** 已选员工简要信息 */
+export async function fetchEmployeeBrief(ids: number[] | string) {
+  const employeeIds = Array.isArray(ids)
+    ? [...new Set(ids.map(Number).filter((id) => id > 0))].join(',')
+    : String(ids || '').trim()
+  if (!employeeIds) return [] as SystemEmployeeBrief[]
+
+  const res = await request.get<SystemEmployeeBrief[]>({
+    url: '/scrap/role/employee_brief',
+    params: { ids: employeeIds }
+  })
+  return Array.isArray(res) ? res : []
 }

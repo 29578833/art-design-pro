@@ -85,6 +85,24 @@ export interface SystemAdminResetPwdParams {
 /** 角色状态：0禁用 1启用 */
 export type SystemRoleStatus = 0 | 1
 
+/** 订单数据范围 */
+export type OrderDataScope = 'all' | 'assigned' | 'self'
+
+/** 订单数据范围配置维度 */
+export type OrderDataScopeDimension = 'view' | 'edit'
+
+/** 订单数据范围配置 */
+export interface OrderDataScopeConfig {
+  /** 查看范围 */
+  view_scope: OrderDataScope
+  /** 查看范围指定员工 */
+  view_employees: number[]
+  /** 编辑范围 */
+  edit_scope: OrderDataScope
+  /** 编辑范围指定员工 */
+  edit_employees: number[]
+}
+
 /** 系统角色列表项 */
 export interface SystemRoleItem {
   /** 主键 ID */
@@ -103,6 +121,14 @@ export interface SystemRoleItem {
   mini_program_roles?: string | string[]
   /** 角色级别 */
   level?: number
+  /** 订单查看范围 */
+  view_scope?: OrderDataScope
+  /** 订单查看范围指定员工 */
+  view_employees?: string | number[] | null
+  /** 订单编辑范围 */
+  edit_scope?: OrderDataScope
+  /** 订单编辑范围指定员工 */
+  edit_employees?: string | number[] | null
   [key: string]: unknown
 }
 
@@ -118,6 +144,34 @@ export interface SystemRoleSaveParams {
   checked_menus?: number[]
   /** 小程序角色 */
   mini_program_roles?: string[]
+  /** 订单查看范围 */
+  view_scope?: OrderDataScope
+  /** 订单查看范围指定员工 */
+  view_employees?: number[]
+  /** 订单编辑范围 */
+  edit_scope?: OrderDataScope
+  /** 订单编辑范围指定员工 */
+  edit_employees?: number[]
+}
+
+/** 可分配订单数据范围的员工 */
+export interface SystemEmployeeOption {
+  id: number
+  real_name?: string
+  phone?: string
+  account?: string
+  role_names?: string
+  initial?: string
+  [key: string]: unknown
+}
+
+/** 员工简要信息 */
+export interface SystemEmployeeBrief {
+  id: number
+  real_name?: string
+  phone?: string
+  initial?: string
+  [key: string]: unknown
 }
 
 /** 菜单操作级权限（由后端 operations 字段驱动） */

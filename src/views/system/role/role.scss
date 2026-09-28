@@ -272,14 +272,20 @@
 
     .operation-badge {
       display: inline-block;
-      padding: 0px 8px;
-      line-height: 32px;
+      padding: 0 8px;
       font-size: 12px;
+      line-height: 32px;
       color: #1890ff;
       white-space: nowrap;
       background: #e6f7ff;
       border: 1px solid #91d5ff;
       border-radius: 4px;
+
+      &.is-order-level {
+        color: #0f766e;
+        background: #ecfdf5;
+        border-color: #99f6e4;
+      }
     }
 
     .perm-empty {

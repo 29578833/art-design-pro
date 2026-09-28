@@ -2,29 +2,30 @@
   <div class="role-perm-panel">
     <div v-for="top in menus" :key="top.id" class="perm-group">
       <!-- 无子级：顶级本身就是功能菜单 -->
-      <div
-        v-if="!top.children?.length"
-        class="perm-row perm-row--root"
-        @click="toggleMenu(top, !isMenuChecked(top))"
-      >
-        <ElCheckbox
-          :model-value="isMenuChecked(top)"
-          :indeterminate="isMenuIndeterminate(top)"
-          @click.stop
-          @change="(v: CheckboxValueType) => toggleMenu(top, !!v)"
-        />
-        <span class="perm-row-label">{{ top.title || top.menu_name || `菜单${top.id}` }}</span>
-        <div v-if="getOperations(top).length" class="perm-btns" @click.stop>
-          <label v-for="op in getOperations(top)" :key="op.id" class="perm-btn-item">
-            <ElCheckbox
-              :model-value="isOpChecked(op.id)"
-              @change="(v: CheckboxValueType) => toggleAction(top, op, !!v)"
-            />
-            <span>{{ op.name }}</span>
-          </label>
-          <span class="operation-badge">操作级权限</span>
+      <template v-if="!top.children?.length">
+        <div class="perm-row perm-row--root" @click="toggleMenu(top, !isMenuChecked(top))">
+          <ElCheckbox
+            :model-value="isMenuChecked(top)"
+            :indeterminate="isMenuIndeterminate(top)"
+            @click.stop
+            @change="(v: CheckboxValueType) => toggleMenu(top, !!v)"
+          />
+          <span class="perm-row-label">{{ top.title || top.menu_name || `菜单${top.id}` }}</span>
+          <div v-if="getOperations(top).length" class="perm-btns" @click.stop>
+            <label v-for="op in getOperations(top)" :key="op.id" class="perm-btn-item">
+              <ElCheckbox
+                :model-value="isOpChecked(op.id)"
+                @change="(v: CheckboxValueType) => toggleAction(top, op, !!v)"
+              />
+              <span>{{ op.name }}</span>
+            </label>
+            <span class="operation-badge" :class="{ 'is-order-level': isOrderAuditMenu(top) }">
+              {{ getOperationBadge(top) }}
+            </span>
+          </div>
         </div>
-      </div>
+        <slot v-if="isOrderAuditMenu(top)" name="row-after" :row="top" />
+      </template>
 
       <template v-else>
         <!-- 一级：父节点全选 -->
@@ -39,30 +40,30 @@
         </div>
 
         <!-- 二级：子菜单 + 操作级权限 -->
-        <div
-          v-for="row in getPermRows(top)"
-          :key="row.id"
-          class="perm-row"
-          @click="toggleMenu(row, !isMenuChecked(row))"
-        >
-          <ElCheckbox
-            :model-value="isMenuChecked(row)"
-            :indeterminate="isMenuIndeterminate(row)"
-            @click.stop
-            @change="(v: CheckboxValueType) => toggleMenu(row, !!v)"
-          />
-          <span class="perm-row-label">{{ row.title || row.menu_name || `菜单${row.id}` }}</span>
-          <div v-if="getOperations(row).length" class="perm-btns" @click.stop>
-            <label v-for="op in getOperations(row)" :key="op.id" class="perm-btn-item">
-              <ElCheckbox
-                :model-value="isOpChecked(op.id)"
-                @change="(v: CheckboxValueType) => toggleAction(row, op, !!v)"
-              />
-              <span>{{ op.name }}</span>
-            </label>
-            <span class="operation-badge">操作级权限</span>
+        <template v-for="row in getPermRows(top)" :key="row.id">
+          <div class="perm-row" @click="toggleMenu(row, !isMenuChecked(row))">
+            <ElCheckbox
+              :model-value="isMenuChecked(row)"
+              :indeterminate="isMenuIndeterminate(row)"
+              @click.stop
+              @change="(v: CheckboxValueType) => toggleMenu(row, !!v)"
+            />
+            <span class="perm-row-label">{{ row.title || row.menu_name || `菜单${row.id}` }}</span>
+            <div v-if="getOperations(row).length" class="perm-btns" @click.stop>
+              <label v-for="op in getOperations(row)" :key="op.id" class="perm-btn-item">
+                <ElCheckbox
+                  :model-value="isOpChecked(op.id)"
+                  @change="(v: CheckboxValueType) => toggleAction(row, op, !!v)"
+                />
+                <span>{{ op.name }}</span>
+              </label>
+              <span class="operation-badge" :class="{ 'is-order-level': isOrderAuditMenu(row) }">
+                {{ getOperationBadge(row) }}
+              </span>
+            </div>
           </div>
-        </div>
+          <slot v-if="isOrderAuditMenu(row)" name="row-after" :row="row" />
+        </template>
       </template>
     </div>
     <div v-if="!menus.length" class="perm-empty">暂无权限菜单</div>
@@ -71,10 +72,7 @@
 
 <script setup lang="ts">
   import type { CheckboxValueType } from 'element-plus'
-  import type {
-    SystemRoleMenuNode,
-    SystemRoleMenuOperation
-  } from '@/types/recycle/system/system'
+  import type { SystemRoleMenuNode, SystemRoleMenuOperation } from '@/types/recycle/system/system'
 
   const props = defineProps<{
     menus: SystemRoleMenuNode[]
@@ -86,6 +84,15 @@
   }>()
 
   const checked = computed(() => new Set(props.modelValue.map(Number)))
+  const ORDER_AUDIT_MENU_ID = 3502
+
+  function isOrderAuditMenu(node: SystemRoleMenuNode) {
+    return Number(node.id) === ORDER_AUDIT_MENU_ID
+  }
+
+  function getOperationBadge(node: SystemRoleMenuNode) {
+    return isOrderAuditMenu(node) ? '订单级权限' : '操作级权限'
+  }
 
   function getOperations(node: SystemRoleMenuNode): SystemRoleMenuOperation[] {
     return (node.operations || []).map((op) => ({

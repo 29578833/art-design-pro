@@ -68,7 +68,17 @@
           <div class="role-panel">
             <div class="role-panel-title">PC 管理后台权限</div>
             <div class="role-tree-wrap">
-              <RolePermPanel v-model="checkedRuleIds" :menus="menuTree" />
+              <RolePermPanel v-model="checkedRuleIds" :menus="menuTree">
+                <template #row-after="{ row }">
+                  <RoleOrderScopePanel
+                    v-if="Number(row.id) === ORDER_AUDIT_MENU_ID"
+                    v-model="orderScope"
+                    :view-employee-names="viewEmployeeNames"
+                    :edit-employee-names="editEmployeeNames"
+                    @pick="openEmployeePicker"
+                  />
+                </template>
+              </RolePermPanel>
             </div>
           </div>
 
@@ -97,23 +107,50 @@
     </div>
 
     <RoleAddDialog v-model:visible="addVisible" @success="handleAddSuccess" />
+    <EmployeePicker
+      v-model="pickerIds"
+      v-model:visible="pickerVisible"
+      :title="pickerTitle"
+      @confirm="handleEmployeeConfirm"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+  import { ElMessage } from 'element-plus'
   import {
+    fetchEmployeeBrief,
     fetchScrapRoleOptions,
     fetchSystemRoleEdit,
     fetchSystemRoleList,
     fetchSystemRoleSave,
     type ScrapRoleOption
   } from '@/api/recycle/system-role'
-  import type { SystemRoleItem, SystemRoleMenuNode } from '@/types/recycle/system/system'
+  import type {
+    OrderDataScope,
+    OrderDataScopeConfig,
+    OrderDataScopeDimension,
+    SystemRoleItem,
+    SystemRoleMenuNode
+  } from '@/types/recycle/system/system'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
+  import EmployeePicker from './modules/employee-picker.vue'
   import RoleAddDialog from './modules/role-add-dialog.vue'
+  import RoleOrderScopePanel from './modules/role-order-scope-panel.vue'
   import RolePermPanel from './modules/role-perm-panel.vue'
 
   defineOptions({ name: 'Role' })
+
+  const ORDER_AUDIT_MENU_ID = 3502
+
+  function createDefaultOrderScope(): OrderDataScopeConfig {
+    return {
+      view_scope: 'all',
+      view_employees: [],
+      edit_scope: 'all',
+      edit_employees: []
+    }
+  }
 
   const listLoading = ref(false)
   const detailLoading = ref(false)
@@ -129,6 +166,11 @@
   const checkedRuleIds = ref<number[]>([])
   const miniRoles = ref<string[]>([])
   const scrapRoleOptions = ref<ScrapRoleOption[]>([])
+  const orderScope = ref<OrderDataScopeConfig>(createDefaultOrderScope())
+  const employeeNameMap = ref<Record<number, string>>({})
+  const pickerVisible = ref(false)
+  const pickerDimension = ref<OrderDataScopeDimension>('view')
+  const pickerIds = ref<number[]>([])
 
   /** 超管角色：level=0，或名称为超级管理员 */
   const isSuperAdmin = computed(() => {
@@ -138,9 +180,16 @@
     return (role.role_name || '').includes('超级管理员')
   })
 
-  function truncateDesc(desc?: string) {
-    if (!desc) return '无描述'
-    return desc.length > 14 ? `${desc.slice(0, 14)}…` : desc
+  const viewEmployeeNames = computed(() => resolveEmployeeNames(orderScope.value.view_employees))
+  const editEmployeeNames = computed(() => resolveEmployeeNames(orderScope.value.edit_employees))
+  const pickerTitle = computed(() =>
+    pickerDimension.value === 'edit' ? '选择可编辑订单的员工' : '选择可查看订单的员工'
+  )
+
+  function truncateDesc(desc?: string | number[]) {
+    const text = Array.isArray(desc) ? desc.join(',') : desc
+    if (!text) return '无描述'
+    return text.length > 14 ? `${text.slice(0, 14)}…` : text
   }
 
   /** 解析 rules 为 id 列表 */
@@ -155,6 +204,69 @@
         .filter((n) => !Number.isNaN(n) && n > 0)
     }
     return []
+  }
+
+  /** 逗号分隔串或数组统一解析为员工 ID */
+  function parseEmployeeIds(value: unknown): number[] {
+    if (Array.isArray(value)) {
+      return [...new Set(value.map(Number).filter((id) => id > 0))]
+    }
+    if (typeof value === 'string' && value.trim()) {
+      return [
+        ...new Set(
+          value
+            .split(',')
+            .map((id) => Number(id.trim()))
+            .filter((id) => id > 0)
+        )
+      ]
+    }
+    return []
+  }
+
+  function normalizeOrderScope(value: unknown): OrderDataScope {
+    return value === 'assigned' || value === 'self' ? value : 'all'
+  }
+
+  function resolveEmployeeNames(ids: number[]) {
+    return ids.map((id) => employeeNameMap.value[id] || `员工#${id}`)
+  }
+
+  async function loadEmployeeNames() {
+    const ids = [
+      ...new Set([...orderScope.value.view_employees, ...orderScope.value.edit_employees])
+    ].filter((id) => id > 0 && !employeeNameMap.value[id])
+    if (!ids.length) return
+
+    try {
+      const list = await fetchEmployeeBrief(ids)
+      const next = { ...employeeNameMap.value }
+      list.forEach((employee) => {
+        next[employee.id] = employee.real_name || `员工#${employee.id}`
+      })
+      employeeNameMap.value = next
+    } catch {
+      // 姓名回显失败时保留 ID 占位，不影响范围编辑与保存。
+    }
+  }
+
+  function openEmployeePicker(dimension: OrderDataScopeDimension) {
+    pickerDimension.value = dimension
+    pickerIds.value =
+      dimension === 'view'
+        ? [...orderScope.value.view_employees]
+        : [...orderScope.value.edit_employees]
+    pickerVisible.value = true
+  }
+
+  function handleEmployeeConfirm(ids: number[]) {
+    const next = [...new Set(ids)]
+    if (pickerDimension.value === 'view') {
+      orderScope.value = { ...orderScope.value, view_employees: next }
+    } else {
+      orderScope.value = { ...orderScope.value, edit_employees: next }
+    }
+    void loadEmployeeNames()
   }
 
   /** 收集菜单树中合法的菜单 id 与操作级权限 id */
@@ -234,6 +346,8 @@
         selectedRole.value = null
         menuTree.value = []
         checkedRuleIds.value = []
+        orderScope.value = createDefaultOrderScope()
+        employeeNameMap.value = {}
       }
     } finally {
       listLoading.value = false
@@ -252,6 +366,8 @@
     selectedId.value = id
     detailLoading.value = true
     savedHint.value = false
+    orderScope.value = createDefaultOrderScope()
+    employeeNameMap.value = {}
     try {
       const detail = await fetchSystemRoleEdit(id)
       selectedRole.value = detail.role
@@ -269,10 +385,19 @@
       } else {
         miniRoles.value = []
       }
+      orderScope.value = {
+        view_scope: normalizeOrderScope(detail.role.view_scope),
+        view_employees: parseEmployeeIds(detail.role.view_employees),
+        edit_scope: normalizeOrderScope(detail.role.edit_scope),
+        edit_employees: parseEmployeeIds(detail.role.edit_employees)
+      }
+      void loadEmployeeNames()
     } catch {
       menuTree.value = []
       checkedRuleIds.value = []
       miniRoles.value = []
+      orderScope.value = createDefaultOrderScope()
+      employeeNameMap.value = {}
     } finally {
       detailLoading.value = false
     }
@@ -280,6 +405,15 @@
 
   async function handleSave() {
     if (!selectedId.value || !selectedRole.value || isSuperAdmin.value) return
+    if (orderScope.value.view_scope === 'assigned' && !orderScope.value.view_employees.length) {
+      ElMessage.warning('查看范围选择「指定员工」时，请选择至少一名员工')
+      return
+    }
+    if (orderScope.value.edit_scope === 'assigned' && !orderScope.value.edit_employees.length) {
+      ElMessage.warning('编辑范围选择「指定员工」时，请选择至少一名员工')
+      return
+    }
+
     const checkedMenus = collectSaveRuleIds(menuTree.value, checkedRuleIds.value)
 
     saving.value = true
@@ -289,7 +423,11 @@
         role_desc: selectedRole.value.role_desc || '',
         status: selectedRole.value.status ?? 1,
         checked_menus: checkedMenus,
-        mini_program_roles: miniRoles.value
+        mini_program_roles: miniRoles.value,
+        view_scope: orderScope.value.view_scope,
+        view_employees: orderScope.value.view_employees,
+        edit_scope: orderScope.value.edit_scope,
+        edit_employees: orderScope.value.edit_employees
       })
       savedHint.value = true
       setTimeout(() => {
