@@ -44,10 +44,7 @@
     isPendingFormalReview,
     isTowOrder
   } from '@/types/recycle/recovery/orders/order'
-  import {
-    AUTH_SCRAP_ORDER_AUDIT_APPROVE,
-    AUTH_SCRAP_ORDER_AUDIT_REJECT
-  } from '@/constants/auth'
+  import { AUTH_SCRAP_ORDER_AUDIT_APPROVE, AUTH_SCRAP_ORDER_AUDIT_REJECT } from '@/constants/auth'
 
   export interface OrderActionEvent {
     (e: 'view', row: RecycleOrder): void
@@ -141,10 +138,11 @@
       return actions
     }
 
-    // 正式回收订单：审核通过（status=2）或审核驳回（status=-1）可编辑
+    // 正式回收订单：审核通过或驳回，且在当前管理员编辑范围内才可编辑
     if (
       (row.order_type === 'customer_order' || row.order_type === 'staff_order') &&
-      (row.status === 2 || row.status === -1)
+      (row.status === 2 || row.status === -1) &&
+      row.can_edit === true
     ) {
       actions.push({
         key: 'edit',

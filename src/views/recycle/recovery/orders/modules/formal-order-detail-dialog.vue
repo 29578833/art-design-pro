@@ -158,7 +158,7 @@
           </template>
           <template v-else>
             <ElButton size="large" @click="dialogVisible = false">关闭</ElButton>
-            <ElButton v-if="canEditOrder" size="large" type="primary" @click="startEdit"
+            <ElButton v-if="canShowEditButton" size="large" type="primary" @click="startEdit"
               >编辑订单</ElButton
             >
           </template>
@@ -198,10 +198,7 @@
   import FormalOrderDetailEditPanel from './formal-order-detail-edit-panel.vue'
   import FormalOrderProgressTab from './formal-order-progress-tab.vue'
   import FormalOrderAttachmentsTab from './formal-order-attachments-tab.vue'
-  import {
-    AUTH_SCRAP_ORDER_AUDIT_APPROVE,
-    AUTH_SCRAP_ORDER_AUDIT_REJECT
-  } from '@/constants/auth'
+  import { AUTH_SCRAP_ORDER_AUDIT_APPROVE, AUTH_SCRAP_ORDER_AUDIT_REJECT } from '@/constants/auth'
 
   type TabKey = 'basic' | 'progress' | 'attachments'
 
@@ -242,6 +239,8 @@
   const isBatch = computed(() => Number(detail.value.is_batch) === 1)
   /** 审核通过（status=2）或审核驳回（status=-1）允许编辑 */
   const canEditOrder = computed(() => detail.value.status === 2 || detail.value.status === -1)
+  /** 编辑订单按钮按接口 can_edit 字段控制显示 */
+  const canShowEditButton = computed(() => canEditOrder.value && detail.value.can_edit === true)
   /** 是否审核驳回订单（驳回后可编辑并重新提交审核） */
   const isRejectedOrder = computed(() => detail.value.status === -1)
 
@@ -702,8 +701,8 @@
 
   .fo-batch-list {
     display: flex;
-    flex-wrap: wrap;
     flex: 1;
+    flex-wrap: wrap;
     gap: 8px;
     overflow-x: auto;
   }

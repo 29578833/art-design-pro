@@ -33,6 +33,8 @@ export interface RecycleOrder {
   order_type_text?: string
   /** 状态码 */
   status: number
+  /** 当前管理员是否可编辑（列表/详情接口返回） */
+  can_edit?: boolean
   /** 当前状态文案 */
   current_status_text?: string
   /** 状态文案 */
