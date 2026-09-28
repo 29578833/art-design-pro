@@ -19,9 +19,7 @@
               />
               <span>{{ op.name }}</span>
             </label>
-            <span class="operation-badge" :class="{ 'is-order-level': isOrderAuditMenu(top) }">
-              {{ getOperationBadge(top) }}
-            </span>
+            <span class="operation-badge">操作级权限</span>
           </div>
         </div>
         <slot v-if="isOrderAuditMenu(top)" name="row-after" :row="top" />
@@ -57,9 +55,7 @@
                 />
                 <span>{{ op.name }}</span>
               </label>
-              <span class="operation-badge" :class="{ 'is-order-level': isOrderAuditMenu(row) }">
-                {{ getOperationBadge(row) }}
-              </span>
+              <span class="operation-badge">操作级权限</span>
             </div>
           </div>
           <slot v-if="isOrderAuditMenu(row)" name="row-after" :row="row" />
@@ -88,10 +84,6 @@
 
   function isOrderAuditMenu(node: SystemRoleMenuNode) {
     return Number(node.id) === ORDER_AUDIT_MENU_ID
-  }
-
-  function getOperationBadge(node: SystemRoleMenuNode) {
-    return isOrderAuditMenu(node) ? '订单级权限' : '操作级权限'
   }
 
   function getOperations(node: SystemRoleMenuNode): SystemRoleMenuOperation[] {

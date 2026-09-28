@@ -1,4 +1,12 @@
 .role-page {
+  --el-color-primary: #1d84ff;
+  --el-color-primary-light-3: #61a9ff;
+  --el-color-primary-light-5: #8ec1ff;
+  --el-color-primary-light-7: #bad9ff;
+  --el-color-primary-light-8: #cfe5ff;
+  --el-color-primary-light-9: #e9f4ff;
+  --el-color-primary-dark-2: #176acc;
+
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -72,11 +80,11 @@
     }
 
     &.is-active {
-      background: #eff6ff;
-      border-right-color: #1890ff;
+      background: #eaf4ff;
+      border-right-color: #1d84ff;
 
       .role-item-name {
-        color: #1890ff;
+        color: #1d84ff;
       }
     }
   }
@@ -109,7 +117,7 @@
     padding: 16px;
     font-size: 14px;
     font-weight: 500;
-    color: #1d4ed8;
+    color: #1d84ff;
     background: #fff;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
@@ -118,7 +126,7 @@
   .role-super-tip-ico {
     flex-shrink: 0;
     font-size: 20px;
-    color: #3b82f6;
+    color: #1d84ff;
   }
 
   .role-main {
@@ -259,33 +267,29 @@
       flex: 1;
       flex-wrap: wrap;
       gap: 12px;
+      align-items: center;
     }
 
     .perm-btn-item {
       display: inline-flex;
       gap: 6px;
       align-items: center;
-      font-size: 12px;
+      font-size: 14px;
       color: #6b7280;
       cursor: pointer;
     }
 
     .operation-badge {
       display: inline-block;
+      height: 22px;
       padding: 0 8px;
       font-size: 12px;
-      line-height: 32px;
-      color: #1890ff;
+      line-height: 21px;
+      color: #1d84ff;
       white-space: nowrap;
-      background: #e6f7ff;
-      border: 1px solid #91d5ff;
+      background: #eaf4ff;
+      border: 1px solid #a9d2ff;
       border-radius: 4px;
-
-      &.is-order-level {
-        color: #0f766e;
-        background: #ecfdf5;
-        border-color: #99f6e4;
-      }
     }
 
     .perm-empty {
@@ -312,8 +316,13 @@
     border-radius: 8px;
 
     &.is-checked {
-      background: #e6f7ff;
-      border-color: #1890ff;
+      color: #1d84ff;
+      background: #eaf4ff;
+      border-color: #1d84ff;
+
+      .el-checkbox__label {
+        color: #1d84ff;
+      }
     }
   }
 }

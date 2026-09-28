@@ -112,69 +112,95 @@
 
 <style scoped lang="scss">
   .order-scope-panel {
-    background: #f8fbff;
-    border-bottom: 1px solid #e5e7eb;
+    margin: 8px 16px 14px 32px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #bad9ff;
+    border-radius: 6px;
   }
 
   .scope-head {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    align-items: baseline;
-    padding: 12px 16px 12px 48px;
-    background: #eef5ff;
-    border-top: 1px solid #d6e9ff;
-    border-bottom: 1px solid #d6e9ff;
+    align-items: center;
+    padding: 10px 16px;
+    background: #e9f4ff;
+    border-bottom: 1px solid #bad9ff;
   }
 
   .scope-title {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
-    color: #1677c8;
+    line-height: 20px;
+    color: #1d84ff;
   }
 
   .scope-desc {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
     font-size: 12px;
-    color: #7a8ca6;
+    line-height: 20px;
+    color: #718198;
+
+    &::before {
+      width: 3px;
+      height: 3px;
+      content: '';
+      background: #9aafc7;
+      border-radius: 50%;
+    }
   }
 
   .scope-row {
-    display: flex;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 16px;
     align-items: flex-start;
-    padding: 14px 16px 14px 48px;
+    padding: 12px 16px;
 
     & + .scope-row {
-      border-top: 1px solid #edf2f7;
+      border-top: 1px solid #e9eef5;
     }
   }
 
   .scope-label {
-    flex-shrink: 0;
-    width: 72px;
     font-size: 13px;
-    line-height: 28px;
-    color: #4b5563;
+    font-weight: 500;
+    line-height: 32px;
+    color: #596579;
   }
 
   .scope-content {
-    flex: 1;
     min-width: 0;
   }
 
   .scope-options {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 18px;
+    gap: 4px 24px;
+    align-items: center;
+    min-height: 32px;
 
     :deep(.el-radio) {
-      height: 28px;
+      height: 32px;
       margin-right: 0;
     }
 
+    :deep(.el-radio__input) {
+      margin-right: 6px;
+    }
+
     :deep(.el-radio__label) {
-      font-size: 13px;
-      color: #374151;
+      font-size: 14px;
+      line-height: 32px;
+      color: #303845;
+      transition: color 0.15s ease;
+    }
+
+    :deep(.el-radio:hover .el-radio__label) {
+      color: #1d84ff;
     }
   }
 
@@ -183,18 +209,25 @@
     flex-wrap: wrap;
     gap: 10px;
     align-items: center;
-    margin-top: 8px;
+    padding: 7px 9px;
+    margin-top: 6px;
+    background: #f4f9ff;
+    border-radius: 5px;
   }
 
   .scope-pick-btn {
-    color: #1677c8;
+    height: 28px;
+    padding: 0 11px;
+    font-size: 12px;
+    color: #1d84ff;
     background: var(--el-bg-color);
-    border-color: #91d5ff;
+    border-color: #a9d2ff;
+    border-radius: 5px;
 
     &:hover {
-      color: #1677c8;
-      background: #f0f8ff;
-      border-color: #1677c8;
+      color: #1d84ff;
+      background: #e9f4ff;
+      border-color: #1d84ff;
     }
   }
 
@@ -211,23 +244,34 @@
   }
 
   .scope-empty {
-    color: #d97706;
+    font-weight: 500;
+    color: #cf7a00;
   }
 
   .scope-hint {
-    margin-top: 5px;
+    margin-top: 2px;
     color: #7a8ca6;
   }
 
   @media (width <= 900px) {
+    .order-scope-panel {
+      margin-right: 12px;
+      margin-left: 12px;
+    }
+
     .scope-head,
     .scope-row {
-      padding-left: 16px;
+      padding-right: 12px;
+      padding-left: 12px;
     }
 
     .scope-row {
-      flex-direction: column;
-      gap: 4px;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .scope-label {
+      line-height: 20px;
     }
   }
 </style>
