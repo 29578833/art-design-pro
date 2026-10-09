@@ -16,7 +16,7 @@
       </div>
       <UploadBatchTrigger
         v-if="!readonly"
-        :loading="ownerBatchUploading"
+        :loading="batchUploading"
         @select="(files) => handleOwnerBatchUpload(files)"
       />
     </div>
@@ -79,7 +79,7 @@
       </div>
       <UploadBatchTrigger
         v-if="!readonly"
-        :loading="vehicleBatchUploading"
+        :loading="batchUploading"
         @select="(files) => handleVehicleBatchUpload(files)"
       />
     </div>
@@ -137,7 +137,7 @@
       </div>
       <UploadBatchTrigger
         v-if="!readonly"
-        :loading="agentBatchUploading"
+        :loading="batchUploading"
         @select="(files) => handleAgentBatchUpload(files)"
       />
     </div>
@@ -262,12 +262,8 @@
     DISMANTLE_PHOTO_ITEMS,
     ENTRY_PHOTO_ITEMS
   } from '../composables/archive/constants'
-  import {
-    previewIndexAt,
-    resolveDismantlePhotoUrl,
-    str,
-    batchFillUploadSlots
-  } from '../composables/archive/utils'
+  import { previewIndexAt, resolveDismantlePhotoUrl, str } from '../composables/archive/utils'
+  import { useBatchUpload } from '../composables/archive/use-batch-upload'
   import MultiUploadSlot from '../widgets/MultiUploadSlot.vue'
   import QksmMaterials from './QksmMaterials.vue'
   import ReadonlyPhoto from '../widgets/ReadonlyPhoto.vue'
@@ -311,9 +307,7 @@
   const scrapFilesLoading = ref(false)
   const scrapCacheFiles = ref<Record<string, ArchiveCacheFile>>({})
   const entryPhotos = ref<Record<string, string>>({})
-  const ownerBatchUploading = ref(false)
-  const vehicleBatchUploading = ref(false)
-  const agentBatchUploading = ref(false)
+  const { batchUploading, runBatchUpload } = useBatchUpload()
 
   const ownerUploadFields = computed((): (keyof ArchiveOwnerImages)[] =>
     props.isCompany ? ['syrzp', 'qksmzp'] : ['sfz1zp', 'sfz2zp', 'qksmzp']
@@ -456,38 +450,16 @@
     agentImages.value[field] = ''
   }
 
-  async function runBatchUpload<T extends string>(
-    loading: Ref<boolean>,
-    fields: readonly T[],
-    upload: (field: T, file: File) => Promise<void>,
-    files: File[]
-  ) {
-    if (props.readonly || loading.value || !files.length) return
-    loading.value = true
-    try {
-      const { filled, excess } = await batchFillUploadSlots(fields, files, upload)
-      if (!filled) {
-        ElMessage.warning('未能上传图片，请重试')
-      } else if (excess > 0) {
-        ElMessage.warning(`已按顺序填入 ${filled} 张，还有 ${excess} 张超出槽位`)
-      } else {
-        ElMessage.success(`已按顺序上传 ${filled} 张图片`)
-      }
-    } finally {
-      loading.value = false
-    }
-  }
-
   function handleOwnerBatchUpload(files: File[]) {
-    return runBatchUpload(ownerBatchUploading, ownerUploadFields.value, handleOwnerUpload, files)
+    return runBatchUpload(ownerUploadFields.value, files, handleOwnerUpload, props.readonly)
   }
 
   function handleVehicleBatchUpload(files: File[]) {
-    return runBatchUpload(vehicleBatchUploading, vehicleUploadFields, handleVehicleUpload, files)
+    return runBatchUpload(vehicleUploadFields, files, handleVehicleUpload, props.readonly)
   }
 
   function handleAgentBatchUpload(files: File[]) {
-    return runBatchUpload(agentBatchUploading, agentUploadFields, handleAgentUpload, files)
+    return runBatchUpload(agentUploadFields, files, handleAgentUpload, props.readonly)
   }
 
   function handleCertificateAction() {

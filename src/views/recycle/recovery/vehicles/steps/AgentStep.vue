@@ -91,7 +91,7 @@
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { ElMessage } from 'element-plus'
   import { AGENT_OCR_KEY } from '../composables/archive/constants'
-  import { batchFillUploadSlots } from '../composables/archive/utils'
+  import { useBatchUpload } from '../composables/archive/use-batch-upload'
   import { applyIdCardFrontResult } from '../composables/archive/ocr'
   import UploadBatchTrigger from '../widgets/UploadBatchTrigger.vue'
   import UploadSlot from '../widgets/UploadSlot.vue'
@@ -117,7 +117,7 @@
   const ocrLoading = reactive<ArchiveOcrState>({})
   const ocrDone = reactive<ArchiveOcrState>({})
   const ocrFilled = computed(() => !!(ocrDone.agent_front || ocrDone.agent_back))
-  const batchUploading = ref(false)
+  const { batchUploading, runBatchUpload } = useBatchUpload()
 
   const agentUploadFields: (keyof ArchiveAgentImages)[] = ['jbrsfz1zp', 'jbrsfz2zp', 'jbrzp']
 
@@ -157,20 +157,7 @@
   }
 
   async function handleBatchUpload(files: File[]) {
-    if (props.readonly || batchUploading.value || !files.length) return
-    batchUploading.value = true
-    try {
-      const { filled, excess } = await batchFillUploadSlots(agentUploadFields, files, handleUpload)
-      if (!filled) {
-        ElMessage.warning('未能上传图片，请重试')
-      } else if (excess > 0) {
-        ElMessage.warning(`已按顺序填入 ${filled} 张，还有 ${excess} 张超出槽位`)
-      } else {
-        ElMessage.success(`已按顺序上传 ${filled} 张图片`)
-      }
-    } finally {
-      batchUploading.value = false
-    }
+    await runBatchUpload(agentUploadFields, files, handleUpload, props.readonly)
   }
 
   async function runAgentIdOcr(side: 'front' | 'back') {

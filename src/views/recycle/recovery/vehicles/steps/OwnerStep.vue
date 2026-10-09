@@ -135,7 +135,7 @@
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { ElMessage } from 'element-plus'
   import { COMPANY_ID_TYPE_OPTIONS, OWNER_OCR_KEY } from '../composables/archive/constants'
-  import { batchFillUploadSlots } from '../composables/archive/utils'
+  import { useBatchUpload } from '../composables/archive/use-batch-upload'
   import { applyIdCardFrontResult, applyLicenseOcrResult } from '../composables/archive/ocr'
   import UploadBatchTrigger from '../widgets/UploadBatchTrigger.vue'
   import UploadSlot from '../widgets/UploadSlot.vue'
@@ -178,7 +178,7 @@
     isCompany.value ? COMPANY_ID_TYPE_OPTIONS : naturalIdTypeOptions.value
   )
   const ocrFilled = computed(() => !!(ocrDone.license || ocrDone.id_front || ocrDone.id_back))
-  const batchUploading = ref(false)
+  const { batchUploading, runBatchUpload } = useBatchUpload()
 
   const ownerUploadFields = computed((): (keyof ArchiveOwnerImages)[] =>
     isCompany.value ? ['syrzp', 'qksmzp'] : ['sfz1zp', 'sfz2zp', 'qksmzp']
@@ -230,24 +230,7 @@
   }
 
   async function handleBatchUpload(files: File[]) {
-    if (props.readonly || batchUploading.value || !files.length) return
-    batchUploading.value = true
-    try {
-      const { filled, excess } = await batchFillUploadSlots(
-        ownerUploadFields.value,
-        files,
-        handleUpload
-      )
-      if (!filled) {
-        ElMessage.warning('未能上传图片，请重试')
-      } else if (excess > 0) {
-        ElMessage.warning(`已按顺序填入 ${filled} 张，还有 ${excess} 张超出槽位`)
-      } else {
-        ElMessage.success(`已按顺序上传 ${filled} 张图片`)
-      }
-    } finally {
-      batchUploading.value = false
-    }
+    await runBatchUpload(ownerUploadFields.value, files, handleUpload, props.readonly)
   }
 
   async function runIdCardOcr(side: 'front' | 'back') {

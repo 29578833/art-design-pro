@@ -374,7 +374,7 @@
   import type { CascaderOption } from 'element-plus'
   import { ElMessage } from 'element-plus'
   import { VEHICLE_OCR_KEY } from '../composables/archive/constants'
-  import { batchFillUploadSlots } from '../composables/archive/utils'
+  import { useBatchUpload } from '../composables/archive/use-batch-upload'
   import {
     applyDrivingOcrResult,
     applyRegCertOcrResult,
@@ -425,7 +425,7 @@
   const ocrFilled = computed(
     () => !!(ocrDone.driving_front || ocrDone.driving_back || ocrDone.driving_both || ocrDone.cert)
   )
-  const batchUploading = ref(false)
+  const { batchUploading, runBatchUpload } = useBatchUpload()
 
   const vehicleUploadFields: (keyof ArchiveVehicleImages)[] = [
     'xszzp',
@@ -524,24 +524,7 @@
   }
 
   async function handleBatchUpload(files: File[]) {
-    if (props.readonly || batchUploading.value || !files.length) return
-    batchUploading.value = true
-    try {
-      const { filled, excess } = await batchFillUploadSlots(
-        vehicleUploadFields,
-        files,
-        handleUpload
-      )
-      if (!filled) {
-        ElMessage.warning('未能上传图片，请重试')
-      } else if (excess > 0) {
-        ElMessage.warning(`已按顺序填入 ${filled} 张，还有 ${excess} 张超出槽位`)
-      } else {
-        ElMessage.success(`已按顺序上传 ${filled} 张图片`)
-      }
-    } finally {
-      batchUploading.value = false
-    }
+    await runBatchUpload(vehicleUploadFields, files, handleUpload, props.readonly)
   }
 
   async function runDrivingOcr(side: 'front' | 'back' | 'both') {
