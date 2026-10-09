@@ -200,7 +200,7 @@
   import CxmLoginDialog from '../../commerce/modules/cxm-login-dialog.vue'
   import { useCxmTokenCheck } from '../../commerce/modules/use-cxm-token-check'
   import { useVehicleArchiveEdit } from '../composables/archive/use-vehicle-archive-edit'
-  import './VehicleArchiveEditDialog.scss'
+  import '../styles/_archive.scss'
 
   defineOptions({ name: 'VehicleArchiveEditDialog' })
 
