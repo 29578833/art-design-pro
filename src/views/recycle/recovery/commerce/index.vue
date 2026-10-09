@@ -227,8 +227,8 @@
   } from '@/types/recycle/recovery/commerce/accept'
   import type { ScrapVehicle } from '@/types/recycle/recovery/vehicles/vehicle'
   import { ElMessage, ElTag } from 'element-plus'
-  import VehicleArchiveEditDialog from '../vehicles/dialogs/VehicleArchiveEditDialog.vue'
-  import SubmitResultDialog from '../vehicles/dialogs/SubmitResultDialog.vue'
+  import VehicleArchiveEditDialog from '../vehicles/archive/VehicleArchiveEditDialog.vue'
+  import SubmitResultDialog from '../vehicles/archive/dialogs/SubmitResultDialog.vue'
   import {
     countCommerceMissing,
     validateCommerceSubmitFields,

@@ -118,14 +118,14 @@
     VehicleTab,
     VehicleTabCount
   } from '@/types/recycle/recovery/vehicles/vehicle'
-  import VehicleTabBar from './components/VehicleTabBar.vue'
-  import VehicleSearch from './components/VehicleSearch.vue'
-  import VehicleDetailDialog from './panels/VehicleDetailDialog.vue'
-  import VehicleArchiveEditDialog from './dialogs/VehicleArchiveEditDialog.vue'
-  import VehicleLinkOrderDialog from './dialogs/VehicleLinkOrderDialog.vue'
+  import VehicleTabBar from './list/components/VehicleTabBar.vue'
+  import VehicleSearch from './list/components/VehicleSearch.vue'
+  import VehicleDetailDialog from './detail/VehicleDetailDialog.vue'
+  import VehicleArchiveEditDialog from './archive/VehicleArchiveEditDialog.vue'
+  import VehicleLinkOrderDialog from './shared/VehicleLinkOrderDialog.vue'
   import FormalOrderDetailDialog from '../orders/modules/formal-order-detail-dialog.vue'
   import OrderCreateDialog from '../orders/modules/order-create-dialog.vue'
-  import { buildVehicleColumns } from './composables/vehicle-columns'
+  import { buildVehicleColumns } from './list/composables/vehicle-columns'
   import type { OrderSaveResult, RecycleOrder } from '@/types/recycle/recovery/orders/order'
 
   defineOptions({ name: 'RecycleVehicles' })

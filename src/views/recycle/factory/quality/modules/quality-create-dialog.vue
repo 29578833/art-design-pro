@@ -590,9 +590,9 @@
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import SignCanvasDialog from '@/views/recycle/recovery/orders/modules/sign-canvas-dialog.vue'
-  import UploadBatchTrigger from '@/views/recycle/recovery/vehicles/widgets/UploadBatchTrigger.vue'
+  import UploadBatchTrigger from '@/views/recycle/recovery/vehicles/archive/upload/UploadBatchTrigger.vue'
   import CxmEntryPhotoSync from '@/views/recycle/recovery/commerce/modules/cxm-entry-photo-sync.vue'
-  import { batchFillUploadSlots } from '@/views/recycle/recovery/vehicles/composables/archive/utils'
+  import { batchFillUploadSlots } from '@/views/recycle/recovery/vehicles/archive/composables/utils'
   import { uploadFileGetUrl } from '@/api/upload'
   import CllxCascader from '@/views/recycle/recovery/shared/cllx-cascader.vue'
   import { fetchUserRoleList } from '@/api/recycle/role'
