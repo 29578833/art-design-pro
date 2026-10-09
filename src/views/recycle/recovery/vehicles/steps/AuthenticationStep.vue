@@ -152,7 +152,7 @@
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { ElMessage } from 'element-plus'
   import type { ArchiveAgentForm, ArchiveOwnerForm } from '../composables/archive/types'
-  import './authentication-step.scss'
+  import './AuthenticationStep.scss'
 
   defineOptions({ name: 'VehicleArchiveAuthenticationStep' })
 

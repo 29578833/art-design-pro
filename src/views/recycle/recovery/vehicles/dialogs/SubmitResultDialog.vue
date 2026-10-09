@@ -90,7 +90,7 @@
   import type { AcceptSubmitResult } from '@/types/recycle/recovery/commerce/accept'
   import { ElMessage } from 'element-plus'
   import RecycleCertificate from '../widgets/RecycleCertificate.vue'
-  import './submit-result-dialog.scss'
+  import './SubmitResultDialog.scss'
 
   defineOptions({ name: 'VehicleArchiveSubmitResultDialog' })
 
