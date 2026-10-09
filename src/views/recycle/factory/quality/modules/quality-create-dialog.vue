@@ -527,7 +527,9 @@
     <template #footer>
       <div class="qc-footer">
         <div class="qc-footer-left">
-          <span class="qc-footer-step">步骤 {{ currentStep + 1 }} / {{ QC_STEP_LABELS.length }}</span>
+          <span class="qc-footer-step"
+            >步骤 {{ currentStep + 1 }} / {{ QC_STEP_LABELS.length }}</span
+          >
           <span class="qc-footer-divider" />
           <span class="qc-footer-biz-label">商委状态</span>
           <span
@@ -588,9 +590,9 @@
 <script setup lang="ts">
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import SignCanvasDialog from '@/views/recycle/recovery/orders/modules/sign-canvas-dialog.vue'
-  import UploadBatchTrigger from '@/views/recycle/recovery/vehicles/modules/vehicle-archive/upload-batch-trigger.vue'
+  import UploadBatchTrigger from '@/views/recycle/recovery/vehicles/widgets/UploadBatchTrigger.vue'
   import CxmEntryPhotoSync from '@/views/recycle/recovery/commerce/modules/cxm-entry-photo-sync.vue'
-  import { batchFillUploadSlots } from '@/views/recycle/recovery/vehicles/modules/vehicle-archive/archive-utils'
+  import { batchFillUploadSlots } from '@/views/recycle/recovery/vehicles/composables/archive/utils'
   import { uploadFileGetUrl } from '@/api/upload'
   import CllxCascader from '@/views/recycle/recovery/shared/cllx-cascader.vue'
   import { fetchUserRoleList } from '@/api/recycle/role'
@@ -1300,7 +1302,10 @@
       )
       checkId.value = res.id
     }
-    await updateQuality({ id: checkId.value, ...buildStep1Payload() }, { showSuccessMessage: false })
+    await updateQuality(
+      { id: checkId.value, ...buildStep1Payload() },
+      { showSuccessMessage: false }
+    )
   }
 
   async function nextStep() {
@@ -2067,6 +2072,7 @@
   .qc-deduct-bar {
     position: sticky;
     bottom: 0;
+    z-index: 9;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -2076,7 +2082,6 @@
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
-    z-index: 9;
   }
 
   .qc-deduct-stats {

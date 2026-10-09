@@ -72,10 +72,7 @@
       />
     </ElCard>
 
-    <VehicleDetailDialog
-      v-model:visible="detailVisible"
-      :vehicle-id="detailVehicleId"
-    />
+    <VehicleDetailDialog v-model:visible="detailVisible" :vehicle-id="detailVehicleId" />
 
     <VehicleArchiveEditDialog
       v-model:visible="editVisible"
@@ -121,13 +118,14 @@
     VehicleTab,
     VehicleTabCount
   } from '@/types/recycle/recovery/vehicles/vehicle'
-  import VehicleTabBar from './modules/vehicle-tab-bar.vue'
-  import VehicleSearch from './modules/vehicle-search.vue'
-  import VehicleDetailDialog from './modules/vehicle-detail/index.vue'
-  import VehicleArchiveEditDialog from './modules/vehicle-archive-edit-dialog.vue'
-  import VehicleLinkOrderDialog from './modules/vehicle-link-order-dialog.vue'
+  import VehicleTabBar from './components/VehicleTabBar.vue'
+  import VehicleSearch from './components/VehicleSearch.vue'
+  import VehicleDetailDialog from './panels/VehicleDetailDialog.vue'
+  import VehicleArchiveEditDialog from './dialogs/VehicleArchiveEditDialog.vue'
+  import VehicleLinkOrderDialog from './dialogs/VehicleLinkOrderDialog.vue'
   import FormalOrderDetailDialog from '../orders/modules/formal-order-detail-dialog.vue'
   import OrderCreateDialog from '../orders/modules/order-create-dialog.vue'
+  import { buildVehicleColumns } from './composables/vehicle-columns'
   import type { OrderSaveResult, RecycleOrder } from '@/types/recycle/recovery/orders/order'
 
   defineOptions({ name: 'RecycleVehicles' })
@@ -194,56 +192,9 @@
   const createOrderPrefill = ref<RecycleOrder | null>(null)
   const pendingLinkVehicleId = ref(0)
 
-  function isPendingLinkOrder(row: ScrapVehicle) {
-    return !row.order_id && !row.order_no
-  }
-
   function openLinkOrderDialog(row: ScrapVehicle) {
     linkOrderVehicle.value = row
     linkOrderVisible.value = true
-  }
-
-  function renderLinkedOrderCell(row: ScrapVehicle) {
-    if (row.order_no || row.order_id) {
-      return h('div', { class: 'vehicle-order-cell' }, [
-        h(
-          'a',
-          {
-            href: 'javascript:void(0)',
-            class: 'order-no',
-            onClick: () => openOrderDetailFromVehicle(row)
-          },
-          row.order_no || '—'
-        ),
-        h(
-          'button',
-          {
-            type: 'button',
-            class: 'vehicle-order-modify-btn',
-            onClick: () => openLinkOrderDialog(row)
-          },
-          '修改'
-        )
-      ])
-    }
-    if (isPendingLinkOrder(row)) {
-      return h('div', { class: 'vehicle-order-cell pending' }, [
-        h('span', { class: 'vehicle-pending-link-tag' }, [
-          h(ArtSvgIcon, { icon: 'ri:error-warning-line', class: 'vehicle-pending-link-icon' }),
-          '待补关联订单'
-        ]),
-        h(
-          'button',
-          {
-            type: 'button',
-            class: 'vehicle-link-order-btn',
-            onClick: () => openLinkOrderDialog(row)
-          },
-          '补充关联订单'
-        )
-      ])
-    }
-    return h('span', { class: 'text-gray-400' }, '—')
   }
 
   function handleCreateOrderForLink() {
@@ -266,38 +217,6 @@
   }
 
   // ----- 列表表格 -----
-  function renderDimStatus(row: ScrapVehicle) {
-    const dim = row.dim_status
-    if (!dim) {
-      return h('span', { class: 'text-gray-400' }, row.status_text || '—')
-    }
-    const items = [
-      { key: 'tow', icon: 'ri:truck-line', data: dim.tow },
-      { key: 'factory', icon: 'ri:box-3-line', data: dim.factory },
-      { key: 'cancel', icon: 'ri:file-list-3-line', data: dim.cancel }
-    ]
-    return h(
-      'div',
-      { class: 'vehicle-dim-status' },
-      items.map((item) =>
-        h('div', { class: 'vehicle-dim-row', key: item.key }, [
-          h(ArtSvgIcon, { icon: item.icon, class: 'vehicle-dim-icon' }),
-          h(
-            'span',
-            {
-              class: 'vehicle-dim-badge',
-              style: {
-                color: item.data?.color || '#8C8C8C',
-                background: item.data?.bg || '#F5F5F5'
-              }
-            },
-            item.data?.label || '—'
-          )
-        ])
-      )
-    )
-  }
-
   function handleDownloadCert(row: ScrapVehicle) {
     window.open(`https://bfc.chexinmeng.com/hszma4?id=${row.owner_sync_djid}`, '_blank')
   }
@@ -323,128 +242,14 @@
   }
 
   function buildColumns() {
-    return [
-      {
-        prop: 'vehicle_no',
-        label: '档案号',
-        minWidth: 120,
-        formatter: (row: ScrapVehicle) => {
-          const no = row.vehicle_no || row.archive_no || '—'
-          return h(
-            'a',
-            {
-              href: 'javascript:void(0)',
-              class: 'order-no',
-              onClick: () => openDetail(row)
-            },
-            no
-          )
-        }
-      },
-      {
-        prop: 'plate_no',
-        label: '车牌号',
-        minWidth: 110,
-        formatter: (row: ScrapVehicle) => row.plate_no || '—'
-      },
-      {
-        prop: 'brand_model',
-        label: '品牌车型',
-        minWidth: 140,
-        formatter: (row: ScrapVehicle) =>
-          row.brand_model || [row.brand, row.model].filter(Boolean).join(' ') || '—'
-      },
-      {
-        prop: 'vehicle_type_text',
-        label: '车辆类型',
-        minWidth: 100,
-        formatter: (row: ScrapVehicle) => row.vehicle_type_text || row.fuel_type_text || '—'
-      },
-      {
-        prop: 'owner_display',
-        label: '车主信息',
-        minWidth: 140,
-        formatter: (row: ScrapVehicle) =>
-          h('div', { class: 'vehicle-owner-cell' }, [
-            h('div', { class: 'vehicle-owner-name' }, row.owner_name || row.owner_display || '—'),
-            h('div', { class: 'vehicle-owner-phone' }, row.owner_phone || '')
-          ])
-      },
-      {
-        prop: 'dim_status',
-        label: '三维度状态',
-        minWidth: 140,
-        formatter: (row: ScrapVehicle) => renderDimStatus(row)
-      },
-      {
-        prop: 'order_no',
-        label: '关联订单',
-        minWidth: 150,
-        formatter: (row: ScrapVehicle) => renderLinkedOrderCell(row)
-      },
-      {
-        prop: 'update_time_text',
-        label: '最后更新',
-        minWidth: 140,
-        formatter: (row: ScrapVehicle) => row.update_time_text || row.add_time_text || '—'
-      },
-      {
-        prop: 'operation',
-        label: '操作',
-        width: 400,
-        align: 'center',
-        fixed: 'right',
-        formatter: (row: ScrapVehicle) => {
-          const actions = [
-            h(
-              'button',
-              {
-                type: 'button',
-                class: 'order-action-btn default',
-                onClick: () => openDetail(row)
-              },
-              [h(ArtSvgIcon, { icon: 'ri:eye-line', class: 'order-action-icon' }), '查看']
-            )
-          ]
-          actions.push(
-            h(
-              'button',
-              {
-                type: 'button',
-                class: 'order-action-btn primary',
-                onClick: () => openEdit(row)
-              },
-              [h(ArtSvgIcon, { icon: 'ri:edit-line', class: 'order-action-icon' }), '编辑档案']
-            )
-          )
-          if (row.owner_sync_djid) {
-            actions.push(
-              h(
-                'button',
-                {
-                  type: 'button',
-                  class: 'order-action-btn default',
-                  onClick: () => handleDownloadCert(row)
-                },
-                [h(ArtSvgIcon, { icon: 'ri:download-line', class: 'order-action-icon' }), '下载证明']
-              )
-            )
-          }
-          actions.push(
-            h(
-              'button',
-              {
-                type: 'button',
-                class: 'order-action-btn danger',
-                onClick: () => handleSoftDelete(row)
-              },
-              [h(ArtSvgIcon, { icon: 'ri:delete-bin-line', class: 'order-action-icon' }), '删除']
-            )
-          )
-          return h('div', { class: 'order-actions' }, actions)
-        }
-      }
-    ]
+    return buildVehicleColumns({
+      openDetail,
+      openEdit,
+      openLinkOrder: openLinkOrderDialog,
+      openOrderDetail: openOrderDetailFromVehicle,
+      downloadCert: handleDownloadCert,
+      softDelete: handleSoftDelete
+    })
   }
 
   const {
@@ -622,5 +427,5 @@
   })
 </script>
 <style lang="scss">
-  @use './vehicles';
+  @use './index';
 </style>
