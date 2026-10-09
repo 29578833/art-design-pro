@@ -23,19 +23,10 @@ import type AgentStep from '../../steps/AgentStep.vue'
 import type MaterialsStep from '../../steps/MaterialsStep.vue'
 import type OwnerStep from '../../steps/OwnerStep.vue'
 import type VehicleStep from '../../steps/VehicleStep.vue'
-import { ARCHIVE_STEPS, HPLX_OPTIONS, SYQ_OPTIONS } from './constants'
-import { formatDate, imgUrl, parseImageArray, str } from './utils'
-import { isStepComplete } from './validation'
-import type {
-  ArchiveAgentForm,
-  ArchiveAgentImages,
-  ArchiveLinkInfo,
-  ArchiveOwnerForm,
-  ArchiveOwnerImages,
-  ArchiveQksmMaterials,
-  ArchiveVehicleForm,
-  ArchiveVehicleImages
-} from './types'
+import { HPLX_OPTIONS, SYQ_OPTIONS } from './constants'
+import { str } from './utils'
+import { useArchiveFormState } from './use-archive-form-state'
+import { useArchiveLoader } from './use-archive-loader'
 
 interface StepRefs {
   owner: Ref<InstanceType<typeof OwnerStep> | null>
@@ -55,15 +46,16 @@ interface UseVehicleArchiveEditOptions {
   onCreated?: (id: number) => void
 }
 
-/** 车辆档案编辑弹窗主流程（步骤逻辑在各 step 组件内）。 */
+/** 车辆档案编辑弹窗主流程：编排表单状态、加载器与步骤/提交动作（步骤内逻辑在各 step 组件）。 */
 export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   const { vehicleId, vehicleRow, stepRefs, checkCxmToken, onSuccess, onCreated } = options
   const mode = options.mode ?? ref<'create' | 'edit'>('edit')
+
+  // ----- 流程控制状态 -----
   const createdVehicleId = ref(0)
   const selectedOrder = ref<RecycleOrder | null>(null)
   const pendingOrderId = ref(0)
   const linkedOrderId = ref(0)
-
   const activeVehicleId = computed(() =>
     mode.value === 'create' ? createdVehicleId.value : vehicleId.value
   )
@@ -76,142 +68,25 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
   const draftSaved = ref(false)
   const isSubmitted = ref(false)
   const existingOwnerSyncId = ref(0)
-
-  const hplx = ref<AcceptHplx>(1)
-  const syq = ref<AcceptSyq>(2)
   const cjid = ref('')
   const step = ref(1)
   const pendingTargetStep = ref(0)
   const acceptTime = ref('')
   const submitResult = ref<AcceptSubmitResult | null>(null)
   const submitResultVisible = ref(false)
-  const hasAgent = ref(true)
-  const cllxPath = ref('')
 
-  const hplxLabel = computed(
-    () => HPLX_OPTIONS.find((i) => i.value === hplx.value)?.label || '沪牌机动车'
-  )
-  const syqLabel = computed(
-    () => SYQ_OPTIONS.find((i) => i.value === syq.value)?.label || '个人车辆'
-  )
-  const isCompany = computed(() => syq.value === 1)
-  const isPersonal = computed(() => syq.value === 2)
-
-  const linkInfo = reactive<ArchiveLinkInfo>({
-    order_no: '', // 回收订单号
-    archive_no: '', // 车辆档案单号
-    tow_order_no: '', // 拖车订单号
-    lead_no: '' // 线索单号
+  // ----- 表单状态 + 后端加载器 -----
+  const form = useArchiveFormState()
+  const { loadVehicleData, loadAcceptDataByVehicleId } = useArchiveLoader({
+    form,
+    activeVehicleId,
+    vehicleRow,
+    linkedOrderId,
+    pendingOrderId,
+    existingOwnerSyncId,
+    isSubmitted,
+    cjid
   })
-
-  const ownerForm = reactive<ArchiveOwnerForm>({
-    syr: '', // 所有人姓名
-    sfzmhm: '', // 所有人证件号码
-    dh: '', // 所有人联系电话
-    dz: '', // 所有人联系地址
-    sfzmmc: '', // 所有人证件类型
-    hpzl: '', // 所有人号牌种类
-    syrsmrz: '', // 所有人实名认证状态
-    sfyd: '', // 所有人身份证是否异地
-    zcbj: '', // 注册标记
-    syq: '' // 所有人所有权类型
-  })
-  const ownerImages = reactive<ArchiveOwnerImages>({
-    syrzp: '', // 所有人主证件照
-    sfz1zp: '', // 所有人身份证正面
-    sfz2zp: '', // 所有人身份证反面
-    qksmzp: '' // 所有人证件缺失情况说明
-  })
-  // 产权变更页（vehicle sync.tcjczp，JSON 数组字符串，支持多图）
-  const ownerChangeImages = ref<string[]>([])
-
-  const vehicleForm = reactive<ArchiveVehicleForm>({
-    clsbdh: '', // 车辆识别代号（车架号）
-    hphm: '', // 车辆号牌号码
-    hpzl: '', // 车辆号牌种类
-    cllx: '', // 车辆类型
-    syxz: '', // 使用性质
-    ccdjrq: '', // 初次登记日期
-    rlzl: '', // 燃料种类
-    fdjh: '', // 发动机号码
-    fdjxh: '', // 发动机型号
-    xszbh: '', // 行驶证编号
-    czbh: '', // 机动车登记证书编号
-    clpp1: '', // 车辆品牌
-    clxh: '', // 车辆型号
-    ppxh: '', // 品牌型号组合值
-    cwkc: '', // 外廓长度，单位毫米
-    cwkk: '', // 外廓宽度，单位毫米
-    cwkg: '', // 外廓高度，单位毫米
-    gl: '', // 功率，单位千瓦
-    pl: '', // 排量，单位毫升
-    hdzk: '', // 核定载客人数
-    zbzl: '', // 整备质量，单位千克
-    zzl: '', // 总质量，单位千克
-    csys: '', // 车身颜色
-    delivery_method: 'self', // 送货方式，tow 为拖车，self 为自送
-    tow_pickup_address: '', // 拖车上门取车地址
-    tow_pickup_latlng: '', // 拖车上门取车经纬度
-    tow_pickup_contact: '', // 拖车取车联系人
-    tow_pickup_phone: '', // 拖车取车联系电话
-    self_delivery_address: '', // 自行送车地址
-    self_delivery_latlng: '', // 自行送车经纬度
-    self_delivery_name: '', // 自行送车联系人
-    self_delivery_phone: '', // 自行送车联系电话
-    settlement_type: 'personal', // 结算类型
-    settlement_method: '', // 结算方式
-    settlement_amount: '', // 结算金额，单位元
-    bank_name: '', // 开户姓名或单位名称
-    bank_branch: '', // 开户银行
-    bank_card_no: '', // 银行卡号
-    remark: '' // 备注说明
-  })
-  const vehicleImages = reactive<ArchiveVehicleImages>({
-    xszzp: '', // 行驶证正页
-    xszzpfy: '', // 行驶证副页
-    xszbmzp: '', // 行驶证正副本背面
-    czzp: '' // 机动车登记证书一二页
-  })
-  const qksmMaterials = reactive<ArchiveQksmMaterials>({
-    cqksmzp: '', // 非车管情况说明
-    sfzmzp: [], // 身份证明材料
-    cqzmzp: [], // 产权证明材料
-    wtdbzp: [] // 委托代办材料
-  })
-
-  const agentForm = reactive<ArchiveAgentForm>({
-    jbr: '', // 代理人姓名
-    jbrsfzmhm: '', // 代理人证件号码
-    jbrdh: '', // 代理人联系电话
-    jbrsmrz: '' // 代理人实名认证状态
-  })
-  const agentImages = reactive<ArchiveAgentImages>({
-    jbrsfz1zp: '', // 代理人身份证正面
-    jbrsfz2zp: '', // 代理人身份证反面
-    jbrzp: '' // 委托说明图片
-  })
-  const dismantlePhotos = ref<Record<string, string>>({})
-
-  const validationCtx = computed(() => ({
-    hplx: hplx.value,
-    isPersonal: isPersonal.value,
-    hasAgent: hasAgent.value,
-    ownerForm,
-    ownerImages,
-    vehicleForm,
-    vehicleImages,
-    qksmMaterials,
-    agentForm,
-    agentImages,
-    ownerAuthed: ownerForm.syrsmrz === '1',
-    agentAuthed: agentForm.jbrsmrz === '1'
-  }))
-
-  const visibleSteps = computed(() => ARCHIVE_STEPS)
-
-  const stepComplete = computed(() =>
-    [1, 2, 3, 4, 5].map((n) => isStepComplete(n, validationCtx.value))
-  )
 
   async function loadOptions() {
     await stepRefs.vehicle.value?.loadOptions()
@@ -221,13 +96,13 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     selectedOrder.value = order
     pendingOrderId.value = order?.id ? Number(order.id) : 0
     if (order?.id) linkedOrderId.value = Number(order.id)
-    linkInfo.order_no = order?.order_no ? str(order.order_no) : ''
-    linkInfo.tow_order_no = order?.tow_no ? str(order.tow_no) : ''
+    form.linkInfo.order_no = order?.order_no ? str(order.order_no) : ''
+    form.linkInfo.tow_order_no = order?.tow_no ? str(order.tow_no) : ''
     if (order) {
       const leadNo = str(order.lead_no)
-      linkInfo.lead_no = leadNo || (isLeadOrder(order) ? str(order.order_no) : '')
+      form.linkInfo.lead_no = leadNo || (isLeadOrder(order) ? str(order.order_no) : '')
     } else {
-      linkInfo.lead_no = ''
+      form.linkInfo.lead_no = ''
     }
   }
 
@@ -237,8 +112,6 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     pendingOrderId.value = 0
     linkedOrderId.value = 0
     phase.value = 'scene'
-    hplx.value = 1
-    syq.value = 2
     cjid.value = ''
     step.value = 1
     pendingTargetStep.value = 0
@@ -247,221 +120,11 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     existingOwnerSyncId.value = 0
     submitResult.value = null
     submitResultVisible.value = false
-    Object.assign(ownerForm, {
-      syr: '',
-      sfzmhm: '',
-      dh: '',
-      dz: '',
-      sfzmmc: 'A',
-      hpzl: '',
-      syrsmrz: '',
-      sfyd: '',
-      zcbj: '',
-      syq: '2'
-    })
-    ;(Object.keys(ownerImages) as (keyof ArchiveOwnerImages)[]).forEach(
-      (key) => (ownerImages[key] = '')
-    )
-    ownerChangeImages.value = []
-    Object.assign(vehicleForm, {
-      clsbdh: '',
-      hphm: '',
-      hpzl: '',
-      cllx: '',
-      syxz: '',
-      ccdjrq: '',
-      rlzl: '',
-      fdjh: '',
-      fdjxh: '',
-      xszbh: '',
-      czbh: '',
-      clpp1: '',
-      clxh: '',
-      ppxh: '',
-      cwkc: '',
-      cwkk: '',
-      cwkg: '',
-      gl: '',
-      pl: '',
-      hdzk: '',
-      zbzl: '',
-      zzl: '',
-      csys: '',
-      delivery_method: 'self',
-      tow_pickup_address: '',
-      tow_pickup_latlng: '',
-      tow_pickup_contact: '',
-      tow_pickup_phone: '',
-      self_delivery_address: '',
-      self_delivery_latlng: '',
-      self_delivery_name: '',
-      self_delivery_phone: '',
-      settlement_type: 'personal',
-      settlement_method: '',
-      settlement_amount: '',
-      bank_name: '',
-      bank_branch: '',
-      bank_card_no: '',
-      remark: ''
-    })
-    ;(Object.keys(vehicleImages) as (keyof ArchiveVehicleImages)[]).forEach(
-      (key) => (vehicleImages[key] = '')
-    )
-    qksmMaterials.cqksmzp = ''
-    qksmMaterials.sfzmzp = []
-    qksmMaterials.cqzmzp = []
-    qksmMaterials.wtdbzp = []
-    Object.assign(agentForm, { jbr: '', jbrsfzmhm: '', jbrdh: '', jbrsmrz: '' })
-    ;(Object.keys(agentImages) as (keyof ArchiveAgentImages)[]).forEach(
-      (key) => (agentImages[key] = '')
-    )
-    hasAgent.value = true
-    cllxPath.value = ''
+    form.resetForms()
     stepRefs.owner.value?.clearOcrState()
     stepRefs.vehicle.value?.clearOcrState()
     stepRefs.agent.value?.clearOcrState()
-    Object.assign(linkInfo, { order_no: '', archive_no: '', tow_order_no: '', lead_no: '' })
-    dismantlePhotos.value = {}
     stepRefs.materials.value?.clearScrapFiles()
-  }
-
-  async function loadVehicleData() {
-    if (!activeVehicleId.value) return
-    const detail = await fetchVehicleDetail(activeVehicleId.value)
-    linkedOrderId.value = Number(
-      detail.order_id || vehicleRow?.value?.order_id || pendingOrderId.value || 0
-    )
-    linkInfo.order_no = str(detail.order_no)
-    linkInfo.archive_no = str(detail.vehicle_no || detail.archive_no)
-    linkInfo.tow_order_no = str((detail as Record<string, unknown>).tow_order_no)
-    linkInfo.lead_no = str((detail as Record<string, unknown>).lead_no)
-    existingOwnerSyncId.value = Number(detail.owner_sync_id || 0)
-
-    if (detail.syq) syq.value = Number(detail.syq) as AcceptSyq
-    ownerForm.syr = str(detail.owner_name)
-    ownerForm.dh = str(detail.owner_phone)
-    ownerForm.sfzmhm = str(detail.owner_id_card)
-    ownerForm.dz = str(detail.owner_address)
-    ownerForm.sfzmmc = isPersonal.value ? 'A' : 'N'
-    vehicleForm.clsbdh = str(detail.vin)
-    vehicleForm.hphm = str(detail.plate_no)
-    vehicleForm.clpp1 = str(detail.brand)
-    vehicleForm.clxh = str(detail.model)
-    vehicleForm.ppxh = str(detail.brand_model || `${detail.brand || ''}${detail.model || ''}`)
-    vehicleForm.csys = str(detail.color)
-    vehicleForm.fdjh = str(detail.engine_no)
-    vehicleForm.ccdjrq = str(detail.reg_date)
-    vehicleForm.delivery_method = str(detail.delivery_method) || 'self'
-    vehicleForm.tow_pickup_address = str(detail.tow_pickup_address)
-    vehicleForm.tow_pickup_latlng = str(detail.tow_pickup_latlng)
-    vehicleForm.tow_pickup_contact = str(detail.tow_pickup_contact)
-    vehicleForm.tow_pickup_phone = str(detail.tow_pickup_phone)
-    vehicleForm.self_delivery_address = str(detail.self_delivery_address)
-    vehicleForm.self_delivery_latlng = str(detail.self_delivery_latlng)
-    vehicleForm.self_delivery_name = str(detail.self_delivery_name)
-    vehicleForm.self_delivery_phone = str(detail.self_delivery_phone)
-    vehicleForm.settlement_type = str(detail.settlement_type) || 'personal'
-    vehicleForm.settlement_method = str(detail.settlement_method)
-    vehicleForm.settlement_amount = str(detail.settlement_amount)
-    vehicleForm.bank_name = str(detail.bank_name)
-    vehicleForm.bank_branch = str(detail.bank_branch)
-    vehicleForm.bank_card_no = str(detail.bank_card_no)
-    vehicleForm.remark = str(detail.remark)
-    if (detail.has_agent === 0) hasAgent.value = false
-    agentForm.jbr = str(detail.agent_name)
-    agentForm.jbrdh = str(detail.agent_phone)
-    dismantlePhotos.value = (detail.dismantle_photos || {}) as Record<string, string>
-  }
-
-  function processAcceptData(sync: Awaited<ReturnType<typeof fetchAcceptSyncFiles>>) {
-    if (!sync) return
-    cjid.value = str(sync.cjid || sync.id)
-    if (sync.is_submitted_commerce) isSubmitted.value = true
-
-    const o = sync.owner || {}
-    const v = sync.vehicle || {}
-    const a = sync.agent || {}
-    const ownerImgs = sync.owner_images || {}
-    const vehicleImgs = sync.vehicle_images || {}
-    const agentImgs = sync.agent_images || {}
-
-    if (o.syq) syq.value = Number(o.syq) as AcceptSyq
-    if (o.hplx) hplx.value = Number(o.hplx) as AcceptHplx
-    ownerForm.sfzmmc = isPersonal.value ? 'A' : 'N'
-    if (o.syr) ownerForm.syr = str(o.syr)
-    if (o.sfzmhm) ownerForm.sfzmhm = str(o.sfzmhm)
-    if (o.dh) ownerForm.dh = str(o.dh)
-    if (o.dz) ownerForm.dz = str(o.dz)
-    if (o.sfzmmc) ownerForm.sfzmmc = isPersonal.value ? 'A' : str(o.sfzmmc)
-    if (o.hpzl) ownerForm.hpzl = str(o.hpzl)
-    if (o.syrsmrz !== undefined && o.syrsmrz !== null) ownerForm.syrsmrz = str(o.syrsmrz)
-
-    const syrImg = imgUrl(ownerImgs.syrzp)
-    if (syrImg) {
-      if (isPersonal.value) ownerImages.sfz1zp = syrImg
-      else ownerImages.syrzp = syrImg
-    }
-    const sfz1 = imgUrl(ownerImgs.sfz1zp)
-    if (sfz1 && isPersonal.value) ownerImages.sfz1zp = sfz1
-    const sfz2 = imgUrl(ownerImgs.sfz2zp)
-    if (sfz2) ownerImages.sfz2zp = sfz2
-    const qksm = imgUrl(ownerImgs.qksmzp)
-    if (qksm) ownerImages.qksmzp = qksm
-
-    Object.keys(vehicleForm).forEach((k) => {
-      // 收款银行卡来自关联订单，不要被受理 sync 覆盖
-      if (k === 'bank_name' || k === 'bank_branch' || k === 'bank_card_no') return
-      if (v[k] !== undefined && v[k] !== null && v[k] !== '') {
-        ;(vehicleForm as Record<string, unknown>)[k] = k === 'ccdjrq' ? formatDate(v[k]) : str(v[k])
-      }
-    })
-    if (v.cllx) {
-      vehicleForm.cllx = str(v.cllx)
-      cllxPath.value = str(v.cllx)
-    }
-    if (v.hpzl) {
-      vehicleForm.hpzl = str(v.hpzl)
-      ownerForm.hpzl = str(v.hpzl)
-    }
-    const xszzp = imgUrl(vehicleImgs.xszzp)
-    if (xszzp) vehicleImages.xszzp = xszzp
-    const xszzpfy = imgUrl(vehicleImgs.xszzpfy)
-    if (xszzpfy) vehicleImages.xszzpfy = xszzpfy
-    const xszbmzp = imgUrl(vehicleImgs.xszbmzp)
-    if (xszbmzp) vehicleImages.xszbmzp = xszbmzp
-    const czzp = imgUrl(vehicleImgs.czzp)
-    if (czzp) vehicleImages.czzp = czzp
-    qksmMaterials.cqksmzp = imgUrl(vehicleImgs.cqksmzp)
-    qksmMaterials.sfzmzp = parseImageArray(vehicleImgs.sfzmzp)
-    qksmMaterials.cqzmzp = parseImageArray(vehicleImgs.cqzmzp)
-    qksmMaterials.wtdbzp = parseImageArray(vehicleImgs.wtdbzp)
-    // 产权变更页：读取 vehicle sync.tcjczp（JSON 数组字符串，支持多图），兼容旧数据 owner_sync.blpzzp
-    const ownerChangeUrls = parseImageArray(vehicleImgs.tcjczp)
-    ownerChangeImages.value = ownerChangeUrls.length
-      ? ownerChangeUrls
-      : parseImageArray(ownerImgs.blpzzp)
-
-    if (a.jbr || a.jbrdh || a.jbrsfzmhm || Number(a.has_agent) === 1) hasAgent.value = true
-    if (a.jbr) agentForm.jbr = str(a.jbr)
-    if (a.jbrsfzmhm) agentForm.jbrsfzmhm = str(a.jbrsfzmhm)
-    if (a.jbrdh) agentForm.jbrdh = str(a.jbrdh)
-    if (a.jbrsmrz !== undefined && a.jbrsmrz !== null) agentForm.jbrsmrz = str(a.jbrsmrz)
-    const jbr1 = imgUrl(agentImgs.jbrsfz1zp)
-    if (jbr1) agentImages.jbrsfz1zp = jbr1
-    const jbr2 = imgUrl(agentImgs.jbrsfz2zp)
-    if (jbr2) agentImages.jbrsfz2zp = jbr2
-    const jbrzp = imgUrl(agentImgs.jbrzp)
-    if (jbrzp) agentImages.jbrzp = jbrzp
-
-    ownerForm.syq = String(syq.value)
-    ownerForm.zcbj = hplx.value === 3 ? '0' : '1'
-    ownerForm.sfyd = hplx.value === 1 ? '0' : '1'
-  }
-
-  async function loadAcceptDataByVehicleId() {
-    if (!activeVehicleId.value) return
-    const sync = await fetchAcceptSyncFiles({ vehicle_id: activeVehicleId.value })
-    processAcceptData(sync)
   }
 
   async function openEditor() {
@@ -501,15 +164,15 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
 
       try {
         const origin = await fetchAcceptOriginFields({ vehicle_id: activeVehicleId.value })
-        if (String(origin.zcbj) === '0') hplx.value = 3
-        else if (String(origin.sywd) === '1') hplx.value = 2
-        else if (String(origin.sywd) === '0') hplx.value = 1
-        else if (echo?.hplx) hplx.value = echo.hplx as AcceptHplx
-        if (origin.syq) syq.value = Number(origin.syq) as AcceptSyq
-        else if (echo?.syq) syq.value = echo.syq as AcceptSyq
+        if (String(origin.zcbj) === '0') form.hplx.value = 3
+        else if (String(origin.sywd) === '1') form.hplx.value = 2
+        else if (String(origin.sywd) === '0') form.hplx.value = 1
+        else if (echo?.hplx) form.hplx.value = echo.hplx as AcceptHplx
+        if (origin.syq) form.syq.value = Number(origin.syq) as AcceptSyq
+        else if (echo?.syq) form.syq.value = echo.syq as AcceptSyq
       } catch {
-        if (echo?.hplx) hplx.value = echo.hplx as AcceptHplx
-        if (echo?.syq) syq.value = echo.syq as AcceptSyq
+        if (echo?.hplx) form.hplx.value = echo.hplx as AcceptHplx
+        if (echo?.syq) form.syq.value = echo.syq as AcceptSyq
       }
 
       const submitted =
@@ -566,8 +229,8 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
       }
 
       const initPayload: { hplx: AcceptHplx; syq: AcceptSyq; vehicle_id?: number } = {
-        hplx: hplx.value,
-        syq: syq.value
+        hplx: form.hplx.value,
+        syq: form.syq.value
       }
       if (mode.value === 'edit') {
         initPayload.vehicle_id = vehicleId.value
@@ -593,7 +256,7 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
 
         try {
           const detail = await fetchVehicleDetail(createdVehicleId.value)
-          linkInfo.archive_no = str(detail.vehicle_no || detail.archive_no)
+          form.linkInfo.archive_no = str(detail.vehicle_no || detail.archive_no)
         } catch {
           // 档案号回显失败不阻断
         }
@@ -601,10 +264,10 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
 
       cjid.value = str(res.cjid)
       acceptTime.value = new Date().toLocaleString('zh-CN').replace(/\//g, '-').slice(0, 16)
-      ownerForm.syq = String(syq.value)
-      ownerForm.sfzmmc = isPersonal.value ? 'A' : 'N'
-      ownerForm.zcbj = hplx.value === 3 ? '0' : '1'
-      ownerForm.sfyd = hplx.value === 1 ? '0' : '1'
+      form.ownerForm.syq = String(form.syq.value)
+      form.ownerForm.sfzmmc = form.isPersonal.value ? 'A' : 'N'
+      form.ownerForm.zcbj = form.hplx.value === 3 ? '0' : '1'
+      form.ownerForm.sfyd = form.hplx.value === 1 ? '0' : '1'
       phase.value = 'form'
       step.value = 1
       await nextTick()
@@ -612,9 +275,6 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
       if (existingOwnerSyncId.value) {
         await loadAcceptDataByVehicleId()
       }
-      syq.value = Number(syq.value) as AcceptSyq
-      ownerForm.syq = String(syq.value)
-      ownerForm.sfzmmc = isPersonal.value ? 'A' : 'N'
       await applyPendingStep()
       onSuccess?.()
     } finally {
@@ -752,34 +412,16 @@ export function useVehicleArchiveEdit(options: UseVehicleArchiveEditOptions) {
     submitting,
     draftSaved,
     isSubmitted,
-    hplx,
-    syq,
     cjid,
     step,
     acceptTime,
     submitResult,
     submitResultVisible,
-    hasAgent,
-    cllxPath,
-    hplxLabel,
-    syqLabel,
-    isCompany,
-    isPersonal,
-    linkInfo,
-    ownerForm,
-    ownerImages,
-    ownerChangeImages,
-    vehicleForm,
-    vehicleImages,
-    qksmMaterials,
-    agentForm,
-    agentImages,
-    dismantlePhotos,
     linkedOrderId,
-    stepComplete,
     hplxOptions: HPLX_OPTIONS,
     syqOptions: SYQ_OPTIONS,
-    visibleSteps,
+    // 表单状态（透传，保持弹窗使用的扁平接口）
+    ...form,
     openEditor,
     confirmOrderSkip,
     confirmOrderNext,
