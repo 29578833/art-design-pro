@@ -141,7 +141,7 @@
     // 正式回收订单：审核通过或驳回，且在当前管理员编辑范围内才可编辑
     if (
       (row.order_type === 'customer_order' || row.order_type === 'staff_order') &&
-      (row.status === 2 || row.status === -1) &&
+      (row.status === 2 || row.status === -1 || row.status === 1) &&
       row.can_edit === true
     ) {
       actions.push({

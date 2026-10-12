@@ -638,8 +638,8 @@
       handleView(row)
       return
     }
-    if (row.status !== 2 && row.status !== -1) {
-      ElMessage.warning('仅审核通过或审核驳回的订单可编辑')
+    if (row.status !== 1 && row.status !== 2 && row.status !== -1) {
+      ElMessage.warning('当前订单状态不可编辑')
       handleView(row)
       return
     }
