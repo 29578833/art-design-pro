@@ -96,6 +96,15 @@
         variant: 'ghost',
         onClick: () => emit('audit', row)
       })
+      if (row.can_edit === true) {
+        actions.push({
+          key: 'edit',
+          label: '编辑订单',
+          icon: 'ri:edit-line',
+          variant: 'ghost',
+          onClick: () => emit('edit', row)
+        })
+      }
       return actions
     }
 

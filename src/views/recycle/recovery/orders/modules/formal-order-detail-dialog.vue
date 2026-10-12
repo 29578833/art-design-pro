@@ -79,6 +79,7 @@
           <div v-if="isEditing" class="fo-edit-banner">
             <span class="fo-edit-banner-dot" />
             <span v-if="isRejectedOrder">编辑模式 — 修改后点击「保存并重新提交」重新进入审核</span>
+            <span v-else-if="isPendingReview">编辑模式 — 保存后订单仍为待审核状态</span>
             <span v-else>编辑模式 — 修改下方字段后点击「保存修改」生效</span>
           </div>
           <FormalOrderDetailEditPanel
@@ -122,7 +123,7 @@
             查看结算详情
           </ElButton> -->
           <!-- 待审核订单：审核操作放左侧 -->
-          <template v-if="isPendingReview">
+          <template v-if="isPendingReview && !isEditing">
             <ElButton
               v-auth="AUTH_SCRAP_ORDER_AUDIT_APPROVE"
               size="large"
@@ -237,8 +238,11 @@
   const editPanelRef = ref<InstanceType<typeof FormalOrderDetailEditPanel> | null>(null)
   const editSubmitting = ref(false)
   const isBatch = computed(() => Number(detail.value.is_batch) === 1)
-  /** 审核通过（status=2）或审核驳回（status=-1）允许编辑 */
-  const canEditOrder = computed(() => detail.value.status === 2 || detail.value.status === -1)
+  /** 待审核（status=1）、审核通过（status=2）或审核驳回（status=-1）允许编辑 */
+  const canEditOrder = computed(() => {
+    const status = Number(detail.value.status)
+    return status === 1 || status === 2 || status === -1
+  })
   /** 编辑订单按钮按接口 can_edit 字段控制显示 */
   const canShowEditButton = computed(() => canEditOrder.value && detail.value.can_edit === true)
   /** 是否审核驳回订单（驳回后可编辑并重新提交审核） */
@@ -267,7 +271,7 @@
         if (canEditOrder.value) {
           isEditing.value = true
         } else {
-          ElMessage.warning('仅审核通过或审核驳回的订单可编辑')
+          ElMessage.warning('当前订单状态不可编辑')
         }
       }
     },
@@ -276,7 +280,7 @@
 
   function startEdit() {
     if (!canEditOrder.value) {
-      ElMessage.warning('仅审核通过或审核驳回的订单可编辑')
+      ElMessage.warning('当前订单状态不可编辑')
       return
     }
     activeTab.value = 'basic'
