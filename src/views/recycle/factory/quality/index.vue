@@ -10,7 +10,7 @@
           <ArtSvgIcon icon="ri:download-line" class="quality-export-icon" />
           导出报告
         </ElButton>
-        <ElButton type="primary" @click="byPlateVisible = true">
+        <ElButton type="primary" @click="handleCreateByPlate">
           <ArtSvgIcon icon="ri:add-line" class="quality-create-icon" />
           新建质检单
         </ElButton>
@@ -56,6 +56,7 @@
     <QualityCreateByPlateDialog v-model:visible="byPlateVisible" @created="handleByPlateCreated" />
 
     <QualityReportDialog v-model:visible="reportVisible" :check-id="reportCheckId" />
+    <CxmLoginDialog v-model:visible="cxmLoginVisible" />
   </div>
 </template>
 
@@ -78,6 +79,8 @@
   import QualityCreateDialog from './modules/quality-create-dialog.vue'
   import QualityCreateByPlateDialog from './modules/quality-create-by-plate-dialog.vue'
   import QualityReportDialog from './modules/quality-report-dialog.vue'
+  import CxmLoginDialog from '../../recovery/commerce/modules/cxm-login-dialog.vue'
+  import { useCxmTokenCheck } from '../../recovery/commerce/modules/use-cxm-token-check'
 
   defineOptions({ name: 'RecycleFactoryQuality' })
 
@@ -125,6 +128,7 @@
   const reportVisible = ref(false)
   const reportCheckId = ref(0)
   const reportExporting = ref(false)
+  const { cxmLoginVisible, ensureCxmToken } = useCxmTokenCheck()
 
   async function handleExportReport() {
     if (activeTab.value !== 'reports') {
@@ -199,9 +203,15 @@
     }
   }
 
-  function handleStartInspection(item: QualityQueueItem) {
+  async function handleStartInspection(item: QualityQueueItem) {
+    if (!(await ensureCxmToken())) return
     selectedQueueItem.value = item
     createVisible.value = true
+  }
+
+  async function handleCreateByPlate() {
+    if (!(await ensureCxmToken())) return
+    byPlateVisible.value = true
   }
 
   function handleByPlateCreated(item: QualityQueueItem) {
