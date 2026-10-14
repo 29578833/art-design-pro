@@ -78,7 +78,7 @@ export function applyRegCertOcrResult(
   vehicleForm: ArchiveVehicleForm,
   dicts?: OcrDicts
 ) {
-  if (data.cert_no) vehicleForm.czbh = String(data.cert_no)
+  if (data.certificate_no) vehicleForm.czbh = String(data.certificate_no)
   if (data.register_no) vehicleForm.hphm = String(data.register_no)
   if (data.plate_no && !vehicleForm.hphm) vehicleForm.hphm = String(data.plate_no)
   if (data.register_date) vehicleForm.ccdjrq = String(data.register_date)
