@@ -181,7 +181,7 @@
                   :debounce="200"
                   :fetch-suggestions="queryCustomers"
                   value-key="real_name"
-                  placeholder="搜索客户姓名 / 手机号 / 编号"
+                  placeholder="搜索客户姓名 / 手机号 / 企业名称 / 客户编号"
                   :trigger-on-focus="true"
                   @focus="handleCustomerSearchFocus"
                   @select="handleCustomerSelect"
@@ -192,9 +192,14 @@
                   </template>
                   <template #default="{ item }">
                     <div class="customer-option">
-                      <div class="customer-avatar">{{ item.real_name.slice(0, 1) }}</div>
+                      <div class="customer-avatar">{{ (item.nickname || '客').slice(0, 1) }}</div>
                       <div class="customer-info">
-                        <div class="customer-name">{{ item.real_name }}</div>
+                        <div class="customer-name">
+                          <span>{{ item.real_name }}</span>
+                          <span v-if="item.enterprise" class="customer-enterprise">{{
+                            item.enterprise
+                          }}</span>
+                        </div>
                         <div class="customer-phone">{{ item.phone }}</div>
                       </div>
                       <span
@@ -760,6 +765,8 @@
     phone: string
     address: string
     grade: CustomerGrade
+    /** 企业名称，个人客户为空 */
+    enterprise: string
   }
 
   interface PartnerCreatedPayload {
@@ -941,16 +948,22 @@
   function mapCustomerOption(item: {
     id: string
     name: string
+    personName?: string
     phone: string
     address?: string
     grade: CustomerGrade
+    enterprise?: string
   }): CustomerOption {
+    const personName = (item.personName || '').trim()
+    const realName = personName || item.name
+    const enterprise = (item.enterprise || '').trim()
     return {
       uid: Number(item.id),
-      real_name: item.name,
+      real_name: realName,
       phone: item.phone,
       address: item.address || '',
-      grade: item.grade
+      grade: item.grade,
+      enterprise: enterprise && enterprise !== realName ? enterprise : ''
     }
   }
 
@@ -1599,6 +1612,10 @@
     }
 
     .customer-name {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      min-width: 0;
       font-size: 14px;
       font-weight: 500;
       line-height: 1.4;
@@ -1609,6 +1626,17 @@
       font-size: 12px;
       line-height: 1.4;
       color: #9ca3af;
+    }
+
+    .customer-enterprise {
+      min-width: 0;
+      overflow: hidden;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.4;
+      color: #6b7280;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .customer-grade {

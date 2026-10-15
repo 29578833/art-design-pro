@@ -329,7 +329,7 @@
 
       const rows = list.map((item) => ({
         客户编号: item.code,
-        姓名: item.name,
+        姓名: item.company_name || item.name,
         联系电话: item.phone,
         客户分级: item.levelName,
         客户类型: item.groupName,

@@ -234,7 +234,7 @@
         },
         trigger: 'blur'
       }
-    ],
+    ]
   }
 
   async function loadOptions() {
@@ -260,9 +260,7 @@
       levelId: Number(user.level || 0),
       idCard: String(user.card_id || ''),
       address: String(user.addres || ''),
-      enterprise: enterpriseType
-        ? String(user.company_name || user.real_name || user.nickname || '')
-        : '',
+      enterprise: enterpriseType ? String(user.company_name || '') : '',
       creditCode: enterpriseType ? String(user.company_code || '') : '',
       contactPerson: enterpriseType ? String(user.company_contact || '') : '',
       status: user.status === 1 || user.status === '1' ? 'active' : 'inactive',
@@ -309,11 +307,11 @@
 
     try {
       const payload: PartnerFormData = {
-        ...formData.value,
-        name:
-          isEnterprise.value && formData.value.enterprise
-            ? formData.value.enterprise
-            : formData.value.name
+        ...formData.value
+        // name:
+        //   isEnterprise.value && formData.value.enterprise
+        //     ? formData.value.enterprise
+        //     : formData.value.name
       }
 
       if (props.type === 'edit' && props.partnerData?.id) {

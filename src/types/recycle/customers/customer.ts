@@ -34,6 +34,9 @@ export interface RecyclePartner {
   id: string
   code: string
   name: string
+  /** 联系人姓名（接口 real_name，企业客户与企业名称分开） */
+  personName?: string
+  nickname?: string
   phone: string
   levelId: number
   levelName: string

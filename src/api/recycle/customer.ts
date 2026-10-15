@@ -34,17 +34,21 @@ function formatTimestamp(value: unknown): string {
 
 /** 列表项字段映射 */
 function mapPartnerItem(raw: Record<string, unknown>): RecyclePartner {
+  console.log(raw, 111)
   const uid = Number(raw.uid || 0)
   const levelName = String(raw.level || '无')
   const groupName = String(raw.group_id || '无')
   const normalizedGroupName = groupName === '无' ? '' : groupName
   const statusText = String(raw.status || '')
   const type = resolvePartnerTypeFromGroup(normalizedGroupName)
+  const personName = String(raw.real_name || raw.nickname || '')
 
   return {
     id: String(uid),
     code: `KH${String(uid).padStart(8, '0')}`,
-    name: String(raw.real_name || raw.nickname || ''),
+    name: groupName.includes('企业') ? String(raw.company_name || '') : personName,
+    personName,
+    nickname: String(raw.nickname || ''),
     phone: String(raw.phone || ''),
     levelId: Number(raw.level_id || 0),
     levelName: levelName === '无' ? '' : levelName,
@@ -111,7 +115,7 @@ function buildSavePayload(data: PartnerFormData, groupName = '') {
     level: data.levelId || 0,
     group_id: data.groupId || 0,
     status: data.status === 'active' ? 1 : 0,
-    company_name: isIndividual ? '' : data.enterprise || data.name || '',
+    company_name: isIndividual ? '' : data.enterprise || '',
     company_code: isIndividual ? '' : data.creditCode || '',
     company_contact: isIndividual ? '' : data.contactPerson || ''
   }
