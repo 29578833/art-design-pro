@@ -308,19 +308,38 @@
     hasContent.value = false
   }
 
-  function applyTemplate(tpl: SignatureTemplate) {
+  async function loadTemplateImage(url: string): Promise<HTMLImageElement> {
+    const response = await fetch(url)
+    if (!response.ok) throw new Error('签名模板下载失败')
+
+    const objectUrl = URL.createObjectURL(await response.blob())
+    try {
+      return await new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image()
+        img.onload = () => resolve(img)
+        img.onerror = () => reject(new Error('签名模板解析失败'))
+        img.src = objectUrl
+      })
+    } finally {
+      URL.revokeObjectURL(objectUrl)
+    }
+  }
+
+  async function applyTemplate(tpl: SignatureTemplate) {
     const c = canvasRef.value
     if (!c) return
     const ctx = c.getContext('2d')
     if (!ctx) return
-    const img = new Image()
-    img.onload = () => {
+    try {
+      // 先下载为 Blob 再绘制，避免跨域图片污染 canvas 导致后续导出失败
+      const img = await loadTemplateImage(tpl.sign_url)
       ctx.clearRect(0, 0, c.width, c.height)
       ctx.drawImage(img, 0, 0, c.width, c.height)
       hasContent.value = true
       showTemplateSelector.value = false
+    } catch {
+      ElMessage.error('签名模板加载失败，请重试或改为上传签名图片')
     }
-    img.src = tpl.sign_url
   }
 
   // ===== 保存为模板 =====
@@ -367,9 +386,15 @@
     submitting.value = true
     try {
       // 1. canvas → blob → 上传
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('canvas 导出失败'))), 'image/png')
-      })
+      let blob: Blob
+      try {
+        blob = await new Promise<Blob>((resolve, reject) => {
+          canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('canvas 导出失败'))), 'image/png')
+        })
+      } catch {
+        ElMessage.error('签名图片导出失败，请点击“清除重签”后重新操作')
+        return
+      }
       const signUrl = await uploadFileGetUrl(blob, { fieldName: 'file' })
 
       // 2. 按模式提交签名

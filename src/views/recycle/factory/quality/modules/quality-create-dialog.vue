@@ -61,7 +61,7 @@
       </div>
 
       <div class="qc-body">
-        <!-- Step1 质检查验 -->
+        <!-- Step1 质检 -->
         <div v-show="currentStep === 0" class="qc-step-panel">
           <!-- 查验类型切换：决定下方查验项目清单（默认汽油/柴油） -->
           <div class="qc-type-bar">
@@ -182,9 +182,73 @@
               </div>
             </div>
           </div>
+
+          <div class="qc-sign-section">
+            <div class="qc-section-title text-[14px]!">确认签章</div>
+            <input
+              ref="signUploadInputRef"
+              type="file"
+              accept="image/*"
+              class="qc-photo-input"
+              @change="handleSignUploadChange"
+            />
+            <div class="qc-sign-grid">
+              <div v-for="role in QC_SIGNATURE_CONFIG" :key="role.field" class="qc-sign-card">
+                <div class="qc-sign-role">{{ role.label }}</div>
+                <div class="qc-sign-box" :class="{ 'has-sign': !!signatures[role.field] }">
+                  <ElImage
+                    v-if="signatures[role.field]"
+                    :src="signatures[role.field]"
+                    fit="contain"
+                    class="qc-sign-preview"
+                    :preview-src-list="[signatures[role.field]]"
+                    preview-teleported
+                    hide-on-click-modal
+                  />
+                  <span v-else class="qc-sign-empty-text">待签名</span>
+                </div>
+                <div v-if="!signatures[role.field]" class="qc-sign-actions">
+                  <button
+                    type="button"
+                    class="qc-sign-action-btn"
+                    @click="openSignDialog(role.field, role.label)"
+                  >
+                    <ArtSvgIcon icon="ri:pen-nib-line" />
+                    手写签名
+                  </button>
+                  <button
+                    type="button"
+                    class="qc-sign-action-btn"
+                    :disabled="signUploading"
+                    @click="triggerSignUpload(role.field)"
+                  >
+                    <ArtSvgIcon icon="ri:upload-2-line" />
+                    上传照片
+                  </button>
+                </div>
+                <button
+                  v-else
+                  type="button"
+                  class="qc-sign-clear"
+                  @click="signatures[role.field] = ''"
+                >
+                  重新签名
+                </button>
+              </div>
+            </div>
+            <div class="qc-sign-meta">
+              <span class="qc-sign-muted">质检员：</span>
+              <span class="qc-sign-value">{{
+                inspectorName || queueItem?.inspector_name || '—'
+              }}</span>
+              <span class="qc-sign-meta-gap" />
+              <span class="qc-sign-muted">质检时间：</span>
+              <span class="qc-sign-value">{{ checkTimeText }}</span>
+            </div>
+          </div>
         </div>
 
-        <!-- Step2 补充入场信息 -->
+        <!-- Step2 入场查验 -->
         <div v-show="currentStep === 1" class="qc-step-panel">
           <div class="qc-section">
             <div class="qc-section-title">车辆信息</div>
@@ -456,70 +520,6 @@
               class="qc-remark-input"
             />
           </div>
-
-          <div class="qc-sign-section">
-            <div class="qc-section-title">确认签章</div>
-            <input
-              ref="signUploadInputRef"
-              type="file"
-              accept="image/*"
-              class="qc-photo-input"
-              @change="handleSignUploadChange"
-            />
-            <div class="qc-sign-grid">
-              <div v-for="role in QC_SIGNATURE_CONFIG" :key="role.field" class="qc-sign-card">
-                <div class="qc-sign-role">{{ role.label }}</div>
-                <div class="qc-sign-box" :class="{ 'has-sign': !!signatures[role.field] }">
-                  <ElImage
-                    v-if="signatures[role.field]"
-                    :src="signatures[role.field]"
-                    fit="contain"
-                    class="qc-sign-preview"
-                    :preview-src-list="[signatures[role.field]]"
-                    preview-teleported
-                    hide-on-click-modal
-                  />
-                  <span v-else class="qc-sign-empty-text">待签名</span>
-                </div>
-                <div v-if="!signatures[role.field]" class="qc-sign-actions">
-                  <button
-                    type="button"
-                    class="qc-sign-action-btn"
-                    @click="openSignDialog(role.field, role.label)"
-                  >
-                    <ArtSvgIcon icon="ri:pen-nib-line" />
-                    手写签名
-                  </button>
-                  <button
-                    type="button"
-                    class="qc-sign-action-btn"
-                    :disabled="signUploading"
-                    @click="triggerSignUpload(role.field)"
-                  >
-                    <ArtSvgIcon icon="ri:upload-2-line" />
-                    上传照片
-                  </button>
-                </div>
-                <button
-                  v-else
-                  type="button"
-                  class="qc-sign-clear"
-                  @click="signatures[role.field] = ''"
-                >
-                  重新签名
-                </button>
-              </div>
-            </div>
-            <div class="qc-sign-meta">
-              <span class="qc-sign-muted">质检员：</span>
-              <span class="qc-sign-value">{{
-                inspectorName || queueItem?.inspector_name || '—'
-              }}</span>
-              <span class="qc-sign-meta-gap" />
-              <span class="qc-sign-muted">质检时间：</span>
-              <span class="qc-sign-value">{{ checkTimeText }}</span>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -527,7 +527,9 @@
     <template #footer>
       <div class="qc-footer">
         <div class="qc-footer-left">
-          <span class="qc-footer-step">步骤 {{ currentStep + 1 }} / {{ QC_STEP_LABELS.length }}</span>
+          <span class="qc-footer-step"
+            >步骤 {{ currentStep + 1 }} / {{ QC_STEP_LABELS.length }}</span
+          >
           <span class="qc-footer-divider" />
           <span class="qc-footer-biz-label">商委状态</span>
           <span
@@ -552,6 +554,15 @@
           <ElButton v-if="currentStep > 0" :disabled="initializing" @click="prevStep"
             >上一步</ElButton
           >
+          <ElButton
+            v-if="currentStep === 0"
+            type="success"
+            :disabled="initializing"
+            :loading="submitting"
+            @click="saveStepOne"
+          >
+            保存
+          </ElButton>
           <ElButton
             v-if="currentStep < 2"
             type="primary"
@@ -707,7 +718,7 @@
     return { label: businessStatus.value?.step_text || '未获取', color: '#8c8c8c', bg: '#f5f5f5' }
   })
 
-  /** 是否允许进入「入场信息」步骤：优先 can_enter_entry，缺省时以 step === approved 判断 */
+  /** 是否允许进入「入场查验」步骤：优先 can_enter_entry，缺省时以 step === approved 判断 */
   const canEnterEntry = computed(() => {
     const status = businessStatus.value
     if (!status) return false
@@ -769,13 +780,13 @@
     }
   }
 
-  /** 校验商委状态是否放行入场信息步骤，不通过时给出提示 */
+  /** 校验商委状态是否放行入场查验步骤，不通过时给出提示 */
   function ensureCanEnterEntry() {
     if (canEnterEntry.value) return true
     const label = businessStepConfig.value.label
     ElMessage.warning(
       businessStatus.value
-        ? `商委状态为「${label}」，需登记审核通过后才能进入入场信息步骤`
+        ? `商委状态为「${label}」，需登记审核通过后才能进入入场查验步骤`
         : '未获取到商委状态，请刷新后重试'
     )
     return false
@@ -1262,7 +1273,7 @@
           populateItemsFromCheck(existing.items)
         }
         const resumeStep = resolveResumeStep(existing)
-        // 商委未审核通过时，不允许直接恢复到入场信息及之后的步骤
+        // 商委未审核通过时，不允许直接恢复到入场查验及之后的步骤
         currentStep.value = resumeStep >= 1 && !canEnterEntry.value ? 0 : resumeStep
       } catch {
         // 无历史记录时保持新建流程
@@ -1300,34 +1311,61 @@
       )
       checkId.value = res.id
     }
-    await updateQuality({ id: checkId.value, ...buildStep1Payload() }, { showSuccessMessage: false })
+    await updateQuality(
+      { id: checkId.value, ...buildStep1Payload() },
+      { showSuccessMessage: false }
+    )
+  }
+
+  /** 保存第一步质检结果，已有记录时继续复用当前 checkId */
+  async function persistStepOne() {
+    if (!props.queueItem) return
+    if (!checkId.value) {
+      const res = await createQuality(
+        {
+          order_id: props.queueItem.order_id || 0,
+          vehicle_id: props.queueItem.vehicle_id || 0,
+          weight: step1Form.weight || 0
+        },
+        { showSuccessMessage: false }
+      )
+      checkId.value = res.id
+    }
+    // 更新接口按 items 分支保存查验项目，随后再保存第一步字段与签名
+    await updateQuality(
+      {
+        id: checkId.value,
+        inspection_type: inspectionType.value,
+        items: buildAllItems()
+      },
+      { showSuccessMessage: false }
+    )
+    await updateQuality(
+      { id: checkId.value, ...buildStep1Payload() },
+      { showSuccessMessage: false }
+    )
+  }
+
+  /** 第一步仅保存草稿，不校验商委状态，也不切换步骤 */
+  async function saveStepOne() {
+    if (submitting.value) return
+    submitting.value = true
+    try {
+      await persistStepOne()
+      ElMessage.success('第一步已保存')
+    } catch {
+      // 错误已由 http 拦截器处理
+    } finally {
+      submitting.value = false
+    }
   }
 
   async function nextStep() {
     if (currentStep.value === 0) {
       submitting.value = true
       try {
-        if (!checkId.value) {
-          const res = await createQuality(
-            {
-              order_id: props.queueItem?.order_id || 0,
-              vehicle_id: props.queueItem?.vehicle_id || 0,
-              weight: 0
-            },
-            { showSuccessMessage: false }
-          )
-          checkId.value = res.id
-        }
-        await updateQuality(
-          {
-            id: checkId.value,
-            // 第一步即落库查验类型，避免只存了某类型的项目却丢了类型
-            inspection_type: inspectionType.value,
-            items: buildAllItems()
-          },
-          { showSuccessMessage: false }
-        )
-        // 第一步保存后重新拉取商委状态，登记审核通过才能进入入场信息
+        await persistStepOne()
+        // 第一步保存后重新拉取商委状态，登记审核通过才能进入入场查验
         await loadBusinessStatus()
         if (!ensureCanEnterEntry()) return
         currentStep.value = 1
@@ -2067,6 +2105,7 @@
   .qc-deduct-bar {
     position: sticky;
     bottom: 0;
+    z-index: 9;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -2076,7 +2115,6 @@
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
-    z-index: 9;
   }
 
   .qc-deduct-stats {
@@ -2351,7 +2389,8 @@
   }
 
   .qc-sign-section {
-    margin-top: 8px;
+    padding: 0 6px;
+    margin-top: 22px;
   }
 
   .qc-sign-grid {

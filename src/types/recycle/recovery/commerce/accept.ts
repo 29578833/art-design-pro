@@ -196,7 +196,7 @@ export interface AcceptBusinessStatus {
   step?: AcceptBusinessStep | string
   /** 步骤文案（后端可能输出） */
   step_text?: string
-  /** 是否允许进入质检「入场信息」步骤 */
+  /** 是否允许进入质检「入场查验」步骤 */
   can_enter_entry?: boolean | number
   [key: string]: unknown
 }

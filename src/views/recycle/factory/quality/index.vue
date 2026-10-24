@@ -3,7 +3,7 @@
     <div class="quality-page-header">
       <div>
         <div class="quality-page-title">质检管理</div>
-        <div class="quality-page-desc">车辆入厂质检查验，记录缺件扣款，生成质检报告</div>
+        <div class="quality-page-desc">车辆入厂质检，记录缺件扣款，生成质检报告</div>
       </div>
       <div class="quality-header-actions">
         <ElButton :loading="reportExporting" @click="handleExportReport">

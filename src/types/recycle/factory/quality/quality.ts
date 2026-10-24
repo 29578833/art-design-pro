@@ -570,7 +570,7 @@ export const QUALITY_TAB_CONFIG: QualityTabConfig[] = [
 
 /** 质检步骤 */
 export type QcStep = 0 | 1 | 2
-export const QC_STEP_LABELS = ['质检查验', '补充入场信息', '质检报告']
+export const QC_STEP_LABELS = ['质检', '入场查验', '质检报告']
 
 /** 查验类型（后端 inspection_type）：汽油/柴油 | 电混/太阳能 | 摩托车 */
 export type QcInspectionType = 'gasoline' | 'electric' | 'motorcycle'

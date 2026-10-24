@@ -406,7 +406,7 @@ export function buildDetailColumns(isService: boolean): SettlementGridColumn[] {
     },
     {
       field: 'qc_btn',
-      title: '质检查验信息',
+      title: '质检信息',
       width: 108,
       fixed: 'right',
       slots: { default: 'qc_btn' },

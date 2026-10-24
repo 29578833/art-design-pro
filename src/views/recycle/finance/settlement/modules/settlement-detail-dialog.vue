@@ -159,7 +159,7 @@
     </template>
   </ElDialog>
 
-  <!-- 质检查验报告 -->
+  <!-- 质检报告 -->
   <QualityReportDialog v-model:visible="qcVisible" :check-id="qcCheckId" />
 
   <!-- 车辆附件预览 -->
@@ -341,7 +341,7 @@
     return { rowspan: 1, colspan: 1 }
   }
 
-  /** 质检查验报告弹窗 */
+  /** 质检报告弹窗 */
   const qcVisible = ref(false)
   const qcCheckId = ref(0)
   async function openQcReport(row: SettlementBillVehicle) {
