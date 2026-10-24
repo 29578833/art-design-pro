@@ -149,10 +149,8 @@
                   </div>
                   <span class="qr-category-name">{{ cat.name }}</span>
                   <span class="qr-category-count">共 {{ cat.items.length }} 项</span>
-                  <span v-if="cat.missing > 0 || cat.damaged > 0" class="qr-category-problem">
-                    {{ cat.missing > 0 ? `缺失${cat.missing}` : '' }}
-                    {{ cat.missing > 0 && cat.damaged > 0 ? '·' : '' }}
-                    {{ cat.damaged > 0 ? `损坏${cat.damaged}` : '' }}
+                  <span v-if="cat.missing > 0" class="qr-category-problem">
+                    缺失{{ cat.missing }}
                   </span>
                   <span v-else class="qr-category-ok">全部完好</span>
                 </div>
@@ -179,7 +177,7 @@
                       </div>
                     </div>
                     <div class="qr-item-right">
-                      <span v-if="item.status !== 1" class="qr-item-deduct">
+                      <span v-if="item.status === 2" class="qr-item-deduct">
                         -¥{{ Number(item.deduction_amount || 0).toFixed(0) }}
                       </span>
                       <span class="qr-item-badge" :style="getItemBadgeStyle(item.status)">
@@ -192,9 +190,9 @@
             </div>
           </div>
 
-          <!-- ⑥ 缺损件扣款明细 -->
+          <!-- ⑥ 缺失件扣款明细 -->
           <div v-if="badItems.length > 0" class="qr-card">
-            <div class="qr-card-title">缺损件扣款明细</div>
+            <div class="qr-card-title">缺失件扣款明细</div>
             <table class="qr-deduct-table">
               <thead>
                 <tr>
@@ -327,12 +325,11 @@
   })
 
   const allItems = computed<QualityCheckItem[]>(() => detail.value?.items || [])
-  const badItems = computed(() => allItems.value.filter((i) => i.status === 2 || i.status === 3))
+  const badItems = computed(() => allItems.value.filter((i) => i.status === 2))
   const okCount = computed(() => allItems.value.filter((i) => i.status === 1).length)
   const missingCount = computed(() => allItems.value.filter((i) => i.status === 2).length)
-  const damagedCount = computed(() => allItems.value.filter((i) => i.status === 3).length)
 
-  const conclusionPass = computed(() => missingCount.value === 0 && damagedCount.value === 0)
+  const conclusionPass = computed(() => missingCount.value === 0)
 
   const vehicleFields = computed(() => {
     if (!detail.value) return []
@@ -374,12 +371,12 @@
   })
 
   const summaryStats = computed(() => {
-    const bad = missingCount.value + damagedCount.value
+    const bad = missingCount.value
     const deduct = Number(detail.value?.total_deduction || 0)
     return [
       { label: '检查总项', value: `${allItems.value.length}项`, color: '#595959' },
       { label: '完好件', value: `${okCount.value}项`, color: '#52C41A' },
-      { label: '缺失/损坏', value: `${bad}项`, color: bad > 0 ? '#FF4D4F' : '#52C41A' },
+      { label: '缺失件', value: `${bad}项`, color: bad > 0 ? '#FF4D4F' : '#52C41A' },
       {
         label: '预计扣款',
         value: `¥${deduct.toFixed(2)}`,
@@ -398,18 +395,17 @@
     return Array.from(map.entries()).map(([name, items]) => ({
       name,
       items,
-      missing: items.filter((i) => i.status === 2).length,
-      damaged: items.filter((i) => i.status === 3).length
+      missing: items.filter((i) => i.status === 2).length
     }))
   })
 
   const conclusionMainText = computed(() => {
     if (conclusionPass.value) return '车况正常，可进入原料入库流程'
-    return `存在${missingCount.value}件缺失、${damagedCount.value}件损坏，需扣款 ¥${Number(detail.value?.total_deduction || 0).toLocaleString()}`
+    return `存在${missingCount.value}件缺失，需扣款 ¥${Number(detail.value?.total_deduction || 0).toLocaleString()}`
   })
 
   const conclusionSubText = computed(() =>
-    conclusionPass.value ? '各部件完好，无缺失件' : '详见下方逐项明细'
+    conclusionPass.value ? '无缺失项，无需扣款' : '详见下方逐项明细'
   )
 
   const conclusionBannerStyle = computed(() => ({

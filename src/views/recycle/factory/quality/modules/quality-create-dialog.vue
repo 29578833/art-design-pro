@@ -83,6 +83,7 @@
 
           <div class="qc-legend">
             <span class="qc-legend-tag good">有（完好）</span>
+            <span class="qc-legend-tag none">无（不存在）</span>
             <span class="qc-legend-tag miss">缺（缺失）</span>
             <span class="qc-legend-hint">点击选择每个部件状态，缺失项自动计入扣款</span>
           </div>
@@ -122,6 +123,14 @@
                         @click="setItemPresent(item, cat.category_name)"
                       >
                         有
+                      </button>
+                      <button
+                        type="button"
+                        class="qc-result-btn none"
+                        :class="{ active: getItemNone(item, cat.category_name) }"
+                        @click="setItemNone(item, cat.category_name)"
+                      >
+                        无
                       </button>
                       <button
                         type="button"
@@ -235,15 +244,6 @@
                   重新签名
                 </button>
               </div>
-            </div>
-            <div class="qc-sign-meta">
-              <span class="qc-sign-muted">质检员：</span>
-              <span class="qc-sign-value">{{
-                inspectorName || queueItem?.inspector_name || '—'
-              }}</span>
-              <span class="qc-sign-meta-gap" />
-              <span class="qc-sign-muted">质检时间：</span>
-              <span class="qc-sign-value">{{ checkTimeText }}</span>
             </div>
           </div>
         </div>
@@ -471,10 +471,6 @@
               <div class="qc-summary-label">缺失件数</div>
               <div class="qc-summary-value" style="color: #ff4d4f">{{ missingCount }}项</div>
             </div>
-            <div class="qc-summary-card" style="background: #fff7e6">
-              <div class="qc-summary-label">损坏件数</div>
-              <div class="qc-summary-value" style="color: #fa8c16">{{ damagedCount }}项</div>
-            </div>
             <div class="qc-summary-card" style="background: #fff1f0">
               <div class="qc-summary-label">缺件扣款</div>
               <div class="qc-summary-value" style="color: #ff4d4f">
@@ -487,14 +483,11 @@
             <div class="qc-abnormal-title">质检异常清单</div>
             <div v-for="ab in abnormalItems" :key="ab.key" class="qc-abnormal-row">
               <div class="qc-abnormal-left">
-                <ArtSvgIcon
-                  :icon="ab.status === 2 ? 'ri:close-circle-line' : 'ri:error-warning-line'"
-                  :class="ab.status === 2 ? 'text-red' : 'text-orange'"
-                />
-                <span :class="ab.status === 2 ? 'text-red' : 'text-orange'">{{ ab.name }}</span>
-                <span class="qc-abnormal-type">（{{ ab.status === 2 ? '缺失' : '损坏' }}）</span>
+                <ArtSvgIcon icon="ri:close-circle-line" class="text-red" />
+                <span class="text-red">{{ ab.name }}</span>
+                <span class="qc-abnormal-type">（缺失）</span>
               </div>
-              <span v-if="ab.status === 2" class="qc-abnormal-amount">-¥{{ ab.amount }}</span>
+              <span class="qc-abnormal-amount">-¥{{ ab.amount }}</span>
             </div>
           </div>
 
@@ -516,9 +509,18 @@
               v-model="inspectorRemark"
               type="textarea"
               :rows="3"
-              placeholder="质检员备注说明（损坏情况说明、特殊处理建议等）"
+              placeholder="质检员备注说明（缺件情况说明、特殊处理建议等）"
               class="qc-remark-input"
             />
+          </div>
+          <div class="qc-sign-meta">
+            <span class="qc-sign-muted">质检员：</span>
+            <span class="qc-sign-value">{{
+              inspectorName || queueItem?.inspector_name || '—'
+            }}</span>
+            <span class="qc-sign-meta-gap" />
+            <span class="qc-sign-muted">质检时间：</span>
+            <span class="qc-sign-value">{{ checkTimeText }}</span>
           </div>
         </div>
       </div>
@@ -866,6 +868,10 @@
     return getItemStatus(item.id, item.item_name, cat) === 2
   }
 
+  function getItemNone(item: InspectionItem, cat: string) {
+    return getItemStatus(item.id, item.item_name, cat) === 3
+  }
+
   function setItemPresent(item: InspectionItem, cat: string) {
     const key = makeItemKey(item.id, item.item_name, cat)
     itemResults[key] = itemResults[key] === 1 ? null : 1
@@ -874,6 +880,11 @@
   function setItemMissing(item: InspectionItem, cat: string) {
     const key = makeItemKey(item.id, item.item_name, cat)
     itemResults[key] = itemResults[key] === 2 ? null : 2
+  }
+
+  function setItemNone(item: InspectionItem, cat: string) {
+    const key = makeItemKey(item.id, item.item_name, cat)
+    itemResults[key] = itemResults[key] === 3 ? null : 3
   }
 
   function getBatteryCount(item: InspectionItem, cat: string) {
@@ -918,14 +929,12 @@
 
   const missingCount = computed(() => Object.values(itemResults).filter((v) => v === 2).length)
 
-  const damagedCount = computed(() => Object.values(itemResults).filter((v) => v === 3).length)
-
   const totalDeduction = computed(() => {
     let total = 0
     for (const cat of inspectionCategories.value) {
       for (const item of cat.items || []) {
         const status = getItemStatus(item.id, item.item_name, cat.category_name)
-        if (status === 2 || status === 3) {
+        if (status === 2) {
           total += Number(item.deduction_amount || 0)
         }
       }
@@ -934,15 +943,14 @@
   })
 
   const abnormalItems = computed(() => {
-    const list: { key: string; name: string; status: ItemStatus; amount: number }[] = []
+    const list: { key: string; name: string; amount: number }[] = []
     for (const cat of inspectionCategories.value) {
       for (const item of cat.items || []) {
         const status = getItemStatus(item.id, item.item_name, cat.category_name)
-        if (status === 2 || status === 3) {
+        if (status === 2) {
           list.push({
             key: makeItemKey(item.id, item.item_name, cat.category_name),
             name: item.item_name,
-            status,
             amount: Number(item.deduction_amount || 0)
           })
         }
@@ -1958,6 +1966,11 @@
       color: #ff4d4f;
       background: #fff1f0;
     }
+
+    &.none {
+      color: #8c8c8c;
+      background: #f5f5f5;
+    }
   }
 
   .qc-legend-hint {
@@ -2100,6 +2113,17 @@
         border-color: #ff4d4f;
       }
     }
+
+    &.none {
+      color: #8c8c8c;
+      background: #f5f5f5;
+
+      &.active {
+        color: #fff;
+        background: #8c8c8c;
+        border-color: #8c8c8c;
+      }
+    }
   }
 
   .qc-deduct-bar {
@@ -2148,7 +2172,7 @@
 
   .qc-summary-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
     margin-bottom: 20px;
   }
@@ -2210,10 +2234,6 @@
 
   .text-red {
     color: #dc2626;
-  }
-
-  .text-orange {
-    color: #ea580c;
   }
 
   .qc-conclusion-section {

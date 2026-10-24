@@ -31,7 +31,7 @@ export function resolveDeliveryLabel(source?: {
 export type ConclusionType = 0 | 1 | 2 | 3 // 0未填写 1车况正常 2存在缺件 3需特殊处理
 
 /** 质检项目状态 */
-export type ItemStatus = 1 | 2 | 3 // 1完好 2缺失 3损坏
+export type ItemStatus = 1 | 2 | 3 // 1完好 2缺失 3无
 
 // ==================== 质检队列 ====================
 
@@ -106,7 +106,7 @@ export interface QualityReportItem {
   order_no?: string
   /** 车主姓名 */
   owner_name?: string
-  /** 缺失/损坏件数 */
+  /** 缺失件数 */
   missing_count?: number
   /** 送厂方式：self 自送 / tow 拖车 */
   delivery_type?: DeliveryType | string
@@ -127,7 +127,7 @@ export interface QualityCheckItem {
   item_name: string
   /** 分类 */
   item_category: string
-  /** 状态: 1完好 2缺失 3损坏 */
+  /** 状态: 1完好 2缺失 3无 */
   status: ItemStatus
   /** 损伤程度 */
   damage_level?: string
@@ -399,7 +399,7 @@ export interface QualityUpdateItemParams {
   item_name: string
   /** 分类名 */
   item_category: string
-  /** 状态: 1完好 2缺失 3损坏 */
+  /** 状态: 1完好 2缺失 3无 */
   status: ItemStatus
   /** 损伤程度 */
   damage_level?: string
@@ -550,7 +550,7 @@ export const CONCLUSION_CONFIG: Record<number, { label: string; color: string }>
 export const QC_ITEM_STATUS_LABEL: Record<number, string> = {
   1: '完好',
   2: '缺失',
-  3: '损坏'
+  3: '无（不存在）'
 }
 
 /** Tab类型 */
@@ -659,7 +659,7 @@ export const QC_ITEM_STATUS_CFG: Record<
 > = {
   1: { label: '完好', short: '完', color: '#52C41A', bg: '#F6FFED' },
   2: { label: '缺失', short: '缺', color: '#FF4D4F', bg: '#FFF1F0' },
-  3: { label: '损坏', short: '损', color: '#FA8C16', bg: '#FFF7E6' }
+  3: { label: '无（不存在）', short: '无', color: '#8C8C8C', bg: '#F5F5F5' }
 }
 
 /** 入场照片字段（对齐后端 5 类） */
